@@ -269,8 +269,8 @@ NstEXP typedef enum _Nst_IOFileFlag {
  *
  * @return The new object on success or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_iof_new(FILE *value, bool bin, bool read,
-                                 bool write, Nst_Encoding *encoding);
+NstEXP Nst_ObjRef *NstC Nst_iof_new(FILE *value, bool bin, bool read,
+                                    bool write, Nst_Encoding *encoding);
 /**
  * Creates a new `IOFile` object that is not a C file pointer.
  *
@@ -285,10 +285,10 @@ NstEXP Nst_Obj *NstC Nst_iof_new(FILE *value, bool bin, bool read,
  *
  * @return The new object on success or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_iof_new_fake(void *value, bool bin, bool read,
-                                      bool write, bool seek,
-                                      Nst_Encoding *encoding,
-                                      Nst_IOFuncSet func_set);
+NstEXP Nst_ObjRef *NstC Nst_iof_new_fake(void *value, bool bin, bool read,
+                                         bool write, bool seek,
+                                         Nst_Encoding *encoding,
+                                         Nst_IOFuncSet func_set);
 
 /* Get the `Nst_IOFuncSet` of a file. */
 NstEXP Nst_IOFuncSet *NstC Nst_iof_func_set(Nst_Obj *f);

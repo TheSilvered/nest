@@ -102,7 +102,7 @@ NstEXP bool NstC Nst_sb_push_char(Nst_StrBuilder *sb, char ch);
  *
  * @return The new object on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_from_sb(Nst_StrBuilder *sb);
+NstEXP Nst_ObjRef *NstC Nst_str_from_sb(Nst_StrBuilder *sb);
 /* Create a new `Nst_StrView` from a `Nst_StrBuilder`. */
 NstEXP Nst_StrView NstC Nst_sv_from_sb(Nst_StrBuilder *sb);
 

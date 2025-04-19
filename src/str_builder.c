@@ -110,7 +110,7 @@ bool Nst_sb_push_char(Nst_StrBuilder *sb, char ch)
     return true;
 }
 
-Nst_Obj *Nst_str_from_sb(Nst_StrBuilder *sb)
+Nst_ObjRef *Nst_str_from_sb(Nst_StrBuilder *sb)
 {
     sb->value = Nst_realloc_c(sb->value, sb->len + 1, u8, sb->cap + 1);
 

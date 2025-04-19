@@ -26,10 +26,10 @@ extern "C" {
  * @param is_module: whether the AST is of an imported module or of the main
  * file
  *
- * @return The compiled `Nst_InstList` or `NULL` if an error occurred. The
- * error is set.
+ * @return The compiled `Nst_InstList`. If an error occurred the resulting
+ * instruction list has no instructions. The error is set.
  */
-NstEXP Nst_InstList *NstC Nst_compile(Nst_Node *ast, bool is_module);
+NstEXP Nst_InstList NstC Nst_compile(Nst_Node *ast, bool is_module);
 
 #ifdef __cplusplus
 }

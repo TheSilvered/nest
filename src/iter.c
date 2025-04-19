@@ -27,7 +27,8 @@ static void destroy_iter_container(Nst_Obj *custom_obj)
     Nst_dec_ref(((_IterContainer *)Nst_obj_custom_data(custom_obj))->obj);
 }
 
-Nst_Obj *Nst_iter_new(Nst_Obj *start, Nst_Obj *next, Nst_Obj *value)
+Nst_ObjRef *Nst_iter_new(Nst_ObjRef *start, Nst_ObjRef *next,
+                         Nst_ObjRef *value)
 {
     Nst_assert(start->type == Nst_t.Func);
     Nst_assert(next->type == Nst_t.Func);
@@ -109,7 +110,7 @@ Nst_Obj *Nst_iter_value(Nst_Obj *iter)
     return ITER(iter)->value;
 }
 
-Nst_Obj *Nst_iter_range_new(i64 start, i64 stop, i64 step)
+Nst_ObjRef *Nst_iter_range_new(i64 start, i64 stop, i64 step)
 {
     if (step == 0) {
         Nst_error_setc_value("the step cannot be zero");
@@ -133,7 +134,7 @@ Nst_Obj *Nst_iter_range_new(i64 start, i64 stop, i64 step)
         range_data);
 }
 
-Nst_Obj *Nst_iter_seq_new(Nst_Obj *seq)
+Nst_ObjRef *Nst_iter_seq_new(Nst_Obj *seq)
 {
     Nst_assert(seq->type == Nst_t.Array || seq->type == Nst_t.Vector);
     _IterContainer data = {
@@ -154,7 +155,7 @@ Nst_Obj *Nst_iter_seq_new(Nst_Obj *seq)
         seq_data);
 }
 
-Nst_Obj *Nst_iter_str_new(Nst_Obj *str)
+Nst_ObjRef *Nst_iter_str_new(Nst_Obj *str)
 {
     Nst_assert(str->type == Nst_t.Str);
     _IterContainer data = {
@@ -175,7 +176,7 @@ Nst_Obj *Nst_iter_str_new(Nst_Obj *str)
         str_data);
 }
 
-Nst_Obj *Nst_iter_map_new(Nst_Obj *map)
+Nst_ObjRef *Nst_iter_map_new(Nst_Obj *map)
 {
     Nst_assert(map->type == Nst_t.Map);
     _IterContainer data = {

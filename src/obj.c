@@ -26,7 +26,7 @@ NstEXP typedef struct _Nst_TypeObj {
 
 #define TYPE(ptr) ((Nst_TypeObj *)(ptr))
 
-Nst_Obj *Nst_type_new(const char *name, Nst_ObjDstr dstr)
+Nst_ObjRef *Nst_type_new(const char *name, Nst_ObjDstr dstr)
 {
     Nst_assert_c(Nst_encoding_check(
         Nst_encoding(Nst_EID_EXT_UTF8),
@@ -46,8 +46,8 @@ Nst_Obj *Nst_type_new(const char *name, Nst_ObjDstr dstr)
     return NstOBJ(type);
 }
 
-Nst_Obj *Nst_cont_type_new(const char *name, Nst_ObjDstr dstr,
-                           Nst_ObjTrav trav)
+Nst_ObjRef *Nst_cont_type_new(const char *name, Nst_ObjDstr dstr,
+                              Nst_ObjTrav trav)
 {
     Nst_assert_c(Nst_encoding_check(
         Nst_encoding(Nst_EID_EXT_UTF8),
@@ -67,7 +67,7 @@ Nst_Obj *Nst_cont_type_new(const char *name, Nst_ObjDstr dstr,
     return NstOBJ(type);
 }
 
-Nst_Obj *_Nst_type_new_no_err(const char *name, Nst_ObjDstr dstr)
+Nst_ObjRef *_Nst_type_new_no_err(const char *name, Nst_ObjDstr dstr)
 {
     Nst_TypeObj *type = TYPE(Nst_raw_malloc(sizeof(Nst_TypeObj)));
     if (type == NULL)
@@ -131,7 +131,7 @@ static Nst_Obj *pop_p_head(usize size, Nst_Obj *type)
     return obj;
 }
 
-Nst_Obj *_Nst_obj_alloc(usize size, Nst_Obj *type)
+Nst_ObjRef *_Nst_obj_alloc(usize size, Nst_Obj *type)
 {
     Nst_assert(type->type == Nst_t.Type);
 
@@ -243,21 +243,21 @@ void Nst_obj_traverse(Nst_Obj *obj)
         trav(obj);
 }
 
-Nst_Obj *Nst_inc_ref(Nst_Obj *obj)
+Nst_ObjRef *Nst_inc_ref(Nst_Obj *obj)
 {
     Nst_assert(obj != NULL);
     obj->ref_count++;
     return obj;
 }
 
-Nst_Obj *Nst_ninc_ref(Nst_Obj *obj)
+Nst_ObjRef *Nst_ninc_ref(Nst_Obj *obj)
 {
     if (obj != NULL)
         return Nst_inc_ref(obj);
     return NULL;
 }
 
-void Nst_dec_ref(Nst_Obj *obj)
+void Nst_dec_ref(Nst_ObjRef *obj)
 {
     Nst_assert(obj != NULL);
     obj->ref_count--;
@@ -271,7 +271,7 @@ void Nst_dec_ref(Nst_Obj *obj)
     }
 }
 
-void Nst_ndec_ref(Nst_Obj *obj)
+void Nst_ndec_ref(Nst_ObjRef *obj)
 {
     if (obj != NULL)
         Nst_dec_ref(obj);

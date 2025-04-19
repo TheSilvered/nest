@@ -11,6 +11,7 @@
 
 #include "compiler.h"
 #include "map.h"
+#include "assembler.h"
 
 #define Nst_FUNC_IS_C(func) ((func)->flags & Nst_FLAG_FUNC_IS_C)
 
@@ -18,8 +19,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-Nst_Obj *_Nst_func_new(usize arg_num, Nst_InstList *bytecode);
-Nst_Obj *_Nst_func_new_outer_vars(Nst_Obj *func, Nst_Obj *vars);
+Nst_ObjRef *_Nst_func_new(Nst_Obj **arg_names, usize arg_num, Nst_Bytecode *bc);
+Nst_ObjRef *_Nst_func_new_outer_vars(Nst_Obj *func, Nst_Obj *vars);
 
 /**
  * Creates a new function object with a C function body.
@@ -31,7 +32,7 @@ Nst_Obj *_Nst_func_new_outer_vars(Nst_Obj *func, Nst_Obj *vars);
  *
  * @return The new function object or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_func_new_c(usize arg_num, Nst_NestCallable cbody);
+NstEXP Nst_ObjRef *NstC Nst_func_new_c(usize arg_num, Nst_NestCallable cbody);
 
 void _Nst_func_set_mod_globals(Nst_Obj *func, Nst_Obj *globals);
 
@@ -42,7 +43,7 @@ NstEXP Nst_Obj **NstC Nst_func_args(Nst_Obj *func);
 /* Gets the body of a C-function wrapper. */
 NstEXP Nst_NestCallable NstC Nst_func_c_body(Nst_Obj *func);
 /* Gets the body of a Nest function. */
-NstEXP Nst_InstList *NstC Nst_func_nest_body(Nst_Obj *func);
+NstEXP Nst_Bytecode *NstC Nst_func_nest_body(Nst_Obj *func);
 /**
  * @brief Gets the `_globals_` variable map of a function. No reference is
  * added. It may be `NULL`.

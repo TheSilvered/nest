@@ -13,6 +13,8 @@
 #include "function.h"
 #include "var_table.h"
 
+#define _Nst_V_STACK_MIN_SIZE 128
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
@@ -26,7 +28,7 @@ extern "C" {
  * expanded
  */
 NstEXP typedef struct _Nst_ValueStack {
-    Nst_Obj **stack;
+    Nst_ObjRef **stack;
     usize len;
     usize cap;
 } Nst_ValueStack;
@@ -43,10 +45,10 @@ NstEXP typedef struct _Nst_ValueStack {
  * @param cstack_len: the size of the catch stack when the function was called
  */
 NstEXP typedef struct _Nst_FuncCall {
-    Nst_Obj *func;
-    Nst_Obj *cwd;
+    Nst_ObjRef *func;
+    Nst_ObjRef *cwd;
     Nst_Span span;
-    Nst_VarTable *vt;
+    Nst_VarTable vt;
     i64 idx;
     usize cstack_len;
 } Nst_FuncCall;
@@ -77,7 +79,7 @@ NstEXP typedef struct _Nst_CallStack {
 NstEXP typedef struct _Nst_CatchFrame {
     usize f_stack_len;
     usize v_stack_len;
-    i64 inst_idx;
+    i64 idx;
 } Nst_CatchFrame;
 
 /**
@@ -94,22 +96,7 @@ NstEXP typedef struct _Nst_CatchStack {
 } Nst_CatchStack;
 
 /**
- * A structure representing a generic stack.
- *
- * @param stack: the pointer to the array of elements in the stack
- * @param len: the current size of the stack
- * @param cap: the maximum size of the stack before it needs to be expanded
- */
-NstEXP typedef struct _Nst_GenericStack {
-    void *stack;
-    usize len;
-    usize cap;
-} Nst_GenericStack;
-
-/**
- * Initializes a value stack.
- *
- * @param v_stack: the value stack to initialize
+ * Initialize a value stack.
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
@@ -131,7 +118,7 @@ NstEXP bool NstC Nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj);
  * @return The popped value. If the stack is empty `NULL` is returned. No error
  * is set.
  */
-NstEXP Nst_Obj *NstC Nst_vstack_pop(Nst_ValueStack *v_stack);
+NstEXP Nst_ObjRef *NstC Nst_vstack_pop(Nst_ValueStack *v_stack);
 /**
  * Peeks at the top value of a value stack.
  *
@@ -233,36 +220,6 @@ NstEXP Nst_CatchFrame NstC Nst_cstack_peek(Nst_CatchStack *c_stack);
 NstEXP Nst_CatchFrame NstC Nst_cstack_pop(Nst_CatchStack *c_stack);
 /* Destroys the contents of a catch stack. */
 NstEXP void NstC Nst_cstack_destroy(Nst_CatchStack *c_stack);
-
-/**
- * Initializes a new generic stack.
- *
- * @param g_stack: the stack to initialize
- * @param unit_size: the size in bytes of one element in the stack
- * @param starting_size: the initial number of elements in the stack
- *
- * @return `true` on success and `false` on failure. The error is set.
- */
-NstEXP bool NstC Nst_stack_init(Nst_GenericStack *g_stack, usize unit_size,
-                                usize starting_size);
-/**
- * Expands a generic stack if needed.
- *
- * @param g_stack: the stack to expand
- * @param unit_size: the size of one element in the stack
- *
- * @return `true` on success and `false` on failure. The error is set.
- */
-NstEXP bool NstC Nst_stack_expand(Nst_GenericStack *g_stack, usize unit_size);
-/**
- * Shrinks a runtime stack if needed.
- *
- * @param g_stack: the stack to shrink
- * @param min_size: the minimum size that the stack can reach
- * @param unit_size: the size of one element in the stack
- */
-NstEXP void NstC Nst_stack_shrink(Nst_GenericStack *g_stack, usize min_size,
-                                  usize unit_size);
 
 #ifdef __cplusplus
 }

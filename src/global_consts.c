@@ -253,7 +253,7 @@ Nst_Obj *Nst_true(void)
     return Nst_c.Bool_true;
 }
 
-Nst_Obj *Nst_true_ref(void)
+Nst_ObjRef *Nst_true_ref(void)
 {
     return Nst_inc_ref(Nst_c.Bool_true);
 }
@@ -263,7 +263,7 @@ Nst_Obj *Nst_false(void)
     return Nst_c.Bool_false;
 }
 
-Nst_Obj *Nst_false_ref(void)
+Nst_ObjRef *Nst_false_ref(void)
 {
     return Nst_inc_ref(Nst_c.Bool_false);
 }
@@ -273,7 +273,7 @@ Nst_Obj *Nst_null(void)
     return Nst_c.Null_null;
 }
 
-Nst_Obj *Nst_null_ref(void)
+Nst_ObjRef *Nst_null_ref(void)
 {
     return Nst_inc_ref(Nst_c.Null_null);
 }
@@ -283,7 +283,7 @@ Nst_Obj *Nst_iend(void)
     return Nst_c.IEnd_iend;
 }
 
-Nst_Obj *Nst_iend_ref(void)
+Nst_ObjRef *Nst_iend_ref(void)
 {
     return Nst_inc_ref(Nst_c.IEnd_iend);
 }

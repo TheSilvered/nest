@@ -28,19 +28,15 @@ extern "C" {
 NstEXP Nst_Node *NstC Nst_optimize_ast(Nst_Node *ast);
 
 /**
- * Optimizes bytecode.
+ * Optimizes an instruction list.
  *
- * @brief The bytecode is destroyed if an error occurs.
+ * @brief The instruction list is destroyed if an error occurs.
  *
- * @param bc: the bytecode to optimize
+ * @param ls: the instruction list to optimize
  * @param optimize_builtins: whether accesses to builtins such as Int and false
  * should be replaced by their values when they are not modified
- *
- * @return The optimized bytecode on success and `NULL` on failure. The error
- * is set.
  */
-NstEXP Nst_InstList *NstC Nst_optimize_bytecode(Nst_InstList *bc,
-                                                bool optimize_builtins);
+NstEXP void NstC Nst_optimize_ilist(Nst_InstList *ls, bool optimize_builtins);
 
 #ifdef __cplusplus
 }

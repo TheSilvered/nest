@@ -18,8 +18,6 @@ extern "C" {
 /**
  * Parses a list of tokens into an abstract syntax tree.
  *
- * @brief The list of tokens is destroyed when calling this function.
- *
  * @param tokens: the tokens to be parsed
  *
  * @return The AST or `NULL` on failure. The error is set.

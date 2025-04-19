@@ -24,7 +24,7 @@ extern "C" {
  *
  * @return The new object or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_map_new(void);
+NstEXP Nst_ObjRef *NstC Nst_map_new(void);
 /**
  * Creates a shallow copy of a map object.
  *
@@ -32,7 +32,7 @@ NstEXP Nst_Obj *NstC Nst_map_new(void);
  *
  * @return The copied map or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_map_copy(Nst_Obj *map);
+NstEXP Nst_ObjRef *NstC Nst_map_copy(Nst_Obj *map);
 
 void _Nst_map_destroy(Nst_Obj *map);
 
@@ -64,7 +64,7 @@ NstEXP bool NstC Nst_map_set(Nst_Obj *map, Nst_Obj *key, Nst_Obj *value);
  * @return The object associated with the key on success or `NULL` if the key
  * is not hashable or is not inside the map. No error is set.
  */
-NstEXP Nst_Obj *NstC Nst_map_get(Nst_Obj *map, Nst_Obj *key);
+NstEXP Nst_ObjRef *NstC Nst_map_get(Nst_Obj *map, Nst_Obj *key);
 /**
  * Drops a key from a map and returns its value.
  *
@@ -74,7 +74,7 @@ NstEXP Nst_Obj *NstC Nst_map_get(Nst_Obj *map, Nst_Obj *key);
  * @return The object associated with the removed key on success or `NULL` if
  * the key is not hashable or is not inside the map. No error is set.
  */
-NstEXP Nst_Obj *NstC Nst_map_drop(Nst_Obj *map, Nst_Obj *key);
+NstEXP Nst_ObjRef *NstC Nst_map_drop(Nst_Obj *map, Nst_Obj *key);
 
 /**
  * Inserts or modifies a value in the map.
@@ -95,7 +95,7 @@ NstEXP bool NstC Nst_map_set_str(Nst_Obj *map, const char *key, Nst_Obj *value);
  * @return The object associated with the key on success or `NULL` if the key
  * is not hashable or is not inside the map. No error is set.
  */
-NstEXP Nst_Obj *NstC Nst_map_get_str(Nst_Obj *map, const char *key);
+NstEXP Nst_ObjRef *NstC Nst_map_get_str(Nst_Obj *map, const char *key);
 /**
  * Drops a key from a map and returns its value.
  *
@@ -105,7 +105,7 @@ NstEXP Nst_Obj *NstC Nst_map_get_str(Nst_Obj *map, const char *key);
  * @return The object associated with the removed key on success or `NULL` if
  * the key is not hashable or is not inside the map. No error is set.
  */
-NstEXP Nst_Obj *NstC Nst_map_drop_str(Nst_Obj *map, const char *key);
+NstEXP Nst_ObjRef *NstC Nst_map_drop_str(Nst_Obj *map, const char *key);
 
 /**
  * Get the next key-value pair in the map given an index.

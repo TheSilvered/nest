@@ -1,7 +1,7 @@
 /**
  * @file lib_import.h
  *
- * @brief C/C++ library utilities
+ * @brief Library import manager & C/C++ library utilities
  *
  * @author TheSilvered
  */
@@ -266,7 +266,7 @@ extern "C" {
 #endif // !__cplusplus
 
 /* The signarture of a function used to get the constant of a library. */
-typedef Nst_Obj *(*Nst_ConstFunc)(void);
+typedef Nst_ObjRef *(*Nst_ConstFunc)(void);
 
 /**
  * Structure defining an object declaration for a C library.
@@ -306,7 +306,8 @@ NstEXP bool NstC Nst_extract_args(const char *types, usize arg_num,
  * @param data: the data to copy
  * @param name: the name of the object's type
  */
-NstEXP Nst_Obj *NstC _Nst_obj_custom(usize size, void *data, const char *name);
+NstEXP Nst_ObjRef *NstC _Nst_obj_custom(usize size, void *data,
+                                        const char *name);
 /**
  * `_Nst_obj_custom` which allows to specify a destructor.
  *
@@ -316,10 +317,51 @@ NstEXP Nst_Obj *NstC _Nst_obj_custom(usize size, void *data, const char *name);
  * @brief Warning: The destructor **must not** free the object. It should just
  * destroy its data.
  */
-NstEXP Nst_Obj *NstC _Nst_obj_custom_ex(usize size, void *data, const char *name,
-                                        Nst_ObjDstr dstr);
+NstEXP Nst_ObjRef *NstC _Nst_obj_custom_ex(usize size, void *data,
+                                           const char *name, Nst_ObjDstr dstr);
 /* Get the data of an object created with `Nst_obj_custom`. */
 NstEXP void *NstC Nst_obj_custom_data(Nst_Obj *obj);
+
+bool _Nst_import_init(void);
+void _Nst_import_quit(void);
+void _Nst_import_close_libs(void);
+bool _Nst_import_push_path(Nst_ObjRef *path);
+void _Nst_import_pop_path(void);
+void _Nst_import_clear_paths(void);
+
+/* Import a library given its path. The path is expanded by the function. */
+NstEXP Nst_ObjRef *NstC Nst_import_lib(const char *path);
+
+/**
+ * Returns the absolute path for a library to import.
+ *
+ * @brief If the library is not found on the given path, the standard library
+ * directory is checked.
+ *
+ * @param initial_path: the relative path used to import the library
+ * @param path_len: the length in bytes of `initial_path`
+ *
+ * @return The path on success and `NULL` on failure. The error is set. This
+ * function fails if the specified library is not found.
+ */
+NstEXP Nst_ObjRef *NstC _Nst_get_import_path(const char *initial_path,
+                                             usize path_len);
+/**
+* Returns the absolute path to a file system object.
+*
+* @brief Note: the absolute path is allocated on the heap and should be freed
+* with `Nst_free` when appropriate.
+*
+* @param file_path: the relative path to the object
+* @param buf: the buf where the absolute path is placed
+* @param file_part: where the start of the file name inside the file path is
+* put, this may be `NULL` in which case it is ignored
+*
+* @return The length in bytes of the absolute path or 0 on failure. The error
+* is set.
+*/
+NstEXP usize NstC Nst_get_full_path(const char *file_path, char **buf,
+                                    char **file_part);
 
 #ifdef __cplusplus
 }

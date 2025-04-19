@@ -47,7 +47,7 @@ NstEXP Nst_StrView NstC Nst_sv_from_str_slice(Nst_Obj *str, usize start_idx,
                                               usize end_idx);
 
 /* Create a new Nest `Str` object from an `Nst_StrView`. */
-NstEXP Nst_Obj *NstC Nst_str_from_sv(Nst_StrView sv);
+NstEXP Nst_ObjRef *NstC Nst_str_from_sv(Nst_StrView sv);
 
 /**
  * Iterate through a `Nst_StrView`, assuming it contains `UTF-8`-encoded data.

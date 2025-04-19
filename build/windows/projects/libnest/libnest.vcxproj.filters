@@ -108,7 +108,7 @@
     <ClInclude Include="..\..\..\..\include\dtoa.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\runner.h">
+    <ClInclude Include="..\..\..\..\include\program.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\nodes.h">
@@ -127,6 +127,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\dyn_array.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\assembler.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\source_loader.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -218,7 +224,7 @@
     <ClCompile Include="..\..\..\..\src\dtoa.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\runner.c">
+    <ClCompile Include="..\..\..\..\src\program.c">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\nodes.c">
@@ -237,6 +243,12 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\dyn_array.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\assembler.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\source_loader.c">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

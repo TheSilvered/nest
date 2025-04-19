@@ -9,14 +9,14 @@
 #define SET_INVALID_ESCAPE_ERROR                                              \
     Nst_error_setf_syntax(                                                    \
         "JSON: invalid string escape" FILE_INFO,                              \
-        state.pos.text->path,                                                 \
+        state.text->path == NULL ? "<Str>" : state.text->path,        \
         state.pos.line,                                                       \
         state.pos.col)
 
 #define SET_INVALID_VALUE_ERROR                                               \
     Nst_error_setf_syntax(                                                    \
         "JSON: invalid value" FILE_INFO,                                      \
-        state.pos.text->path,                                                 \
+        state.text->path == NULL ? "<Str>" : state.text->path,        \
         state.pos.line,                                                       \
         state.pos.col)
 
@@ -28,6 +28,7 @@ bool nan_and_inf = false;
 
 typedef struct _LexerState {
     Nst_Pos pos;
+    Nst_SourceText *text;
     usize idx;
     usize len;
     char *path;
@@ -45,7 +46,7 @@ static void advance()
         return;
     }
 
-    state.ch = state.pos.text->text[state.idx];
+    state.ch = state.text->text[state.idx];
     if (state.ch == '\n') {
         state.pos.line++;
         state.pos.col = 0;
@@ -56,7 +57,7 @@ static void go_back()
 {
     state.idx--;
     state.pos.col--;
-    state.ch = state.pos.text->text[state.idx];
+    state.ch = state.text->text[state.idx];
 }
 
 static Nst_Tok parse_json_str();
@@ -66,45 +67,28 @@ static bool ignore_comment();
 static bool check_ident(const char *name);
 
 Nst_DynArray json_tokenize(char *path, char *text, usize text_len,
-                           bool readonly_text, Nst_EncodingID encoding)
+                           Nst_EncodingID encoding)
 {
     Nst_DynArray tokens;
     Nst_da_init(&tokens, sizeof(Nst_Tok), 0);
-    Nst_SourceText src_text = {
-        .allocated = false,
-        .text = text,
-        .path = path,
-        .lines = nullptr,
-        .text_len = text_len,
-        .lines_len = 0
-    };
+    Nst_SourceText *src_text;
 
-    if (readonly_text) {
-        char *text_copy = Nst_malloc_c(text_len, char);
-        if (text_copy == nullptr)
-            return tokens;
-        memcpy(text_copy, text, text_len);
-        src_text.text = text_copy;
-    }
+    if (path == NULL) {
+        src_text = Nst_source_from_sv(Nst_sv_new((u8 *)text, text_len));
+    } else
+        src_text = Nst_source_from_file(path, encoding);
 
-    bool result = Nst_normalize_encoding(&src_text, encoding);
-    Nst_add_lines(&src_text);
-    if (!result || Nst_error_occurred()) {
-        Nst_free(src_text.text);
-        Nst_free(src_text.lines);
-        return tokens;
-    }
-
-    if (text_len == 0)
+    if (src_text == NULL)
         goto end;
 
-    state.pos.text = &src_text;
+    state.pos.text = NULL;
     state.pos.col = 1;
     state.pos.line = 1;
+    state.text = src_text;
     state.idx = 0;
-    state.len = src_text.text_len;
+    state.len = src_text->text_len;
     state.path = path;
-    state.ch = *src_text.text;
+    state.ch = *src_text->text;
 
     while (state.idx < state.len) {
         Nst_Tok tok = Nst_tok_invalid();
@@ -150,8 +134,7 @@ Nst_DynArray json_tokenize(char *path, char *text, usize text_len,
 
         if (tok.type == Nst_TT_INVALID || !Nst_da_append(&tokens, &tok)) {
             Nst_da_clear(&tokens, (Nst_Destructor)Nst_tok_destroy);
-            Nst_free(src_text.text);
-            Nst_free(src_text.lines);
+            Nst_source_text_destroy(src_text);
             return tokens;
         }
         advance();
@@ -159,8 +142,7 @@ Nst_DynArray json_tokenize(char *path, char *text, usize text_len,
 end:
     Nst_Tok eof_tok = Nst_tok_new(Nst_span_from_pos(state.pos), JSON_EOF, NULL);
     Nst_da_append(&tokens, &eof_tok);
-    Nst_free(src_text.text);
-    Nst_free(src_text.lines);
+    Nst_source_text_destroy(src_text);
     return tokens;
 }
 
@@ -187,7 +169,7 @@ static Nst_Tok parse_json_str()
                 Nst_sb_destroy(&sb);
                 Nst_error_setf_syntax(
                     "JSON: invalid character" FILE_INFO,
-                    state.pos.text->path,
+                    state.text->path,
                     state.pos.line,
                     state.pos.col);
                 return Nst_tok_invalid();
@@ -277,7 +259,7 @@ static bool check_ident(const char *name)
 
 static Nst_Tok parse_json_num()
 {
-    char *start_idx = state.pos.text->text + state.idx;
+    char *start_idx = state.text->text + state.idx;
     Nst_Pos start = state.pos;
     if (state.ch == '-')
         advance();

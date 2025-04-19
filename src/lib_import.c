@@ -3,6 +3,24 @@
 #include <string.h>
 #include "nest.h"
 
+#ifdef Nst_MSVC
+
+#include <windows.h>
+#define dlsym GetProcAddress
+#define dlopen LoadLibraryA
+#define dlclose FreeLibrary
+typedef HMODULE lib_t;
+
+#define PATH_MAX 4096
+
+#else
+
+#include <dlfcn.h>
+typedef void * lib_t;
+#define dlopen(lib) dlopen(lib, RTLD_LAZY)
+
+#endif // !__cplusplus
+
 /*
 
 Bit meaning of accepted_types:
@@ -717,12 +735,12 @@ bool Nst_extract_args(const char *types, usize arg_num, Nst_Obj **args, ...)
     return true;
 }
 
-Nst_Obj *_Nst_obj_custom(usize size, void *data, const char *name)
+Nst_ObjRef *_Nst_obj_custom(usize size, void *data, const char *name)
 {
     return _Nst_obj_custom_ex(size, data, name, NULL);
 }
 
-Nst_Obj *_Nst_obj_custom_ex(usize size, void *data, const char *name,
+Nst_ObjRef *_Nst_obj_custom_ex(usize size, void *data, const char *name,
                             Nst_ObjDstr dstr)
 {
     Nst_Obj *type = Nst_type_new(name, dstr);
@@ -740,3 +758,422 @@ void *Nst_obj_custom_data(Nst_Obj *obj)
 {
     return (void *)(obj + 1);
 }
+
+static Nst_DynArray lib_paths = { 0 };
+static Nst_DynArray loaded_libs = { 0 };
+static Nst_Obj *lib_handles = NULL;
+
+static void close_lib(lib_t *lib)
+{
+    dlclose(*lib);
+}
+
+bool _Nst_import_init(void)
+{
+    lib_handles = Nst_map_new();
+    if (lib_handles == NULL)
+        return false;
+
+    if (!Nst_da_init(&lib_paths, sizeof(Nst_Obj *), 10))
+        return false;
+    if (!Nst_da_init(&loaded_libs, sizeof(lib_t), 20))
+        return false;
+    return true;
+}
+
+void _Nst_import_quit(void)
+{
+    Nst_ndec_ref(lib_handles);
+    Nst_da_clear_p(&lib_paths, (Nst_Destructor)Nst_dec_ref);
+
+    for (usize i = 0; i < loaded_libs.len; i++) {
+        lib_t *lib = Nst_da_get(&loaded_libs, i);
+        void (*lib_quit)(void) = (void (*)(void))dlsym(*lib, "lib_quit");
+        if (lib_quit != NULL)
+            lib_quit();
+    }
+}
+
+void _Nst_import_close_libs(void)
+{
+    Nst_da_clear(&loaded_libs, (Nst_Destructor)close_lib);
+}
+
+bool _Nst_import_push_path(Nst_ObjRef *path)
+{
+    return Nst_da_append(&lib_paths, &path);
+}
+
+void _Nst_import_pop_path(void)
+{
+    Nst_da_pop_p(&lib_paths, (Nst_Destructor)Nst_dec_ref);
+}
+
+void _Nst_import_clear_paths(void)
+{
+    Nst_da_clear(&lib_paths, (Nst_Destructor)Nst_dec_ref);
+}
+
+static Nst_Obj *import_nest_lib(Nst_Obj *file_path);
+static Nst_Obj *import_c_lib(Nst_Obj *file_path);
+
+Nst_ObjRef *Nst_import_lib(const char *path)
+{
+    bool c_import = false;
+    usize path_len = strlen(path);
+
+    if (path_len > 6 && path[0] == '_' && path[1] == '_' && path[2] == 'C'
+        && path[3] == '_' && path[4] == '_' && path[5] == ':')
+    {
+        c_import = true;
+        path += 6; // skip __C__:
+        path_len -= 6;
+    }
+
+    Nst_Obj *import_path = _Nst_get_import_path(path, path_len);
+    if (import_path == NULL)
+        return NULL;
+
+    // Check if the module is in the import stack
+    for (usize i = 0; i < lib_paths.len; i++) {
+        Nst_Obj *lib_path = NstOBJ(Nst_da_get_p(&lib_paths, i));
+        if (Nst_str_compare(import_path, lib_path) == 0) {
+            Nst_dec_ref(import_path);
+            Nst_error_setc_import("circular import");
+            return NULL;
+        }
+    }
+
+    Nst_Obj *obj_map = Nst_map_get(lib_handles, import_path);
+    if (obj_map != NULL) {
+        Nst_dec_ref(import_path);
+        return obj_map;
+    }
+
+    if (!_Nst_import_push_path(import_path)) {
+        Nst_dec_ref(import_path);
+        return NULL;
+    }
+
+    if (c_import)
+        obj_map = import_c_lib(import_path);
+    else
+        obj_map = import_nest_lib(import_path);
+    _Nst_import_pop_path();
+
+    return obj_map;
+}
+
+static Nst_Obj *import_nest_lib(Nst_Obj *file_path)
+{
+    Nst_Obj *map = Nst_run_module((const char *)Nst_str_value(file_path));
+    if (map == NULL)
+        return NULL;
+
+    if (!Nst_map_set(lib_handles, file_path, map)) {
+        Nst_dec_ref(map);
+        return NULL;
+    }
+    return map;
+}
+
+static Nst_Obj *import_c_lib(Nst_Obj *file_path)
+{
+    void (*lib_quit_func)();
+    lib_t lib = dlopen((const char *)Nst_str_value(file_path));
+
+    if (!lib) {
+        Nst_dec_ref(file_path);
+#ifdef Nst_MSVC
+        Nst_error_setc_import("the file is not a valid DLL");
+#else
+        Nst_error_setc_import(dlerror());
+#endif // !__cplusplus
+        return NULL;
+    }
+
+    // Initialize library
+    Nst_Declr *(*lib_init)() = (Nst_Declr *(*)())dlsym(lib, "lib_init");
+    if (lib_init == NULL) {
+        Nst_dec_ref(file_path);
+        Nst_error_setc_import(
+            "the library does not specify a 'lib_init' function");
+        dlclose(lib);
+        return NULL;
+    }
+
+    Nst_Declr *obj_ptrs = lib_init();
+
+    if (obj_ptrs == NULL) {
+        Nst_dec_ref(file_path);
+        dlclose(lib);
+        if (!Nst_error_occurred())
+            Nst_error_setc_import("the module failed to initialize");
+        return NULL;
+    }
+
+    // Populate the function map
+    Nst_Obj *obj_map = Nst_map_new();
+    if (obj_map == NULL)
+        goto fail;
+
+    for (usize i = 0; obj_ptrs[i].ptr != NULL; i++) {
+        Nst_Declr obj_declr = obj_ptrs[i];
+        Nst_Obj *obj;
+        if (obj_declr.arg_num >= 0) {
+            obj = Nst_func_new_c(
+                obj_declr.arg_num,
+                (Nst_NestCallable)obj_declr.ptr);
+        } else
+            obj = ((Nst_ConstFunc)obj_declr.ptr)();
+
+        if (obj == NULL) {
+            Nst_dec_ref(obj_map);
+            goto fail;
+        }
+
+        if (!Nst_map_set_str(obj_map, obj_declr.name, obj)) {
+            Nst_dec_ref(obj_map);
+            Nst_dec_ref(obj);
+            goto fail;
+        }
+
+        Nst_dec_ref(obj);
+    }
+
+    if (!Nst_da_append(&loaded_libs, &lib)) {
+        Nst_dec_ref(obj_map);
+        goto fail;
+    }
+
+    if (!Nst_map_set(lib_handles, file_path, obj_map)) {
+        Nst_dec_ref(obj_map);
+        return NULL;
+    }
+    return obj_map;
+fail:
+    lib_quit_func = (void (*)())dlsym(lib, "lib_quit");
+    if (lib_quit_func)
+        lib_quit_func();
+    dlclose(lib);
+    return NULL;
+}
+
+static Nst_Obj *search_local_directory(const char *initial_path)
+{
+    char *file_path;
+    usize new_len = Nst_get_full_path(initial_path, &file_path, NULL);
+    if (file_path == NULL)
+        return NULL;
+
+    FILE *file = Nst_fopen_unicode(file_path, "rb");
+    if (file == NULL) {
+        Nst_free(file_path);
+        return NULL;
+    }
+    fclose(file);
+    return Nst_str_new_allocated((u8 *)file_path, new_len);
+}
+
+static Nst_Obj *rel_path_to_abs_path_str_if_found(u8 *file_path)
+{
+    FILE *file = Nst_fopen_unicode((const char *)file_path, "rb");
+    if (file == NULL) {
+        Nst_free(file_path);
+        return NULL;
+    }
+    fclose(file);
+
+    u8 *abs_path;
+    usize abs_path_len = Nst_get_full_path(
+        (const char *)file_path,
+        (char **)&abs_path,
+        NULL);
+    Nst_free(file_path);
+
+    if (abs_path == NULL)
+        return NULL;
+    return Nst_str_new_allocated(abs_path, abs_path_len);
+}
+
+#if defined(_DEBUG) && defined(Nst_MSVC)
+
+static Nst_Obj *search_debug_directory(const char *initial_path,
+                                       usize path_len)
+{
+    // little hack to get the absolute path without using it explicitly
+    const char *root_path = __FILE__;
+    const char *obj_ops_path_suffix = "src\\obj_ops.c";
+    const char *nest_files = "libs\\_nest_files\\";
+    usize root_len = strlen(root_path) - strlen(obj_ops_path_suffix);
+    usize nest_files_len = strlen(nest_files);
+    usize full_size = root_len + nest_files_len + path_len;
+
+    u8 *file_path = Nst_malloc_c(full_size + 1, u8);
+    if (file_path == NULL)
+        return NULL;
+
+    memcpy(file_path, root_path, root_len);
+    memcpy(file_path + root_len, nest_files, nest_files_len);
+    memcpy(file_path + root_len + nest_files_len, initial_path, path_len);
+    file_path[full_size] = '\0';
+
+    return rel_path_to_abs_path_str_if_found(file_path);
+}
+
+#endif
+
+static Nst_Obj *search_stdlib_directory(const char *initial_path,
+                                        usize path_len)
+{
+#if defined(_DEBUG) && defined(Nst_MSVC)
+    return search_debug_directory(initial_path, path_len);
+#else
+#ifdef Nst_MSVC
+
+    u8 *appdata = getenv("LOCALAPPDATA");
+    if (appdata == NULL) {
+        Nst_error_failed_alloc();
+        return NULL;
+    }
+    usize appdata_len = strlen(appdata);
+    const char *nest_files = "\\Programs\\nest\\nest_libs\\";
+    usize nest_files_len = strlen(nest_files);
+    usize tot_len = appdata_len + nest_files_len + path_len;
+
+    u8 *file_path = Nst_malloc_c(tot_len + 1, u8);
+    if (file_path == NULL)
+        return NULL;
+    sprintf(file_path, "%s%s%s", appdata, nest_files, initial_path);
+
+#else
+
+    const char *nest_files = "/usr/lib/nest/";
+    usize nest_files_len = strlen(nest_files);
+    usize tot_len = nest_files_len + path_len;
+
+    u8 *file_path = Nst_malloc_c(tot_len + 1, u8);
+    if (file_path == NULL)
+        return NULL;
+    sprintf((char *)file_path, "%s%s", nest_files, initial_path);
+
+#endif // !Nst_MSVC
+
+    return rel_path_to_abs_path_str_if_found(file_path);
+#endif
+}
+
+Nst_Obj *_Nst_get_import_path(const char *initial_path, usize path_len)
+{
+    Nst_Obj *full_path = search_local_directory(initial_path);
+    if (full_path != NULL)
+        return full_path;
+    else if (Nst_error_occurred())
+        return NULL;
+
+    full_path = search_stdlib_directory(initial_path, path_len);
+
+    if (Nst_error_occurred())
+        return NULL;
+    else if (full_path == NULL) {
+        Nst_error_setf_value("file '%.4096s' not found", initial_path);
+        return NULL;
+    }
+    return full_path;
+}
+
+usize Nst_get_full_path(const char *file_path, char **buf, char **file_part)
+{
+    *buf = NULL;
+    if (file_part != NULL)
+        *file_part = NULL;
+
+#ifdef Nst_MSVC
+    wchar_t *wide_full_path = Nst_malloc_c(PATH_MAX, wchar_t);
+    if (wide_full_path == NULL)
+        return 0;
+    wchar_t *wide_file_path = Nst_char_to_wchar_t(file_path, 0);
+    if (wide_file_path == NULL) {
+        Nst_free(wide_full_path);
+        return 0;
+    }
+
+    DWORD full_path_len = GetFullPathNameW(
+        wide_file_path,
+        PATH_MAX,
+        wide_full_path,
+        NULL);
+
+    if (full_path_len == 0) {
+        Nst_free(wide_full_path);
+        Nst_free(wide_file_path);
+        Nst_error_setf_value("file '%.4096s' not found", file_path);
+        return 0;
+    }
+
+    if (full_path_len > PATH_MAX) {
+        Nst_free(wide_full_path);
+        wide_full_path = Nst_malloc_c(full_path_len + 1, wchar_t);
+        if (wide_full_path == NULL) {
+            Nst_free(wide_file_path);
+            return 0;
+        }
+        full_path_len = GetFullPathNameW(
+            wide_file_path,
+            full_path_len + 1,
+            wide_full_path,
+            NULL);
+
+        if (full_path_len == 0) {
+            Nst_free(wide_full_path);
+            Nst_free(wide_file_path);
+            Nst_error_setf_value("file '%.4096s' not found", file_path);
+            return 0;
+        }
+    }
+    Nst_free(wide_file_path);
+
+    char *full_path = Nst_wchar_t_to_char(wide_full_path, full_path_len);
+    Nst_free(wide_full_path);
+    if (full_path == NULL)
+        return 0;
+
+    if (file_part != NULL) {
+        *file_part = strrchr(full_path, '\\');
+
+        if (*file_part == NULL)
+            *file_part = full_path;
+        else
+            (*file_part)++;
+    }
+
+    *buf = full_path;
+    return full_path_len;
+
+#else
+
+    char *path = Nst_malloc_c(PATH_MAX, char);
+    if (path == NULL)
+        return 0;
+
+    char *result = realpath(file_path, path);
+
+    if (result == NULL) {
+        Nst_free(path);
+        return 0;
+    }
+
+    if (file_part != NULL) {
+        *file_part = strrchr(path, '/');
+
+        if (*file_part == NULL)
+            *file_part = path;
+        else
+            (*file_part)++;
+    }
+
+    *buf = path;
+    return strlen(path);
+#endif // !Nst_MSVC
+}
+

@@ -127,7 +127,7 @@ NstEXP typedef struct _Nst_NodeData_Fl {
 
 /* The data for a `Nst_NT_FD` node. */
 NstEXP typedef struct _Nst_NodeData_Fd {
-    Nst_Obj *name;
+    Nst_ObjRef *name;
     Nst_DynArray argument_names;
     struct _Nst_Node *body;
 } Nst_NodeData_Fd;
@@ -149,7 +149,7 @@ NstEXP typedef struct _Nst_NodeData_Sw {
 NstEXP typedef struct _Nst_NodeData_Tc {
     struct _Nst_Node *try_body;
     struct _Nst_Node *catch_body;
-    Nst_Obj *error_name;
+    Nst_ObjRef *error_name;
 } Nst_NodeData_Tc;
 
 /* The data for a `Nst_NT_WS` node. */
@@ -190,7 +190,7 @@ NstEXP typedef struct _Nst_NodeData_Ml {
 
 /* The data for a `Nst_NT_VL` node. */
 NstEXP typedef struct _Nst_NodeData_Vl {
-    Nst_Obj *value;
+    Nst_ObjRef *value;
 } Nst_NodeData_Vl;
 /* The data for a `Nst_NT_AC` node. */
 NstEXP typedef struct _Nst_NodeData_Ac {

@@ -21,7 +21,7 @@ static bool resize_vector(Nst_Obj *vect);
 static Nst_SeqObj *new_seq_empty(usize len, usize size, Nst_Obj *type);
 static Nst_SeqObj *new_array(usize len);
 static Nst_SeqObj *new_vector(usize len);
-static Nst_Obj *new_seq(usize len, usize size, Nst_Obj *type);
+static Nst_ObjRef *new_seq(usize len, usize size, Nst_Obj *type);
 static void seq_from_objs(usize len, Nst_SeqObj *seq, Nst_Obj **objs, bool ref);
 static void seq_create(usize len, Nst_SeqObj *seq, va_list args);
 static Nst_SeqObj *seq_create_c(Nst_SeqObj *seq, const char *fmt, va_list args);
@@ -62,7 +62,7 @@ static Nst_SeqObj *new_vector(usize len)
     return new_seq_empty(len, size, Nst_t.Vector);
 }
 
-static Nst_Obj *new_seq(usize len, usize size, Nst_Obj *type)
+static Nst_ObjRef *new_seq(usize len, usize size, Nst_Obj *type)
 {
     Nst_SeqObj *seq = new_seq_empty(len, size, type);
     if (seq == NULL)
@@ -72,12 +72,12 @@ static Nst_Obj *new_seq(usize len, usize size, Nst_Obj *type)
     return NstOBJ(seq);
 }
 
-Nst_Obj *Nst_array_new(usize len)
+Nst_ObjRef *Nst_array_new(usize len)
 {
     return new_seq(len, len, Nst_t.Array);
 }
 
-Nst_Obj *Nst_vector_new(usize len)
+Nst_ObjRef *Nst_vector_new(usize len)
 {
     usize size = (usize)(len * _Nst_VECTOR_GROWTH_RATIO);
 
@@ -85,6 +85,16 @@ Nst_Obj *Nst_vector_new(usize len)
         size = _Nst_VECTOR_MIN_CAP;
 
     return new_seq(len, size, Nst_t.Vector);
+}
+
+Nst_ObjRef *_Nst_array_new_empty(usize len)
+{
+    return NstOBJ(new_array(len));
+}
+
+Nst_ObjRef *_Nst_vector_new_empty(usize len)
+{
+    return NstOBJ(new_vector(len));
 }
 
 static void seq_from_objs(usize len, Nst_SeqObj *seq, Nst_Obj **objs, bool ref)
@@ -96,7 +106,7 @@ static void seq_from_objs(usize len, Nst_SeqObj *seq, Nst_Obj **objs, bool ref)
         Nst_inc_ref(objs[i]);
 }
 
-Nst_Obj *Nst_array_from_objs(usize len, Nst_Obj **objs)
+Nst_ObjRef *Nst_array_from_objs(usize len, Nst_Obj **objs)
 {
     Nst_SeqObj *array = new_array(len);
     if (array == NULL)
@@ -105,7 +115,7 @@ Nst_Obj *Nst_array_from_objs(usize len, Nst_Obj **objs)
     return NstOBJ(array);
 }
 
-Nst_Obj *Nst_vector_from_objs(usize len, Nst_Obj **objs)
+Nst_ObjRef *Nst_vector_from_objs(usize len, Nst_Obj **objs)
 {
     Nst_SeqObj *vect = new_vector(len);
     if (vect == NULL)
@@ -114,7 +124,7 @@ Nst_Obj *Nst_vector_from_objs(usize len, Nst_Obj **objs)
     return NstOBJ(vect);
 }
 
-Nst_Obj *Nst_array_from_objsn(usize len, Nst_Obj **objs)
+Nst_ObjRef *Nst_array_from_objsn(usize len, Nst_ObjRef **objs)
 {
     Nst_SeqObj *array = new_array(len);
     if (array == NULL)
@@ -123,7 +133,7 @@ Nst_Obj *Nst_array_from_objsn(usize len, Nst_Obj **objs)
     return NstOBJ(array);
 }
 
-Nst_Obj *Nst_vector_from_objsn(usize len, Nst_Obj **objs)
+Nst_ObjRef *Nst_vector_from_objsn(usize len, Nst_ObjRef **objs)
 {
     Nst_SeqObj *vect = new_vector(len);
     if (vect == NULL)
@@ -149,7 +159,7 @@ static void seq_create(usize len, Nst_SeqObj *seq, va_list args)
     }
 }
 
-Nst_Obj *Nst_array_create(usize len, ...)
+Nst_ObjRef *Nst_array_create(usize len, ...)
 {
     Nst_SeqObj *array = new_array(len);
     va_list args;
@@ -159,7 +169,7 @@ Nst_Obj *Nst_array_create(usize len, ...)
     return NstOBJ(array);
 }
 
-Nst_Obj *Nst_vector_create(usize len, ...)
+Nst_ObjRef *Nst_vector_create(usize len, ...)
 {
     Nst_SeqObj *vector = new_vector(len);
     va_list args;
@@ -247,7 +257,7 @@ failed:
     return NULL;
 }
 
-Nst_Obj *Nst_array_create_c(const char *fmt, ...)
+Nst_ObjRef *Nst_array_create_c(const char *fmt, ...)
 {
     usize len = strlen(fmt);
     Nst_SeqObj *array = new_array(len);
@@ -258,7 +268,7 @@ Nst_Obj *Nst_array_create_c(const char *fmt, ...)
     return NstOBJ(array);
 }
 
-Nst_Obj *Nst_vector_create_c(const char *fmt, ...)
+Nst_ObjRef *Nst_vector_create_c(const char *fmt, ...)
 {
     usize len = strlen(fmt);
     Nst_SeqObj *vector = new_vector(len);
@@ -269,7 +279,7 @@ Nst_Obj *Nst_vector_create_c(const char *fmt, ...)
     return NstOBJ(vector);
 }
 
-Nst_Obj *Nst_seq_copy(Nst_Obj *seq)
+Nst_ObjRef *Nst_seq_copy(Nst_Obj *seq)
 {
     assert_sequence(seq);
     return seq->type == Nst_t.Array
@@ -346,7 +356,7 @@ void Nst_seq_setf(Nst_Obj *seq, usize idx, Nst_Obj *val)
     SEQ(seq)->objs[idx] = val;
 }
 
-bool Nst_seq_setn(Nst_Obj *seq, i64 idx, Nst_Obj *val)
+bool Nst_seq_setn(Nst_Obj *seq, i64 idx, Nst_ObjRef *val)
 {
     assert_sequence(seq);
     if (idx < 0)
@@ -367,7 +377,7 @@ bool Nst_seq_setn(Nst_Obj *seq, i64 idx, Nst_Obj *val)
     return true;
 }
 
-void Nst_seq_setnf(Nst_Obj *seq, usize idx, Nst_Obj *val)
+void Nst_seq_setnf(Nst_Obj *seq, usize idx, Nst_ObjRef *val)
 {
     assert_sequence(seq);
     Nst_assert(idx < SEQ(seq)->len);
@@ -375,7 +385,7 @@ void Nst_seq_setnf(Nst_Obj *seq, usize idx, Nst_Obj *val)
     SEQ(seq)->objs[idx] = val;
 }
 
-Nst_Obj *Nst_seq_get(Nst_Obj *seq, i64 idx)
+Nst_ObjRef *Nst_seq_get(Nst_Obj *seq, i64 idx)
 {
     assert_sequence(seq);
     if (idx < 0)
@@ -392,7 +402,7 @@ Nst_Obj *Nst_seq_get(Nst_Obj *seq, i64 idx)
     return Nst_inc_ref(SEQ(seq)->objs[idx]);
 }
 
-Nst_Obj *Nst_seq_getf(Nst_Obj *seq, usize idx)
+Nst_ObjRef *Nst_seq_getf(Nst_Obj *seq, usize idx)
 {
     assert_sequence(seq);
     Nst_assert(idx < SEQ(seq)->len);
@@ -501,7 +511,7 @@ bool Nst_vector_remove(Nst_Obj *vect, Nst_Obj *val)
     return true;
 }
 
-Nst_Obj *Nst_vector_pop(Nst_Obj *vect, usize quantity)
+Nst_ObjRef *Nst_vector_pop(Nst_Obj *vect, usize quantity)
 {
     assert_vector(vect);
     if (SEQ(vect)->len == 0)

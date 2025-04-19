@@ -9,7 +9,7 @@
 #ifndef ENCODING_H
 #define ENCODING_H
 
-#include "error.h"
+#include "typedefs.h"
 
 /* Maximum size of a multi-byte character across all supported encodings. */
 #define Nst_ENCODING_MULTIBYTE_MAX_SIZE 4
@@ -67,8 +67,8 @@ NstEXP typedef enum _Nst_EncodingID {
 } Nst_EncodingID;
 
 /**
- * @brief The signature of a function that checks the length of the first
- * character in a string of a certain encoding.
+ * The signature of a function that checks the length of the first character in
+ * a string of a certain encoding.
  *
  * @brief Note: if the length is unknown but it is certain that the string
  * contains at least one character you can use

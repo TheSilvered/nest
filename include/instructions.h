@@ -13,19 +13,11 @@
 #include "error.h"
 #include "llist.h"
 
-/* Checks whether a given instruction ID represents a jump instruction. */
-#define Nst_INST_IS_JUMP(inst_id)                                             \
-    ((inst_id) >= Nst_IC_JUMP && (inst_id) <= Nst_IC_PUSH_CATCH)
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-// IMPORTANT when changing the order of the instructions, chance the order of
-// the functions in inst_func in interpreter.c
-
-/* Instruction IDs in the Nest virtual machine. */
-NstEXP typedef enum _Nst_InstID {
+NstEXP typedef enum _Nst_InstCode {
     Nst_IC_NO_OP,
     Nst_IC_POP_VAL,
     Nst_IC_FOR_START,
@@ -34,13 +26,6 @@ NstEXP typedef enum _Nst_InstID {
     Nst_IC_RETURN_VARS,
     Nst_IC_SET_VAL_LOC,
     Nst_IC_SET_CONT_LOC,
-    Nst_IC_JUMP,
-    Nst_IC_JUMPIF_T,
-    Nst_IC_JUMPIF_F,
-    Nst_IC_JUMPIF_ZERO,
-    Nst_IC_JUMPIF_IEND,
-    Nst_IC_PUSH_CATCH,
-    Nst_IC_HASH_CHECK,
     Nst_IC_THROW_ERR,
     Nst_IC_POP_CATCH,
     Nst_IC_SET_VAL,
@@ -48,6 +33,7 @@ NstEXP typedef enum _Nst_InstID {
     Nst_IC_PUSH_VAL,
     Nst_IC_SET_CONT_VAL,
     Nst_IC_OP_CALL,
+    Nst_IC_OP_SEQ_CALL,
     Nst_IC_OP_CAST,
     Nst_IC_OP_RANGE,
     Nst_IC_STACK_OP,
@@ -57,7 +43,8 @@ NstEXP typedef enum _Nst_InstID {
     Nst_IC_DEC_INT,
     Nst_IC_NEW_INT,
     Nst_IC_DUP,
-    Nst_IC_ROT,
+    Nst_IC_ROT_2,
+    Nst_IC_ROT_3,
     Nst_IC_MAKE_ARR,
     Nst_IC_MAKE_ARR_REP,
     Nst_IC_MAKE_VEC,
@@ -65,94 +52,67 @@ NstEXP typedef enum _Nst_InstID {
     Nst_IC_MAKE_MAP,
     Nst_IC_MAKE_FUNC,
     Nst_IC_SAVE_ERROR,
-    Nst_IC_UNPACK_SEQ
-} Nst_InstID;
+    Nst_IC_UNPACK_SEQ,
+    Nst_IC_JUMP,
+    Nst_IC_JUMPIF_T,
+    Nst_IC_JUMPIF_F,
+    Nst_IC_JUMPIF_ZERO,
+    Nst_IC_JUMPIF_IEND,
+    Nst_IC_PUSH_CATCH
+} Nst_InstCode;
 
-/**
- * The structure representing an instruction in Nest.
- *
- * @param id: the ID of the instruction
- * @param int_val: an integer value used by the instruction
- * @param val: an object used by the instruction
- * @param span: the span of the instruction
- */
 NstEXP typedef struct _Nst_Inst {
-    Nst_InstID id;
-    i64 int_val;
-    Nst_Obj *val;
+    Nst_InstCode code;
     Nst_Span span;
+    i64 val;
 } Nst_Inst;
 
-/**
- * The structure representing a list of instructions in Nest.
- *
- * @param total_size: the total number of instructions in the list
- * @param instructions: the array of instructions
- * @param functions: the list of functions declared withing the bytecode
- */
 NstEXP typedef struct _Nst_InstList {
-    usize ref_count;
-    usize total_size;
-    Nst_Inst *instructions;
-    Nst_LList *functions;
+    Nst_DynArray instructions;
+    Nst_DynArray objects;
+    Nst_DynArray functions;
 } Nst_InstList;
 
-/**
- * Creates a new instruction on the heap.
- *
- * @param id: the id of the instruction to create
- * @param start: the start position of the instruction
- * @param end: the end position of the instruction
- *
- * @return The new instruction or `NULL` on failure. The error is set.
- */
-NstEXP Nst_Inst *NstC Nst_inst_new(Nst_InstID id, Nst_Span span);
-/**
- * Creates a new instruction on the heap with a Nest object value.
- *
- * @brief The reference count of `val` is increased.
- *
- * @param id: the id of the instruction to create
- * @param val: the Nest object value
- * @param start: the start position of the instruction
- * @param end: the end position of the instruction
- *
- * @return The new instruction or `NULL` on failure. The error is set.
- */
-NstEXP Nst_Inst *NstC Nst_inst_new_val(Nst_InstID id, Nst_Obj *val,
-                                       Nst_Span span);
-/**
- * Creates a new instruction on the heap with an integer value.
- *
- * @param id: the id of the instruction to create
- * @param int_val: the integer value
- * @param start: the start position of the instruction
- * @param end: the end position of the instruction
- *
- * @return The new instruction or `NULL` on failure. The error is set.
- */
-NstEXP Nst_Inst *NstC Nst_inst_new_int(Nst_InstID id, i64 int_val,
-                                       Nst_Span span);
+NstEXP typedef struct _Nst_FuncPrototype {
+    Nst_InstList ilist;
+    Nst_ObjRef **arg_names;
+    usize arg_num;
+} Nst_FuncPrototype;
 
-/* Destroys a `Nst_Inst` allocated on the heap. */
-NstEXP void NstC Nst_inst_destroy(Nst_Inst *inst);
+NstEXP bool NstC Nst_ic_is_jump(Nst_InstCode code);
 
-/* Creates a new `Nst_InstList` from a list of instructions. */
-NstEXP Nst_InstList *NstC Nst_inst_list_new(Nst_LList *instructions);
-/* Copy a `Nst_InstList`. */
-NstEXP Nst_InstList *NstC Nst_inst_list_copy(Nst_InstList *inst_list);
+NstEXP bool NstC Nst_ilist_init(Nst_InstList *list);
+NstEXP void NstC Nst_ilist_destroy(Nst_InstList *list);
 
-/* Destroys a `Nst_InstList`. */
-NstEXP void NstC Nst_inst_list_destroy(Nst_InstList *inst_list);
+NstEXP bool NstC Nst_ilist_add(Nst_InstList *list, Nst_InstCode code,
+                               Nst_Span span);
 
-/**
- * Prints an `Nst_InstList`.
- *
- * @brief This function is called when using the -b option.
- *
- * @param ls: the instruction list to print, it is expected to be valid
- */
-NstEXP void NstC Nst_inst_list_print(Nst_InstList *ls);
+NstEXP bool NstC Nst_ilist_add_ex(Nst_InstList *list, Nst_InstCode code,
+                                  i64 val, Nst_Span span);
+
+NstEXP isize NstC Nst_ilist_add_obj(Nst_InstList *list, Nst_ObjRef *obj);
+NstEXP isize NstC Nst_ilist_add_func(Nst_InstList *list,
+                                     Nst_FuncPrototype *fp);
+
+NstEXP Nst_Inst *NstC Nst_ilist_get_inst(Nst_InstList *list, usize idx);
+NstEXP Nst_Obj *NstC Nst_ilist_get_inst_obj(Nst_InstList *list, usize idx);
+NstEXP Nst_FuncPrototype *NstC Nst_ilist_get_inst_func(Nst_InstList *list,
+                                                       usize idx);
+NstEXP Nst_Obj *NstC Nst_ilist_get_obj(Nst_InstList *list, usize idx);
+NstEXP Nst_FuncPrototype *NstC Nst_ilist_get_func(Nst_InstList *list,
+                                                  usize idx);
+
+NstEXP void NstC Nst_ilist_set(Nst_InstList *list, usize idx,
+                               Nst_InstCode code);
+NstEXP void NstC Nst_ilist_set_ex(Nst_InstList *list, usize idx,
+                                  Nst_InstCode code, i64 val);
+NstEXP usize NstC Nst_ilist_len(Nst_InstList *list);
+
+NstEXP bool NstC Nst_fprototype_init(Nst_FuncPrototype *fp, Nst_InstList ls,
+                                     usize arg_num);
+NstEXP void NstC Nst_fprototype_destroy(Nst_FuncPrototype *fp);
+
+NstEXP void NstC Nst_ilist_print(Nst_InstList *list);
 
 #ifdef __cplusplus
 }

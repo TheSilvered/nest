@@ -24,7 +24,8 @@
     "  -V --version          prints the version of Nest being used\n"                    \
     "  -t --tokens           prints the list of tokens of the program\n"                 \
     "  -a --ast              prints the abstract syntax tree of the program\n"           \
-    "  -b --bytecode         prints the byte code of the program\n"                      \
+    "  -i --instructions     prints the instructions of the program\n"                   \
+    "  -b --bytecode         prints the bytecode of the program\n"                       \
     "  -f --force-execution  executes the program even when -t, -a or -b are used\n"     \
     "  -D --no-default       does not set or optimize default variables such as\n"       \
     "                        'true' or 'Int'; this does not affect the optimization\n"   \
@@ -96,6 +97,8 @@ static i32 long_arg(char *arg, Nst_CLArgs *cl_args)
         cl_args->print_tokens = true;
     else if (strcmp(arg, "--ast") == 0)
         cl_args->print_ast = true;
+    else if (strcmp(arg, "--instructions") == 0)
+        cl_args->print_ast = true;
     else if (strcmp(arg, "--bytecode") == 0)
         cl_args->print_bytecode = true;
     else if (strcmp(arg, "--force-execution") == 0)
@@ -160,12 +163,13 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
 
         for (i32 j = 1; j < (i32)arg_len; j++) {
             switch (arg[j]) {
-            case 't': cl_args->print_tokens    = true; break;
-            case 'a': cl_args->print_ast       = true; break;
-            case 'b': cl_args->print_bytecode  = true; break;
-            case 'f': cl_args->force_execution = true; break;
-            case 'D': cl_args->no_default      = true; break;
-            case 'm': supports_color           = false;break;
+            case 't': cl_args->print_tokens       = true; break;
+            case 'a': cl_args->print_ast          = true; break;
+            case 'i': cl_args->print_instructions = true; break;
+            case 'b': cl_args->print_bytecode     = true; break;
+            case 'f': cl_args->force_execution    = true; break;
+            case 'D': cl_args->no_default         = true; break;
+            case 'm': supports_color              = false;break;
             case 'h':
             case '?':
                 printf(HELP_MESSAGE);
@@ -185,7 +189,8 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
                     printf("\n" ENCODING_MESSAGE);
                     return -1;
                 }
-                cl_args->encoding = Nst_encoding_to_single_byte(cl_args->encoding);
+                cl_args->encoding =
+                    Nst_encoding_to_single_byte(cl_args->encoding);
                 j = (i32)arg_len;
                 break;
             case 'O': {
@@ -199,7 +204,7 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
                     return -1;
                 }
 
-                i32 level = arg[j + 1] - '0';
+                u8 level = arg[j + 1] - '0';
 
                 if (level < 0 || level > 3) {
                     printf("Invalid option: -O%c\n", arg[j + 1]);

@@ -40,7 +40,7 @@ NstEXP typedef struct _Nst_MapObj {
 
 static bool resize_map(Nst_MapObj *map, bool force_item_reset);
 
-Nst_Obj *Nst_map_new(void)
+Nst_ObjRef *Nst_map_new(void)
 {
     Nst_MapObj *map = Nst_obj_alloc(Nst_MapObj, Nst_t.Map);
     if (map == NULL)
@@ -195,7 +195,7 @@ bool Nst_map_set(Nst_Obj *map, Nst_Obj *key, Nst_Obj *value)
     return true;
 }
 
-Nst_Obj *Nst_map_get(Nst_Obj *map, Nst_Obj *key)
+Nst_ObjRef *Nst_map_get(Nst_Obj *map, Nst_Obj *key)
 {
     Nst_assert(map->type == Nst_t.Map);
     i32 hash = key->hash;
@@ -233,7 +233,7 @@ Nst_Obj *Nst_map_get(Nst_Obj *map, Nst_Obj *key)
     }
 }
 
-Nst_Obj *Nst_map_drop(Nst_Obj *map, Nst_Obj *key)
+Nst_ObjRef *Nst_map_drop(Nst_Obj *map, Nst_Obj *key)
 {
     Nst_assert(map->type == Nst_t.Map);
     i32 hash = key->hash;
@@ -307,7 +307,7 @@ Nst_Obj *Nst_map_drop(Nst_Obj *map, Nst_Obj *key)
     }
 }
 
-Nst_Obj *Nst_map_copy(Nst_Obj *map)
+Nst_ObjRef *Nst_map_copy(Nst_Obj *map)
 {
     Nst_assert(map->type == Nst_t.Map);
     Nst_MapObj *new_map = MAP(Nst_map_new());
@@ -375,7 +375,7 @@ bool Nst_map_set_str(Nst_Obj *map, const char *key, Nst_Obj *value)
     return res;
 }
 
-Nst_Obj *Nst_map_get_str(Nst_Obj *map, const char *key)
+Nst_ObjRef *Nst_map_get_str(Nst_Obj *map, const char *key)
 {
     Nst_assert(map->type == Nst_t.Map);
 
@@ -387,7 +387,7 @@ Nst_Obj *Nst_map_get_str(Nst_Obj *map, const char *key)
     return value;
 }
 
-Nst_Obj *Nst_map_drop_str(Nst_Obj *map, const char *key)
+Nst_ObjRef *Nst_map_drop_str(Nst_Obj *map, const char *key)
 {
     Nst_assert(map->type == Nst_t.Map);
     Nst_Obj *key_ob = Nst_str_new_c_raw(key, false);

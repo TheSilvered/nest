@@ -18,7 +18,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-Nst_Obj *NstC _Nst_str_new_no_err(const char *val);
+Nst_ObjRef *NstC _Nst_str_new_no_err(const char *val);
 
 /**
  * Creates a new string object with a value taken from a C string of unknown
@@ -30,7 +30,7 @@ Nst_Obj *NstC _Nst_str_new_no_err(const char *val);
  *
  * @return The new string on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_new_c_raw(const char *val, bool allocated);
+NstEXP Nst_ObjRef *NstC Nst_str_new_c_raw(const char *val, bool allocated);
 /**
  * Creates a new string object from a string literal of known length.
  *
@@ -41,7 +41,8 @@ NstEXP Nst_Obj *NstC Nst_str_new_c_raw(const char *val, bool allocated);
  *
  * @return The new string on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_new_c(const char *val, usize len, bool allocated);
+NstEXP Nst_ObjRef *NstC Nst_str_new_c(const char *val, usize len,
+                                      bool allocated);
 /**
  * Creates a new string object.
  *
@@ -52,7 +53,7 @@ NstEXP Nst_Obj *NstC Nst_str_new_c(const char *val, usize len, bool allocated);
  *
  * @return The new string on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_new(u8 *val, usize len, bool allocated);
+NstEXP Nst_ObjRef *NstC Nst_str_new(u8 *val, usize len, bool allocated);
 /**
  * Creates a new string object from a heap-allocated value.
  *
@@ -63,7 +64,7 @@ NstEXP Nst_Obj *NstC Nst_str_new(u8 *val, usize len, bool allocated);
  *
  * @return The new string on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_new_allocated(u8 *val, usize len);
+NstEXP Nst_ObjRef *NstC Nst_str_new_allocated(u8 *val, usize len);
 
 /**
  * Creates a new string object with known length.
@@ -75,8 +76,8 @@ NstEXP Nst_Obj *NstC Nst_str_new_allocated(u8 *val, usize len);
  *
  * @return The new string on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_new_len(u8 *val, usize len, usize char_len,
-                                     bool allocated);
+NstEXP Nst_ObjRef *NstC Nst_str_new_len(u8 *val, usize len, usize char_len,
+                                        bool allocated);
 
 /**
  * Creates a new string copying the contents of an already existing one.
@@ -88,7 +89,7 @@ NstEXP Nst_Obj *NstC Nst_str_new_len(u8 *val, usize len, usize char_len,
  * @return The copied string on success and `NULL` on failure. The error is
  * set.
  */
-NstEXP Nst_Obj *NstC Nst_str_copy(Nst_Obj *src);
+NstEXP Nst_ObjRef *NstC Nst_str_copy(Nst_Obj *src);
 /**
  * Creates a new string by making a string representation of an existing one
  * that replaces any special characters such as newlines and tabs with their
@@ -101,7 +102,7 @@ NstEXP Nst_Obj *NstC Nst_str_copy(Nst_Obj *src);
  * @return The copied string on success and `NULL` on failure. The error is
  * set.
  */
-NstEXP Nst_Obj *NstC Nst_str_repr(Nst_Obj *src);
+NstEXP Nst_ObjRef *NstC Nst_str_repr(Nst_Obj *src);
 /**
  * Creates a new one-character string with a character of an existing string.
  *
@@ -114,7 +115,7 @@ NstEXP Nst_Obj *NstC Nst_str_repr(Nst_Obj *src);
  * @return The new string on success and `NULL` on failure. The error is set.
  * The function fails if the index falls outside the string.
  */
-NstEXP Nst_Obj *NstC Nst_str_get_obj(Nst_Obj *str, i64 idx);
+NstEXP Nst_ObjRef *NstC Nst_str_get_obj(Nst_Obj *str, i64 idx);
 /**
  * Get the character at index `idx` of the string.
  *
@@ -154,7 +155,7 @@ NstEXP isize NstC Nst_str_next(Nst_Obj *str, isize idx);
  * returns `NULL` when there are no more characters to iterate over or when an
  * error occurs. In case an error occurs `idx` is set to `Nst_STR_LOOP_ERROR`.
  */
-NstEXP Nst_Obj *NstC Nst_str_next_obj(Nst_Obj *str, isize *idx);
+NstEXP Nst_ObjRef *NstC Nst_str_next_obj(Nst_Obj *str, isize *idx);
 /**
  * Iterates over the characters of a string.
  *
@@ -202,7 +203,7 @@ NstEXP i32 NstC Nst_str_next_utf8(Nst_Obj *str, isize *idx, u8 *ch_buf);
  *
  * @return The new int object or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_parse_int(Nst_Obj *str, i32 base);
+NstEXP Nst_ObjRef *NstC Nst_str_parse_int(Nst_Obj *str, i32 base);
 /**
  * Parses a `Byte` object from a string.
  *
@@ -214,7 +215,7 @@ NstEXP Nst_Obj *NstC Nst_str_parse_int(Nst_Obj *str, i32 base);
  *
  * @return The new byte object or NULL on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_parse_byte(Nst_Obj *str);
+NstEXP Nst_ObjRef *NstC Nst_str_parse_byte(Nst_Obj *str);
 /**
  * Parses a `Real` object from a string.
  *
@@ -226,7 +227,7 @@ NstEXP Nst_Obj *NstC Nst_str_parse_byte(Nst_Obj *str);
  *
  * @return The new real object or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_parse_real(Nst_Obj *str);
+NstEXP Nst_ObjRef *NstC Nst_str_parse_real(Nst_Obj *str);
 /* [docs:link strcmp <https://man7.org/linux/man-pages/man3/strcmp.3.html>] */
 /**
  * Compares two Nest strings, similarly to `strcmp` but takes into account

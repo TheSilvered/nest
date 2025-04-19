@@ -2,6 +2,8 @@
 
 #define GGC_OBJ(obj) ((Nst_GGCObj *)(obj))
 
+static Nst_GarbageCollector ggc;
+
 static inline void move_obj(Nst_GGCObj *obj, Nst_GGCList *from, Nst_GGCList *to)
 {
     if (from->len == 1) {
@@ -193,22 +195,22 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen)
     destroy_objects(&uv);
 }
 
-void _Nst_ggc_delete_objs(void)
+void _Nst_ggc_quit(void)
 {
-    remove_objs_list(&Nst_state.ggc.gen1);
-    remove_objs_list(&Nst_state.ggc.gen2);
-    remove_objs_list(&Nst_state.ggc.gen3);
-    remove_objs_list(&Nst_state.ggc.old_gen);
+    remove_objs_list(&ggc.gen1);
+    remove_objs_list(&ggc.gen2);
+    remove_objs_list(&ggc.gen3);
+    remove_objs_list(&ggc.old_gen);
 
-    call_objs_destructor(&Nst_state.ggc.gen1);
-    call_objs_destructor(&Nst_state.ggc.gen2);
-    call_objs_destructor(&Nst_state.ggc.gen3);
-    call_objs_destructor(&Nst_state.ggc.old_gen);
+    call_objs_destructor(&ggc.gen1);
+    call_objs_destructor(&ggc.gen2);
+    call_objs_destructor(&ggc.gen3);
+    call_objs_destructor(&ggc.old_gen);
 
-    free_obj_memory(&Nst_state.ggc.gen1);
-    free_obj_memory(&Nst_state.ggc.gen2);
-    free_obj_memory(&Nst_state.ggc.gen3);
-    free_obj_memory(&Nst_state.ggc.old_gen);
+    free_obj_memory(&ggc.gen1);
+    free_obj_memory(&ggc.gen2);
+    free_obj_memory(&ggc.gen3);
+    free_obj_memory(&ggc.old_gen);
 }
 
 void _Nst_ggc_init(void)
@@ -217,11 +219,11 @@ void _Nst_ggc_init(void)
     Nst_GGCList gen2 = { NULL, NULL, 0 };
     Nst_GGCList gen3 = { NULL, NULL, 0 };
     Nst_GGCList old_gen = { NULL, NULL, 0 };
-    Nst_state.ggc.gen1 = gen1;
-    Nst_state.ggc.gen2 = gen2;
-    Nst_state.ggc.gen3 = gen3;
-    Nst_state.ggc.old_gen = old_gen;
-    Nst_state.ggc.old_gen_pending = 0;
+    ggc.gen1 = gen1;
+    ggc.gen2 = gen2;
+    ggc.gen3 = gen3;
+    ggc.old_gen = old_gen;
+    ggc.old_gen_pending = 0;
 }
 
 void Nst_ggc_obj_reachable(Nst_Obj *obj)
@@ -234,60 +236,62 @@ void Nst_ggc_obj_reachable(Nst_Obj *obj)
 
 void Nst_ggc_collect(void)
 {
-    Nst_GarbageCollector *ggc = &Nst_state.ggc;
-    usize old_gen_size = ggc->old_gen.len;
+    if (ggc.gen1.len > _Nst_GEN1_MAX)
+        return;
+
+    usize old_gen_size = ggc.old_gen.len;
     // if the number of objects never checked in the old generation
     // is more than 25% and there are at least 10 objects
     if (old_gen_size > _Nst_OLD_GEN_MIN
-        && ggc->old_gen_pending >= (i64)old_gen_size >> 2)
+        && ggc.old_gen_pending >= (i64)old_gen_size >> 2)
     {
-        Nst_ggc_collect_gen(&ggc->old_gen);
-        ggc->old_gen_pending = 0;
+        Nst_ggc_collect_gen(&ggc.old_gen);
+        ggc.old_gen_pending = 0;
     }
 
     bool has_collected_gen1 = false;
     bool has_collected_gen2 = false;
 
     // Collect the generations if they are over their maximum value
-    if (ggc->gen1.len > _Nst_GEN1_MAX) {
-        Nst_ggc_collect_gen(&ggc->gen1);
+    if (ggc.gen1.len > _Nst_GEN1_MAX) {
+        Nst_ggc_collect_gen(&ggc.gen1);
         has_collected_gen1 = true;
     }
 
-    if (ggc->gen2.len > _Nst_GEN2_MAX
+    if (ggc.gen2.len > _Nst_GEN2_MAX
         || (has_collected_gen1
-            && ggc->gen1.len + ggc->gen2.len > _Nst_GEN2_MAX))
+            && ggc.gen1.len + ggc.gen2.len > _Nst_GEN2_MAX))
     {
-        Nst_ggc_collect_gen(&ggc->gen2);
+        Nst_ggc_collect_gen(&ggc.gen2);
         has_collected_gen2 = true;
     }
 
-    if (ggc->gen3.len > _Nst_GEN3_MAX
+    if (ggc.gen3.len > _Nst_GEN3_MAX
         || (has_collected_gen2
-            && ggc->gen2.len + ggc->gen3.len > _Nst_GEN3_MAX))
+            && ggc.gen2.len + ggc.gen3.len > _Nst_GEN3_MAX))
     {
-        Nst_ggc_collect_gen(&ggc->gen3);
-        ggc->old_gen_pending += ggc->gen3.len;
-        move_list(&ggc->gen3, &ggc->old_gen);
+        Nst_ggc_collect_gen(&ggc.gen3);
+        ggc.old_gen_pending += ggc.gen3.len;
+        move_list(&ggc.gen3, &ggc.old_gen);
     }
 
     if (has_collected_gen2) {
-        if (ggc->gen2.len + ggc->gen3.len > _Nst_GEN3_MAX) {
-            ggc->old_gen_pending += ggc->gen2.len;
-            move_list(&ggc->gen2, &ggc->old_gen);
+        if (ggc.gen2.len + ggc.gen3.len > _Nst_GEN3_MAX) {
+            ggc.old_gen_pending += ggc.gen2.len;
+            move_list(&ggc.gen2, &ggc.old_gen);
         } else
-            move_list(&ggc->gen2, &ggc->gen3);
+            move_list(&ggc.gen2, &ggc.gen3);
     }
 
     if (has_collected_gen1) {
-        if (ggc->gen1.len + ggc->gen2.len > _Nst_GEN2_MAX) {
-            if (ggc->gen1.len + ggc->gen3.len > _Nst_GEN3_MAX) {
-                ggc->old_gen_pending += ggc->gen1.len;
-                move_list(&ggc->gen1, &ggc->old_gen);
+        if (ggc.gen1.len + ggc.gen2.len > _Nst_GEN2_MAX) {
+            if (ggc.gen1.len + ggc.gen3.len > _Nst_GEN3_MAX) {
+                ggc.old_gen_pending += ggc.gen1.len;
+                move_list(&ggc.gen1, &ggc.old_gen);
             } else
-                move_list(&ggc->gen1, &ggc->gen3);
+                move_list(&ggc.gen1, &ggc.gen3);
         } else
-            move_list(&ggc->gen1, &ggc->gen2);
+            move_list(&ggc.gen1, &ggc.gen2);
     }
 }
 
@@ -295,14 +299,14 @@ void Nst_ggc_track_obj(Nst_GGCObj *obj)
 {
     Nst_assert(Nst_type_trav(obj->type) != NULL);
 
-    if (Nst_state.ggc.gen1.len == 0)
-        Nst_state.ggc.gen1.head = obj;
+    if (ggc.gen1.len == 0)
+        ggc.gen1.head = obj;
     else {
-        obj->p_prev = NstOBJ(Nst_state.ggc.gen1.tail);
-        Nst_state.ggc.gen1.tail->p_next = NstOBJ(obj);
+        obj->p_prev = NstOBJ(ggc.gen1.tail);
+        ggc.gen1.tail->p_next = NstOBJ(obj);
     }
 
-    Nst_state.ggc.gen1.tail = obj;
-    obj->ggc_list = &Nst_state.ggc.gen1;
-    Nst_state.ggc.gen1.len++;
+    ggc.gen1.tail = obj;
+    obj->ggc_list = &ggc.gen1;
+    ggc.gen1.len++;
 }

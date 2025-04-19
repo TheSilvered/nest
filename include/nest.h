@@ -47,5 +47,6 @@
 #include "str_builder.h"
 #include "str_view.h"
 #include "dyn_array.h"
+#include "assembler.h"
 
 #endif // !NEST_H

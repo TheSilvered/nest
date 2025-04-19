@@ -20,6 +20,7 @@
 static bool use_color = true;
 static bool use_stderr = false;
 static Nst_Obj *err_stream = NULL;
+static Nst_Traceback tb;
 
 void Nst_error_set_color(bool color)
 {
@@ -353,7 +354,7 @@ static inline void print_rep_count(i32 count)
     }
 }
 
-void Nst_tb_print(Nst_Traceback *tb)
+void Nst_error_print()
 {
     Nst_fflush(Nst_io.out);
     set_error_stream();
@@ -361,8 +362,8 @@ void Nst_tb_print(Nst_Traceback *tb)
     Nst_Pos prev_start = { -1, -1, NULL };
     Nst_Pos prev_end = { -1, -1, NULL };
     i32 repeat_count = 0;
-    for (usize i = 0, n = tb->positions.len; i < n; i++) {
-        Nst_Span *span = (Nst_Span *)Nst_da_get(&tb->positions, n - i - 1);
+    for (usize i = 0, n = tb.positions.len; i < n; i++) {
+        Nst_Span *span = (Nst_Span *)Nst_da_get(&tb.positions, n - i - 1);
         Nst_Pos start = Nst_span_start(*span);
         Nst_Pos end = Nst_span_end(*span);
         if (start.col == prev_start.col
@@ -384,52 +385,28 @@ void Nst_tb_print(Nst_Traceback *tb)
         print_position(start, end);
     }
 
-    u8 *err_name = Nst_str_value(tb->error_name);
-    if (tb->error_msg == Nst_null() && use_color)
+    u8 *err_name = Nst_str_value(tb.error_name);
+    if (tb.error_msg == Nst_null() && use_color)
         Nst_fprintf(err_stream, C_YEL "%s" C_RES "\n", err_name);
-    else if (tb->error_msg == Nst_null())
+    else if (tb.error_msg == Nst_null())
         Nst_fprintf(err_stream, "%s\n", err_name);
     else if (use_color) {
         Nst_fprintf(
             err_stream,
             C_YEL "%s" C_RES " - %s\n",
-            err_name, Nst_str_value(tb->error_msg));
+            err_name, Nst_str_value(tb.error_msg));
     } else {
         Nst_fprintf(
             err_stream,
             "%s - %s\n",
-            err_name, Nst_str_value(tb->error_msg));
+            err_name, Nst_str_value(tb.error_msg));
     }
 
     Nst_fflush(err_stream);
     Nst_dec_ref(err_stream);
 }
 
-void Nst_source_text_destroy(Nst_SourceText *text)
-{
-    if (text == NULL)
-        return;
-    if (!text->allocated)
-        return;
-
-    Nst_free(text->text);
-    Nst_free(text->lines);
-    Nst_free(text->path);
-}
-
-static void clear_error(Nst_Traceback *tb)
-{
-    if (!tb->error_occurred)
-        return;
-    Nst_da_clear(&tb->positions, NULL);
-    Nst_dec_ref(tb->error_name);
-    Nst_dec_ref(tb->error_msg);
-    tb->error_name = NULL;
-    tb->error_msg  = NULL;
-    tb->error_occurred = false;
-}
-
-void Nst_error_set(Nst_Obj *name, Nst_Obj *msg)
+void Nst_error_set(Nst_ObjRef *name, Nst_ObjRef *msg)
 {
     if (msg == NULL) {
         Nst_error_failed_alloc();
@@ -439,48 +416,42 @@ void Nst_error_set(Nst_Obj *name, Nst_Obj *msg)
     Nst_assert_c(name != NULL);
 
     Nst_error_clear();
-    if (Nst_state.es != NULL) {
-        Nst_state.es->traceback.error_name = name;
-        Nst_state.es->traceback.error_msg = msg;
-        Nst_state.es->traceback.error_occurred = true;
-    } else {
-        Nst_state.global_traceback.error_name = name;
-        Nst_state.global_traceback.error_msg = msg;
-        Nst_state.global_traceback.error_occurred = true;
-    }
+    tb.error_name = name;
+    tb.error_msg = msg;
+    tb.error_occurred = true;
 }
 
-void Nst_error_set_syntax(Nst_Obj *msg)
+void Nst_error_set_syntax(Nst_ObjRef *msg)
 {
     Nst_error_set(Nst_inc_ref(Nst_s.e_SyntaxError), msg);
 }
 
-void Nst_error_set_memory(Nst_Obj *msg)
+void Nst_error_set_memory(Nst_ObjRef *msg)
 {
     Nst_error_set(Nst_inc_ref(Nst_s.e_MemoryError), msg);
 }
 
-void Nst_error_set_type(Nst_Obj *msg)
+void Nst_error_set_type(Nst_ObjRef *msg)
 {
     Nst_error_set(Nst_inc_ref(Nst_s.e_TypeError), msg);
 }
 
-void Nst_error_set_value(Nst_Obj *msg)
+void Nst_error_set_value(Nst_ObjRef *msg)
 {
     Nst_error_set(Nst_inc_ref(Nst_s.e_ValueError), msg);
 }
 
-void Nst_error_set_math(Nst_Obj *msg)
+void Nst_error_set_math(Nst_ObjRef *msg)
 {
     Nst_error_set(Nst_inc_ref(Nst_s.e_MathError), msg);
 }
 
-void Nst_error_set_call(Nst_Obj *msg)
+void Nst_error_set_call(Nst_ObjRef *msg)
 {
     Nst_error_set(Nst_inc_ref(Nst_s.e_CallError), msg);
 }
 
-void Nst_error_set_import(Nst_Obj *msg)
+void Nst_error_set_import(Nst_ObjRef *msg)
 {
     Nst_error_set(Nst_inc_ref(Nst_s.e_ImportError), msg);
 }
@@ -600,71 +571,39 @@ void Nst_error_failed_alloc(void)
     );
 }
 
-void Nst_error_add_span(Nst_Span span)
+bool Nst_error_occurred(void)
 {
-    Nst_tb_add_span(Nst_error_get(), span);
-}
-
-Nst_ErrorKind Nst_error_occurred(void)
-{
-    if (Nst_state.es == NULL) {
-        if (Nst_state.global_traceback.error_occurred)
-            return Nst_EK_GLOBAL;
-        else
-            return Nst_EK_NONE;
-    } else {
-        if (Nst_state.es->traceback.error_occurred)
-            return Nst_EK_LOCAL;
-        else
-            return Nst_EK_NONE;
-    }
+    return tb.error_occurred;
 }
 
 Nst_Traceback *Nst_error_get(void)
 {
-    if (Nst_state.es == NULL)
-        return &Nst_state.global_traceback;
-    return &Nst_state.es->traceback;
+    return &tb;
 }
 
 void Nst_error_clear(void)
 {
-    if (Nst_state.es != NULL)
-        clear_error(&Nst_state.es->traceback);
-    clear_error(&Nst_state.global_traceback);
+    Nst_da_clear(&tb.positions, NULL);
+    if (tb.error_name != NULL)
+        Nst_dec_ref(tb.error_name);
+    if (tb.error_msg != NULL)
+        Nst_dec_ref(tb.error_msg);
+    tb.error_name = NULL;
+    tb.error_msg = NULL;
 }
 
-void Nst_tb_init(Nst_Traceback *tb)
+void _Nst_error_init(void)
 {
-    tb->error_name = NULL;
-    tb->error_msg = NULL;
-    tb->error_occurred = false;
-    Nst_da_init(&tb->positions, sizeof(Nst_Span), 0);
+    tb.error_name = NULL;
+    tb.error_msg = NULL;
+    tb.error_occurred = false;
+    Nst_da_init(&tb.positions, sizeof(Nst_Span), 0);
 }
 
-void Nst_tb_destroy(Nst_Traceback *tb)
-{
-    Nst_da_clear(&tb->positions, NULL);
-    if (tb->error_name != NULL)
-        Nst_dec_ref(tb->error_name);
-    if (tb->error_msg != NULL)
-        Nst_dec_ref(tb->error_msg);
-}
-
-void Nst_source_text_init(Nst_SourceText *src)
-{
-    src->allocated = true;
-    src->text = NULL;
-    src->path = NULL;
-    src->lines = NULL;
-    src->text_len = 0;
-    src->lines_len = 0;
-}
-
-void Nst_tb_add_span(Nst_Traceback *tb, Nst_Span span)
+void Nst_error_add_span(Nst_Span span)
 {
     if (span.text == NULL)
         return;
 
-    Nst_da_append(&tb->positions, &span);
+    Nst_da_append(&tb.positions, &span);
 }

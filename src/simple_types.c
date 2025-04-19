@@ -26,7 +26,7 @@ typedef struct _Nst_ByteObj {
     u8 value;
 } Nst_ByteObj;
 
-Nst_Obj *Nst_int_new(i64 value)
+Nst_ObjRef *Nst_int_new(i64 value)
 {
     NEW_SIMPLE_TYPE(Nst_IntObj, Nst_t.Int);
 }
@@ -41,7 +41,7 @@ void _Nst_counter_dec(Nst_Obj *counter)
     --((Nst_IntObj *)counter)->value;
 }
 
-Nst_Obj *Nst_real_new(f64 value)
+Nst_ObjRef *Nst_real_new(f64 value)
 {
     NEW_SIMPLE_TYPE(Nst_RealObj, Nst_t.Real);
 }
@@ -56,7 +56,7 @@ f32 Nst_real_f32(Nst_Obj *obj)
     return (f32)((Nst_RealObj *)obj)->value;
 }
 
-Nst_Obj *Nst_byte_new(u8 value)
+Nst_ObjRef *Nst_byte_new(u8 value)
 {
     NEW_SIMPLE_TYPE(Nst_ByteObj, Nst_t.Byte);
 }

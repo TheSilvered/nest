@@ -9,33 +9,33 @@
 #ifndef INTERPRETER_H
 #define INTERPRETER_H
 
-#include "runner.h"
+#include "program.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
 /**
- * Global state of the Nest interpreter.
+ * Struct representing the current state of the Nest interpreter.
  *
- * @param ggc: generational garbage collector
- * @param opt_level: maximum optimization level when importing libraries
- * @param loaded_libs: dynamic library handles
- * @param lib_paths: import stack
- * @param lib_handles: maps of imported libraries
- * @param lib_srcs: sources of imported Nest libraries
- * @param es: the program that is being executed
+ * @param prog: the program being run, if NULL all other fields could have
+ * invalid data and are not safe to read
+ * @param v_stack: the value stack
+ * @param f_stack: the call stack
+ * @param c_stack: the catch frame stack
+ * @param func: the function currently being executed
+ * @param vt: the current variable table
+ * @param idx: the index of the current bytecode instruction
  */
-NstEXP typedef struct _Nst_IntrState {
-    Nst_GarbageCollector ggc;
-    i32 opt_level;
-    Nst_LList *loaded_libs;
-    Nst_LList *lib_paths;
-    Nst_Obj *lib_handles;
-    Nst_LList *lib_srcs;
-    Nst_ExecutionState *es;
-    Nst_Traceback global_traceback;
-} Nst_IntrState;
+NstEXP typedef struct _Nst_InterpreterState {
+    Nst_Program *prog;
+    Nst_ValueStack v_stack;
+    Nst_CallStack  f_stack;
+    Nst_CatchStack c_stack;
+    Nst_Obj *func;
+    Nst_VarTable vt;
+    i64 idx;
+} Nst_InterpreterState;
 
 /**
  * Initializes the Nest libraray.
@@ -43,13 +43,10 @@ NstEXP typedef struct _Nst_IntrState {
  * @brief Note: `Nst_error_set_color` is called with the value returned by
  * `Nst_supports_color`.
  *
- * @param args: the options for the libraray, currently only `opt_level` is
- * used; if `NULL` is passed `opt_level` is set to 3.
- *
- * @return `true` on success and `false` on failure. No error is set as it
- * failed to initialize.
+ * @return `true` on success and `false` on failure. The error cannot be
+ * accessed if the library fails to initialize.
  */
-NstEXP bool NstC Nst_init(Nst_CLArgs *args);
+NstEXP bool NstC Nst_init(void);
 
 /**
  * @brief Destroys all the components of the libraray. It is not safe to access
@@ -58,31 +55,29 @@ NstEXP bool NstC Nst_init(Nst_CLArgs *args);
  */
 NstEXP void NstC Nst_quit(void);
 
+/* Returns `true` if the state was initialized and `false` otherwise. */
+NstEXP bool NstC Nst_was_init(void);
+
 /**
  * Runs the main program.
  *
  * @brief Warning: it must never be called inside a library.
  *
- * @param main_func: the function object of the main program
+ * @param prog: the program to run
  *
  * @return The exit code of the program.
  */
-NstEXP i32 NstC Nst_run(Nst_Obj *main_func);
+NstEXP i32 NstC Nst_run(Nst_Program *prog);
 /**
  * Runs an external Nest file.
  *
- * @param file_name: the name of the file to run, must exist since no checking
- * is done
- * @param lib_src: the pointer where to store the source of the file, if an
- * error occurs the source of the library is expected to be on the lib_srcs
- * list of the global state
+ * @param file_name: the name of the file to run, it must exist
  *
- * @return `true` on success and `false` on failure. If the function succeeds,
- * the result of the module is on top of the value stack. The global operation
- * error is not set but an internal one is, hence the caller must not set the
- * error.
+ * @return A map containint the variables of the module or NULL on failure. The
+ * error is set.
  */
-NstEXP bool NstC Nst_run_module(const char *file_name, Nst_SourceText *lib_src);
+NstEXP Nst_Obj *NstC Nst_run_module(const char *file_name);
+
 /**
  * Calls a `Func` object.
  *
@@ -95,9 +90,25 @@ NstEXP bool NstC Nst_run_module(const char *file_name, Nst_SourceText *lib_src);
  *
  * @return The result of the function or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_func_call(Nst_Obj *func, usize arg_num,
-                                   Nst_Obj **args);
+NstEXP Nst_ObjRef *NstC Nst_func_call(Nst_Obj *func, usize arg_num,
+                                      Nst_Obj **args);
 
+/**
+ * Yield a coroutine. If `stack` is `NULL` the function will only set
+ * `out_stack_size` and return without modifying the state of the interpreter.
+ * This is to allow the caller to allocate enough memory to hold the stack.
+ *
+ * @param out_stack: buffer filled with the values from the top function call,
+ * each object added is a reference to be handled by the caller
+ * @param out_stack_size: the number of object added to `out_stack`
+ * @param out_idx: the index of the current instruction
+ * @param out_vt: the current variable table
+ *
+ * @return The paused function.
+ */
+NstEXP Nst_Obj *NstC Nst_coroutine_yield(Nst_ObjRef **out_stack,
+                                         usize *out_stack_size,
+                                         i64 *out_idx, Nst_VarTable *out_vt);
 /**
  * Executes the body of a `Func` object that has a Nest body using a given
  * context.
@@ -107,62 +118,22 @@ NstEXP Nst_Obj *NstC Nst_func_call(Nst_Obj *func, usize arg_num,
  * @param func: the function to execute
  * @param idx: the instruction index from which to start the execution of the
  * body
- * @param vars: the local variable table
- * @param globals: the global variable table, it may be `NULL`, in which case
- * it is determined automatically
+ * @param value_stack: the values to push on the value stack
+ * @param value_stack_len: the length of `value_stack`
+ * @param vt: variable table to use
  *
  * @return The result of the function or `NULL` on failure. The error is set
  * internally and must not be set by the caller.
  */
-NstEXP Nst_Obj *NstC Nst_run_paused_coroutine(Nst_Obj *func, i64 idx,
-                                              Nst_VarTable *vt);
-/**
- * Returns the absolute path to a file system object.
- *
- * @brief Note: the absolute path is allocated on the heap and should be freed
- * with `Nst_free` when appropriate.
- *
- * @param file_path: the relative path to the object
- * @param buf: the buf where the absolute path is placed
- * @param file_part: where the start of the file name inside the file path is
- * put, this may be `NULL` in which case it is ignored
- *
- * @return The length in bytes of the absolute path or 0 on failure. The error
- * is set.
- */
-NstEXP usize NstC Nst_get_full_path(const char *file_path, char **buf,
-                                    char **file_part);
+NstEXP Nst_ObjRef *NstC Nst_coroutine_resume(Nst_Obj *func, i64 idx,
+                                             Nst_ObjRef **value_stack,
+                                             usize value_stack_len,
+                                             Nst_VarTable vt);
 
-/**
- * @brief Returns a pointer to the current instruction being executed. On
- * failure `NULL` is returned. No error is set.
- */
-NstEXP Nst_Inst *NstC Nst_current_inst(void);
-
-/* Returns `true` if the state was initialized and `false` otherwise. */
-NstEXP bool NstC Nst_was_init(void);
-
-/* Gets the current execution state. */
-NstEXP Nst_ExecutionState *NstC Nst_state_get_es(void);
-/**
- * Sets a new execution state in the global interpreter state.
- *
- * @brief Note: the current working directory is changed according to
- * `curr_path` in `es`.
- *
- * @param es: the new `Nst_ExecutionState` to set
- *
- * @return The previous execution state. The error is set but it is not
- * reflected in the return value. Use `Nst_error_occurred` to check.
- */
-NstEXP Nst_ExecutionState *NstC Nst_state_set_es(Nst_ExecutionState *es);
-
-// The global state of the interpreter.
-extern Nst_IntrState Nst_state;
-
-/* [docs:link Nst_state Nst_state_get] */
-/* Returns a pointer to the global `Nst_IntrState`. */
-NstEXP Nst_IntrState *NstC Nst_state_get(void);
+/* Return the position of the current operation. */
+NstEXP Nst_Span NstC Nst_state_span(void);
+/* Get the current intepreter state. */
+NstEXP const Nst_InterpreterState *NstC Nst_state(void);
 
 /**
  * Changes the current working directory using a Nest `Str` object.
@@ -175,7 +146,7 @@ NstEXP i32 NstC Nst_chdir(Nst_Obj *str);
  *
  * @return the new string or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_getcwd(void);
+NstEXP Nst_ObjRef *NstC Nst_getcwd(void);
 
 #ifdef __cplusplus
 }

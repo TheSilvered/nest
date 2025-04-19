@@ -86,7 +86,7 @@ static bool create_indexable_str(Nst_StrObj *str)
     return true;
 }
 
-Nst_Obj *_Nst_str_new_no_err(const char *value)
+Nst_ObjRef *_Nst_str_new_no_err(const char *value)
 {
     Nst_StrObj *str = STR(Nst_raw_malloc(sizeof(Nst_StrObj)));
     if (str == NULL)
@@ -111,17 +111,17 @@ Nst_Obj *_Nst_str_new_no_err(const char *value)
     return NstOBJ(str);
 }
 
-Nst_Obj *Nst_str_new_c_raw(const char *val, bool allocated)
+Nst_ObjRef *Nst_str_new_c_raw(const char *val, bool allocated)
 {
     return Nst_str_new((u8 *)val, strlen(val), allocated);
 }
 
-Nst_Obj *Nst_str_new_c(const char *val, usize len, bool allocated)
+Nst_ObjRef *Nst_str_new_c(const char *val, usize len, bool allocated)
 {
     return Nst_str_new((u8 *)val, len, allocated);
 }
 
-Nst_Obj *Nst_str_new(u8 *val, usize len, bool allocated)
+Nst_ObjRef *Nst_str_new(u8 *val, usize len, bool allocated)
 {
     return Nst_str_new_len(
         val,
@@ -130,7 +130,7 @@ Nst_Obj *Nst_str_new(u8 *val, usize len, bool allocated)
         allocated);
 }
 
-Nst_Obj *Nst_str_new_len(u8 *val, usize len, usize char_len, bool allocated)
+Nst_ObjRef *Nst_str_new_len(u8 *val, usize len, usize char_len, bool allocated)
 {
     Nst_StrObj *str = Nst_obj_alloc(Nst_StrObj, Nst_t.Str);
     if (str == NULL)
@@ -146,7 +146,7 @@ Nst_Obj *Nst_str_new_len(u8 *val, usize len, usize char_len, bool allocated)
     return NstOBJ(str);
 }
 
-Nst_Obj *Nst_str_new_allocated(u8 *val, usize len)
+Nst_ObjRef *Nst_str_new_allocated(u8 *val, usize len)
 {
     Nst_Obj *str = Nst_str_new(val, len, true);
     if (str == NULL) {
@@ -156,7 +156,7 @@ Nst_Obj *Nst_str_new_allocated(u8 *val, usize len)
     return str;
 }
 
-Nst_Obj *Nst_str_copy(Nst_Obj *src)
+Nst_ObjRef *Nst_str_copy(Nst_Obj *src)
 {
     Nst_assert(src->type == Nst_t.Str);
     u8 *buffer = Nst_malloc_c(STR(src)->len + 1, u8);
@@ -174,7 +174,7 @@ Nst_Obj *Nst_str_copy(Nst_Obj *src)
     return str;
 }
 
-Nst_Obj *Nst_str_repr(Nst_Obj *src)
+Nst_ObjRef *Nst_str_repr(Nst_Obj *src)
 {
     Nst_assert(src->type == Nst_t.Str);
     usize repr_len;
@@ -188,7 +188,7 @@ Nst_Obj *Nst_str_repr(Nst_Obj *src)
     return Nst_str_new_allocated(repr_str, repr_len);
 }
 
-Nst_Obj *Nst_str_get_obj(Nst_Obj *str, i64 idx)
+Nst_ObjRef *Nst_str_get_obj(Nst_Obj *str, i64 idx)
 {
     i32 ch = Nst_str_get(str, idx);
     if (ch == -1)
@@ -247,7 +247,7 @@ isize Nst_str_next(Nst_Obj *str, isize idx)
     return idx + ch_len;
 }
 
-Nst_Obj *Nst_str_next_obj(Nst_Obj *str, isize *idx)
+Nst_ObjRef *Nst_str_next_obj(Nst_Obj *str, isize *idx)
 {
     Nst_assert(str->type == Nst_t.Str);
     *idx = Nst_str_next(str, *idx);
@@ -317,7 +317,7 @@ void _Nst_str_destroy(Nst_Obj *str)
         Nst_free(STR(str)->indexable_str);
 }
 
-Nst_Obj *Nst_str_parse_int(Nst_Obj *str, i32 base)
+Nst_ObjRef *Nst_str_parse_int(Nst_Obj *str, i32 base)
 {
     Nst_assert(str->type == Nst_t.Str);
     i64 value;
@@ -331,7 +331,7 @@ Nst_Obj *Nst_str_parse_int(Nst_Obj *str, i32 base)
     return Nst_int_new(value);
 }
 
-Nst_Obj *Nst_str_parse_byte(Nst_Obj *str)
+Nst_ObjRef *Nst_str_parse_byte(Nst_Obj *str)
 {
     Nst_assert(str->type == Nst_t.Str);
     u8 value;
@@ -345,7 +345,7 @@ Nst_Obj *Nst_str_parse_byte(Nst_Obj *str)
     return Nst_byte_new(value);
 }
 
-Nst_Obj *Nst_str_parse_real(Nst_Obj *str)
+Nst_ObjRef *Nst_str_parse_real(Nst_Obj *str)
 {
     Nst_assert(str->type == Nst_t.Str);
     f64 value;

@@ -76,7 +76,6 @@ Nst_Node *Nst_parse(Nst_DynArray *tokens)
         Nst_node_destroy(ast);
         ast = NULL;
     }
-    Nst_da_clear(tokens, (Nst_Destructor)Nst_tok_destroy);
     return ast;
 }
 

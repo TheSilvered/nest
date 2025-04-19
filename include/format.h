@@ -666,10 +666,10 @@ NstEXP isize NstC Nst_vfprintf(Nst_Obj *f, const char *fmt, va_list args);
  *
  * @return The function returns the newly created string object.
  */
-NstEXP Nst_Obj *NstC Nst_sprintf(Nst_WIN_FMT const char *fmt, ...)
-                                 Nst_NIX_FMT(1, 2);
+NstEXP Nst_ObjRef *NstC Nst_sprintf(Nst_WIN_FMT const char *fmt, ...)
+                                    Nst_NIX_FMT(1, 2);
 /* `va_list` variant of `Nst_sprintf`. */
-NstEXP Nst_Obj *NstC Nst_vsprintf(const char *fmt, va_list args);
+NstEXP Nst_ObjRef *NstC Nst_vsprintf(const char *fmt, va_list args);
 
 /**
  * Creates a heap-allocated string formatted with a more customizable format
@@ -700,7 +700,7 @@ NstEXP u8 *NstC Nst_vfmt(const char *fmt, usize fmt_len, usize *out_len,
  *
  * @return A new object of type `Str` or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj *values);
+NstEXP Nst_ObjRef *NstC Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj *values);
 
 /**
  * Make a string into its representation, like using the `r`, `R`, `a` and `A`

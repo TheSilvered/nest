@@ -1,7 +1,7 @@
 #include "tests.h"
 
 int main() {
-    Nst_init(NULL);
+    Nst_init();
 
 #ifdef Nst_MSVC
     _Nst_console_mode_init();

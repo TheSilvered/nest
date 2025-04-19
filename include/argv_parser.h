@@ -26,6 +26,8 @@ extern "C" {
  *
  * @param print_tokens: whether the tokens of the program should be printed
  * @param print_ast: whether the AST of the program should be printed
+ * @param print_instructions: whether the instructions of the program should be
+ * printed
  * @param print_bytecode: whether the bytecode of the program should be printed
  * @param force_execution: whether to execute the program when `print_tokens`,
  * `print_ast` or `print_bytecode` are true
@@ -39,11 +41,11 @@ extern "C" {
  * @param args_start: the index where the arguments for the Nest program start
  */
 NstEXP typedef struct _Nst_CLArgs {
-    bool print_tokens, print_ast, print_bytecode;
+    bool print_tokens, print_ast, print_instructions, print_bytecode;
     bool force_execution;
     bool no_default;
+    u8 opt_level;
     Nst_EncodingID encoding;
-    i32 opt_level;
     i32 args_start;
     i32 argc;
     char **argv;

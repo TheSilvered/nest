@@ -1,154 +1,140 @@
 #include <string.h>
 #include "nest.h"
 
-Nst_Inst *Nst_inst_new(Nst_InstID id, Nst_Span span)
+bool Nst_ic_is_jump(Nst_InstCode code)
 {
-    Nst_Inst *inst = Nst_malloc_c(1, Nst_Inst);
-    if (inst == NULL)
-        return NULL;
-
-    inst->id = id;
-    inst->int_val = 0;
-    inst->val = NULL;
-    inst->span = span;
-
-    Nst_assert_c(span.text != NULL);
-
-    return inst;
+    return code >= Nst_IC_JUMP && code <= Nst_IC_PUSH_CATCH;
 }
 
-Nst_Inst *Nst_inst_new_val(Nst_InstID id, Nst_Obj *val, Nst_Span span)
+bool Nst_ilist_init(Nst_InstList *list)
 {
-    Nst_Inst *inst = Nst_malloc_c(1, Nst_Inst);
-    if (inst == NULL)
-        return NULL;
-
-    inst->id = id;
-    inst->int_val = 0;
-    inst->val = Nst_inc_ref(val);
-    inst->span = span;
-
-    Nst_assert_c(span.text != NULL);
-
-    return inst;
+    return Nst_da_init(&list->instructions, sizeof(Nst_Inst), 16)
+        && Nst_da_init(&list->objects, sizeof(Nst_Obj *), 4)
+        && Nst_da_init(&list->functions, sizeof(Nst_FuncPrototype), 0);
 }
 
-Nst_Inst *Nst_inst_new_int(Nst_InstID id, i64 int_val, Nst_Span span)
+void Nst_ilist_destroy(Nst_InstList *list)
 {
-    Nst_Inst *inst = Nst_malloc_c(1, Nst_Inst);
-    if (inst == NULL)
-        return NULL;
-
-    inst->id = id;
-    inst->int_val = int_val;
-    inst->val = NULL;
-    inst->span = span;
-
-    Nst_assert_c(span.text != NULL);
-
-    return inst;
+    Nst_da_clear(&list->instructions, NULL);
+    Nst_da_clear_p(&list->objects, (Nst_Destructor)Nst_dec_ref);
+    Nst_da_clear(&list->functions, (Nst_Destructor)Nst_fprototype_destroy);
 }
 
-void Nst_inst_destroy(Nst_Inst *inst)
+bool Nst_ilist_add(Nst_InstList *list, Nst_InstCode code, Nst_Span span)
 {
-    if (inst->val != NULL)
-        Nst_dec_ref(inst->val);
-    Nst_free(inst);
+    Nst_Inst inst = { .code = code, .span = span, .val = 0 };
+    return Nst_da_append(&list->instructions, &inst);
 }
 
-Nst_InstList *Nst_inst_list_new(Nst_LList *instructions)
+bool Nst_ilist_add_ex(Nst_InstList *list, Nst_InstCode code, i64 val,
+                      Nst_Span span)
 {
-    Nst_InstList *inst_ls = Nst_malloc_c(1, Nst_InstList);
-    if (inst_ls == NULL)
-        return NULL;
+    Nst_Inst inst = { .code = code, .span = span, .val = val };
+    return Nst_da_append(&list->instructions, &inst);
+}
 
-    Nst_Inst *inst_array = Nst_malloc_c(instructions->len, Nst_Inst);
-    if (inst_array == NULL) {
-        Nst_free(inst_ls);
-        return NULL;
+isize Nst_ilist_add_obj(Nst_InstList *list, Nst_ObjRef *obj)
+{
+    if (!Nst_da_append(&list->objects, &obj))
+        return -1;
+    return (isize)(list->objects.len - 1);
+}
+
+isize Nst_ilist_add_func(Nst_InstList *list, Nst_FuncPrototype *fp)
+{
+    if (!Nst_da_append(&list->functions, &fp))
+        return -1;
+    return (isize)(list->functions.len - 1);
+}
+
+Nst_Inst *Nst_ilist_get_inst(Nst_InstList *list, usize idx)
+{
+    return (Nst_Inst *)Nst_da_get(&list->instructions, idx);
+}
+
+Nst_Obj *Nst_ilist_get_inst_obj(Nst_InstList *list, usize idx)
+{
+    Nst_Inst *inst = Nst_ilist_get_inst(list, idx);
+    return NstOBJ(Nst_da_get_p(&list->objects, (usize)inst->val));
+}
+
+Nst_FuncPrototype *Nst_ilist_get_inst_func(Nst_InstList *list, usize idx)
+{
+    Nst_Inst *inst = Nst_ilist_get_inst(list, idx);
+    return (Nst_FuncPrototype *)Nst_da_get_p(
+        &list->functions,
+        (usize)inst->val);
+}
+
+Nst_Obj *Nst_ilist_get_obj(Nst_InstList *list, usize idx)
+{
+    return NstOBJ(Nst_da_get_p(&list->objects, idx));
+}
+
+Nst_FuncPrototype *Nst_ilist_get_func(Nst_InstList *list, usize idx)
+{
+    return (Nst_FuncPrototype *)Nst_da_get_p(&list->functions, idx);
+}
+
+void Nst_ilist_set(Nst_InstList *list, usize idx, Nst_InstCode code)
+{
+    Nst_Inst *inst = Nst_ilist_get_inst(list, idx);
+    if (inst != NULL) {
+        inst->code = code;
+        inst->val = 0;
     }
-    inst_ls->ref_count = 1;
-    inst_ls->instructions = inst_array;
-    inst_ls->total_size = instructions->len;
-
-    Nst_LList *functions = Nst_llist_new();
-    if (functions == NULL) {
-        Nst_free(inst_array);
-        Nst_free(inst_ls);
-        return false;
-    }
-    inst_ls->functions = functions;
-
-    usize i = 0;
-    for (Nst_LLIST_ITER(lnode, instructions)) {
-        Nst_Inst *inst = (Nst_Inst *)(lnode->value);
-
-        if (inst->id == Nst_IC_PUSH_VAL
-            && inst->val != NULL
-            && inst->val->type == Nst_t.Func)
-        {
-            Nst_inc_ref(inst->val);
-            if (!Nst_llist_append(functions, inst->val, true))
-                goto failure;
-        }
-
-        memcpy(inst_array + i, inst, sizeof(Nst_Inst));
-        i++;
-    }
-
-    return inst_ls;
-
-failure:
-    Nst_llist_destroy(functions, (Nst_Destructor)Nst_dec_ref);
-    Nst_free(inst_array);
-    Nst_free(inst_ls);
-    return NULL;
 }
 
-Nst_InstList *Nst_inst_list_copy(Nst_InstList *inst_list)
+void Nst_ilist_set_ex(Nst_InstList *list, usize idx, Nst_InstCode code,
+                      i64 val)
 {
-    inst_list->ref_count++;
-    return inst_list;
+    Nst_Inst *inst = Nst_ilist_get_inst(list, idx);
+    if (inst != NULL) {
+        inst->code = code;
+        inst->val = val;
+    }
 }
 
-void Nst_inst_list_destroy(Nst_InstList *inst_list)
+usize Nst_ilist_len(Nst_InstList *list)
 {
-    if (inst_list->ref_count > 1) {
-        inst_list->ref_count--;
-        return;
-    }
-    Nst_Inst *instructions = inst_list->instructions;
-    for (i64 i = 0, n = inst_list->total_size; i < n; i++) {
-        if (instructions[i].val != NULL)
-            Nst_dec_ref(instructions[i].val);
-    }
+    return list->instructions.len;
+}
 
-    Nst_free(instructions);
-    Nst_llist_destroy(inst_list->functions, (Nst_Destructor)Nst_dec_ref);
-    Nst_free(inst_list);
+bool Nst_fprototype_init(Nst_FuncPrototype *fp, Nst_InstList ls, usize arg_num)
+{
+    fp->ilist = ls;
+    fp->arg_num = arg_num;
+    fp->arg_names = Nst_calloc(arg_num, sizeof(Nst_Obj *), NULL);
+    return fp->arg_names != NULL;
+}
+
+void Nst_fprototype_destroy(Nst_FuncPrototype *fp)
+{
+    if (fp->arg_names != NULL) {
+        for (usize i = 0, n = fp->arg_num; i < n; i++)
+            Nst_ndec_ref(fp->arg_names[i]);
+        Nst_free(fp->arg_names);
+    }
+    Nst_ilist_destroy(&fp->ilist);
 }
 
 #define PRINT(str, size) Nst_fwrite((u8 *)(str), (size), NULL, Nst_io.out)
 
 static void print_bytecode(Nst_InstList *ls, i32 indent)
 {
-    usize tot_size = ls->total_size;
+    usize tot_size = ls->instructions.len;
     int idx_width = 1;
     int max_col = 0;
     int max_row = 0;
-    i64 max_int = 0;
     int col_width = 1;
     int row_width = 1;
-    int int_width = 1;
 
-    for (usize i = 0, n = ls->total_size; i < n; i++) {
-        Nst_Inst inst = ls->instructions[i];
-        if (inst.int_val > max_int)
-            max_int = inst.int_val;
-        if (inst.span.start_col > max_col)
-            max_col = inst.span.start_col;
-        if (inst.span.start_line > max_row)
-            max_row = inst.span.start_line;
+    for (usize i = 0, n = tot_size; i < n; i++) {
+        Nst_Inst *inst = Nst_ilist_get_inst(ls, i);
+        if (inst->span.start_col > max_col)
+            max_col = inst->span.start_col;
+        if (inst->span.start_line > max_row)
+            max_row = inst->span.start_line;
     }
 
     while (tot_size >= 10) {
@@ -163,15 +149,10 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
         max_row /= 10;
         row_width++;
     }
-    while (max_int >= 10) {
-        max_int /= 10;
-        int_width++;
-    }
 
     idx_width = idx_width < 3 ? 3 : idx_width;
     col_width = col_width < 3 ? 3 : col_width;
     row_width = row_width < 3 ? 3 : row_width;
-    int_width = int_width < 3 ? 3 : int_width;
 
     for (i32 i = 0; i < indent; i++)
         PRINT("    ", 4);
@@ -183,13 +164,11 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
     PRINT("   Pos   ", 9);
     for (i32 i = 3; i < col_width; i++)
         PRINT(" ", 1);
-    PRINT("|  Instruction  |", 17);
-    for (i32 i = 3; i < int_width; i++)
-        PRINT(" ", 1);
-    PRINT(" Int | Object\n", 14);
+    PRINT("|  Instruction  | Value\n", 24);
 
-    for (usize i = 0, n = ls->total_size; i < n; i++) {
-        Nst_Inst inst = ls->instructions[i];
+    for (usize i = 0, n = tot_size; i < n; i++) {
+        Nst_Inst *inst = Nst_ilist_get_inst(ls, i);
+        Nst_InstCode code = inst->code;
 
         for (i32 j = 0; j < indent; j++)
             Nst_print("    ");
@@ -197,11 +176,11 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
             " %*zi | %*" PRIi32 ":%-*" PRIi32 " | ",
             idx_width, i,
             row_width,
-            inst.span.start_line + 1,
+            inst->span.start_line + 1,
             col_width,
-            inst.span.start_col + 1);
+            inst->span.start_col + 1);
 
-        switch (inst.id) {
+        switch (code) {
         case Nst_IC_NO_OP:         PRINT("NO_OP        ", 13); break;
         case Nst_IC_POP_VAL:       PRINT("POP_VAL      ", 13); break;
         case Nst_IC_FOR_START:     PRINT("FOR_START    ", 13); break;
@@ -213,7 +192,6 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
         case Nst_IC_JUMPIF_T:      PRINT("JUMPIF_T     ", 13); break;
         case Nst_IC_JUMPIF_F:      PRINT("JUMPIF_F     ", 13); break;
         case Nst_IC_JUMPIF_ZERO:   PRINT("JUMPIF_ZERO  ", 13); break;
-        case Nst_IC_HASH_CHECK:    PRINT("HASH_CHECK   ", 13); break;
         case Nst_IC_THROW_ERR:     PRINT("THROW_ERR    ", 13); break;
         case Nst_IC_PUSH_CATCH:    PRINT("PUSH_CATCH   ", 13); break;
         case Nst_IC_POP_CATCH:     PRINT("POP_CATCH    ", 13); break;
@@ -231,7 +209,8 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
         case Nst_IC_DEC_INT:       PRINT("DEC_INT      ", 13); break;
         case Nst_IC_NEW_INT:       PRINT("NEW_INT      ", 13); break;
         case Nst_IC_DUP:           PRINT("DUP          ", 13); break;
-        case Nst_IC_ROT:           PRINT("ROT          ", 13); break;
+        case Nst_IC_ROT_2:         PRINT("ROT_2        ", 13); break;
+        case Nst_IC_ROT_3:         PRINT("ROT_3        ", 13); break;
         case Nst_IC_MAKE_ARR:      PRINT("MAKE_ARR     ", 13); break;
         case Nst_IC_MAKE_ARR_REP:  PRINT("MAKE_ARR_REP ", 13); break;
         case Nst_IC_MAKE_VEC:      PRINT("MAKE_VEC     ", 13); break;
@@ -245,49 +224,51 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
         default:                   PRINT("__UNKNOWN__  ", 13); break;
         }
 
-        if (inst.id == Nst_IC_NO_OP) {
-            PRINT(" | ", 3);
-            for (i32 j = 0; j < idx_width; j++)
-                PRINT(" ", 1);
-            PRINT(" |", 2);
+        PRINT(" |", 2);
+
+        if (inst->code == Nst_IC_NO_OP) {
             PRINT("\n", 1);
             continue;
         }
 
-        if (Nst_INST_IS_JUMP(inst.id) || inst.id == Nst_IC_LOCAL_OP
-            || inst.id == Nst_IC_STACK_OP || inst.id == Nst_IC_MAKE_ARR
-            || inst.id == Nst_IC_MAKE_VEC || inst.id == Nst_IC_MAKE_MAP
-            || inst.int_val != 0)
+        if (inst->val != 0 || Nst_ic_is_jump(code) || code == Nst_IC_LOCAL_OP
+            || code == Nst_IC_STACK_OP || code == Nst_IC_MAKE_ARR
+            || code == Nst_IC_MAKE_VEC || code == Nst_IC_MAKE_MAP
+            || code == Nst_IC_MAKE_FUNC || code == Nst_IC_PUSH_VAL
+            || code == Nst_IC_GET_VAL || code == Nst_IC_SET_VAL
+            || code == Nst_IC_SET_VAL_LOC)
         {
-            Nst_printf(" | %*" PRIi64 " |", idx_width, inst.int_val);
+            Nst_printf(" %*" PRIi64, idx_width, inst->val);
         } else {
-            PRINT(" | ", 3);
-            for (i32 j = 0; j < idx_width; j++)
-                PRINT(" ", 1);
-            PRINT(" |", 2);
+            PRINT("\n", 1);
+            continue;
         }
 
-        if (inst.val != NULL) {
-            Nst_printf(" (%s) ", Nst_type_name(inst.val->type).value);
-            Nst_Obj *s = Nst_obj_to_repr_str(inst.val);
-            if (Nst_error_occurred())
+        if (code == Nst_IC_PUSH_VAL || code == Nst_IC_GET_VAL
+            || code == Nst_IC_SET_VAL || code == Nst_IC_SET_VAL_LOC)
+        {
+            Nst_Obj *obj = Nst_ilist_get_inst_obj(ls, i);
+            Nst_Obj *s = Nst_obj_to_repr_str(obj);
+            if (Nst_error_occurred()) {
                 Nst_error_clear();
-            else {
-                Nst_fwrite(Nst_str_value(s), Nst_str_len(s), NULL, Nst_io.out);
-                Nst_dec_ref(s);
+                PRINT("\n", 1);
+                continue;
             }
-
-            if (inst.val->type == Nst_t.Func) {
-                PRINT("\n\n", 2);
-                for (i32 j = 0; j < indent + 1; j++)
-                    PRINT("    ", 4);
-                PRINT("<Func object> bytecode:\n", 24);
-                print_bytecode(Nst_func_nest_body(inst.val), indent + 1);
-            }
-        } else if (inst.id == Nst_IC_STACK_OP || inst.id == Nst_IC_LOCAL_OP) {
+            Nst_printf(" [(%s) ", Nst_type_name(obj->type).value);
+            Nst_fwrite(Nst_str_value(s), Nst_str_len(s), NULL, Nst_io.out);
+            Nst_dec_ref(s);
+            PRINT("]", 1);
+        } else if (code == Nst_IC_MAKE_FUNC) {
+            PRINT("\n\n", 2);
+            for (i32 j = 0; j < indent + 1; j++)
+                PRINT("    ", 4);
+            PRINT("Function instructions:\n", 23);
+            Nst_FuncPrototype *func = Nst_ilist_get_inst_func(ls, i);
+            print_bytecode(&func->ilist, indent + 1);
+        } else if (code == Nst_IC_STACK_OP || code == Nst_IC_LOCAL_OP) {
             PRINT(" [", 2);
 
-            switch (inst.int_val) {
+            switch (inst->val) {
             case Nst_TT_ADD:    PRINT("+", 1);  break;
             case Nst_TT_SUB:    PRINT("-", 1);  break;
             case Nst_TT_MUL:    PRINT("*", 1);  break;
@@ -325,7 +306,7 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
     }
 }
 
-void Nst_inst_list_print(Nst_InstList *ls)
+void Nst_ilist_print(Nst_InstList *ls)
 {
     print_bytecode(ls, 0);
 }

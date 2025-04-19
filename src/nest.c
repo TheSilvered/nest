@@ -38,20 +38,28 @@ int main(int argc, char **argv)
     else if (parse_result == 1)
         return 0;
 
-    if (!Nst_init(&cl_args)) {
+    if (!Nst_init()) {
         fprintf(stderr, "Failed to initialize Nest.");
         return -1;
     }
 
-    Nst_ExecutionState es;
-    Nst_SourceText src;
-    i32 result = Nst_execute(cl_args, &es, &src);
+    Nst_Program prog;
+    Nst_ExecutionKind ek = Nst_prog_init(&prog, cl_args);
+    i32 result;
+
+    if (ek == Nst_EK_ERROR) {
+        Nst_error_print();
+        Nst_error_clear();
+        result = 1;
+    } else if (ek == Nst_EK_INFO)
+        result = 0;
+    else
+        result = Nst_run(&prog);
 
     if (Nst_error_occurred())
-        Nst_tb_print(Nst_error_get());
+        Nst_error_print();
 
-    Nst_es_destroy(&es);
-    Nst_source_text_destroy(&src);
+    Nst_prog_destroy(&prog);
     Nst_quit();
 
 #ifdef Nst_MSVC

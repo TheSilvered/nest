@@ -26,7 +26,7 @@ extern "C" {
  *
  * @return The new object on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_type_new(const char *name, Nst_ObjDstr dstr);
+NstEXP Nst_ObjRef *NstC Nst_type_new(const char *name, Nst_ObjDstr dstr);
 /**
  * Creates a new `Type` for containers.
  *
@@ -38,8 +38,8 @@ NstEXP Nst_Obj *NstC Nst_type_new(const char *name, Nst_ObjDstr dstr);
  *
  * @return The new object on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_cont_type_new(const char *name, Nst_ObjDstr dstr,
-                                       Nst_ObjTrav trav);
+NstEXP Nst_ObjRef *NstC Nst_cont_type_new(const char *name, Nst_ObjDstr dstr,
+                                          Nst_ObjTrav trav);
 
 /* Get the name of the type. */
 NstEXP Nst_StrView NstC Nst_type_name(Nst_Obj *type);
@@ -49,7 +49,7 @@ NstEXP Nst_StrView NstC Nst_type_name(Nst_Obj *type);
  */
 NstEXP Nst_ObjTrav NstC Nst_type_trav(Nst_Obj *type);
 
-Nst_Obj *_Nst_type_new_no_err(const char *name, Nst_ObjDstr dstr);
+Nst_ObjRef *_Nst_type_new_no_err(const char *name, Nst_ObjDstr dstr);
 
 void NstC _Nst_type_destroy(Nst_Obj *obj);
 

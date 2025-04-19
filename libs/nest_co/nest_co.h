@@ -14,7 +14,7 @@ typedef struct _CoroutineObj {
     Nst_OBJ_HEAD;
     Nst_GGC_HEAD;
     Nst_Obj *func;
-    Nst_VarTable *vt;
+    Nst_VarTable vt;
     Nst_Obj **stack;
     usize stack_size;
     i64 idx;

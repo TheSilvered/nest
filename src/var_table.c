@@ -1,16 +1,11 @@
 #include "nest.h"
 
-Nst_VarTable *Nst_vt_new(Nst_Obj *global_table, Nst_Obj *args,
-                         bool no_default)
+bool Nst_vt_init(Nst_VarTable *vt, Nst_Obj *global_table, Nst_Obj *args,
+                 bool no_default)
 {
-    Nst_VarTable *vt = Nst_malloc_c(1, Nst_VarTable);
-    if (vt == NULL)
-        return NULL;
     Nst_Obj *vars = Nst_map_new();
-    if (vars == NULL) {
-        Nst_free(vt);
-        return NULL;
-    }
+    if (vars == NULL)
+        return false;
     vt->vars = vars;
     vt->global_table = no_default ? NULL : global_table;
     Nst_map_set(vars, Nst_s.o__vars_, vars);
@@ -27,7 +22,7 @@ Nst_VarTable *Nst_vt_new(Nst_Obj *global_table, Nst_Obj *args,
 #endif // !_DEBUG
 
     if (no_default)
-        return vt;
+        return true;
 
     if (global_table == NULL)
         Nst_map_set(vars, Nst_s.o__globals_, Nst_c.Null_null);
@@ -39,9 +34,9 @@ Nst_VarTable *Nst_vt_new(Nst_Obj *global_table, Nst_Obj *args,
             Nst_map_drop(vars, Nst_s.o__vars_);
             Nst_dec_ref(vars);
             Nst_free(vt);
-            return NULL;
+            return false;
         }
-        return vt;
+        return true;
     }
 
     Nst_map_set(vars, Nst_s.t_Type,   Nst_t.Type);
@@ -68,33 +63,36 @@ Nst_VarTable *Nst_vt_new(Nst_Obj *global_table, Nst_Obj *args,
         Nst_map_drop(vars, Nst_s.o__vars_);
         Nst_dec_ref(vars);
         Nst_free(vt);
-        return NULL;
+        return false;
     }
-    return vt;
+    return true;
 }
 
-Nst_Obj *Nst_vt_get(Nst_VarTable *vt, Nst_Obj *name)
+Nst_ObjRef *Nst_vt_get(Nst_VarTable vt, Nst_Obj *name)
 {
-    Nst_Obj *val = Nst_map_get(vt->vars, name);
+    Nst_Obj *val = Nst_map_get(vt.vars, name);
 
-    if (val == NULL && vt->global_table != NULL)
-        val = Nst_map_get(vt->global_table, name);
+    if (val == NULL && vt.global_table != NULL)
+        val = Nst_map_get(vt.global_table, name);
 
     if (val == NULL)
         return Nst_null_ref();
     return val;
 }
 
-bool Nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val)
+bool Nst_vt_set(Nst_VarTable vt, Nst_Obj *name, Nst_Obj *val)
 {
-    return Nst_map_set(vt->vars, name, val);
+    return Nst_map_set(vt.vars, name, val);
 }
 
 void Nst_vt_destroy(Nst_VarTable *vt)
 {
-    Nst_Obj *vars = Nst_map_drop(vt->vars, Nst_s.o__vars_);
-    Nst_ndec_ref(vars);
-    Nst_dec_ref(vt->vars);
+    if (vt->vars != NULL) {
+        Nst_Obj *vars = Nst_map_drop(vt->vars, Nst_s.o__vars_);
+        Nst_ndec_ref(vars);
+        Nst_dec_ref(vt->vars);
+    }
     Nst_ndec_ref(vt->global_table);
-    Nst_free(vt);
+    vt->vars = NULL;
+    vt->global_table = NULL;
 }

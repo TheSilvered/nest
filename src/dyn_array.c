@@ -5,17 +5,20 @@
 
 bool Nst_da_init(Nst_DynArray *arr, usize unit_size, usize count)
 {
+    arr->unit_size = unit_size;
+    arr->len = 0;
+
     if (count == 0)
         arr->data = NULL;
     else {
         arr->data = Nst_malloc(count, unit_size);
-        if (arr->data == NULL)
+        if (arr->data == NULL) {
+            arr->cap = 0;
             return false;
+        }
     }
 
     arr->cap = count;
-    arr->unit_size = unit_size;
-    arr->len = 0;
     return true;
 }
 

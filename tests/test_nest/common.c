@@ -27,7 +27,7 @@ void run_test(Test test, const char *test_name)
     TestResult result = test();
 
     if (Nst_error_occurred()) {
-        Nst_tb_print(Nst_error_get());
+        Nst_error_print();
         Nst_error_clear();
         if (result == TEST_SUCCESS)
             result = TEST_FAILURE;
@@ -69,7 +69,7 @@ static void fail(TestResult *result, int line)
     Nst_printf("%s  Failure on line %i", RED, line);
     if (Nst_error_occurred()) {
         Nst_printf(" with  error%s\n    ", RESET);
-        Nst_tb_print(Nst_error_get());
+        Nst_error_print();
         Nst_error_clear();
     } else {
         Nst_printf("%s\n", RESET);
@@ -83,7 +83,7 @@ static void crit_fail(TestResult *result, int line)
     Nst_printf("%s  Critical failure on line %i%s\n", RED, line, RESET);
     if (Nst_error_occurred()) {
         Nst_printf(" with error%s\n    ", RESET);
-        Nst_tb_print(Nst_error_get());
+        Nst_error_print();
         Nst_error_clear();
     } else {
         Nst_printf("%s\n", RESET);

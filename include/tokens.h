@@ -142,7 +142,7 @@ NstEXP typedef enum _Nst_TokType {
 NstEXP typedef struct _Nst_Tok {
     Nst_Span span;
     Nst_TokType type;
-    Nst_Obj *value;
+    Nst_ObjRef *value;
 } Nst_Tok;
 
 /**

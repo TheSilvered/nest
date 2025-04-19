@@ -40,8 +40,6 @@
 /* Clears all flags from an object, except for the reserved ones. */
 #define Nst_CLEAR_FLAGS(obj) ((obj)->flags &= 0xff000000)
 
-struct _Nst_Obj;
-
 /**
  * The type of an object destructor.
  *
@@ -50,7 +48,7 @@ struct _Nst_Obj;
  * object's own memory, which is handled by Nest. This function should also
  * remove any references that the object being deleted has with other objects.
  */
-NstEXP typedef void (*Nst_ObjDstr)(struct _Nst_Obj *);
+NstEXP typedef void (*Nst_ObjDstr)(Nst_Obj *);
 /**
  * The type of an object traverse function for the garbage collector.
  *
@@ -59,7 +57,7 @@ NstEXP typedef void (*Nst_ObjDstr)(struct _Nst_Obj *);
  * references. Any indirect references, such as objects within objects, should
  * be left untouched.
  */
-NstEXP typedef void (*Nst_ObjTrav)(struct _Nst_Obj *);
+NstEXP typedef void (*Nst_ObjTrav)(Nst_Obj *);
 
 #ifdef Nst_DBG_TRACK_OBJ_INIT_POS
 
@@ -71,8 +69,8 @@ NstEXP typedef void (*Nst_ObjTrav)(struct _Nst_Obj *);
  * because they are reserved for the garbage collector.
  */
 #define Nst_OBJ_HEAD                                                          \
-    struct _Nst_Obj *type;                                                    \
-    struct _Nst_Obj *p_next;                                                  \
+    Nst_ObjRef *type;                                                         \
+    Nst_Obj *p_next;                                                          \
     isize ref_count;                                                          \
     i32 hash;                                                                 \
     u32 flags;                                                                \
@@ -90,8 +88,8 @@ NstEXP typedef void (*Nst_ObjTrav)(struct _Nst_Obj *);
  * because they are reserved for the garbage collector.
  */
 #define Nst_OBJ_HEAD                                                          \
-    struct _Nst_Obj *type;                                                    \
-    struct _Nst_Obj *p_next;                                                  \
+    Nst_ObjRef *type;                                                         \
+    Nst_Obj *p_next;                                                          \
     isize ref_count;                                                          \
     i32 hash;                                                                 \
     u32 flags
@@ -100,28 +98,6 @@ NstEXP typedef void (*Nst_ObjTrav)(struct _Nst_Obj *);
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
-
-/* [docs:ignore_sym Nst_DBG_TRACK_OBJ_INIT_POS] */
-
-/**
- * The structure representing a basic Nest object.
- *
- * @param ref_count: the reference count of the object
- * @param type: the type of the object
- * @param p_next: the next object in the type's pool
- * @param hash: the hash of the object, `-1` if it has not yet been hashed or
- * is not hashable
- * @param flags: the flags of the object
- * @param init_line: **THIS FIELD ONLY EXISTS WHEN `Nst_DBG_TRACK_OBJ_INIT_POS`
- * IS DEFINED** the line of the instruction that initialized the object
- * @param init_col: **THIS FIELD ONLY EXISTS WHEN `Nst_DBG_TRACK_OBJ_INIT_POS`
- * IS DEFINED** the column of the instruction that initialized the object
- * @param init_path: **THIS FIELD ONLY EXISTS WHEN `Nst_DBG_TRACK_OBJ_INIT_POS`
- * IS DEFINED** the path to the file where the object was initialized
- */
-NstEXP typedef struct _Nst_Obj {
-    Nst_OBJ_HEAD;
-} Nst_Obj;
 
 /**
  * Allocates an object on the heap and initializes the fields in
@@ -133,7 +109,7 @@ NstEXP typedef struct _Nst_Obj {
  *
  * @return The newly allocate object or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC _Nst_obj_alloc(usize size, Nst_Obj *type);
+NstEXP Nst_ObjRef *NstC _Nst_obj_alloc(usize size, Nst_Obj *type);
 
 /**
  * @brief Traverse an object for the GGC. If the object's type does not have a
@@ -145,13 +121,13 @@ void _Nst_obj_destroy(Nst_Obj *obj);
 void _Nst_obj_free(Nst_Obj *obj);
 
 /* Increases the reference count of an object. Returns `obj`. */
-NstEXP Nst_Obj *NstC Nst_inc_ref(Nst_Obj *obj);
+NstEXP Nst_ObjRef *NstC Nst_inc_ref(Nst_Obj *obj);
 /* Calls `Nst_inc_ref` if `obj` is not a `NULL` pointer. Returns `obj`. */
-NstEXP Nst_Obj *NstC Nst_ninc_ref(Nst_Obj *obj);
+NstEXP Nst_ObjRef *NstC Nst_ninc_ref(Nst_Obj *obj);
 /* Decreases the reference count of an object. */
-NstEXP void NstC Nst_dec_ref(Nst_Obj *obj);
+NstEXP void NstC Nst_dec_ref(Nst_ObjRef *obj);
 /* Calls `Nst_dec_ref` if `obj` is not a `NULL` pointer. Returns `obj`. */
-NstEXP void NstC Nst_ndec_ref(Nst_Obj *obj);
+NstEXP void NstC Nst_ndec_ref(Nst_ObjRef *obj);
 
 /* Flags of a Nest object. */
 NstEXP typedef enum _Nst_ObjFlags {

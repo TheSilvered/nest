@@ -23,12 +23,12 @@ extern "C" {
  * @param global_table: the map of global variables
  */
 NstEXP typedef struct _Nst_VarTable {
-    Nst_Obj *vars;
-    Nst_Obj *global_table;
+    Nst_ObjRef *vars;
+    Nst_ObjRef *global_table;
 } Nst_VarTable;
 
 /**
- * Creates a new var table on the heap.
+ * Initialize a variable table.
  *
  * @param global_table: the current global variable table, can be `NULL`
  * @param cwd: the current working directory, ignored when `global_table` is
@@ -36,9 +36,11 @@ NstEXP typedef struct _Nst_VarTable {
  * @param args: the command line arguments, ignored when `global_table` is not
  * `NULL` or `no_default` is `true`
  * @param no_default: whether to create predefined variables
+ *
+ * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP Nst_VarTable *NstC Nst_vt_new(Nst_Obj *global_table, Nst_Obj *args,
-                                     bool no_default);
+NstEXP bool NstC Nst_vt_init(Nst_VarTable *vt, Nst_Obj *global_table,
+                             Nst_Obj *args, bool no_default);
 /* `Nst_VarTable` destructor. */
 NstEXP void NstC Nst_vt_destroy(Nst_VarTable *vt);
 /**
@@ -50,7 +52,7 @@ NstEXP void NstC Nst_vt_destroy(Nst_VarTable *vt);
  * @return The value associated with the key or `Nst_null()` if the key is not
  * present in the table.
  */
-NstEXP Nst_Obj *NstC Nst_vt_get(Nst_VarTable *vt, Nst_Obj *name);
+NstEXP Nst_ObjRef *NstC Nst_vt_get(Nst_VarTable vt, Nst_Obj *name);
 /**
  * Sets a value in a variable table.
  *
@@ -60,7 +62,7 @@ NstEXP Nst_Obj *NstC Nst_vt_get(Nst_VarTable *vt, Nst_Obj *name);
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val);
+NstEXP bool NstC Nst_vt_set(Nst_VarTable vt, Nst_Obj *name, Nst_Obj *val);
 
 #ifdef __cplusplus
 }

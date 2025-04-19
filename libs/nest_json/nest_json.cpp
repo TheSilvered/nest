@@ -27,9 +27,10 @@ Nst_Obj *NstC load_s_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     Nst_DynArray tokens = json_tokenize(
-        (char *)"<Str>",
-        (char *)Nst_str_value(str), Nst_str_len(str),
-        true, Nst_EID_EXT_UTF8);
+        NULL,
+        (char *)Nst_str_value(str),
+        Nst_str_len(str),
+        Nst_EID_EXT_UTF8);
     if (tokens.len == 0)
         return nullptr;
 
@@ -50,33 +51,10 @@ Nst_Obj *NstC load_f_(usize arg_num, Nst_Obj **args)
         Nst_EID_UNKNOWN);
     encoding = Nst_encoding_to_single_byte(encoding);
 
-    FILE *f = Nst_fopen_unicode((char *)Nst_str_value(path), "rb");
-
-    if (f == nullptr) {
-        if (!Nst_error_occurred())
-            Nst_error_setf_value(
-                "file '%.4096s' not found",
-                Nst_str_value(path));
-        return nullptr;
-    }
-
-    fseek(f, 0, SEEK_END);
-    usize buf_size = (usize)ftell(f);
-    fseek(f, 0, SEEK_SET);
-
-    u8 *buf = Nst_malloc_c(buf_size + 1, u8);
-    if (buf == nullptr) {
-        fclose(f);
-        return nullptr;
-    }
-
-    usize len = fread(buf, sizeof(u8), buf_size, f);
-    fclose(f);
-    buf[len] = 0;
     Nst_DynArray tokens = json_tokenize(
         (char *)Nst_str_value(path),
-        (char *)buf, len,
-        false, encoding);
+        nullptr, 0,
+        encoding);
     if (tokens.len == 0)
         return nullptr;
 

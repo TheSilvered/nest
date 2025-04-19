@@ -24,7 +24,7 @@ extern "C" {
  *
  * @return The new object on success or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_int_new(i64 value);
+NstEXP Nst_ObjRef *NstC Nst_int_new(i64 value);
 /* Get the value of an `Int` object as an `i64`. */
 NstEXP i64 NstC Nst_int_i64(Nst_Obj *obj);
 
@@ -37,7 +37,7 @@ void _Nst_counter_dec(Nst_Obj *counter);
  *
  * @return The new object on success or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_real_new(f64 value);
+NstEXP Nst_ObjRef *NstC Nst_real_new(f64 value);
 /* Get the value of a `Real` object as an `f64`. */
 NstEXP f64 NstC Nst_real_f64(Nst_Obj *obj);
 /* Get the value of a `Real` object as an `f32`. */
@@ -50,7 +50,7 @@ NstEXP f32 NstC Nst_real_f32(Nst_Obj *obj);
  *
  * @return The new object on success or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_byte_new(u8 value);
+NstEXP Nst_ObjRef *NstC Nst_byte_new(u8 value);
 /* Get the value of a `Byte` object. */
 NstEXP u8 NstC Nst_byte_u8(Nst_Obj *obj);
 
@@ -62,7 +62,7 @@ NstEXP u8 NstC Nst_byte_u8(Nst_Obj *obj);
  * @return The converted number. If number is not a numeric object, `0` is
  * returned. No error is set.
  */
-NstEXP u8  NstC Nst_number_to_u8(Nst_Obj *number);
+NstEXP u8 NstC Nst_number_to_u8(Nst_Obj *number);
 /**
  * Converts the value of a numeric object (`Int`, `Real`, `Byte`) to an `int`.
  *

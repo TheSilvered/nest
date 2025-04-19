@@ -247,14 +247,14 @@
     (void)(                                                                   \
         !!(expr)                                                              \
     ||                                                                        \
-        ((void)((Nst_current_inst() && fprintf(                               \
+        ((void)((Nst_state_span().text != NULL && fprintf(                     \
             stderr,                                                           \
             "Assertion failed: %s (C - %s:%i, Nest - %s:%" PRIi32 ")\n",      \
             #expr,                                                            \
             __FILE__,                                                         \
             __LINE__,                                                         \
-            Nst_current_inst()->span.text->path,                              \
-            Nst_current_inst()->span.start_line) >= 0                         \
+            Nst_state_span().text->path,                                       \
+            Nst_state_span().start_line) >= 0                                  \
         ) || fprintf(                                                         \
             stderr,                                                           \
             "Assertion failed: %s (C - %s:%i, Nest - <unknown>)\n",           \
@@ -344,10 +344,49 @@ NstEXP typedef size_t usize;
 /* `ptrdiff_t` alias. */
 NstEXP typedef ptrdiff_t isize;
 
-typedef struct _Nst_Obj Nst_Obj;
+/**
+ * The structure representing a basic Nest object.
+ *
+ * @param ref_count: the reference count of the object
+ * @param type: the type of the object
+ * @param p_next: the next object in the type's pool
+ * @param hash: the hash of the object, `-1` if it has not yet been hashed or
+ * is not hashable
+ * @param flags: the flags of the object
+ * @param init_line: **this field only exists when `Nst_DBG_TRACK_OBJ_INIT_POS`
+ * is defined** - the line of the instruction that initialized the object
+ * @param init_col: **this field only exists when `Nst_DBG_TRACK_OBJ_INIT_POS`
+ * is defined** - the column of the instruction that initialized the object
+ * @param init_path: **this field only exists when `Nst_DBG_TRACK_OBJ_INIT_POS`
+ * is defined** - the path to the file where the object was initialized
+ */
+NstEXP typedef struct _Nst_Obj {
+    struct _Nst_Obj *type;
+    struct _Nst_Obj *p_next;
+    isize ref_count;
+    i32 hash;
+    u32 flags;
+#ifdef Nst_DBG_TRACK_OBJ_INIT_POS
+    i32 init_line;
+    i32 init_col;
+    char *init_path;
+#endif // !Nst_DBG_TRACK_OBJ_INIT_POS
+} Nst_Obj;
+
+/**
+ * Using `Nst_ObjRef *` instead of `Nst_Obj *` signals that an object reference
+ * is being passed or owned. Depending on context it has different meanings:
+ *! When used as the type of a function argument it signals that a reference is
+ * taken from the argument itself.
+ *! When used as the type of the return value of a function it signals that the
+ * function returns a new reference to the object.
+ *! When used in a struct it signals that the struct owns a reference to the
+ * object.
+ */
+NstEXP typedef Nst_Obj Nst_ObjRef;
 
 /* The signature of a C function callable by Nest. */
-NstEXP typedef Nst_Obj *(*Nst_NestCallable)(usize, Nst_Obj **);
+NstEXP typedef Nst_ObjRef *(*Nst_NestCallable)(usize, Nst_Obj **);
 /* The signature of a generic destructor. */
 NstEXP typedef void (*Nst_Destructor)(void *);
 

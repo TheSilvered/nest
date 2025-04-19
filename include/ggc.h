@@ -94,12 +94,12 @@ NstEXP void NstC Nst_ggc_collect_gen(Nst_GGCList *gen);
 NstEXP void NstC Nst_ggc_collect(void);
 /* Adds an object to the tracked objects by the garbage collector. */
 NstEXP void NstC Nst_ggc_track_obj(Nst_GGCObj *obj);
-/* Deletes all objects still present in the garbage collector. */
-NstEXP void NstC _Nst_ggc_delete_objs(void);
-/* Initializes the garbage collector of `Nst_state`. */
-NstEXP void NstC _Nst_ggc_init(void);
 /* Sets an `Nst_Obj` as reachable for the garbage collector. */
 NstEXP void NstC Nst_ggc_obj_reachable(Nst_Obj *obj);
+
+void _Nst_ggc_quit(void);
+void _Nst_ggc_init(void);
+
 
 /* The flags of a garbage collector object. */
 NstEXP typedef enum _Nst_GGCFlags {

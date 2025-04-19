@@ -68,7 +68,7 @@ Nst_StrView Nst_sv_from_str_slice(Nst_Obj *str, usize start_idx, usize end_idx)
     return Nst_sv_new(Nst_str_value(str) + i_start, Nst_str_len(str) - i_start);
 }
 
-Nst_Obj *Nst_str_from_sv(Nst_StrView sv)
+Nst_ObjRef *Nst_str_from_sv(Nst_StrView sv)
 {
     u8 *buf = (u8 *)Nst_calloc(1, sv.len + 1, sv.value);
     if (buf == NULL)

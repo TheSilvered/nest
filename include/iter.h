@@ -27,8 +27,8 @@ extern "C" {
  *
  * @return The new object or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_iter_new(Nst_Obj *start, Nst_Obj *next,
-                                  Nst_Obj *value);
+NstEXP Nst_ObjRef *NstC Nst_iter_new(Nst_ObjRef *start, Nst_ObjRef *next,
+                                     Nst_ObjRef *value);
 
 void _Nst_iter_destroy(Nst_Obj *iter);
 
@@ -62,44 +62,44 @@ NstEXP bool NstC Nst_iter_start(Nst_Obj *iter);
  * @return The resulting object on success and `NULL` on failure. The error is
  * set.
  */
-NstEXP Nst_Obj *NstC Nst_iter_next(Nst_Obj *iter);
+NstEXP Nst_ObjRef *NstC Nst_iter_next(Nst_Obj *iter);
 
 /* Create a new range object. */
-NstEXP Nst_Obj *NstC Nst_iter_range_new(i64 start, i64 stop, i64 step);
+NstEXP Nst_ObjRef *NstC Nst_iter_range_new(i64 start, i64 stop, i64 step);
 /* Create a sequence iterator. */
-NstEXP Nst_Obj *NstC Nst_iter_seq_new(Nst_Obj *seq);
+NstEXP Nst_ObjRef *NstC Nst_iter_seq_new(Nst_Obj *seq);
 /* Create a string iterator. */
-NstEXP Nst_Obj *NstC Nst_iter_str_new(Nst_Obj *seq);
+NstEXP Nst_ObjRef *NstC Nst_iter_str_new(Nst_Obj *seq);
 /* Create a map iterator. */
-NstEXP Nst_Obj *NstC Nst_iter_map_new(Nst_Obj *seq);
+NstEXP Nst_ObjRef *NstC Nst_iter_map_new(Nst_Obj *seq);
 
 // Functions for range iterators
 
 /* The `start` function of the range iterator. */
-NstEXP Nst_Obj *NstC Nst_iter_range_start(usize arg_num, Nst_Obj **args);
+NstEXP Nst_ObjRef *NstC Nst_iter_range_start(usize arg_num, Nst_Obj **args);
 /* The `next` function of the range iterator. */
-NstEXP Nst_Obj *NstC Nst_iter_range_next(usize arg_num, Nst_Obj **args);
+NstEXP Nst_ObjRef *NstC Nst_iter_range_next(usize arg_num, Nst_Obj **args);
 
 // Functions for sequence iterators
 
 /* The `start` function of the sequence iterator. */
-NstEXP Nst_Obj *NstC Nst_iter_seq_start(usize arg_num, Nst_Obj **args);
+NstEXP Nst_ObjRef *NstC Nst_iter_seq_start(usize arg_num, Nst_Obj **args);
 /* The `next` function of the sequence iterator. */
-NstEXP Nst_Obj *NstC Nst_iter_seq_next(usize arg_num, Nst_Obj **args);
+NstEXP Nst_ObjRef *NstC Nst_iter_seq_next(usize arg_num, Nst_Obj **args);
 
 // Functions for string iterators
 
 /* The `start` function of the string iterator. */
-NstEXP Nst_Obj *NstC Nst_iter_str_start(usize arg_num, Nst_Obj **args);
+NstEXP Nst_ObjRef *NstC Nst_iter_str_start(usize arg_num, Nst_Obj **args);
 /* The `next` function of the string iterator. */
-NstEXP Nst_Obj *NstC Nst_iter_str_next(usize arg_num, Nst_Obj **args);
+NstEXP Nst_ObjRef *NstC Nst_iter_str_next(usize arg_num, Nst_Obj **args);
 
 // Functions for map iterators
 
 /* The `start` function of the map iterator. */
-NstEXP Nst_Obj *NstC Nst_iter_map_start(usize arg_num, Nst_Obj **args);
+NstEXP Nst_ObjRef *NstC Nst_iter_map_start(usize arg_num, Nst_Obj **args);
 /* The `next` function of the map iterator. */
-NstEXP Nst_Obj *NstC Nst_iter_map_next(usize arg_num, Nst_Obj **args);
+NstEXP Nst_ObjRef *NstC Nst_iter_map_next(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }
