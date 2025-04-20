@@ -378,7 +378,7 @@ static void optimize_inst_list(Nst_InstList *ls);
 static void replace_builtins(Nst_InstList *ls);
 static isize get_val_idx(Nst_InstList *ls, Nst_Obj *val);
 static void replace_constant(Nst_InstList *ls, Nst_Obj *name, Nst_Obj *val);
-static void replace_access(Nst_InstList *ls, Nst_Obj *name, usize obj_idx);
+static bool replace_access(Nst_InstList *ls, Nst_Obj *name, usize obj_idx);
 static void replace_func_access(Nst_FuncPrototype *func, Nst_Obj *name,
                                 Nst_Obj *val);
 // check if the value of 'name' can be accessed directly at any point in 'ls',
@@ -486,11 +486,16 @@ static void replace_constant(Nst_InstList *ls, Nst_Obj *name, Nst_Obj *val)
     if (has_assignments(ls, name))
         return;
 
+    usize prev_len = ls->objects.len;
     isize idx = get_val_idx(ls, val);
     if (idx == -1)
         return;
 
-    replace_access(ls, name, (usize)idx);
+    bool changed = replace_access(ls, name, (usize)idx);
+
+    // do not add the value if it is never used
+    if (!changed && (usize)idx == prev_len)
+        Nst_da_pop_p(&ls->objects, (Nst_Destructor)Nst_dec_ref);
 
     for (usize i = 0, n = ls->functions.len; i < n; i++) {
         Nst_FuncPrototype *func = Nst_ilist_get_func(ls, i);
@@ -506,8 +511,12 @@ static void replace_func_access(Nst_FuncPrototype *func, Nst_Obj *name,
         if (Nst_obj_eq_c(name, func->arg_names[i]))
             return;
     }
+    usize prev_len = func->ilist.objects.len;
     isize idx = get_val_idx(&func->ilist, val);
-    replace_access(&func->ilist, name, (usize)idx);
+    bool changed = replace_access(&func->ilist, name, (usize)idx);
+    // do not add the value if it is never used
+    if (!changed && (usize)idx == prev_len)
+        Nst_da_pop_p(&func->ilist.objects, (Nst_Destructor)Nst_dec_ref);
 
     for (usize i = 0, n = func->ilist.functions.len; i < n; i++) {
         Nst_FuncPrototype *func_ptype = Nst_ilist_get_func(&func->ilist, i);
@@ -515,10 +524,11 @@ static void replace_func_access(Nst_FuncPrototype *func, Nst_Obj *name,
     }
 }
 
-static void replace_access(Nst_InstList *ls, Nst_Obj *name, usize obj_idx)
+static bool replace_access(Nst_InstList *ls, Nst_Obj *name, usize obj_idx)
 {
     Nst_assert(name->type == Nst_t.Str);
     usize size = Nst_ilist_len(ls);
+    bool ret = false;
 
     for (usize i = 0; i < size; i++) {
         Nst_Inst *inst = Nst_ilist_get_inst(ls, i);
@@ -528,8 +538,10 @@ static void replace_access(Nst_InstList *ls, Nst_Obj *name, usize obj_idx)
         if (Nst_obj_eq_c(name, inst_val)) {
             inst->code = Nst_IC_PUSH_VAL;
             inst->val = obj_idx;
+            ret = true;
         }
     }
+    return ret;
 }
 
 static bool is_accessed(Nst_InstList *ls, Nst_Obj *name)
@@ -553,7 +565,7 @@ static bool is_accessed(Nst_InstList *ls, Nst_Obj *name)
         Nst_InstCode code = inst_code(ls, i);
         Nst_Obj *val = Nst_ilist_get_inst_obj(ls, i);
 
-        if (code != Nst_IC_GET_VAL || Nst_obj_eq_c(val, name) != 0)
+        if (code != Nst_IC_GET_VAL || !Nst_obj_eq_c(val, name))
             continue;
 
         do {

@@ -168,11 +168,13 @@ bool Nst_fstack_push(Nst_CallStack *f_stack, Nst_FuncCall call)
 Nst_FuncCall Nst_fstack_pop(Nst_CallStack *f_stack)
 {
     Nst_FuncCall call = {
-        NULL,
-        NULL,
-        Nst_span_empty(),
-        NULL,
-        0, 0
+        .func = NULL,
+        .cwd = NULL,
+        .span = Nst_span_empty(),
+        .vt.vars = NULL,
+        .vt.global_table = NULL,
+        .idx = 0,
+        .cstack_len = 0
     };
 
     if (f_stack->len == 0)
@@ -190,11 +192,13 @@ Nst_FuncCall Nst_fstack_peek(Nst_CallStack *f_stack)
 {
     if (f_stack->len == 0) {
         Nst_FuncCall ret_val = {
-            NULL,
-            NULL,
-            Nst_span_empty(),
-            NULL,
-            0, 0
+            .func = NULL,
+            .cwd = NULL,
+            .span = Nst_span_empty(),
+            .vt.vars = NULL,
+            .vt.global_table = NULL,
+            .idx = 0,
+            .cstack_len = 0
         };
         return ret_val;
     }

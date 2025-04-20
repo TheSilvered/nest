@@ -356,6 +356,9 @@ static inline void print_rep_count(i32 count)
 
 void Nst_error_print()
 {
+    if (!tb.error_occurred)
+        return;
+
     Nst_fflush(Nst_io.out);
     set_error_stream();
 

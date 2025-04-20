@@ -84,7 +84,7 @@ static u8 val_size(usize val)
 // populate remaps & calculate the final op count
 static usize calc_jump_remaps(JumpRemap *remaps, Nst_InstList *ls)
 {
-    usize func_count = ls->functions.len;
+    usize obj_count = ls->objects.len;
     usize ls_len = Nst_ilist_len(ls);
     usize bc_len = 0;
 
@@ -97,7 +97,7 @@ static usize calc_jump_remaps(JumpRemap *remaps, Nst_InstList *ls)
         if (Nst_ic_is_jump(inst->code))
             bc_len += 1;
         else if (inst->code == Nst_IC_MAKE_FUNC) {
-            bc_len += val_size((usize)inst->val + func_count) + 1;
+            bc_len += val_size((usize)inst->val + obj_count) + 1;
         } else
             bc_len += val_size((usize)inst->val) + 1;
     }
@@ -140,7 +140,7 @@ static void translate_ilist(Nst_Bytecode *bc, Nst_InstList *ls,
                             JumpRemap *remaps)
 {
     usize op_i = 0;
-    usize func_count = ls->functions.len;
+    usize obj_count = ls->objects.len;
     for (usize i = 0, n = Nst_ilist_len(ls); i < n; i++) {
         Nst_Inst *inst = Nst_ilist_get_inst(ls, i);
         switch (inst->code) {
@@ -313,7 +313,7 @@ static void translate_ilist(Nst_Bytecode *bc, Nst_InstList *ls,
             break;
         case Nst_IC_MAKE_FUNC:
             op_i = add_op(
-                Nst_OP_UNPACK_SEQ, (usize)inst->val + func_count, inst->span,
+                Nst_OP_MAKE_FUNC, (usize)inst->val + obj_count, inst->span,
                 bc, op_i);
             break;
         case Nst_IC_JUMP:
@@ -392,9 +392,10 @@ void Nst_bc_destroy(Nst_Bytecode *bc)
 {
     if (bc == NULL)
         return;
-    bc->copy_count--;
-    if (bc->copy_count > 0)
+    if (bc->copy_count > 0) {
+        bc->copy_count--;
         return;
+    }
     for (usize i = 0, n = bc->obj_len; i < n; i++)
         Nst_ndec_ref(bc->objects[i]);
     Nst_free(bc);
@@ -467,7 +468,11 @@ static void bc_print(Nst_Bytecode *bc, usize indent)
             arg = Nst_OP_ARG(op);
         extend_arg = Nst_OP_CODE(op) == Nst_OP_EXTEND_ARG;
 
-        Nst_printf("    %3" PRIu8 " %#02" PRIx8, Nst_OP_ARG(op), Nst_OP_ARG(op));
+        Nst_printf(
+            "    %3" PRIu8 " 0x%02" PRIx8,
+            Nst_OP_ARG(op),
+            Nst_OP_ARG(op));
+
         if (arg != Nst_OP_ARG(op))
             Nst_printf("  (extended: %3" PRIu64 " %#02" PRIx64 ")", arg, arg);
         if (Nst_OP_CODE(op) == Nst_OP_STACK || Nst_OP_CODE(op) == Nst_OP_LOCAL) {
@@ -506,6 +511,22 @@ static void bc_print(Nst_Bytecode *bc, usize indent)
             default: Nst_assert_c(false);
             }
             Nst_print("]");
+        } else if (Nst_OP_CODE(op) == Nst_OP_PUSH_VAL
+                   || Nst_OP_CODE(op) == Nst_OP_GET_VAL
+                   || Nst_OP_CODE(op) == Nst_OP_SET_VAL
+                   || Nst_OP_CODE(op) == Nst_OP_SET_VAL_LOC)
+        {
+            Nst_Obj *obj = bc->objects[arg];
+            Nst_printf(" [(%s) ", Nst_type_name(obj->type).value);
+
+            Nst_Obj *s = Nst_obj_to_repr_str(obj);
+            if (Nst_error_occurred()) {
+                Nst_error_clear();
+            } else {
+                Nst_fwrite(Nst_str_value(s), Nst_str_len(s), NULL, Nst_io.out);
+                Nst_dec_ref(s);
+            }
+            Nst_print("]");
         }
         Nst_println("");
     }
@@ -525,7 +546,10 @@ static void bc_print(Nst_Bytecode *bc, usize indent)
             Nst_print("    ");
 
         Nst_Obj *obj = bc->objects[i];
-        Nst_printf("%*zi  (%s) ", (int)width, i, Nst_type_name(obj).value);
+        Nst_printf(
+            "%*zi  (%s) ",
+            (int)width, i,
+            Nst_type_name(obj->type).value);
 
         Nst_Obj *s = Nst_obj_to_repr_str(obj);
         if (Nst_error_occurred()) {
@@ -535,6 +559,7 @@ static void bc_print(Nst_Bytecode *bc, usize indent)
             Nst_dec_ref(s);
         }
 
+        Nst_println("");
         if (obj->type == Nst_t.Func)
             bc_print(Nst_func_nest_body(obj), indent + 1);
     }

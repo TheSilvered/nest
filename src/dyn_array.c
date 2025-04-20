@@ -69,6 +69,7 @@ static void shrink(Nst_DynArray *arr)
             arr->cap / 2,
             arr->unit_size,
             arr->cap);
+        arr->cap /= 2;
     }
 }
 

@@ -51,8 +51,6 @@
 static Nst_Obj *seq_eq(Nst_Obj *seq1, Nst_Obj *seq2,
                        Nst_LList *containers);
 static Nst_Obj *map_eq(Nst_Obj *map1, Nst_Obj *map2, Nst_LList *containers);
-static Nst_Obj *import_nest_lib(Nst_Obj *file_path);
-static Nst_Obj *import_c_lib(Nst_Obj *file_path);
 
 bool Nst_obj_eq_c(Nst_Obj *ob1, Nst_Obj *ob2)
 {

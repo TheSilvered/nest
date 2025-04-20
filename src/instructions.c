@@ -42,7 +42,7 @@ isize Nst_ilist_add_obj(Nst_InstList *list, Nst_ObjRef *obj)
 
 isize Nst_ilist_add_func(Nst_InstList *list, Nst_FuncPrototype *fp)
 {
-    if (!Nst_da_append(&list->functions, &fp))
+    if (!Nst_da_append(&list->functions, fp))
         return -1;
     return (isize)(list->functions.len - 1);
 }
@@ -61,7 +61,7 @@ Nst_Obj *Nst_ilist_get_inst_obj(Nst_InstList *list, usize idx)
 Nst_FuncPrototype *Nst_ilist_get_inst_func(Nst_InstList *list, usize idx)
 {
     Nst_Inst *inst = Nst_ilist_get_inst(list, idx);
-    return (Nst_FuncPrototype *)Nst_da_get_p(
+    return (Nst_FuncPrototype *)Nst_da_get(
         &list->functions,
         (usize)inst->val);
 }
@@ -73,7 +73,7 @@ Nst_Obj *Nst_ilist_get_obj(Nst_InstList *list, usize idx)
 
 Nst_FuncPrototype *Nst_ilist_get_func(Nst_InstList *list, usize idx)
 {
-    return (Nst_FuncPrototype *)Nst_da_get_p(&list->functions, idx);
+    return (Nst_FuncPrototype *)Nst_da_get(&list->functions, idx);
 }
 
 void Nst_ilist_set(Nst_InstList *list, usize idx, Nst_InstCode code)
@@ -104,8 +104,13 @@ bool Nst_fprototype_init(Nst_FuncPrototype *fp, Nst_InstList ls, usize arg_num)
 {
     fp->ilist = ls;
     fp->arg_num = arg_num;
-    fp->arg_names = Nst_calloc(arg_num, sizeof(Nst_Obj *), NULL);
-    return fp->arg_names != NULL;
+    if (arg_num == 0) {
+        fp->arg_names = NULL;
+        return true;
+    } else {
+        fp->arg_names = Nst_calloc(arg_num, sizeof(Nst_Obj *), NULL);
+        return fp->arg_names != NULL;
+    }
 }
 
 void Nst_fprototype_destroy(Nst_FuncPrototype *fp)

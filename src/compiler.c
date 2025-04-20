@@ -170,7 +170,7 @@ Nst_InstList Nst_compile(Nst_Node *ast, bool is_module)
         if (!add_inst(Nst_IC_RETURN_VARS, ast->span))
             goto failure;
     } else if (c_state.ls.instructions.len == 0
-               || get_inst(CURR_LEN - 1)->code != Nst_OP_RETURN_VAL)
+               || get_inst(CURR_LEN - 1)->code != Nst_IC_RETURN_VAL)
     {
         if (!add_inst_obj(Nst_IC_PUSH_VAL, Nst_c.Null_null, ast->span))
             goto failure;
@@ -534,10 +534,12 @@ static bool compile_fd(Nst_Node *node)
     */
 
     i64 prev_loop_id = c_state.loop_id;
+    Nst_Obj *prev_values = c_state.unique_values;
     Nst_InstList prev_inst_ls = c_state.ls;
     Nst_InstList inst_list = Nst_compile(node->v.fd.body, false);
     c_state.ls = prev_inst_ls;
     c_state.loop_id = prev_loop_id;
+    c_state.unique_values = prev_values;
     if (inst_list.instructions.len == 0)
         return false;
 

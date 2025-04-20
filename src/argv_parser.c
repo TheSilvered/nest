@@ -81,6 +81,7 @@ void Nst_cl_args_init(Nst_CLArgs *args, int argc, char **argv)
     args->argv = argv;
     args->print_tokens = false;
     args->print_ast = false;
+    args->print_instructions = false;
     args->print_bytecode = false;
     args->force_execution = false;
     args->encoding = Nst_EID_UNKNOWN;
@@ -206,7 +207,7 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
 
                 u8 level = arg[j + 1] - '0';
 
-                if (level < 0 || level > 3) {
+                if (level > 3) {
                     printf("Invalid option: -O%c\n", arg[j + 1]);
                     printf("\n" USAGE_MESSAGE);
                     return -1;

@@ -1,40 +1,20 @@
 #include <errno.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <string.h>
 #include "nest.h"
+#include "mem.h"
 
 #ifdef Nst_MSVC
 
-#include <windows.h>
 #include <direct.h>
-
-#ifdef Nst_DBG_KEEP_DYN_LIBS
-#define dlclose (void)
-#else
-#define dlclose FreeLibrary
-#endif
-
-#define dlsym GetProcAddress
 #define PATH_MAX 4096
 
-typedef HMODULE lib_t;
-
 #else
 
-#include <dlfcn.h>
 #include <unistd.h>
-#include <limits.h>
-#include <string.h>
-
-typedef void *lib_t;
-
-#ifdef Nst_DBG_KEEP_DYN_LIBS
-#define dlclose (void)
-#endif
 
 #endif // !Nst_MSVC
-
-#include "mem.h"
 
 #define CHECK_V_STACK(size) Nst_assert(i_state.v_stack.len >= size)
 #define FAST_TOP (i_state.v_stack.stack[i_state.v_stack.len - 1])
@@ -49,7 +29,6 @@ typedef enum _InstResult {
 static void complete_function(usize final_stack_size);
 static bool type_check(Nst_Obj *obj, Nst_Obj *type);
 
-static void loaded_libs_destructor(lib_t *lib);
 static inline void destroy_call(Nst_FuncCall *call);
 static inline void unwind_error(usize final_stack_size, Nst_Span span);
 
@@ -58,7 +37,6 @@ static bool push_func(Nst_Obj *func, Nst_Span span, usize arg_num,
 static Nst_Obj *make_cwd(const char *file_path);
 static Nst_Bytecode *compile_file(Nst_CLArgs *args);
 static bool push_module(const char *filename);
-static bool push_paused_coroutine(Nst_Obj *func, i64 idx, Nst_VarTable vt);
 
 static inline Nst_Obj *pop_val(void);
 static inline void pop_and_destroy(void);
@@ -277,11 +255,6 @@ void Nst_quit(void)
 bool Nst_was_init(void)
 {
     return state_init;
-}
-
-static void loaded_libs_destructor(lib_t *lib)
-{
-    dlclose(*lib);
 }
 
 static void interrupt_handler(int sig)
@@ -576,21 +549,9 @@ static bool push_module(const char *filename)
     return true;
 }
 
-bool push_paused_coroutine(Nst_Obj *func, i64 idx, Nst_VarTable vt)
-{
-    Nst_assert(func->type == Nst_t.Func);
-    Nst_assert(!Nst_FUNC_IS_C(func));
-
-    if (!push_func(func, Nst_span_empty(), 0, NULL, &vt))
-        return false;
-    i_state.idx = idx;
-
-    return true;
-}
-
 static void complete_function(usize final_stack_size)
 {
-    if (i_state.f_stack.len <= final_stack_size)
+    if (i_state.f_stack.len < final_stack_size)
         return;
 
     bc = Nst_func_nest_body(i_state.func);
@@ -598,9 +559,12 @@ static void complete_function(usize final_stack_size)
     Nst_Op *ops = bc->bytecode;
     op_objs = bc->objects;
 
-    while (i_state.f_stack.len > final_stack_size) {
+    while (i_state.f_stack.len >= final_stack_size) {
         if (i_state.idx >= (isize)bc_len) {
-            // Free the function call
+            if (i_state.f_stack.len == 0)
+                return;
+
+            // Free the function call if there is one
             Nst_FuncCall call = Nst_fstack_pop(&i_state.f_stack);
             destroy_call(&call);
             if (i_state.f_stack.len <= final_stack_size)
@@ -1595,7 +1559,6 @@ static OpResult exe_make_map(void)
 {
     CHECK_V_STACK(op_arg * 2);
     u64 map_size = op_arg;
-    Nst_assert(map_size >= 0);
     Nst_Obj *map = Nst_map_new();
     if (map == NULL)
         return INST_FAILED;

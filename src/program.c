@@ -135,7 +135,7 @@ Nst_ExecutionKind Nst_prog_init(Nst_Program *prog, Nst_CLArgs args)
 
     Nst_VarTable prog_vt;
     bool success = Nst_vt_init(&prog_vt, NULL, prog->argv, args.no_default);
-    if (success) {
+    if (!success) {
         Nst_prog_destroy(prog);
         return false;
     }
