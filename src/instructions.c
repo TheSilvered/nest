@@ -171,7 +171,7 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
         PRINT(" ", 1);
     PRINT("|  Instruction  | Value\n", 24);
 
-    for (usize i = 0, n = tot_size; i < n; i++) {
+    for (usize i = 0, n = ls->instructions.len; i < n; i++) {
         Nst_Inst *inst = Nst_ilist_get_inst(ls, i);
         Nst_InstCode code = inst->code;
 

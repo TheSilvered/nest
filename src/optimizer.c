@@ -779,12 +779,13 @@ static bool remove_push_jumpif(Nst_InstList *ls)
         case Nst_IC_JUMPIF_F:
             if (!expect_jumpif)
                 break;
-            if (Nst_obj_to_bool(Nst_ilist_get_inst_obj(ls, i))) {
-                Nst_ilist_set(ls, i, Nst_IC_NO_OP);
+            if (Nst_obj_to_bool(Nst_ilist_get_inst_obj(ls, push_idx))) {
+                Nst_ilist_set(ls, push_idx, Nst_IC_NO_OP);
                 Nst_ilist_set(ls, i, Nst_IC_NO_OP);
             } else {
+                i64 jump_val = Nst_ilist_get_inst(ls, i)->val;
                 Nst_ilist_set(ls, push_idx, Nst_IC_NO_OP);
-                Nst_ilist_set(ls, i, Nst_IC_JUMP);
+                Nst_ilist_set_ex(ls, i, Nst_IC_JUMP, jump_val);
             }
             ret = true;
             expect_jumpif = false;
@@ -793,11 +794,12 @@ static bool remove_push_jumpif(Nst_InstList *ls)
         case Nst_IC_JUMPIF_T:
             if (!expect_jumpif)
                 break;
-            if (Nst_obj_to_bool(Nst_ilist_get_inst_obj(ls, i))) {
+            if (Nst_obj_to_bool(Nst_ilist_get_inst_obj(ls, push_idx))) {
+                i64 jump_val = Nst_ilist_get_inst(ls, i)->val;
                 Nst_ilist_set(ls, push_idx, Nst_IC_NO_OP);
-                Nst_ilist_set(ls, i, Nst_IC_JUMP);
+                Nst_ilist_set_ex(ls, i, Nst_IC_JUMP, jump_val);
             } else {
-                Nst_ilist_set(ls, i, Nst_IC_NO_OP);
+                Nst_ilist_set(ls, push_idx, Nst_IC_NO_OP);
                 Nst_ilist_set(ls, i, Nst_IC_NO_OP);
             }
             ret = true;
@@ -923,6 +925,7 @@ static bool optimize_chained_jumps(Nst_InstList *ls)
         Nst_Inst *jump = Nst_ilist_get_inst(ls, (usize)first_jump->val);
 
         while (jump->code == Nst_IC_JUMP) {
+            first_jump->val = jump->val;
             usize new_target = (usize)jump->val;
             if (bool_arr_get(visited_jumps, new_target))
                 break;
@@ -930,8 +933,6 @@ static bool optimize_chained_jumps(Nst_InstList *ls)
             jump = Nst_ilist_get_inst(ls, new_target);
             ret = true;
         }
-
-        first_jump->val = jump->val;
     }
     Nst_free(visited_jumps);
     return ret;

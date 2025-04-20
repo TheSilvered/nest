@@ -408,57 +408,63 @@ static void bc_print(Nst_Bytecode *bc, usize indent)
     Nst_println("Bytecode:\n");
     for (usize i = 0; i < indent; i++)
         Nst_print("    ");
-    Nst_println("Code            Arg");
+
+    int idx_width = 1;
+    usize len = bc->len;
+    while (len > 10) {
+        len /= 10;
+        idx_width++;
+    }
 
     u64 arg = 0;
     bool extend_arg = false;
     for (usize i = 0, n = bc->len; i < n; i++) {
         for (usize j = 0; j < indent; j++)
             Nst_print("    ");
-
+        Nst_printf("%*zi  ", idx_width, i);
         Nst_Op op = bc->bytecode[i];
         switch (Nst_OP_CODE(op)) {
-        case Nst_OP_POP_VAL:      Nst_print("POP_VAL     "); break;
-        case Nst_OP_FOR_START:    Nst_print("FOR_START   "); break;
-        case Nst_OP_FOR_NEXT:     Nst_print("FOR_NEXT    "); break;
-        case Nst_OP_RETURN_VAL:   Nst_print("RETURN_VAL  "); break;
-        case Nst_OP_RETURN_VARS:  Nst_print("RETURN_VARS "); break;
-        case Nst_OP_SET_VAL_LOC:  Nst_print("SET_VAL_LOC "); break;
-        case Nst_OP_SET_CONT_LOC: Nst_print("SET_CONT_LOC"); break;
-        case Nst_OP_THROW_ERR:    Nst_print("THROW_ERR   "); break;
-        case Nst_OP_POP_CATCH:    Nst_print("POP_CATCH   "); break;
-        case Nst_OP_SET_VAL:      Nst_print("SET_VAL     "); break;
-        case Nst_OP_GET_VAL:      Nst_print("GET_VAL     "); break;
-        case Nst_OP_PUSH_VAL:     Nst_print("PUSH_VAL    "); break;
-        case Nst_OP_SET_CONT_VAL: Nst_print("SET_CONT_VAL"); break;
-        case Nst_OP_CALL:         Nst_print("CALL        "); break;
-        case Nst_OP_SEQ_CALL:     Nst_print("SEQ_CALL    "); break;
-        case Nst_OP_CAST:         Nst_print("CAST        "); break;
-        case Nst_OP_RANGE:        Nst_print("RANGE       "); break;
-        case Nst_OP_STACK:        Nst_print("STACK       "); break;
-        case Nst_OP_LOCAL:        Nst_print("LOCAL       "); break;
-        case Nst_OP_IMPORT:       Nst_print("IMPORT      "); break;
-        case Nst_OP_EXTRACT:      Nst_print("EXTRACT     "); break;
-        case Nst_OP_DEC_INT:      Nst_print("DEC_INT     "); break;
-        case Nst_OP_NEW_INT:      Nst_print("NEW_INT     "); break;
-        case Nst_OP_DUP:          Nst_print("DUP         "); break;
-        case Nst_OP_ROT_2:        Nst_print("ROT_2       "); break;
-        case Nst_OP_ROT_3:        Nst_print("ROT_3       "); break;
-        case Nst_OP_MAKE_ARR:     Nst_print("MAKE_ARR    "); break;
-        case Nst_OP_MAKE_ARR_REP: Nst_print("MAKE_ARR_REP"); break;
-        case Nst_OP_MAKE_VEC:     Nst_print("MAKE_VEC    "); break;
-        case Nst_OP_MAKE_VEC_REP: Nst_print("MAKE_VEC_REP"); break;
-        case Nst_OP_MAKE_MAP:     Nst_print("MAKE_MAP    "); break;
-        case Nst_OP_MAKE_FUNC:    Nst_print("MAKE_FUNC   "); break;
-        case Nst_OP_SAVE_ERROR:   Nst_print("SAVE_ERROR  "); break;
-        case Nst_OP_UNPACK_SEQ:   Nst_print("UNPACK_SEQ  "); break;
-        case Nst_OP_EXTEND_ARG:   Nst_print("EXTEND_ARG  "); break;
-        case Nst_OP_JUMP:         Nst_print("JUMP        "); break;
-        case Nst_OP_JUMPIF_T:     Nst_print("JUMPIF_T    "); break;
-        case Nst_OP_JUMPIF_F:     Nst_print("JUMPIF_F    "); break;
-        case Nst_OP_JUMPIF_ZERO:  Nst_print("JUMPIF_ZERO "); break;
-        case Nst_OP_JUMPIF_IEND:  Nst_print("JUMPIF_IEND "); break;
-        case Nst_OP_PUSH_CATCH:   Nst_print("PUSH_CATCH  "); break;
+        case Nst_OP_POP_VAL:      Nst_print("pop    "); break;
+        case Nst_OP_FOR_START:    Nst_print("istart "); break;
+        case Nst_OP_FOR_NEXT:     Nst_print("inext  "); break;
+        case Nst_OP_RETURN_VAL:   Nst_print("ret    "); break;
+        case Nst_OP_RETURN_VARS:  Nst_print("retvar "); break;
+        case Nst_OP_SET_VAL_LOC:  Nst_print("setpop "); break;
+        case Nst_OP_SET_CONT_LOC: Nst_print("setcpop"); break;
+        case Nst_OP_THROW_ERR:    Nst_print("throw  "); break;
+        case Nst_OP_POP_CATCH:    Nst_print("poptry "); break;
+        case Nst_OP_SET_VAL:      Nst_print("set    "); break;
+        case Nst_OP_GET_VAL:      Nst_print("get    "); break;
+        case Nst_OP_PUSH_VAL:     Nst_print("push   "); break;
+        case Nst_OP_SET_CONT_VAL: Nst_print("setc   "); break;
+        case Nst_OP_CALL:         Nst_print("call   "); break;
+        case Nst_OP_SEQ_CALL:     Nst_print("callseq"); break;
+        case Nst_OP_CAST:         Nst_print("cast   "); break;
+        case Nst_OP_RANGE:        Nst_print("range  "); break;
+        case Nst_OP_STACK:        Nst_print("binop  "); break;
+        case Nst_OP_LOCAL:        Nst_print("uniop  "); break;
+        case Nst_OP_IMPORT:       Nst_print("import "); break;
+        case Nst_OP_EXTRACT:      Nst_print("extract"); break;
+        case Nst_OP_DEC_INT:      Nst_print("dec    "); break;
+        case Nst_OP_NEW_INT:      Nst_print("dupint "); break;
+        case Nst_OP_DUP:          Nst_print("dup    "); break;
+        case Nst_OP_ROT_2:        Nst_print("rot2   "); break;
+        case Nst_OP_ROT_3:        Nst_print("rot3   "); break;
+        case Nst_OP_MAKE_ARR:     Nst_print("mkarr  "); break;
+        case Nst_OP_MAKE_ARR_REP: Nst_print("fillarr"); break;
+        case Nst_OP_MAKE_VEC:     Nst_print("mkvec  "); break;
+        case Nst_OP_MAKE_VEC_REP: Nst_print("fillvec"); break;
+        case Nst_OP_MAKE_MAP:     Nst_print("mkmap  "); break;
+        case Nst_OP_MAKE_FUNC:    Nst_print("mkfunc "); break;
+        case Nst_OP_SAVE_ERROR:   Nst_print("geterr "); break;
+        case Nst_OP_UNPACK_SEQ:   Nst_print("unpack "); break;
+        case Nst_OP_EXTEND_ARG:   Nst_print("extend "); break;
+        case Nst_OP_JUMP:         Nst_print("jmp    "); break;
+        case Nst_OP_JUMPIF_T:     Nst_print("jmptrue"); break;
+        case Nst_OP_JUMPIF_F:     Nst_print("jmpflse"); break;
+        case Nst_OP_JUMPIF_ZERO:  Nst_print("jmpzero"); break;
+        case Nst_OP_JUMPIF_IEND:  Nst_print("jmpiend"); break;
+        case Nst_OP_PUSH_CATCH:   Nst_print("pushtry"); break;
         default: Nst_assert_c(false);
         }
 
@@ -468,14 +474,13 @@ static void bc_print(Nst_Bytecode *bc, usize indent)
             arg = Nst_OP_ARG(op);
         extend_arg = Nst_OP_CODE(op) == Nst_OP_EXTEND_ARG;
 
-        Nst_printf(
-            "    %3" PRIu8 " 0x%02" PRIx8,
-            Nst_OP_ARG(op),
-            Nst_OP_ARG(op));
+        Nst_printf(" %3" PRIu8, Nst_OP_ARG(op));
 
         if (arg != Nst_OP_ARG(op))
-            Nst_printf("  (extended: %3" PRIu64 " %#02" PRIx64 ")", arg, arg);
-        if (Nst_OP_CODE(op) == Nst_OP_STACK || Nst_OP_CODE(op) == Nst_OP_LOCAL) {
+            Nst_printf(" (extended: %3" PRIu64 " %#02" PRIx64 ")", arg, arg);
+        if (Nst_OP_CODE(op) == Nst_OP_STACK
+            || Nst_OP_CODE(op) == Nst_OP_LOCAL)
+        {
             Nst_print(" [");
 
             switch (arg) {

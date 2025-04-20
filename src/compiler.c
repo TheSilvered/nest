@@ -1202,11 +1202,11 @@ static bool compile_try_catch_s(Nst_Node *node)
         return false;
 
     if (Nst_NODE_RETUNS_VALUE(node->v.tc.try_body->type)) {
-        if (add_inst(Nst_IC_POP_VAL, node->span))
+        if (!add_inst(Nst_IC_POP_VAL, node->span))
             return false;
     }
 
-    if (add_inst(Nst_IC_POP_CATCH, node->span))
+    if (!add_inst(Nst_IC_POP_CATCH, node->span))
         return false;
 
     Nst_Inst *jump_catch_end = add_inst(Nst_IC_JUMP, node->span);
@@ -1214,17 +1214,17 @@ static bool compile_try_catch_s(Nst_Node *node)
         return false;
     push_catch->val = CURR_LEN;
 
-    if (add_inst(Nst_IC_SAVE_ERROR, node->span))
+    if (!add_inst(Nst_IC_SAVE_ERROR, node->span))
         return false;
-    if (add_inst(Nst_IC_POP_CATCH, node->span))
+    if (!add_inst(Nst_IC_POP_CATCH, node->span))
         return false;
-    if (add_inst_obj(Nst_IC_SET_VAL_LOC, node->v.tc.error_name, node->span))
+    if (!add_inst_obj(Nst_IC_SET_VAL_LOC, node->v.tc.error_name, node->span))
         return false;
     if (!compile_node(node->v.tc.catch_body))
         return false;
 
     if (Nst_NODE_RETUNS_VALUE(node->v.tc.catch_body->type)) {
-        if (add_inst(Nst_IC_POP_VAL, node->span))
+        if (!add_inst(Nst_IC_POP_VAL, node->span))
             return false;
     }
     jump_catch_end->val = CURR_LEN;
