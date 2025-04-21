@@ -1003,7 +1003,7 @@ static Nst_Obj *search_debug_directory(const char *initial_path,
 {
     // little hack to get the absolute path without using it explicitly
     const char *root_path = __FILE__;
-    const char *obj_ops_path_suffix = "src\\obj_ops.c";
+    const char *obj_ops_path_suffix = "src\\lib_import.c";
     const char *nest_files = "libs\\_nest_files\\";
     usize root_len = strlen(root_path) - strlen(obj_ops_path_suffix);
     usize nest_files_len = strlen(nest_files);

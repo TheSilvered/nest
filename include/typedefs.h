@@ -247,14 +247,14 @@
     (void)(                                                                   \
         !!(expr)                                                              \
     ||                                                                        \
-        ((void)((Nst_state_span().text != NULL && fprintf(                     \
+        ((void)((Nst_state_span().text != NULL && fprintf(                    \
             stderr,                                                           \
             "Assertion failed: %s (C - %s:%i, Nest - %s:%" PRIi32 ")\n",      \
             #expr,                                                            \
             __FILE__,                                                         \
             __LINE__,                                                         \
-            Nst_state_span().text->path,                                       \
-            Nst_state_span().start_line) >= 0                                  \
+            Nst_state_span().text->path,                                      \
+            Nst_state_span().start_line + 1) >= 0                             \
         ) || fprintf(                                                         \
             stderr,                                                           \
             "Assertion failed: %s (C - %s:%i, Nest - <unknown>)\n",           \

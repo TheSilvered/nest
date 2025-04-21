@@ -405,9 +405,7 @@ static void bc_print(Nst_Bytecode *bc, usize indent)
 {
     for (usize i = 0; i < indent; i++)
         Nst_print("    ");
-    Nst_println("Bytecode:\n");
-    for (usize i = 0; i < indent; i++)
-        Nst_print("    ");
+    Nst_println("Bytecode:");
 
     int idx_width = 1;
     usize len = bc->len;
@@ -538,7 +536,7 @@ static void bc_print(Nst_Bytecode *bc, usize indent)
     Nst_println("");
     for (usize i = 0; i < indent; i++)
         Nst_print("    ");
-    Nst_println("Objects:\n");
+    Nst_println("Objects:");
     usize width = 1;
     usize obj_len = bc->obj_len;
     while (obj_len > 10) {

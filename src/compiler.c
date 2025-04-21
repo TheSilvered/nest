@@ -809,9 +809,9 @@ static bool compile_local_stack_op(Nst_Node *node)
     case Nst_TT_CAST:
         return add_inst(Nst_IC_OP_CAST, node->span);
     case Nst_TT_CALL:
-        return add_inst(Nst_IC_OP_SEQ_CALL, node->span);
+        return add_inst(Nst_IC_OP_CALL, node->span);
     case Nst_TT_SEQ_CALL:
-        return add_inst_ex(Nst_IC_OP_CALL, node_count, node->span);
+        return add_inst_ex(Nst_IC_OP_SEQ_CALL, node_count, node->span);
     case Nst_TT_THROW:
         return add_inst(Nst_IC_THROW_ERR, node->span);
     default:

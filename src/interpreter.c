@@ -321,9 +321,12 @@ i32 Nst_run(Nst_Program *prog)
 
 Nst_Span Nst_state_span(void)
 {
-    if (i_state.idx < 0 || bc == NULL)
+    if (i_state.idx < 0 || i_state.func == NULL)
         return Nst_span_empty();
-    return bc->positions[i_state.idx];
+    Nst_Bytecode *func_bc = Nst_func_nest_body(i_state.func);
+    if ((usize)i_state.idx >= func_bc->len)
+        return Nst_span_empty();
+    return func_bc->positions[i_state.idx];
 }
 
 const Nst_InterpreterState *Nst_state(void)
@@ -494,6 +497,7 @@ static Nst_Bytecode *compile_file(Nst_CLArgs *args)
 
     Nst_Bytecode *file_bc = Nst_assemble(&inst_ls);
     Nst_ilist_destroy(&inst_ls);
+
     return file_bc;
 }
 
@@ -521,12 +525,11 @@ static bool push_module(const char *filename)
         &mod_vt, NULL,
         i_state.prog->argv,
         args.no_default);
-    if (success) {
+    if (!success) {
         Nst_dec_ref(mod_func);
         return false;
     }
     _Nst_func_set_mod_globals(mod_func, mod_vt.vars);
-    Nst_dec_ref(mod_vt.vars);
 
     path_str = make_cwd(filename);
     if (path_str == NULL) {
@@ -567,7 +570,7 @@ static void complete_function(usize final_stack_size)
             // Free the function call if there is one
             Nst_FuncCall call = Nst_fstack_pop(&i_state.f_stack);
             destroy_call(&call);
-            if (i_state.f_stack.len <= final_stack_size)
+            if (i_state.f_stack.len < final_stack_size)
                 return;
             i_state.idx++;
             bc = Nst_func_nest_body(i_state.func);
@@ -599,6 +602,7 @@ static void complete_function(usize final_stack_size)
             i_state.idx++;
             continue;
         } else if (result == INST_FAILED) {
+            bc = Nst_func_nest_body(i_state.func);
             unwind_error(final_stack_size, bc->positions[i_state.idx]);
             if (i_state.f_stack.len <= final_stack_size)
                 return;
@@ -619,6 +623,7 @@ static inline void destroy_call(Nst_FuncCall *call)
     Nst_dec_ref(i_state.func);
     i_state.func = call->func;
     i_state.vt = call->vt;
+    i_state.idx = call->idx;
     if (call->cwd != NULL) {
         Nst_chdir(call->cwd);
         Nst_dec_ref(call->cwd);
@@ -919,7 +924,7 @@ static OpResult exe_return_val(void)
     }
     i_state.idx = bc->len;
     Nst_dec_ref(result);
-    return INST_NEW_FUNC;
+    return INST_SUCCESS;
 }
 
 static OpResult exe_return_vars(void)
@@ -935,7 +940,7 @@ static OpResult exe_return_vars(void)
     if (!push_val(vars))
         return INST_FAILED;
     i_state.idx = bc->len;
-    return INST_NEW_FUNC;
+    return INST_SUCCESS;
 }
 
 static OpResult exe_set_val_loc(void)
