@@ -140,7 +140,7 @@ Nst_ExecutionKind Nst_prog_init(Nst_Program *prog, Nst_CLArgs args)
         return false;
     }
     _Nst_func_set_mod_globals(prog->main_func, prog_vt.vars);
-    Nst_vt_destroy(&prog_vt);
+    Nst_dec_ref(prog_vt.vars);
 
     return Nst_EK_RUN;
 }

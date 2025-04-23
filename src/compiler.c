@@ -1,6 +1,7 @@
 #include "nest.h"
 
 #define CURR_LEN ((i64)(c_state.ls.instructions.len))
+#define LAST_INST (c_state.ls.instructions.len - 1)
 #define CONTINUE_ID(loop_id) (loop_id)
 #define BREAK_ID(loop_id) ((loop_id) - 1)
 
@@ -15,9 +16,9 @@ static CompileState c_state;
 static i64 inc_loop_id(void);
 static void dec_loop_id(void);
 
-static Nst_Inst *add_inst(Nst_InstCode inst, Nst_Span span);
-static Nst_Inst *add_inst_ex(Nst_InstCode inst, i64 val, Nst_Span span);
-static Nst_Inst *add_inst_obj(Nst_InstCode inst, Nst_Obj *obj, Nst_Span span);
+static bool add_inst(Nst_InstCode inst, Nst_Span span);
+static bool add_inst_ex(Nst_InstCode inst, i64 val, Nst_Span span);
+static bool add_inst_obj(Nst_InstCode inst, Nst_Obj *obj, Nst_Span span);
 static Nst_Inst *get_inst(usize idx);
 
 static void replace_placeholder_jumps(usize start, usize end, i64 loop_id,
@@ -64,25 +65,25 @@ static void dec_loop_id(void)
     c_state.loop_id += 2;
 }
 
-static Nst_Inst *add_inst(Nst_InstCode inst, Nst_Span span)
+static bool add_inst(Nst_InstCode inst, Nst_Span span)
 {
     if (!Nst_ilist_add(&c_state.ls, inst, span)) {
         Nst_error_add_span(span);
-        return NULL;
+        return false;
     }
-    return get_inst(CURR_LEN - 1);
+    return true;
 }
 
-static Nst_Inst *add_inst_ex(Nst_InstCode inst, i64 val, Nst_Span span)
+static bool add_inst_ex(Nst_InstCode inst, i64 val, Nst_Span span)
 {
     if (!Nst_ilist_add_ex(&c_state.ls, inst, val, span)) {
         Nst_error_add_span(span);
-        return NULL;
+        return false;
     }
-    return get_inst(CURR_LEN - 1);
+    return true;
 }
 
-static Nst_Inst *add_inst_obj(Nst_InstCode inst, Nst_Obj *obj, Nst_Span span)
+static bool add_inst_obj(Nst_InstCode inst, Nst_Obj *obj, Nst_Span span)
 {
     i64 idx = -1;
 
@@ -91,7 +92,7 @@ static Nst_Inst *add_inst_obj(Nst_InstCode inst, Nst_Obj *obj, Nst_Span span)
         if (idx < 0) {
             Nst_error_add_span(span);
             Nst_dec_ref(obj);
-            return NULL;
+            return false;
         }
         goto add_inst;
     }
@@ -105,17 +106,17 @@ static Nst_Inst *add_inst_obj(Nst_InstCode inst, Nst_Obj *obj, Nst_Span span)
         if (idx < 0) {
             Nst_error_add_span(span);
             Nst_dec_ref(obj);
-            return NULL;
+            return false;
         }
         idx_obj = Nst_int_new(idx);
         if (idx_obj == NULL) {
             Nst_error_add_span(span);
-            return NULL;
+            return false;
         }
         if (!Nst_map_set(c_state.unique_values, obj, idx_obj)) {
             Nst_dec_ref(idx_obj);
             Nst_error_add_span(span);
-            return NULL;
+            return false;
         }
         Nst_dec_ref(idx_obj);
     }
@@ -123,9 +124,9 @@ static Nst_Inst *add_inst_obj(Nst_InstCode inst, Nst_Obj *obj, Nst_Span span)
 add_inst:
     if (!Nst_ilist_add_ex(&c_state.ls, inst, idx, span)) {
         Nst_error_add_span(span);
-        return NULL;
+        return -1;
     }
-    return get_inst(CURR_LEN - 1);
+    return true;
 }
 
 static Nst_Inst *get_inst(usize idx)
@@ -170,7 +171,7 @@ Nst_InstList Nst_compile(Nst_Node *ast, bool is_module)
         if (!add_inst(Nst_IC_RETURN_VARS, ast->span))
             goto failure;
     } else if (c_state.ls.instructions.len == 0
-               || get_inst(CURR_LEN - 1)->code != Nst_IC_RETURN_VAL)
+               || get_inst(LAST_INST)->code != Nst_IC_RETURN_VAL)
     {
         if (!add_inst_obj(Nst_IC_PUSH_VAL, Nst_c.Null_null, ast->span))
             goto failure;
@@ -259,9 +260,9 @@ static bool compile_wl(Nst_Node *node)
     i64 cond_idx = CURR_LEN;
     if (!compile_node(node->v.wl.condition))
         return false;
-    Nst_Inst *jumpif_f_exit = add_inst(Nst_IC_JUMPIF_F, node->span);
-    if (!jumpif_f_exit)
+    if (!add_inst(Nst_IC_JUMPIF_F, node->span))
         return false;
+    usize jumpif_f_exit = LAST_INST;
 
     i64 start = CURR_LEN;
     i64 loop_id = inc_loop_id();
@@ -273,7 +274,7 @@ static bool compile_wl(Nst_Node *node)
     if (!add_inst_ex(Nst_IC_JUMP, cond_idx, node->span))
         return false;
     i64 exit_idx = CURR_LEN;
-    jumpif_f_exit->val = exit_idx;
+    get_inst(jumpif_f_exit)->val = exit_idx;
 
     replace_placeholder_jumps(start, end, loop_id, cond_idx, exit_idx);
 
@@ -334,9 +335,9 @@ static bool compile_fl(Nst_Node *node)
         return false;
 
     i64 cond_idx = CURR_LEN;
-    Nst_Inst *jumpif_zero_exit = add_inst(Nst_IC_JUMPIF_ZERO, node->span);
-    if (!jumpif_zero_exit)
+    if (!add_inst(Nst_IC_JUMPIF_ZERO, node->span))
         return false;
+    usize jumpif_zero_exit = LAST_INST;
 
     i64 start = CURR_LEN;
     i64 loop_id = inc_loop_id();
@@ -351,7 +352,7 @@ static bool compile_fl(Nst_Node *node)
         return false;
 
     i64 exit_idx = CURR_LEN;
-    jumpif_zero_exit->val = exit_idx;
+    get_inst(jumpif_zero_exit)->val = exit_idx;
 
     if (!add_inst(Nst_IC_POP_VAL, node->span))
         return false;
@@ -389,11 +390,9 @@ static bool compile_for_as_l(Nst_Node *node)
     i64 cond_idx = CURR_LEN;
     if (!add_inst(Nst_IC_FOR_NEXT, node->span))
         return false;
-    Nst_Inst *jumpif_iend_exit = add_inst(
-        Nst_IC_JUMPIF_IEND,
-        node->v.fl.iterator->span);
-    if (!jumpif_iend_exit)
+    if (!add_inst(Nst_IC_JUMPIF_IEND, node->v.fl.iterator->span))
         return false;
+    usize jumpif_iend_exit = LAST_INST;
 
     if (!compile_unpacking_assign_e(node->v.fl.assignment))
         return false;
@@ -409,7 +408,7 @@ static bool compile_for_as_l(Nst_Node *node)
         return false;
 
     i64 exit_idx = CURR_LEN;
-    jumpif_iend_exit->val = exit_idx;
+    get_inst(jumpif_iend_exit)->val = exit_idx;
 
     if (!add_inst(Nst_IC_POP_VAL, node->span))
         return false;
@@ -466,27 +465,27 @@ static bool compile_if_e(Nst_Node *node)
     if (!compile_node(node->v.ie.condition))
         return false;
 
-    Nst_Inst *jumpif_f_else = add_inst(Nst_IC_JUMPIF_F, node->span);
-    if (!jumpif_f_else)
+    if (!add_inst(Nst_IC_JUMPIF_F, node->span))
         return false;
+    usize jumpif_f_else = LAST_INST;
 
     if (!compile_node(node->v.ie.body_if_true))
         return false;
 
-    Nst_Inst *jump_exit = NULL;
+    isize jump_exit = -1;
 
     if (node->v.ie.body_if_false == NULL) {
         if (Nst_NODE_RETUNS_VALUE(node->v.ie.body_if_true->type)) {
-            jump_exit = add_inst(Nst_IC_JUMP, node->span);
-            if (!jump_exit)
+            if (!add_inst(Nst_IC_JUMP, node->span))
                 return false;
+            jump_exit = LAST_INST;
         }
-        jumpif_f_else->val = CURR_LEN;
+        get_inst(jumpif_f_else)->val = CURR_LEN;
 
         if (!add_inst_obj(Nst_IC_PUSH_VAL, Nst_c.Null_null, node->span))
             return false;
-        if (jump_exit != NULL)
-            jump_exit->val = CURR_LEN;
+        if (jump_exit >= 0)
+            get_inst(jump_exit)->val = CURR_LEN;
         return true;
     }
 
@@ -501,10 +500,10 @@ static bool compile_if_e(Nst_Node *node)
             return false;
     }
 
-    jump_exit = add_inst(Nst_IC_JUMP, node->span);
-    if (!jump_exit)
+    if (!add_inst(Nst_IC_JUMP, node->span))
         return false;
-    jumpif_f_else->val = CURR_LEN;
+    jump_exit = LAST_INST;
+    get_inst(jumpif_f_else)->val = CURR_LEN;
 
     if (!compile_node(node->v.ie.body_if_false))
         return false;
@@ -515,7 +514,7 @@ static bool compile_if_e(Nst_Node *node)
         if (!add_inst_obj(Nst_IC_PUSH_VAL, Nst_c.Null_null, node->span))
             return false;
     }
-    jump_exit->val = CURR_LEN;
+    get_inst((usize)jump_exit)->val = CURR_LEN;
     if (both_statements) {
         if (!add_inst_obj(Nst_IC_PUSH_VAL, Nst_c.Null_null, node->span))
             return false;
@@ -809,9 +808,9 @@ static bool compile_local_stack_op(Nst_Node *node)
     case Nst_TT_CAST:
         return add_inst(Nst_IC_OP_CAST, node->span);
     case Nst_TT_CALL:
-        return add_inst(Nst_IC_OP_CALL, node->span);
+        return add_inst_ex(Nst_IC_OP_CALL, node_count, node->span);
     case Nst_TT_SEQ_CALL:
-        return add_inst_ex(Nst_IC_OP_SEQ_CALL, node_count, node->span);
+        return add_inst(Nst_IC_OP_SEQ_CALL, node->span);
     case Nst_TT_THROW:
         return add_inst(Nst_IC_THROW_ERR, node->span);
     default:
@@ -1102,7 +1101,7 @@ static bool compile_switch_s(Nst_Node *node)
     Nst_assert_c(node->v.sw.values.len == node->v.sw.bodies.len);
 
     Nst_DynArray jumps_to_exit;
-    Nst_da_init(&jumps_to_exit, sizeof(Nst_Inst *), 0);
+    Nst_da_init(&jumps_to_exit, sizeof(usize), 0);
 
     if (!compile_node(node->v.sw.expr))
         return false;
@@ -1121,9 +1120,9 @@ static bool compile_switch_s(Nst_Node *node)
             goto failure;
         if (!add_inst_ex(Nst_IC_STACK_OP, Nst_TT_EQ, node->span))
             goto failure;
-        Nst_Inst *jumpif_f_end = add_inst(Nst_IC_JUMPIF_F, value->span);
-        if (!jumpif_f_end)
+        if (!add_inst(Nst_IC_JUMPIF_F, value->span))
             goto failure;
+        usize jumpif_f_end = LAST_INST;
 
         if (prev_start != prev_end) {
             // replaces only 'continue' statements, 'break' statements are left
@@ -1139,13 +1138,13 @@ static bool compile_switch_s(Nst_Node *node)
             goto failure;
         prev_end = CURR_LEN;
 
-        Nst_Inst *jump_exit = add_inst(Nst_IC_JUMP, body->span);
-        if (!jump_exit)
+        if (!add_inst(Nst_IC_JUMP, body->span))
             goto failure;
+        usize jump_exit = LAST_INST;
         if (!Nst_da_append(&jumps_to_exit, &jump_exit))
             goto failure_add_pos;
 
-        jumpif_f_end->val = CURR_LEN;
+        get_inst(jumpif_f_end)->val = CURR_LEN;
     }
 
     if (node->v.sw.default_body != NULL) {
@@ -1166,8 +1165,10 @@ static bool compile_switch_s(Nst_Node *node)
             CURR_LEN, BREAK_ID(loop_id));
     }
 
-    for (usize i = 0; i < jumps_to_exit.len; i++)
-        ((Nst_Inst *)Nst_da_get_p(&jumps_to_exit, i))->val = CURR_LEN;
+    for (usize i = 0; i < jumps_to_exit.len; i++) {
+        usize inst_idx = *(usize *)Nst_da_get(&jumps_to_exit, i);
+        get_inst(inst_idx)->val = CURR_LEN;
+    }
     Nst_da_clear(&jumps_to_exit, NULL);
 
     return !add_inst(Nst_IC_POP_VAL, node->span);
@@ -1195,9 +1196,9 @@ static bool compile_try_catch_s(Nst_Node *node)
     catch_end:   [CODE CONTINUATION]
     */
 
-    Nst_Inst *push_catch = add_inst(Nst_IC_PUSH_CATCH, node->span);
-    if (!push_catch)
+    if (!add_inst(Nst_IC_PUSH_CATCH, node->span))
         return false;
+    usize push_catch = LAST_INST;
     if (!compile_node(node->v.tc.try_body))
         return false;
 
@@ -1209,10 +1210,10 @@ static bool compile_try_catch_s(Nst_Node *node)
     if (!add_inst(Nst_IC_POP_CATCH, node->span))
         return false;
 
-    Nst_Inst *jump_catch_end = add_inst(Nst_IC_JUMP, node->span);
-    if (!jump_catch_end)
+    if (!add_inst(Nst_IC_JUMP, node->span))
         return false;
-    push_catch->val = CURR_LEN;
+    usize jump_catch_end = LAST_INST;
+    get_inst(push_catch)->val = CURR_LEN;
 
     if (!add_inst(Nst_IC_SAVE_ERROR, node->span))
         return false;
@@ -1227,7 +1228,7 @@ static bool compile_try_catch_s(Nst_Node *node)
         if (!add_inst(Nst_IC_POP_VAL, node->span))
             return false;
     }
-    jump_catch_end->val = CURR_LEN;
+    get_inst(jump_catch_end)->val = CURR_LEN;
     return true;
 }
 

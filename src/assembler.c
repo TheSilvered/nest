@@ -91,9 +91,9 @@ static usize calc_jump_remaps(JumpRemap *remaps, Nst_InstList *ls)
     // add instruction offsets
     for (usize i = 0; i < ls_len; i++) {
         Nst_Inst *inst = Nst_ilist_get_inst(ls, i);
+        remaps[i].jump_offset = bc_len - i;
         if (inst->code == Nst_IC_NO_OP)
             continue;
-        remaps[i].jump_offset = bc_len - i;
         if (Nst_ic_is_jump(inst->code))
             bc_len += 1;
         else if (inst->code == Nst_IC_MAKE_FUNC) {

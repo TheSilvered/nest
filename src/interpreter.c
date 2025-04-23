@@ -26,11 +26,11 @@ typedef enum _InstResult {
     INST_NEW_FUNC = 1
 } OpResult;
 
-static void complete_function(usize final_stack_size);
+static bool complete_function(void);
 static bool type_check(Nst_Obj *obj, Nst_Obj *type);
 
 static inline void destroy_call(Nst_FuncCall *call);
-static inline void unwind_error(usize final_stack_size, Nst_Span span);
+static inline bool unwind_error(usize initial_stack_size);
 
 static bool push_func(Nst_Obj *func, Nst_Span span, usize arg_num,
                       Nst_Obj **args, Nst_VarTable *vt);
@@ -167,7 +167,6 @@ static Nst_Obj *(*local_op_func[])(Nst_Obj *) = {
 static volatile bool interrupt = false;
 
 Nst_InterpreterState i_state;
-bool extend_arg;
 u64 op_arg;
 Nst_Bytecode *bc;
 Nst_Obj **op_objs;
@@ -202,7 +201,6 @@ bool Nst_init(void)
     i_state.idx = -1;
     i_state.prog = NULL;
     op_arg = 0;
-    extend_arg = false;
     op_objs = NULL;
     bc = NULL;
 
@@ -241,7 +239,6 @@ void Nst_quit(void)
     i_state.idx = 0;
     i_state.prog = NULL;
     op_arg = 0;
-    extend_arg = false;
     op_objs = NULL;
     bc = NULL;
 
@@ -301,12 +298,12 @@ i32 Nst_run(Nst_Program *prog)
     }
 
     signal(SIGINT, interrupt_handler);
-    complete_function(0);
+    bool success = complete_function();
     signal(SIGINT, SIG_DFL);
 
     // Check for errors
     i32 exit_code = 0;
-    if (Nst_error_occurred()) {
+    if (!success) {
         Nst_Traceback *error = Nst_error_get();
         if (error->error_name != Nst_c.Null_null)
             exit_code = 1;
@@ -321,8 +318,14 @@ i32 Nst_run(Nst_Program *prog)
 
 Nst_Span Nst_state_span(void)
 {
-    if (i_state.idx < 0 || i_state.func == NULL)
+    // Check function before Nst_func_nest_body otherwise there might be
+    // infinite recursion when calling Nst_assert
+    if (!state_init || i_state.idx < 0 || i_state.func == NULL
+        || i_state.func->type != Nst_t.Func
+        || Nst_HAS_FLAG(i_state.func, Nst_FLAG_FUNC_IS_C))
+    {
         return Nst_span_empty();
+    }
     Nst_Bytecode *func_bc = Nst_func_nest_body(i_state.func);
     if ((usize)i_state.idx >= func_bc->len)
         return Nst_span_empty();
@@ -437,7 +440,6 @@ static bool push_func(Nst_Obj *func, Nst_Span span, usize arg_num,
     i_state.vt = new_vt;
     i_state.idx = 0;
     op_arg = 0;
-    extend_arg = false;
     op_objs = NULL;
     bc = NULL;
 
@@ -531,19 +533,20 @@ static bool push_module(const char *filename)
     }
     _Nst_func_set_mod_globals(mod_func, mod_vt.vars);
 
+    if (!push_func(mod_func, Nst_span_empty(), 0, NULL, &mod_vt)) {
+        Nst_dec_ref(mod_func);
+        return false;
+    }
+
     path_str = make_cwd(filename);
     if (path_str == NULL) {
         Nst_dec_ref(mod_func);
         return false;
     }
+
     i32 chdir_result = Nst_chdir(path_str);
     Nst_dec_ref(path_str);
     if (chdir_result != 0) {
-        Nst_dec_ref(mod_func);
-        return false;
-    }
-
-    if (!push_func(mod_func, Nst_span_empty(), 0, NULL, &mod_vt)) {
         Nst_dec_ref(mod_func);
         return false;
     }
@@ -552,31 +555,29 @@ static bool push_module(const char *filename)
     return true;
 }
 
-static void complete_function(usize final_stack_size)
+static bool complete_function(void)
 {
-    if (i_state.f_stack.len < final_stack_size)
-        return;
+    usize initial_stack_size = i_state.f_stack.len;
 
     bc = Nst_func_nest_body(i_state.func);
     usize bc_len = bc->len;
     Nst_Op *ops = bc->bytecode;
+    bool extend_arg = false;
     op_objs = bc->objects;
 
-    while (i_state.f_stack.len >= final_stack_size) {
+    while (i_state.f_stack.len >= initial_stack_size) {
         if (i_state.idx >= (isize)bc_len) {
             if (i_state.f_stack.len == 0)
-                return;
+                return true;
 
             // Free the function call if there is one
             Nst_FuncCall call = Nst_fstack_pop(&i_state.f_stack);
             destroy_call(&call);
-            if (i_state.f_stack.len < final_stack_size)
-                return;
+            if (i_state.f_stack.len < initial_stack_size)
+                return true;
             i_state.idx++;
-            bc = Nst_func_nest_body(i_state.func);
             bc_len = bc->len;
             ops = bc->bytecode;
-            op_objs = bc->objects;
         }
 
         Nst_Op op = ops[i_state.idx];
@@ -602,16 +603,15 @@ static void complete_function(usize final_stack_size)
             i_state.idx++;
             continue;
         } else if (result == INST_FAILED) {
-            bc = Nst_func_nest_body(i_state.func);
-            unwind_error(final_stack_size, bc->positions[i_state.idx]);
-            if (i_state.f_stack.len <= final_stack_size)
-                return;
+            if (!unwind_error(initial_stack_size))
+                return false;
         }
         bc = Nst_func_nest_body(i_state.func);
         bc_len = bc->len;
         ops = bc->bytecode;
         op_objs = bc->objects;
     }
+    return true;
 }
 
 static inline void destroy_call(Nst_FuncCall *call)
@@ -624,15 +624,19 @@ static inline void destroy_call(Nst_FuncCall *call)
     i_state.func = call->func;
     i_state.vt = call->vt;
     i_state.idx = call->idx;
+
+    bc = Nst_func_nest_body(i_state.func);
+    op_objs = bc->objects;
+
     if (call->cwd != NULL) {
         Nst_chdir(call->cwd);
         Nst_dec_ref(call->cwd);
     }
 }
 
-static inline void unwind_error(usize final_stack_size, Nst_Span span)
+static inline bool unwind_error(usize initial_stack_size)
 {
-    Nst_error_add_span(span);
+    Nst_error_add_span(Nst_state_span());
 
     Nst_CatchFrame top_catch = Nst_cstack_peek(&i_state.c_stack);
     if (Nst_error_get()->error_name == Nst_c.Null_null
@@ -644,8 +648,8 @@ static inline void unwind_error(usize final_stack_size, Nst_Span span)
     }
 
     usize end_size = top_catch.f_stack_len;
-    if (end_size < final_stack_size)
-        end_size = final_stack_size;
+    if (end_size < initial_stack_size)
+        end_size = initial_stack_size;
 
     while (i_state.f_stack.len > end_size) {
         Nst_FuncCall call = Nst_fstack_pop(&i_state.f_stack);
@@ -660,12 +664,15 @@ static inline void unwind_error(usize final_stack_size, Nst_Span span)
         }
     }
 
-    if (end_size == final_stack_size)
-        return;
+    if (end_size < initial_stack_size)
+        return false;
 
     while (i_state.v_stack.len > top_catch.v_stack_len)
         Nst_ndec_ref(pop_val());
+    if (top_catch.idx == -1)
+        return false;
     i_state.idx = top_catch.idx;
+    return true;
 }
 
 static inline Nst_Obj *pop_val(void)
@@ -724,12 +731,7 @@ Nst_Obj *Nst_run_module(const char *filename)
     if (!push_module(filename))
         return false;
 
-    complete_function(i_state.f_stack.len - 1);
-
-    if (Nst_error_occurred())
-        return NULL;
-    else
-        return pop_val();
+    return complete_function() ? pop_val() : NULL;
 }
 
 Nst_Obj *Nst_func_call(Nst_Obj *func, usize arg_num, Nst_Obj **args)
@@ -777,12 +779,7 @@ Nst_Obj *Nst_func_call(Nst_Obj *func, usize arg_num, Nst_Obj **args)
     if (!result)
         return NULL;
 
-    complete_function(i_state.f_stack.len - 1);
-
-    if (Nst_error_occurred())
-        return NULL;
-
-    return pop_val();
+    return complete_function() ? pop_val() : NULL;
 }
 
 Nst_Obj *Nst_coroutine_yield(Nst_ObjRef **out_stack, usize *out_stack_size,
@@ -828,7 +825,7 @@ Nst_ObjRef *Nst_coroutine_resume(Nst_Obj *func, i64 idx,
             return NULL;
     }
 
-    complete_function(i_state.f_stack.len - 1);
+    complete_function();
 
     if (Nst_error_occurred())
         return NULL;
@@ -1380,7 +1377,7 @@ static OpResult exe_op_extract(void)
             return_value = INST_FAILED;
         } else if (res == NULL && !push_val(Nst_c.Null_null))
             return_value = INST_FAILED;
-        else if (!push_val(res))
+        else if (res != NULL && !push_val(res))
             return_value = INST_FAILED;
     } else if (cont->type == Nst_t.Str) {
         if (idx->type != Nst_t.Int) {
@@ -1572,18 +1569,16 @@ static OpResult exe_make_map(void)
     Nst_Obj **v_stack = i_state.v_stack.stack;
 
     for (u64 i = 0; i < map_size; i++) {
-        Nst_Obj *key = v_stack[stack_size - map_size * 2 + i];
-        Nst_Obj *val = v_stack[stack_size - map_size * 2 + i + 1];
+        Nst_Obj *key = v_stack[stack_size - map_size * 2 + i * 2];
+        Nst_Obj *val = v_stack[stack_size - map_size * 2 + i * 2 + 1];
         if (!Nst_map_set(map, key, val)) {
-            Nst_dec_ref(val);
-            Nst_dec_ref(key);
             Nst_dec_ref(map);
             return INST_FAILED;
         }
         Nst_dec_ref(val);
         Nst_dec_ref(key);
     }
-    i_state.v_stack.len -= (usize)map_size;
+    i_state.v_stack.len -= (usize)map_size * 2;
     if (!push_val(map)) {
         Nst_dec_ref(map);
         return INST_FAILED;

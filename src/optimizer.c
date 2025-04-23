@@ -710,10 +710,15 @@ static bool remove_assign_pop(Nst_InstList *ls)
             break;
         case Nst_IC_POP_VAL:
             if (expect_pop && !has_jumps_to(ls, i, -1, -1)) {
-                Nst_ilist_set(
-                    ls,
-                    assign_idx,
-                    is_cont_val ? Nst_IC_SET_CONT_LOC : Nst_IC_SET_VAL_LOC);
+                if (is_cont_val)
+                    Nst_ilist_set(ls, assign_idx, Nst_IC_SET_CONT_LOC);
+                else {
+                    i64 obj_idx = Nst_ilist_get_inst(ls, assign_idx)->val;
+                    Nst_ilist_set_ex(
+                        ls, assign_idx,
+                        Nst_IC_SET_VAL_LOC,
+                        obj_idx);
+                }
                 Nst_ilist_set(ls, i, Nst_IC_NO_OP);
                 is_cont_val = false;
                 assign_idx = 0;
@@ -747,7 +752,8 @@ static bool remove_assign_loc_get_val(Nst_InstList *ls)
             if (expect_get_val && objs_eq(ls, set_val_idx, i)
                 && !has_jumps_to(ls, i, -1, -1))
             {
-                Nst_ilist_set(ls, set_val_idx, Nst_IC_SET_VAL);
+                i64 obj_idx = Nst_ilist_get_inst(ls, set_val_idx)->val;
+                Nst_ilist_set_ex(ls, set_val_idx, Nst_IC_SET_VAL, obj_idx);
                 Nst_ilist_set(ls, i, Nst_IC_NO_OP);
                 set_val_idx = 0;
                 ret = true;
@@ -861,15 +867,19 @@ static bool remove_dead_code(Nst_InstList *ls)
             }
         }
 
-        if (end > i + 1 || jump_is_useless)
-            ret = true;
+        if (i + 1 >= end && !jump_is_useless)
+            continue;
 
-        if (jump_is_useless)
+        if (jump_is_useless) {
+            ret = inst_code(ls, i) != Nst_IC_NO_OP;
             Nst_ilist_set(ls, i, Nst_IC_NO_OP);
+        }
 
         // remove dead instructions
-        for (usize j = i + 1; j < end; j++)
+        for (usize j = i + 1; j < end; j++) {
+            ret = inst_code(ls, j) != Nst_IC_NO_OP;
             Nst_ilist_set(ls, j, Nst_IC_NO_OP);
+        }
     }
     return ret;
 }

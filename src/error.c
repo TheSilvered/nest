@@ -593,6 +593,7 @@ void Nst_error_clear(void)
         Nst_dec_ref(tb.error_msg);
     tb.error_name = NULL;
     tb.error_msg = NULL;
+    tb.error_occurred = false;
 }
 
 void _Nst_error_init(void)

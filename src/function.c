@@ -149,8 +149,8 @@ Nst_Obj **Nst_func_args(Nst_Obj *func)
 
 Nst_NestCallable Nst_func_c_body(Nst_Obj *func)
 {
-    Nst_assert(func->type == Nst_t.Func);
-    Nst_assert(Nst_FUNC_IS_C(func));
+    Nst_assert_c(func->type == Nst_t.Func);
+    Nst_assert_c(Nst_FUNC_IS_C(func));
     return FUNC(func)->body.c_func;
 }
 
