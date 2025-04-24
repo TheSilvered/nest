@@ -143,9 +143,7 @@ bool Nst_fstack_init(Nst_CallStack *f_stack)
 
 bool Nst_fstack_push(Nst_CallStack *f_stack, Nst_FuncCall call)
 {
-    usize max_size = f_stack->cap;
-
-    if (f_stack->len == max_size && max_size == f_stack->max_recursion_depth) {
+    if (f_stack->len == f_stack->max_recursion_depth) {
         Nst_error_setf_call(
             "the maximum call stack size (%zi calls) was exceeded",
             f_stack->max_recursion_depth);

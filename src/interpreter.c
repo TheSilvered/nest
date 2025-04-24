@@ -411,11 +411,11 @@ static bool push_func(Nst_Obj *func, Nst_Span span, usize arg_num,
                 return false;
             }
         }
+    }
 
-        if (!push_val(NULL)) {
-            Nst_vt_destroy(&new_vt);
-            return false;
-        }
+    if (!push_val(NULL)) {
+        Nst_vt_destroy(&new_vt);
+        return false;
     }
 
     if (i_state.func != NULL) {
@@ -1502,7 +1502,7 @@ static i32 complete_seq_rep(Nst_Obj *seq, usize size)
     Nst_Obj *val = pop_val();
     Nst_Obj **objs = _Nst_seq_objs(seq);
     for (u64 i = 0; i < size; i++)
-        objs[i] = pop_val();
+        objs[i] = Nst_inc_ref(val);
     Nst_dec_ref(val);
 
     if (!push_val(seq)) {

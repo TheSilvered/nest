@@ -42,7 +42,7 @@ sys.SUPPORTS_COLOR ? [
 #run_tests dir [
     C_BLUE '** Testing directory ' (dir @su.repr) ' **' C_RESET >< @io.println
 
-    ... Iter :: (dir @fs.list_dirs) := test_path [
+    ... dir @fs.list_dirs := test_path [
         test_path @fs.path.extension '.nest' != ? ..
         test_path @fs.path.filename = name
         !(name 'test_' @su.starts_with) ? ..

@@ -1171,7 +1171,7 @@ static bool compile_switch_s(Nst_Node *node)
     }
     Nst_da_clear(&jumps_to_exit, NULL);
 
-    return !add_inst(Nst_IC_POP_VAL, node->span);
+    return add_inst(Nst_IC_POP_VAL, node->span);
 
 failure_add_pos:
     Nst_error_add_span(node->span);

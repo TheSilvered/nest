@@ -109,7 +109,7 @@ Nst_Obj *Nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2)
 }
 
 static Nst_Obj *seq_eq(Nst_Obj *seq1, Nst_Obj *seq2,
-                       Nst_LList  *containers)
+                       Nst_LList *containers)
 {
     if (Nst_seq_len(seq1) != Nst_seq_len(seq2))
         return Nst_false_ref();

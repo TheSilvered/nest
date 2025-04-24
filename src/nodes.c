@@ -256,7 +256,7 @@ static void print_obj(const char *name, Nst_Obj *obj, Nst_LList *levels,
             Nst_dec_ref(repr_obj);
         }
     } else
-        Nst_print("(null)\n");
+        Nst_print("(null)");
     Nst_print("\n");
 }
 
