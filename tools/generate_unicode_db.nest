@@ -426,7 +426,7 @@ data_lines_func @std.co.create = data_lines
 
     (
         db_f
-        'const Nst_UnicodeChInfo'
+        'static const Nst_UnicodeChInfo'
         'unicode_ch_info'
         (props ##x[=> '{ \(x.0), \(x.1), \(x.2), \(x.3) }'] @sequ.map)
         @UnicodeDBWriter_write_array1d
@@ -434,7 +434,7 @@ data_lines_func @std.co.create = data_lines
 
     (
         db_f
-        'const u32'
+        'static const u32'
         'unicode_case_expansion'
         special_casing_list
         @UnicodeDBWriter_write_array1d
@@ -445,7 +445,7 @@ data_lines_func @std.co.create = data_lines
 
     (
         db_f
-        'const \(unicode_ch_blocks_type)'
+        'static const \(unicode_ch_blocks_type)'
         'unicode_ch_blocks'
         unicode_ch_blocks_data
         '3'
@@ -454,7 +454,7 @@ data_lines_func @std.co.create = data_lines
 
     (
         db_f
-        'const \(unicode_ch_blocks_idx_type)'
+        'static const \(unicode_ch_blocks_idx_type)'
         'unicode_ch_blocks_idx'
         unicode_ch_blocks_idx_data
         '3'

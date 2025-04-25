@@ -70,9 +70,9 @@
     "interchangeable.\n"
 
 #ifdef Nst_MSVC
-bool supports_color = false;
+static bool supports_color = false;
 #else
-bool supports_color = true;
+static bool supports_color = true;
 #endif // !Nst_MSVC
 
 void Nst_cl_args_init(Nst_CLArgs *args, int argc, char **argv)

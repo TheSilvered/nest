@@ -27,7 +27,7 @@ static bool optimize_e_wrapper(Nst_Node *node);
 // otherwise
 static Nst_Obj *get_value(Nst_Node *node);
 
-bool (*optimizers[])(Nst_Node *) = {
+static bool (*optimizers[])(Nst_Node *) = {
     [Nst_NT_CS] = optimize_cs,
     [Nst_NT_WL] = optimize_while_l,
     [Nst_NT_FL] = optimize_fl,

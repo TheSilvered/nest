@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "nest.h"
 
-const char *tt_strings[] = {
+static const char *tt_strings[] = {
     [Nst_TT_ADD] = "ADD",
     [Nst_TT_SUB] = "SUB",
     [Nst_TT_MUL] = "MUL",

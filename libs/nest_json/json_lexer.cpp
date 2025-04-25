@@ -35,7 +35,7 @@ typedef struct _LexerState {
     char ch;
 } LexerState;
 
-LexerState state;
+static LexerState state;
 
 static void advance()
 {

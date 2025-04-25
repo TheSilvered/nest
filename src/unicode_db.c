@@ -5,7 +5,7 @@
 #define SHIFT 7
 #define MAX_BLOCK_IDX 8703
 
-const Nst_UnicodeChInfo unicode_ch_info[302] = {
+static const Nst_UnicodeChInfo unicode_ch_info[302] = {
     { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 512 }, { 0, 0, 0, 880 },
     { 32, 0, 0, 909 }, { 0, 0, 0, 768 }, { 0, -32, -32, 910 }, { 0, 0, 0, 910 },
     { 0, 0, 0, 608 }, { 0, 743, 743, 910 }, { 0, 0, 0, 576 },
@@ -120,7 +120,7 @@ const Nst_UnicodeChInfo unicode_ch_info[302] = {
     { 0, 0, 0, 525 },
 };
 
-const u32 unicode_case_expansion[334] = {
+static const u32 unicode_case_expansion[334] = {
     33554515, 115, 33554515, 83, 33554537, 775, 33555132, 78, 33555132, 78,
     33554506, 780, 33554506, 780, 50332569, 776, 769, 50332569, 776, 769,
     50332581, 776, 769, 50332581, 776, 769, 33555765, 1410, 33555765, 1362,
@@ -156,7 +156,7 @@ const u32 unicode_case_expansion[334] = {
     1398, 33555790, 1350, 33555780, 1389, 33555780, 1341,
 };
 
-const u16 unicode_ch_blocks[399][128] = {
+static const u16 unicode_ch_blocks[399][128] = {
     {
           1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
           1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
@@ -4549,7 +4549,7 @@ const u16 unicode_ch_blocks[399][128] = {
     },
 };
 
-const u16 unicode_ch_blocks_idx[8704] = {
+static const u16 unicode_ch_blocks_idx[8704] = {
       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
      30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,

@@ -62,7 +62,7 @@ static CoroutineObj *co_c_stack_peek()
     return (CoroutineObj *)Nst_vstack_peek(&co_c_stack);
 }
 
-static Nst_Obj *call_coroutine(CoroutineObj *co, usize arg_num, Nst_Obj **args)
+static Nst_Obj *call_coroutine(CoroutineObj *co, Nst_Obj *args)
 {
     if (Nst_HAS_FLAG(co, FLAG_CO_RUNNING)) {
         Nst_error_setc_call("the coroutine is already running");
@@ -81,17 +81,26 @@ static Nst_Obj *call_coroutine(CoroutineObj *co, usize arg_num, Nst_Obj **args)
     Nst_Obj *result = nullptr;
     if (is_paused) {
         Nst_Obj **stack = co->stack;
-        co->stack = NULL;
+        co->stack = nullptr;
+        if (args != nullptr) {
+            Nst_dec_ref(stack[co->stack_size - 1]);
+            stack[co->stack_size - 1] = Nst_inc_ref(args);
+        }
         Nst_VarTable vt = co->vt;
-        co->vt.vars = NULL;
-        co->vt.global_table = NULL;
+        co->vt.vars = nullptr;
+        co->vt.global_table = nullptr;
         result = Nst_coroutine_resume(
             co->func,
             co->idx + 1,
             stack, co->stack_size,
             vt);
-    } else
-        result = Nst_func_call(co->func, (i32)arg_num, args);
+        Nst_free(stack);
+    } else {
+        result = Nst_func_call(
+            co->func,
+            args == nullptr ? 0 : Nst_seq_len(args),
+            args == nullptr ? nullptr : _Nst_seq_objs(args));
+    }
 
     co_c_stack_pop();
 
@@ -150,10 +159,7 @@ static Nst_Obj *NstC generator_next(usize arg_num, Nst_Obj **args)
 
     CoroutineObj *co = data->co;
     Nst_Obj *co_args = data->co_args;
-    Nst_Obj *obj = call_coroutine(
-        co,
-        Nst_seq_len(co_args),
-        _Nst_seq_objs(co_args));
+    Nst_Obj *obj = call_coroutine(co, co_args);
 
     if (obj == nullptr)
         return nullptr;
@@ -179,10 +185,12 @@ Nst_Obj *coroutine_new(Nst_Obj *func)
     Nst_GGC_OBJ_INIT(co);
 
     co->func = func;
-    co->vt.vars = NULL;
-    co->vt.global_table = NULL;
+    co->vt.vars = nullptr;
+    co->vt.global_table = nullptr;
+    co->stack = nullptr;
     co->stack_size = 0;
     co->idx = -1;
+    co->call_stack_size = 0;
 
     Nst_SET_FLAG(co, FLAG_CO_SUSPENDED);
     Nst_SET_FLAG(func, FLAG_FUNC_IS_CO);
@@ -211,11 +219,10 @@ void coroutine_traverse(CoroutineObj *co)
 void coroutine_destroy(CoroutineObj *co)
 {
     Nst_dec_ref(co->func);
-
-    if (!Nst_HAS_FLAG(co, FLAG_CO_PAUSED))
-        return;
-
     Nst_vt_destroy(&co->vt);
+
+    if (co->stack == nullptr)
+        return;
 
     for (usize i = 0, n = co->stack_size; i < n; i++) {
         if (co->stack[i] != nullptr)
@@ -250,9 +257,9 @@ Nst_Obj *NstC call_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (co_args == Nst_null())
-        return call_coroutine(co, 0, nullptr);
+        return call_coroutine(co, nullptr);
     else
-        return call_coroutine(co, Nst_seq_len(co_args), _Nst_seq_objs(co_args));
+        return call_coroutine(co, co_args);
 }
 
 Nst_Obj *NstC yield_(usize arg_num, Nst_Obj **args)
@@ -263,11 +270,10 @@ Nst_Obj *NstC yield_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     const Nst_InterpreterState *state = Nst_state();
-    Nst_FuncCall call = Nst_fstack_peek((Nst_CallStack *)&state->f_stack);
     CoroutineObj *co = co_c_stack_peek();
 
     if (co == nullptr
-        || call.func != co->func
+        || state->func != co->func
         || state->f_stack.len - 1 != co->call_stack_size
         || !Nst_HAS_FLAG(co, FLAG_CO_RUNNING))
     {
@@ -275,11 +281,14 @@ Nst_Obj *NstC yield_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    Nst_coroutine_yield(nullptr, &co->stack_size, nullptr, nullptr);
+    usize stack_size;
+    Nst_coroutine_yield(nullptr, &stack_size, nullptr, nullptr);
+    co->stack_size = stack_size + 1;
     co->stack = Nst_malloc_c(co->stack_size, Nst_Obj *);
     if (co->stack == nullptr)
         return nullptr;
-    Nst_coroutine_yield(co->stack, &co->stack_size, &co->idx, &co->vt);
+    Nst_coroutine_yield(co->stack, &stack_size, &co->idx, &co->vt);
+    co->stack[stack_size] = Nst_null_ref();
 
     Nst_CLEAR_FLAGS(co);
     Nst_SET_FLAG(co, FLAG_CO_PAUSED);

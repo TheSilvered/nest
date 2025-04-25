@@ -4,10 +4,6 @@
 #include <string.h>
 #include "nest.h"
 
-#if defined(Nst_GCC) || defined(Nst_CLANG)
-#pragma GCC diagnostic ignored "-Wnull-dereference"
-#endif
-
 #ifdef Nst_MSVC
 
 #include <direct.h>
@@ -170,10 +166,10 @@ static Nst_Obj *(*local_op_func[])(Nst_Obj *) = {
 
 static volatile bool interrupt = false;
 
-Nst_InterpreterState i_state;
-u64 op_arg;
-Nst_Bytecode *bc;
-Nst_Obj **op_objs;
+static Nst_InterpreterState i_state;
+static u64 op_arg;
+static Nst_Bytecode *bc;
+static Nst_Obj **op_objs;
 
 static bool state_init = false;
 
@@ -828,6 +824,9 @@ Nst_ObjRef *Nst_coroutine_resume(Nst_Obj *func, i64 idx,
         if (!push_val(value_stack[i]))
             return NULL;
     }
+
+    for (usize i = 0; i < value_stack_len; i++)
+        Nst_dec_ref(value_stack[i]);
 
     complete_function();
 

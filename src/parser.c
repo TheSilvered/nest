@@ -1,9 +1,5 @@
 #include "nest.h"
 
-#if defined(Nst_GCC) || defined(Nst_CLANG)
-#pragma GCC diagnostic ignored "-Wnull-dereference"
-#endif
-
 typedef struct _ParsingState {
     bool in_func;
     bool in_loop;
@@ -15,7 +11,7 @@ typedef struct _ParsingState {
     Nst_DynArray *tokens;
 } ParsingState;
 
-ParsingState state;
+static ParsingState state;
 
 static inline bool enter_func(ParsingState *initial_state);
 static inline void exit_func(ParsingState *initial_state);

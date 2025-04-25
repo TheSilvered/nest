@@ -11,7 +11,7 @@ typedef struct AllocHeader {
 } AllocHeader;
 
 static i32 allocation_count = 0;
-AllocHeader *allocs_head = NULL;
+static AllocHeader *allocs_head = NULL;
 
 #ifdef Nst_MSVC
 #pragma warning(push)

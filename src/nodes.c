@@ -24,7 +24,7 @@ static void print_ca(Nst_Node *node, Nst_LList *levels);
 static void print_ie(Nst_Node *node, Nst_LList *levels);
 static void print_we(Nst_Node *node, Nst_LList *levels);
 
-bool (*initializers[])(Nst_Node *) = {
+static bool (*initializers[])(Nst_Node *) = {
     [Nst_NT_CS] = _Nst_node_cs_init,
     [Nst_NT_WL] = _Nst_node_wl_init,
     [Nst_NT_FL] = _Nst_node_fl_init,
@@ -50,7 +50,7 @@ bool (*initializers[])(Nst_Node *) = {
     [Nst_NT_WE] = _Nst_node_we_init,
 };
 
-void (*destructors[])(Nst_Node *) = {
+static void (*destructors[])(Nst_Node *) = {
     [Nst_NT_CS] = _Nst_node_cs_destroy,
     [Nst_NT_WL] = _Nst_node_wl_destroy,
     [Nst_NT_FL] = _Nst_node_fl_destroy,
@@ -76,7 +76,7 @@ void (*destructors[])(Nst_Node *) = {
     [Nst_NT_WE] = _Nst_node_we_destroy
 };
 
-void (*prints[])(Nst_Node *, Nst_LList *) = {
+static void (*prints[])(Nst_Node *, Nst_LList *) = {
     [Nst_NT_CS] = print_cs,
     [Nst_NT_WL] = print_wl,
     [Nst_NT_FL] = print_fl,
@@ -102,7 +102,7 @@ void (*prints[])(Nst_Node *, Nst_LList *) = {
     [Nst_NT_WE] = print_we
 };
 
-const char *nt_strings[] = {
+static const char *nt_strings[] = {
     [Nst_NT_CS] = "CS (Compound statement)",
     [Nst_NT_WL] = "WL (While loop)",
     [Nst_NT_FL] = "FL (For loop)",
@@ -128,7 +128,7 @@ const char *nt_strings[] = {
     [Nst_NT_WE] = "WE (Expression wrapper)"
 };
 
-const char *snt_strings[] = {
+static const char *snt_strings[] = {
     [Nst_SNT_ARRAY]            = "ARRAY",
     [Nst_SNT_ARRAY_REP]        = "ARRAY_REP",
     [Nst_SNT_VECTOR]           = "VECTOR",

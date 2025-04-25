@@ -11,7 +11,7 @@
     obj->value = value;                                                       \
     return NstOBJ(obj)
 
-NstEXP typedef struct _Nst_IntObj {
+typedef struct _Nst_IntObj {
     Nst_OBJ_HEAD;
     i64 value;
 } Nst_IntObj;

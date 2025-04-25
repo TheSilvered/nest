@@ -9,7 +9,7 @@ typedef struct _GenericStack {
     usize cap;
 } GenericStack;
 
-void shrink_stack(GenericStack *g_stack, usize min_size,
+static void shrink_stack(GenericStack *g_stack, usize min_size,
                       usize unit_size)
 {
     if (g_stack->cap <= min_size)
@@ -30,7 +30,7 @@ void shrink_stack(GenericStack *g_stack, usize min_size,
     g_stack->stack = new_stack;
 }
 
-bool init_stack(GenericStack *g_stack, usize unit_size,
+static bool init_stack(GenericStack *g_stack, usize unit_size,
                     usize starting_size)
 {
     void *stack = Nst_malloc(starting_size, unit_size);
@@ -48,7 +48,7 @@ bool init_stack(GenericStack *g_stack, usize unit_size,
     return true;
 }
 
-bool expand_stack(GenericStack *g_stack, usize unit_size)
+static bool expand_stack(GenericStack *g_stack, usize unit_size)
 {
     if (g_stack->len < g_stack->cap)
         return true;

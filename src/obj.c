@@ -1,13 +1,8 @@
 #include <string.h>
+#include <limits.h>
 #include "nest.h"
 
 #define GGC_OBJ(obj) ((Nst_GGCObj *)(obj))
-
-#define TYPE_HEAD                                                             \
-    Nst_Obj *p_head;                                                          \
-    usize p_len;                                                              \
-    Nst_StrView name;                                                         \
-    Nst_ObjDstr dstr
 
 /**
  * @param p_head: the head object in the type's pool
@@ -167,7 +162,7 @@ void _Nst_obj_destroy(Nst_Obj *obj)
     if (Nst_HAS_FLAG(obj, Nst_FLAG_OBJ_DESTROYED))
         return;
 
-    obj->ref_count = 2147483647;
+    obj->ref_count = PTRDIFF_MAX;
     if (TYPE(obj->type)->dstr != NULL)
         TYPE(obj->type)->dstr(obj);
 
