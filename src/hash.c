@@ -66,7 +66,7 @@ static i32 hash_str(Nst_Obj *str)
 static i32 hash_int(Nst_Obj *num)
 {
     i64 value = Nst_int_i64(num);
-    return value == -1 ? -2 : (i32)(value);
+    return (i32)(value) == -1 ? -2 : (i32)(value);
 }
 
 static i32 hash_byte(Nst_Obj *byte)

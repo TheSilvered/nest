@@ -40,6 +40,9 @@ NstEXP typedef struct _Nst_MapObj {
 
 static bool resize_map(Nst_MapObj *map, bool force_item_reset);
 
+// does not allow bytes to be equal to integers
+static bool strict_eq(Nst_Obj *ob1, Nst_Obj *ob2);
+
 Nst_ObjRef *Nst_map_new(void)
 {
     Nst_MapObj *map = Nst_obj_alloc(Nst_MapObj, Nst_t.Map);
@@ -133,6 +136,11 @@ static bool resize_map(Nst_MapObj *map, bool force_item_reset)
     return true;
 }
 
+static bool strict_eq(Nst_Obj *ob1, Nst_Obj *ob2)
+{
+    return ob1->type == ob2->type && Nst_obj_eq_c(ob1, ob2);
+}
+
 bool Nst_map_set(Nst_Obj *map, Nst_Obj *key, Nst_Obj *value)
 {
     Nst_assert(map->type == Nst_t.Map);
@@ -160,7 +168,7 @@ bool Nst_map_set(Nst_Obj *map, Nst_Obj *key, Nst_Obj *value)
          curr_node.key != NULL && curr_node.key != key;
          perturb >>= 5)
     {
-        if (curr_node.hash == hash && Nst_obj_eq_c(key, curr_node.key))
+        if (curr_node.hash == hash && strict_eq(key, curr_node.key))
             break;
 
         i = (i32)((i * 5) + 1 + perturb);
@@ -214,7 +222,7 @@ Nst_ObjRef *Nst_map_get(Nst_Obj *map, Nst_Obj *key)
     if (curr_node.key == NULL)
         return NULL;
 
-    if (curr_node.hash == hash && Nst_obj_eq_c(key, curr_node.key)) {
+    if (curr_node.hash == hash && strict_eq(key, curr_node.key)) {
         Nst_inc_ref(curr_node.value);
         return curr_node.value;
     }
@@ -226,7 +234,7 @@ Nst_ObjRef *Nst_map_get(Nst_Obj *map, Nst_Obj *key)
         if (curr_node.key == NULL)
             return NULL;
 
-        if (curr_node.hash == hash && Nst_obj_eq_c(key, curr_node.key)) {
+        if (curr_node.hash == hash && strict_eq(key, curr_node.key)) {
             Nst_inc_ref(curr_node.value);
             return curr_node.value;
         }
@@ -252,7 +260,7 @@ Nst_ObjRef *Nst_map_drop(Nst_Obj *map, Nst_Obj *key)
     if (curr_node.key == NULL)
         return NULL;
 
-    if (curr_node.hash == hash && Nst_obj_eq_c(key, curr_node.key)) {
+    if (curr_node.hash == hash && strict_eq(key, curr_node.key)) {
         Nst_dec_ref(curr_node.key);
         Nst_Obj *node_value = curr_node.value;
 
@@ -282,7 +290,7 @@ Nst_ObjRef *Nst_map_drop(Nst_Obj *map, Nst_Obj *key)
         if (curr_node.key == NULL)
             return NULL;
 
-        if (curr_node.hash == hash && Nst_obj_eq_c(key, curr_node.key)) {
+        if (curr_node.hash == hash && strict_eq(key, curr_node.key)) {
             Nst_dec_ref(curr_node.key);
             Nst_Obj *node_value = curr_node.value;
 

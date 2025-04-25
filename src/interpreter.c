@@ -3,7 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "nest.h"
-#include "mem.h"
+
+#if defined(Nst_GCC) || defined(Nst_CLANG)
+#pragma GCC diagnostic ignored "-Wnull-dereference"
+#endif
 
 #ifdef Nst_MSVC
 
@@ -26,6 +29,7 @@ typedef enum _InstResult {
     INST_NEW_FUNC = 1
 } OpResult;
 
+// run the code until the current function completes executing code
 static bool complete_function(void);
 static bool type_check(Nst_Obj *obj, Nst_Obj *type);
 
@@ -647,11 +651,11 @@ static inline bool unwind_error(usize initial_stack_size)
         top_catch.idx = -1;
     }
 
-    usize end_size = top_catch.f_stack_len;
+    usize end_size = top_catch.f_stack_len + 1;
     if (end_size < initial_stack_size)
         end_size = initial_stack_size;
 
-    while (i_state.f_stack.len > end_size) {
+    while (i_state.f_stack.len >= end_size) {
         Nst_FuncCall call = Nst_fstack_pop(&i_state.f_stack);
         Nst_error_add_span(call.span);
 
@@ -664,7 +668,7 @@ static inline bool unwind_error(usize initial_stack_size)
         }
     }
 
-    if (end_size < initial_stack_size)
+    if (top_catch.f_stack_len < initial_stack_size)
         return false;
 
     while (i_state.v_stack.len > top_catch.v_stack_len)

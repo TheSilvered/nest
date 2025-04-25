@@ -33,7 +33,6 @@ bool Nst_vt_init(Nst_VarTable *vt, Nst_Obj *global_table, Nst_Obj *args,
         if (Nst_error_occurred()) {
             Nst_map_drop(vars, Nst_s.o__vars_);
             Nst_dec_ref(vars);
-            Nst_free(vt);
             return false;
         }
         return true;
@@ -62,7 +61,6 @@ bool Nst_vt_init(Nst_VarTable *vt, Nst_Obj *global_table, Nst_Obj *args,
     if (Nst_error_occurred()) {
         Nst_map_drop(vars, Nst_s.o__vars_);
         Nst_dec_ref(vars);
-        Nst_free(vt);
         return false;
     }
     return true;
