@@ -89,7 +89,7 @@ static Nst_SourceText *load_file(Nst_CLArgs *inout_args, bool parse_line)
     fclose(file);
     file = NULL;
 
-    Nst_get_full_path(inout_args->filename, &full_path, NULL);
+    Nst_abs_path(inout_args->filename, &full_path, NULL);
     if (full_path == NULL)
         goto cleanup;
 

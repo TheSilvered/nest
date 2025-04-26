@@ -20,41 +20,11 @@ TheSilvered
 
 **Description:**
 
-Correctly formats the error message for the wrong number of arguments.
+Correctly formats the error message for using the wrong number of arguments.
 
 ---
 
 ## Structs
-
-### `Nst_SourceText`
-
-**Synopsis:**
-
-```better-c
-typedef struct _Nst_SourceText {
-    bool allocated;
-    char *text;
-    char *path;
-    char **lines;
-    usize text_len;
-    usize lines_len;
-} Nst_SourceText
-```
-
-**Description:**
-
-The structure where the source text of a Nest file is kept.
-
-**Fields:**
-
-- `allocated`: whether `text`, `path` and `lines` are heap allocated
-- `text`: the UTF-8 text of the file
-- `path`: the path of the file
-- `lines`: the beginning of each line of the file
-- `len`: the length in bytes of `text`
-- `lines_len`: the number of lines in the file
-
----
 
 ### `Nst_Pos`
 
@@ -115,8 +85,8 @@ The structure representing a text span inside a source file.
 ```better-c
 typedef struct _Nst_Traceback {
     bool error_occurred;
-    Nst_Obj *error_name;
-    Nst_Obj *error_msg;
+    Nst_ObjRef *error_name;
+    Nst_ObjRef *error_msg;
     Nst_DynArray positions;
 } Nst_Traceback
 ```
@@ -146,7 +116,7 @@ void Nst_error_set_color(bool color)
 
 **Description:**
 
-Sets how the error message is printed (with or without ANSI escapes).
+Set how the error message is printed (with or without ANSI color escapes).
 
 ---
 
@@ -160,7 +130,7 @@ Nst_Pos Nst_pos_empty(void)
 
 **Description:**
 
-Creates an empty position with no valid text.
+Create an empty position with no valid text.
 
 ---
 
@@ -188,7 +158,7 @@ Nst_Span Nst_span_from_pos(Nst_Pos pos)
 
 **Description:**
 
-Make a new span with the same start and end.
+Make a new span with the same start and end positions.
 
 ---
 
@@ -202,7 +172,7 @@ Nst_Span Nst_span_empty(void)
 
 **Description:**
 
-Creates an empty span with no valid text.
+Create an empty span with no valid text.
 
 ---
 
@@ -216,7 +186,7 @@ Nst_Span Nst_span_join(Nst_Span span1, Nst_Span span2)
 
 **Description:**
 
-Make a span that includes both.
+Make a span that includes both `span1` and `span2`.
 
 ---
 
@@ -230,7 +200,7 @@ Nst_Span Nst_span_expand(Nst_Span span, Nst_Pos pos)
 
 **Description:**
 
-Expands a span to include the given position.
+Expand a span to include the given position.
 
 ---
 
@@ -244,7 +214,7 @@ Nst_Pos Nst_span_start(Nst_Span span)
 
 **Description:**
 
-Get the start position of a span.
+@return The start position of a span.
 
 ---
 
@@ -258,94 +228,21 @@ Nst_Pos Nst_span_end(Nst_Span span)
 
 **Description:**
 
-Get the end position of a span.
+@return The end position of a span.
 
 ---
 
-### `Nst_tb_init`
+### `Nst_error_print`
 
 **Synopsis:**
 
 ```better-c
-void Nst_tb_init(Nst_Traceback *tb)
+void Nst_error_print(void)
 ```
 
 **Description:**
 
-Initializes the traceback of the current
-[`Nst_state`](c_api-interpreter.md#nst_state_get).
-
----
-
-### `Nst_tb_destroy`
-
-**Synopsis:**
-
-```better-c
-void Nst_tb_destroy(Nst_Traceback *tb)
-```
-
-**Description:**
-
-Frees the traceback of the current
-[`Nst_state`](c_api-interpreter.md#nst_state_get).
-
----
-
-### `Nst_tb_add_span`
-
-**Synopsis:**
-
-```better-c
-void Nst_tb_add_span(Nst_Traceback *tb, Nst_Span span)
-```
-
-**Description:**
-
-Adds a pair of positions to an [`Nst_Traceback`](c_api-error.md#nst_traceback).
-
----
-
-### `Nst_tb_print`
-
-**Synopsis:**
-
-```better-c
-void Nst_tb_print(Nst_Traceback *tb)
-```
-
-**Description:**
-
-Prints a formatted [`Nst_Traceback`](c_api-error.md#nst_traceback).
-
----
-
-### `Nst_source_text_init`
-
-**Synopsis:**
-
-```better-c
-void Nst_source_text_init(Nst_SourceText *src)
-```
-
-**Description:**
-
-Initializes the fields of a [`Nst_SourceText`](c_api-error.md#nst_sourcetext)
-struct.
-
----
-
-### `Nst_source_text_destroy`
-
-**Synopsis:**
-
-```better-c
-void Nst_source_text_destroy(Nst_SourceText *text)
-```
-
-**Description:**
-
-Frees a heap allocated text source, `text` can be `NULL`. No error is set.
+Print the error traceback.
 
 ---
 
@@ -354,14 +251,14 @@ Frees a heap allocated text source, `text` can be `NULL`. No error is set.
 **Synopsis:**
 
 ```better-c
-void Nst_error_set(Nst_Obj *name, Nst_Obj *msg)
+void Nst_error_set(Nst_ObjRef *name, Nst_ObjRef *msg)
 ```
 
 **Description:**
 
-Sets the error with the given name and message.
+Set the error with the given name and message.
 
-It takes a reference from both `name` and `msg`.
+It takes one reference from both `name` and `msg`.
 
 ---
 
@@ -370,14 +267,14 @@ It takes a reference from both `name` and `msg`.
 **Synopsis:**
 
 ```better-c
-void Nst_error_set_syntax(Nst_Obj *msg)
+void Nst_error_set_syntax(Nst_ObjRef *msg)
 ```
 
 **Description:**
 
-Sets the error with the given message and "Syntax Error" as the name.
+Set the error with the given message and "Syntax Error" as the name.
 
-It takes a reference from `msg`.
+It takes one reference from `msg`.
 
 ---
 
@@ -386,14 +283,14 @@ It takes a reference from `msg`.
 **Synopsis:**
 
 ```better-c
-void Nst_error_set_memory(Nst_Obj *msg)
+void Nst_error_set_memory(Nst_ObjRef *msg)
 ```
 
 **Description:**
 
-Sets the error with the given message and "Memory Error" as the name.
+Set the error with the given message and "Memory Error" as the name.
 
-It takes a reference from `msg`.
+It takes one reference from `msg`.
 
 ---
 
@@ -402,14 +299,14 @@ It takes a reference from `msg`.
 **Synopsis:**
 
 ```better-c
-void Nst_error_set_type(Nst_Obj *msg)
+void Nst_error_set_type(Nst_ObjRef *msg)
 ```
 
 **Description:**
 
-Sets the error with the given message and "Type Error" as the name.
+Set the error with the given message and "Type Error" as the name.
 
-It takes a reference from `msg`.
+It takes one reference from `msg`.
 
 ---
 
@@ -418,14 +315,14 @@ It takes a reference from `msg`.
 **Synopsis:**
 
 ```better-c
-void Nst_error_set_value(Nst_Obj *msg)
+void Nst_error_set_value(Nst_ObjRef *msg)
 ```
 
 **Description:**
 
-Sets the error with the given message and "Value Error" as the name.
+Set the error with the given message and "Value Error" as the name.
 
-It takes a reference from `msg`.
+It takes one reference from `msg`.
 
 ---
 
@@ -434,14 +331,14 @@ It takes a reference from `msg`.
 **Synopsis:**
 
 ```better-c
-void Nst_error_set_math(Nst_Obj *msg)
+void Nst_error_set_math(Nst_ObjRef *msg)
 ```
 
 **Description:**
 
-Sets the error with the given message and "Math Error" as the name.
+Set the error with the given message and "Math Error" as the name.
 
-It takes a reference from `msg`.
+It takes one reference from `msg`.
 
 ---
 
@@ -450,14 +347,14 @@ It takes a reference from `msg`.
 **Synopsis:**
 
 ```better-c
-void Nst_error_set_call(Nst_Obj *msg)
+void Nst_error_set_call(Nst_ObjRef *msg)
 ```
 
 **Description:**
 
-Sets the error with the given message and "Call Error" as the name.
+Set the error with the given message and "Call Error" as the name.
 
-It takes a reference from `msg`.
+It takes one reference from `msg`.
 
 ---
 
@@ -466,14 +363,14 @@ It takes a reference from `msg`.
 **Synopsis:**
 
 ```better-c
-void Nst_error_set_import(Nst_Obj *msg)
+void Nst_error_set_import(Nst_ObjRef *msg)
 ```
 
 **Description:**
 
-Sets the error with the given message and "Import Error" as the name.
+Set the error with the given message and "Import Error" as the name.
 
-It takes a reference from `msg`.
+It takes one reference from `msg`.
 
 ---
 
@@ -487,7 +384,7 @@ void Nst_error_setc_syntax(const char *msg)
 
 **Description:**
 
-Sets the error creating a `String` object from `msg` and using "Syntax Error" as
+Set the error creating a `String` object from `msg` and using "Syntax Error" as
 the name.
 
 ---
@@ -502,7 +399,7 @@ void Nst_error_setc_memory(const char *msg)
 
 **Description:**
 
-Sets the error creating a `String` object from `msg` and using "Memory Error" as
+Set the error creating a `String` object from `msg` and using "Memory Error" as
 the name.
 
 ---
@@ -517,7 +414,7 @@ void Nst_error_setc_type(const char *msg)
 
 **Description:**
 
-Sets the error creating a `String` object from `msg` and using "Type Error" as
+Set the error creating a `String` object from `msg` and using "Type Error" as
 the name.
 
 ---
@@ -532,7 +429,7 @@ void Nst_error_setc_value(const char *msg)
 
 **Description:**
 
-Sets the error creating a `String` object from `msg` and using "Value Error" as
+Set the error creating a `String` object from `msg` and using "Value Error" as
 the name.
 
 ---
@@ -547,7 +444,7 @@ void Nst_error_setc_math(const char *msg)
 
 **Description:**
 
-Sets the error creating a `String` object from `msg` and using "Math Error" as
+Set the error creating a `String` object from `msg` and using "Math Error" as
 the name.
 
 ---
@@ -562,7 +459,7 @@ void Nst_error_setc_call(const char *msg)
 
 **Description:**
 
-Sets the error creating a `String` object from `msg` and using "Call Error" as
+Set the error creating a `String` object from `msg` and using "Call Error" as
 the name.
 
 ---
@@ -577,7 +474,7 @@ void Nst_error_setc_import(const char *msg)
 
 **Description:**
 
-Sets the error creating a `String` object from `msg` and using "Import Error" as
+Set the error creating a `String` object from `msg` and using "Import Error" as
 the name.
 
 ---
@@ -593,7 +490,7 @@ void Nst_error_setf_syntax(const char *fmt, ...)
 **Description:**
 
 Set the error creating a formatted `String` object and using "Syntax Error" as
-the name
+the name.
 
 ---
 
@@ -608,7 +505,7 @@ void Nst_error_setf_memory(const char *fmt, ...)
 **Description:**
 
 Set the error creating a formatted `String` object and using "Memory Error" as
-the name
+the name.
 
 ---
 
@@ -623,7 +520,7 @@ void Nst_error_setf_type(const char *fmt, ...)
 **Description:**
 
 Set the error creating a formatted `String` object and using "Type Error" as the
-name
+name.
 
 ---
 
@@ -638,7 +535,7 @@ void Nst_error_setf_value(const char *fmt, ...)
 **Description:**
 
 Set the error creating a formatted `String` object and using "Value Error" as
-the name
+the name.
 
 ---
 
@@ -653,7 +550,7 @@ void Nst_error_setf_math(const char *fmt, ...)
 **Description:**
 
 Set the error creating a formatted `String` object and using "Math Error" as the
-name
+name.
 
 ---
 
@@ -668,7 +565,7 @@ void Nst_error_setf_call(const char *fmt, ...)
 **Description:**
 
 Set the error creating a formatted `String` object and using "Call Error" as the
-name
+name.
 
 ---
 
@@ -683,7 +580,7 @@ void Nst_error_setf_import(const char *fmt, ...)
 **Description:**
 
 Set the error creating a formatted `String` object and using "Import Error" as
-the name
+the name.
 
 ---
 
@@ -697,7 +594,7 @@ void Nst_error_failed_alloc(void)
 
 **Description:**
 
-Sets the global operation error with a memory error of failed allocation.
+Set the global operation error with a memory error of failed allocation.
 
 ---
 
@@ -711,7 +608,7 @@ void Nst_error_add_span(Nst_Span span)
 
 **Description:**
 
-Adds a pair of positions to the current error.
+Add a pair of positions to the error.
 
 ---
 
@@ -720,14 +617,12 @@ Adds a pair of positions to the current error.
 **Synopsis:**
 
 ```better-c
-Nst_ErrorKind Nst_error_occurred(void)
+bool Nst_error_occurred(void)
 ```
 
 **Returns:**
 
-Whether an error has occurred in the current execution. Check
-[`Nst_ErrorKind`](c_api-error.md#nst_errorkind) to understand better the return
-value.
+Whether an error has occurred.
 
 ---
 
@@ -741,8 +636,7 @@ Nst_Traceback *Nst_error_get(void)
 
 **Returns:**
 
-The traceback of the current execution or that of the interpreter if no
-execution state is set.
+The traceback.
 
 ---
 
@@ -756,31 +650,4 @@ void Nst_error_clear(void)
 
 **Description:**
 
-Clears the traceback of both the current execution and of the interpreter. If no
-error has occurred nothing is done.
-
----
-
-## Enums
-
-### `Nst_ErrorKind`
-
-**Synopsis:**
-
-```better-c
-typedef enum _Nst_ErrorKind {
-    Nst_EK_NONE = 0,
-    Nst_EK_LOCAL,
-    Nst_EK_GLOBAL
-} Nst_ErrorKind
-```
-
-**Description:**
-
-The kinds of errors that can occur during execution.
-
-**Variants:**
-
-- `Nst_EK_NONE`: no error occurred
-- `Nst_EK_LOCAL`: an error has occurred in the current execution state
-- `Nst_EK_GLOBAL`: an error has occurred while no execution state was set
+Clear the traceback. If no error has occurred nothing is done.

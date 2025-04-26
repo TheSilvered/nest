@@ -25,12 +25,12 @@ The minimum size of a map, must be a power of two.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_map_new(void)
+Nst_ObjRef *Nst_map_new(void)
 ```
 
 **Description:**
 
-Creates a new map object.
+Create a new map object.
 
 **Returns:**
 
@@ -43,12 +43,12 @@ The new object or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_map_copy(Nst_Obj *map)
+Nst_ObjRef *Nst_map_copy(Nst_Obj *map)
 ```
 
 **Description:**
 
-Creates a shallow copy of a map object.
+Create a shallow copy of a map object.
 
 **Parameters:**
 
@@ -70,7 +70,7 @@ void _Nst_map_traverse(Nst_Obj *map)
 
 **Description:**
 
-The traverse function for the map object.
+[`Nst_ObjTrav`](c_api-obj.md#nst_objtrav) function for `Map` objects.
 
 ---
 
@@ -84,7 +84,7 @@ usize Nst_map_len(Nst_Obj *map)
 
 **Description:**
 
-Get the number of key-value pairs in a map.
+@return The number of key-value pairs in a map.
 
 ---
 
@@ -98,7 +98,7 @@ usize Nst_map_cap(Nst_Obj *map)
 
 **Description:**
 
-Get the current capacity of a map.
+@return The current capacity of a map.
 
 ---
 
@@ -112,7 +112,7 @@ bool Nst_map_set(Nst_Obj *map, Nst_Obj *key, Nst_Obj *value)
 
 **Description:**
 
-Inserts or modifies a value in the map. Adds a reference to both the key and the
+Insert or modify a value in the map. Adds a reference to both the key and the
 value.
 
 **Parameters:**
@@ -132,12 +132,12 @@ value.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_map_get(Nst_Obj *map, Nst_Obj *key)
+Nst_ObjRef *Nst_map_get(Nst_Obj *map, Nst_Obj *key)
 ```
 
 **Description:**
 
-Gets the value associated with a key.
+Get the value associated with a key.
 
 **Parameters:**
 
@@ -156,12 +156,12 @@ hashable or is not inside the map. No error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_map_drop(Nst_Obj *map, Nst_Obj *key)
+Nst_ObjRef *Nst_map_drop(Nst_Obj *map, Nst_Obj *key)
 ```
 
 **Description:**
 
-Drops a key from a map and returns its value.
+Drop a key from a map and returns its value.
 
 **Parameters:**
 
@@ -185,7 +185,7 @@ bool Nst_map_set_str(Nst_Obj *map, const char *key, Nst_Obj *value)
 
 **Description:**
 
-Inserts or modifies a value in the map.
+Insert or modifies a value in the map using a C string as the key.
 
 **Parameters:**
 
@@ -204,12 +204,12 @@ Inserts or modifies a value in the map.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_map_get_str(Nst_Obj *map, const char *key)
+Nst_ObjRef *Nst_map_get_str(Nst_Obj *map, const char *key)
 ```
 
 **Description:**
 
-Gets the value associated with a key.
+Get the value associated with a key using a C string as the key.
 
 **Parameters:**
 
@@ -228,12 +228,12 @@ hashable or is not inside the map. No error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_map_drop_str(Nst_Obj *map, const char *key)
+Nst_ObjRef *Nst_map_drop_str(Nst_Obj *map, const char *key)
 ```
 
 **Description:**
 
-Drops a key from a map and returns its value.
+Drops a key from a map and returns its value using a C string as the key.
 
 **Parameters:**
 

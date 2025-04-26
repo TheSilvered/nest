@@ -93,7 +93,7 @@ bool Nst_llist_push(Nst_LList *llist, void *value, bool allocated)
 
 **Description:**
 
-Adds a value to the front of the list.
+Add a value to the front of the list.
 
 **Parameters:**
 
@@ -118,7 +118,7 @@ bool Nst_llist_append(Nst_LList *llist, void *value, bool allocated)
 
 **Description:**
 
-Adds a value to the back of the list.
+Add a value to the back of the list.
 
 **Parameters:**
 
@@ -144,7 +144,7 @@ bool Nst_llist_insert(Nst_LList *llist, void *value, bool allocated,
 
 **Description:**
 
-Adds a value after a given node.
+Add a value after a given node.
 
 node can be `NULL`, in which case the function behaves like
 [`Nst_llist_push`](c_api-llist.md#nst_llist_push).
@@ -173,7 +173,7 @@ void *Nst_llist_pop(Nst_LList *llist)
 
 **Description:**
 
-Removes and returns the front value of a list. If the list is empty `NULL` is
+Remove and returns the front value of a list. If the list is empty `NULL` is
 returned, no error is set.
 
 ---
@@ -186,10 +186,10 @@ returned, no error is set.
 void *Nst_llist_peek_front(Nst_LList *llist)
 ```
 
-**Description:**
+**Returns:**
 
-Returns the front value of a list. If the list is empty `NULL` is returned, no
-error is set.
+The front value of a list. If the list is empty `NULL` is* returned, no error is
+set.
 
 ---
 
@@ -201,10 +201,10 @@ error is set.
 void *Nst_llist_peek_back(Nst_LList *llist)
 ```
 
-**Description:**
+**Returns:**
 
-Returns the back value of a list. If the list is empty `NULL` is returned, no
-error is set.
+The back value of a list. If the list is empty `NULL` is returned, no error is
+set.
 
 ---
 
@@ -218,7 +218,7 @@ void Nst_llist_push_llnode(Nst_LList *llist, Nst_LLNode *node)
 
 **Description:**
 
-Adds a node to the front of a list.
+Add a node to the front of a list.
 
 ---
 
@@ -232,7 +232,7 @@ void Nst_llist_append_llnode(Nst_LList *llist, Nst_LLNode *node)
 
 **Description:**
 
-Adds a node to the back of a list.
+Add a node to the back of a list.
 
 ---
 
@@ -246,26 +246,8 @@ Nst_LLNode *Nst_llist_pop_llnode(Nst_LList *llist)
 
 **Description:**
 
-Removes the front node of a list and returns it. If the list is empty `NULL` is
+Remove the front node of a list and returns it. If the list is empty `NULL` is
 returned, no error is set.
-
----
-
-### `Nst_llist_new`
-
-**Synopsis:**
-
-```better-c
-Nst_LList *Nst_llist_new(void)
-```
-
-**Description:**
-
-Creates and initializes a new list on the heap
-
-**Returns:**
-
-The new list or `NULL` on failure. The error is set.
 
 ---
 
@@ -279,7 +261,7 @@ void Nst_llist_init(Nst_LList *llist)
 
 **Description:**
 
-Initializes a llist.
+Initialize an [`Nst_LList`](c_api-llist.md#nst_llist).
 
 ---
 
@@ -293,7 +275,7 @@ Nst_LLNode *Nst_llnode_new(void *value, bool allocated)
 
 **Description:**
 
-Creates a new node on the heap.
+Create a new node on the heap.
 
 To free the node use [`Nst_free`](c_api-mem.md#nst_free). The value is *not*
 handeled automatically and must be freed manually.
@@ -301,28 +283,6 @@ handeled automatically and must be freed manually.
 **Returns:**
 
 The new node or `NULL` on failure. The error is set.
-
----
-
-### `Nst_llist_destroy`
-
-**Synopsis:**
-
-```better-c
-void Nst_llist_destroy(Nst_LList *llist, Nst_Destructor item_destructor)
-```
-
-**Description:**
-
-Destroys a heap-allocated list.
-
-If the value of a node is marked as allocated it will be passed to
-item_destructor otherwise it is left untouched.
-
-**Parameters:**
-
-- `llist`: the list to destroy
-- `item_destructor`: the destructor to use on allocated values
 
 ---
 
@@ -336,7 +296,7 @@ void Nst_llist_empty(Nst_LList *llist, Nst_Destructor item_destructor)
 
 **Description:**
 
-Destroys all the nodes inside a list.
+Destroy all the nodes inside a list.
 
 If the value of a node is marked as allocated it will be passed to
 item_destructor otherwise it is left untouched.
@@ -358,7 +318,7 @@ void Nst_llist_move_nodes(Nst_LList *from, Nst_LList *to)
 
 **Description:**
 
-Moves all the nodes from a list to the end of another.
+Move all the nodes from a list to the end of another.
 
 If to has already some values the new ones are added at the end.
 

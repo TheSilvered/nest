@@ -427,7 +427,7 @@ Nst_Obj *NstC batch_next(usize arg_num, Nst_Obj **args)
             Nst_seq_setf(batch, i, padding);
     } else {
         Nst_Obj *resized_batch =
-            Nst_array_from_objs(i, _Nst_seq_objs(batch));
+            Nst_array_from_objs(i, Nst_seq_objs(batch));
         Nst_dec_ref(batch);
         batch = resized_batch;
     }

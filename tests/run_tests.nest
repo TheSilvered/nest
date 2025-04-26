@@ -23,14 +23,8 @@ sys.SUPPORTS_COLOR ? [
 
 0 = failed_tests
 
-#run_test name path [
-    !(name 'test_e_' @su.starts_with) ?
-        |#| path
-    : [
-        ?? |#| path
-        ?! e =>
-        'Assertion Error' !! ('the file ' name ' should raise an error' ><)
-    ]
+#run_test path [
+    |#| path
 ]
 
 #error_location traceback [
@@ -40,16 +34,30 @@ sys.SUPPORTS_COLOR ? [
 ]
 
 #run_tests dir [
-    C_BLUE '** Testing directory ' (dir @su.repr) ' **' C_RESET >< @io.println
+    C_BLUE '** Testing \(dir @su.repr) **' C_RESET >< @io.println
 
-    ... dir @fs.list_dirs := test_path [
-        test_path @fs.path.extension '.nest' != ? ..
-        test_path @fs.path.filename = name
-        !(name 'test_' @su.starts_with) ? ..
+    Vector :: (
+        dir @fs.list_dir
+        (##path => path @fs.is_file) @sequ.filter_i
+        (##path => {path, path @fs.path.filename}) @sequ.map_i
+        (##path => path.1 '.nest' @su.ends_with) @sequ.filter_i
+        (##path => path.1 'test_' @su.starts_with) @sequ.filter_i
+    ) = tests
 
+    (
+        tests (##t => t.1 'test_e_' @su.starts_with) @sequ.filter
+        (##t => t.1) @sequ.sort
+    ) = error_tests
+
+    (
+        tests (##t => !(t.1 'test_e_' @su.starts_with)) @sequ.filter
+        (##t => t.1) @sequ.sort
+    ) = tests
+
+    ... tests := {path, name} [
         >>> ('Testing ' (name 5 -5 @sequ.slice) '...' ><)
-        run_test {name, test_path} @err.try = res
 
+        run_test {path} @err.try = res
         res.error null == ? [
             C_GREEN ' PASSED' C_RESET >< true @io.println
             ..
@@ -61,19 +69,29 @@ sys.SUPPORTS_COLOR ? [
         res.traceback @error_location ><= s
         s true @io.println
     ]
+
+    ... error_tests := {path, name} [
+        >>> ('Testing [error] ' (name 7 -5 @sequ.slice) '...' ><)
+
+        run_test {path} @err.try = res
+        res.error null != ? [
+            C_GREEN ' PASSED' C_RESET >< true @io.println
+            ..
+        ]
+
+        1 += _globals_.failed_tests
+
+        C_RED ' FAILED' C_RESET ': Assertion Error - the test should have failed' >< = s
+        s true @io.println
+    ]
 ]
 
-sys.PLATFORM 'windows' == ? [
-    `.\object_tests` @run_tests
-    `.\std_lib_tests` @run_tests
-    `.\error_tests` @run_tests
-    `.\lexer_tests` @run_tests
-] : [
-    './object_tests' @run_tests
-    './std_lib_tests' @run_tests
-    './error_tests' @run_tests
-    './lexer_tests' @run_tests
-]
+`lexer`     @run_tests
+`objects`   @run_tests
+`optimizer` @run_tests
+`parser`    @run_tests
+`runtime`   @run_tests
+`stdlib`    @run_tests
 
 test.log_file @io.flush
 test.log_file @io.close

@@ -20,7 +20,7 @@ TheSilvered
 
 **Description:**
 
-Checks if `f` is closed.
+Check if `f` is closed.
 
 ---
 
@@ -34,7 +34,7 @@ Checks if `f` is closed.
 
 **Description:**
 
-Checks if `f` was opened in binary mode.
+Check if `f` was opened in binary mode.
 
 ---
 
@@ -48,7 +48,7 @@ Checks if `f` was opened in binary mode.
 
 **Description:**
 
-Checks if `f` is a TTY.
+Check if `f` is a TTY.
 
 ---
 
@@ -62,7 +62,7 @@ Checks if `f` is a TTY.
 
 **Description:**
 
-Checks if `f` can be written.
+Check if `f` can be written.
 
 ---
 
@@ -76,7 +76,7 @@ Checks if `f` can be written.
 
 **Description:**
 
-Checks if `f` can be read.
+Check if `f` can be read.
 
 ---
 
@@ -90,7 +90,7 @@ Checks if `f` can be read.
 
 **Description:**
 
-Checks if `f` can be seeked.
+Check if `f` can be seeked.
 
 ---
 
@@ -404,13 +404,13 @@ This function shall return one of the following
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
-                     Nst_Encoding *encoding)
+Nst_ObjRef *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
+                        Nst_Encoding *encoding)
 ```
 
 **Description:**
 
-Creates a new `IOFile` object from a C file pointer.
+Create a new `IOFile` object from a C file pointer.
 
 **Parameters:**
 
@@ -431,14 +431,14 @@ The new object on success or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iof_new_fake(void *value, bool bin, bool read, bool write,
-                          bool seek, Nst_Encoding *encoding,
-                          Nst_IOFuncSet func_set)
+Nst_ObjRef *Nst_iof_new_fake(void *value, bool bin, bool read, bool write,
+                             bool seek, Nst_Encoding *encoding,
+                             Nst_IOFuncSet func_set)
 ```
 
 **Description:**
 
-Creates a new `IOFile` object that is not a C file pointer.
+Create a new `IOFile` object that is not a C file pointer.
 
 **Parameters:**
 
@@ -466,7 +466,7 @@ Nst_IOFuncSet *Nst_iof_func_set(Nst_Obj *f)
 
 **Description:**
 
-Get the [`Nst_IOFuncSet`](c_api-file.md#nst_iofuncset) of a file.
+@return The [`Nst_IOFuncSet`](c_api-file.md#nst_iofuncset) of a file.
 
 ---
 
@@ -478,9 +478,10 @@ Get the [`Nst_IOFuncSet`](c_api-file.md#nst_iofuncset) of a file.
 int Nst_iof_fd(Nst_Obj *f)
 ```
 
-**Description:**
+**Returns:**
 
-Get the file descriptor, if it's negative the file is fake.
+The file descriptor of a file. If it's negative the file is not a real file on
+disk.
 
 ---
 
@@ -492,10 +493,10 @@ Get the file descriptor, if it's negative the file is fake.
 void *Nst_iof_fp(Nst_Obj *f)
 ```
 
-**Description:**
+**Returns:**
 
-Get a pointer to the file's data. If the descriptor is positive this is of type
-`FILE *`.
+A pointer to the internal data of a file. If the descriptor returned by
+[`Nst_iof_fd`](c_api-file.md#nst_iof_fd) is positive this is of type `FILE *`.
 
 ---
 
@@ -509,7 +510,7 @@ Nst_Encoding *Nst_iof_encoding(Nst_Obj *f)
 
 **Description:**
 
-Get the encoding of a file.
+@return The encoding of a file.
 
 ---
 
@@ -524,7 +525,7 @@ Nst_IOResult Nst_fread(u8 *buf, usize buf_size, usize count, usize *buf_len,
 
 **Description:**
 
-Calls the read function of the file, see
+Call the read function of the file, see
 [`Nst_IOFile_read_f`](c_api-file.md#nst_iofile_read_f).
 
 ---
@@ -539,7 +540,7 @@ Nst_IOResult Nst_fwrite(u8 *buf, usize buf_len, usize *count, Nst_Obj *f)
 
 **Description:**
 
-Calls the write function of the file, see
+Call the write function of the file, see
 [`Nst_IOFile_write_f`](c_api-file.md#nst_iofile_write_f).
 
 ---
@@ -554,7 +555,7 @@ Nst_IOResult Nst_fflush(Nst_Obj *f)
 
 **Description:**
 
-Calls the flush function of the file, see
+Call the flush function of the file, see
 [`Nst_IOFile_flush_f`](c_api-file.md#nst_iofile_flush_f).
 
 ---
@@ -569,7 +570,7 @@ Nst_IOResult Nst_ftell(Nst_Obj *f, usize *pos)
 
 **Description:**
 
-Calls the tell function of the file, see
+Call the tell function of the file, see
 [`Nst_IOFile_tell_f`](c_api-file.md#nst_iofile_tell_f).
 
 ---
@@ -584,7 +585,7 @@ Nst_IOResult Nst_fseek(Nst_SeekWhence origin, isize offset, Nst_Obj *f)
 
 **Description:**
 
-Calls the seek function of the file, see
+Call the seek function of the file, see
 [`Nst_IOFile_seek_f`](c_api-file.md#nst_iofile_seek_f).
 
 ---
@@ -599,7 +600,7 @@ Nst_IOResult Nst_fclose(Nst_Obj *f)
 
 **Description:**
 
-Calls the close function of the file, see
+Call the close function of the file, see
 [`Nst_IOFile_close_f`](c_api-file.md#nst_iofile_close_f).
 
 ---
@@ -686,7 +687,7 @@ void Nst_io_result_get_details(u32 *ill_encoded_ch, usize *position,
 
 **Description:**
 
-Gets the details of the [`Nst_IOResult`](c_api-file.md#nst_ioresult) returned by
+Get the details of the [`Nst_IOResult`](c_api-file.md#nst_ioresult) returned by
 the functions.
 
 This function can only be called when the returned
@@ -722,7 +723,7 @@ void Nst_io_result_set_details(u32 ill_encoded_ch, usize position,
 
 **Description:**
 
-Sets the values returned with
+Set the values returned with
 [`Nst_io_result_get_details`](c_api-file.md#nst_io_result_get_details).
 
 ---
@@ -737,7 +738,7 @@ FILE *Nst_fopen_unicode(const char *path, const char *mode)
 
 **Description:**
 
-Opens a file given a path that can contain unicode characters in UTF-8.
+Open a file given a path that can contain unicode characters in UTF-8.
 
 **Parameters:**
 

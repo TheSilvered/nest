@@ -52,15 +52,6 @@
     => null
 ]
 
-#parser_prev_line parser [
-    parser.idx 1 - -1 > ? [
-        1 -= parser.idx
-        parser.lines.(parser.idx) = line
-        => line @su.rtrim
-    ]
-    => null
-]
-
 #parser_curr_line parser [
     => -1 parser.idx $parser.lines < ?
         parser.lines.(parser.idx) @su.rtrim

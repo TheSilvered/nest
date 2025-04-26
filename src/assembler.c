@@ -128,7 +128,7 @@ static usize calc_jump_remaps(JumpRemap *remaps, Nst_InstList *ls)
         u8 offset = new_arg_ext - remaps[expand_idx].arg_ext;
         remaps[expand_idx].arg_ext = new_arg_ext;
         bc_len += offset;
-        for (usize i = expand_idx; i < ls_len; i++)
+        for (usize i = expand_idx + 1; i < ls_len; i++)
             remaps[i].jump_offset += offset;
 
         // calculate the jump destinations again
@@ -475,7 +475,7 @@ static void bc_print(Nst_Bytecode *bc, usize indent)
         Nst_printf(" %3" PRIu8, Nst_OP_ARG(op));
 
         if (arg != Nst_OP_ARG(op))
-            Nst_printf(" (extended: %3" PRIu64 " %#02" PRIx64 ")", arg, arg);
+            Nst_printf(" (extended: %3" PRIu64 ")", arg);
         if (Nst_OP_CODE(op) == Nst_OP_STACK
             || Nst_OP_CODE(op) == Nst_OP_LOCAL)
         {

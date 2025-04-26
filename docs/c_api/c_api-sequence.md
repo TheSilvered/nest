@@ -48,12 +48,12 @@ Growth ratio of a Vector object.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_array_new(usize len)
+Nst_ObjRef *Nst_array_new(usize len)
 ```
 
 **Description:**
 
-Creates a new array object of the specified length. The slots are filled with
+Create a new `Array` object of the specified length. The slots are filled with
 `null` values.
 
 **Parameters:**
@@ -71,12 +71,12 @@ The new object on success or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_vector_new(usize len)
+Nst_ObjRef *Nst_vector_new(usize len)
 ```
 
 **Description:**
 
-Creates a new vector object of the specified length. The slots are filled with
+Create a new `Vector` object of the specified length. The slots are filled with
 `null` values.
 
 **Parameters:**
@@ -94,12 +94,12 @@ The new object on success or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_array_from_objs(usize len, Nst_Obj **objs)
+Nst_ObjRef *Nst_array_from_objs(usize len, Nst_Obj **objs)
 ```
 
 **Description:**
 
-Create a new Array object given an array of objects. A reference is added to
+Create a new `Array` object given an array of objects. A reference is added to
 each object.
 
 **Parameters:**
@@ -118,12 +118,12 @@ The new object on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_vector_from_objs(usize len, Nst_Obj **objs)
+Nst_ObjRef *Nst_vector_from_objs(usize len, Nst_Obj **objs)
 ```
 
 **Description:**
 
-Create a new Vector object given an array of objects. A reference is added to
+Create a new `Vector` object given an array of objects. A reference is added to
 each object.
 
 **Parameters:**
@@ -142,12 +142,12 @@ The new object on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_array_from_objsn(usize len, Nst_Obj **objs)
+Nst_ObjRef *Nst_array_from_objsn(usize len, Nst_ObjRef **objs)
 ```
 
 **Description:**
 
-Create a new Array object given an array of objects. A reference is taken from
+Create a new `Array` object given an array of objects. A reference is taken from
 each object.
 
 **Parameters:**
@@ -166,13 +166,13 @@ The new object on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_vector_from_objsn(usize len, Nst_Obj **objs)
+Nst_ObjRef *Nst_vector_from_objsn(usize len, Nst_ObjRef **objs)
 ```
 
 **Description:**
 
-Create a new Vector object given an array of objects. A reference is taken from
-each object.
+Create a new `Vector` object given an array of objects. A reference is taken
+from each object.
 
 **Parameters:**
 
@@ -190,15 +190,16 @@ The new object on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_array_create(usize len, ...)
+Nst_ObjRef *Nst_array_create(usize len, ...)
 ```
 
 **Description:**
 
-Creates an array object of the length specified, inserting the objects inside.
+Create a new `Array` object of the length specified, inserting the objects
+inside.
 
 The number of varargs passed to the function must match the number given in the
-len parameter.
+`len` parameter.
 
 **Parameters:**
 
@@ -217,12 +218,13 @@ The new array on success or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_vector_create(usize len, ...)
+Nst_ObjRef *Nst_vector_create(usize len, ...)
 ```
 
 **Description:**
 
-Creates a vector object of the length specified, inserting the objects inside.
+Create a new `Vector` object of the length specified, inserting the objects
+inside.
 
 The number of varargs passed to the function must match the number given in the
 `len` parameter.
@@ -244,12 +246,12 @@ The new vector on success or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_array_create_c(const char *fmt, ...)
+Nst_ObjRef *Nst_array_create_c(const char *fmt, ...)
 ```
 
 **Description:**
 
-Creates an array object, creating the contained objects from C values.
+Create a new `Array` object, creating the contained objects from C values.
 
 The number of varargs passed to the function must match the number of types in
 the fmt argument. For more information about the `fmt` argument check the
@@ -272,12 +274,12 @@ The new array on success or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_vector_create_c(const char *fmt, ...)
+Nst_ObjRef *Nst_vector_create_c(const char *fmt, ...)
 ```
 
 **Description:**
 
-Creates a vector object, creating the contained objects from C values.
+Creates a new `Vector` object, creating the contained objects from C values.
 
 The number of varargs passed to the function must match the number of types in
 the fmt argument. For more information about the `fmt` argument check the
@@ -300,12 +302,12 @@ The new array on success or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_seq_copy(Nst_Obj *seq)
+Nst_ObjRef *Nst_seq_copy(Nst_Obj *seq)
 ```
 
 **Description:**
 
-Creates a shallow copy of a sequence.
+Create a shallow copy of a sequence.
 
 **Parameters:**
 
@@ -327,7 +329,8 @@ void _Nst_seq_traverse(Nst_Obj *seq)
 
 **Description:**
 
-Traverse function for sequence objects.
+[`Nst_ObjTrav`](c_api-obj.md#nst_objtrav) function for `Array` and `Vector`
+objects.
 
 ---
 
@@ -341,7 +344,7 @@ usize Nst_seq_len(Nst_Obj *seq)
 
 **Description:**
 
-Get the length of a sequence.
+@return The length of a sequence.
 
 ---
 
@@ -355,22 +358,21 @@ usize Nst_vector_cap(Nst_Obj *vect)
 
 **Description:**
 
-Get the capacity of a vector.
+@return The capacity of a vector.
 
 ---
 
-### `_Nst_seq_objs`
+### `Nst_seq_objs`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj **_Nst_seq_objs(Nst_Obj *seq)
+Nst_Obj **Nst_seq_objs(Nst_Obj *seq)
 ```
 
 **Description:**
 
-Get the undelying object array of a sequence. Use this only if you know what you
-are doing.
+@return The object array of a sequence.
 
 ---
 
@@ -384,7 +386,7 @@ bool Nst_seq_set(Nst_Obj *seq, i64 idx, Nst_Obj *val)
 
 **Description:**
 
-Changes the value of an index in a sequence. Adds a reference to `val`.
+Change the value of an index in a sequence. Adds a reference to `val`.
 
 `idx` can be negative in which case it is subtracted from the length of the
 sequence to get the new index.
@@ -412,12 +414,12 @@ void Nst_seq_setf(Nst_Obj *seq, usize idx, Nst_Obj *val)
 
 **Description:**
 
-Changes the value of an index in a sequence quickly. Adds a reference to `val`.
+Change the value of an index in a sequence quickly. Adds a reference to `val`.
 Negative indices are not supported.
 
 !!!warning
     Use this function only if you are certain that `idx` is inside `seq`. Bound
-    checks are only performed in debug mode.
+    checks are only performed in debug builds.
 
 **Parameters:**
 
@@ -432,12 +434,12 @@ Negative indices are not supported.
 **Synopsis:**
 
 ```better-c
-bool Nst_seq_setn(Nst_Obj *seq, i64 idx, Nst_Obj *val)
+bool Nst_seq_setn(Nst_Obj *seq, i64 idx, Nst_ObjRef *val)
 ```
 
 **Description:**
 
-Changes the value of an index in a sequence. Takes a reference from `val`.
+Change the value of an index in a sequence. Takes a reference from `val`.
 
 `idx` can be negative in which case it is subtracted from the length of the
 sequence to get the new index.
@@ -460,17 +462,17 @@ when the index is outside the sequence.
 **Synopsis:**
 
 ```better-c
-void Nst_seq_setnf(Nst_Obj *seq, usize idx, Nst_Obj *val)
+void Nst_seq_setnf(Nst_Obj *seq, usize idx, Nst_ObjRef *val)
 ```
 
 **Description:**
 
-Changes the value of an index in a sequence quickly. Takes a reference from
+Change the value of an index in a sequence quickly. Takes a reference from
 `val`. Negative indices are not supported.
 
 !!!warning
     Use this function only if you are certain that `idx` is inside `seq`. Bound
-    checks are only performed in debug mode.
+    checks are only performed in debug builds.
 
 **Parameters:**
 
@@ -485,12 +487,12 @@ Changes the value of an index in a sequence quickly. Takes a reference from
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_seq_get(Nst_Obj *seq, i64 idx)
+Nst_ObjRef *Nst_seq_get(Nst_Obj *seq, i64 idx)
 ```
 
 **Description:**
 
-Gets a reference to a value in a sequence.
+Get a reference to a value in a sequence.
 
 **Parameters:**
 
@@ -509,16 +511,16 @@ error is set. The function fails when the index is outside the sequence.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_seq_getf(Nst_Obj *seq, usize idx)
+Nst_ObjRef *Nst_seq_getf(Nst_Obj *seq, usize idx)
 ```
 
 **Description:**
 
-Gets a reference to a value in a sequence quickly.
+Get a reference to a value in a sequence quickly.
 
 !!!warning
     Use this function only if you are certain that `idx` is inside `seq`. Bound
-    checks are only performed in debug mode.
+    checks are only performed in debug builds.
 
 **Parameters:**
 
@@ -541,7 +543,7 @@ Nst_Obj *Nst_seq_getn(Nst_Obj *seq, i64 idx)
 
 **Description:**
 
-Gets a value in a sequence without taking a reference.
+Get a value in a sequence without taking a reference.
 
 **Parameters:**
 
@@ -565,7 +567,7 @@ Nst_Obj *Nst_seq_getnf(Nst_Obj *seq, usize idx)
 
 **Description:**
 
-Gets a value in a sequence without taking a reference quickly.
+Get a value in a sequence without taking a reference quickly.
 
 !!!warning
     Use this function only if you are certain that `idx` is inside `seq`. Bound
@@ -592,7 +594,7 @@ bool Nst_vector_append(Nst_Obj *vect, Nst_Obj *val)
 
 **Description:**
 
-Appends a value to the end of a vector adding a reference to `val`.
+Append a value to the end of a vector adding a reference to `val`.
 
 **Parameters:**
 
@@ -615,7 +617,7 @@ bool Nst_vector_remove(Nst_Obj *vect, Nst_Obj *val)
 
 **Description:**
 
-Removes the first occurrence of a value inside a vector.
+Remove the first occurrence of a value inside a vector.
 
 **Parameters:**
 
@@ -635,12 +637,12 @@ matched. No error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_vector_pop(Nst_Obj *vect, usize quantity)
+Nst_ObjRef *Nst_vector_pop(Nst_Obj *vect, usize quantity)
 ```
 
 **Description:**
 
-Pops a certain number of values from the end of a vector.
+Pop a certain number of values from the end of a vector.
 
 If the quantity is greater than the length of the vector, it is adapted and the
 function does not fail.

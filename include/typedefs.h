@@ -18,7 +18,7 @@
 #include <inttypes.h>
 
 // DO NOT ENABLE, used for documentation purpuses. If you need to define these
-// macros, define them elsewhere in this file.
+// macros, define them elsewhere in this file or in the compiler.
 #if 0
 /**
  * If defined enables tracking of the position in the program where objects are
@@ -144,7 +144,7 @@
 #define Nst_NIX_FMT(m, n) __attribute__((format(printf,m,n)))
 #else
 /** [docs:ignore]
- * @brief Marks an argument as a printf format string on GCC or CLANG.
+ * Marks an argument as a printf format string on GCC or CLANG.
  */
 #define Nst_NIX_FMT(m, n)
 #endif // !Nst_NIX_FMT
@@ -161,7 +161,7 @@
 #ifndef Nst_BYTEORDER
 #ifdef Nst_MSVC
 /**
- * @brief The endianness of the system, either `Nst_LITTLE_ENDIAN` or
+ * The endianness of the system, either `Nst_LITTLE_ENDIAN` or
  * `Nst_BIG_ENDIAN`.
  */
 #define Nst_BYTEORDER Nst_LITTLE_ENDIAN
@@ -170,7 +170,7 @@
       defined(__THUMBEB__) || defined(__AARCH64EB__) ||                       \
       defined(_MIBSEB) || defined(__MIBSEB) || defined(__MIBSEB__)
 /** [docs:ignore]
- * @brief The endianness of the system, either `Nst_LITTLE_ENDIAN` or
+ * The endianness of the system, either `Nst_LITTLE_ENDIAN` or
  * `Nst_BIG_ENDIAN`.
  */
 #define Nst_BYTEORDER Nst_BIG_ENDIAN
@@ -179,7 +179,7 @@
       defined(__THUMBEL__) || defined(__AARCH64EL__) ||                       \
       defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__)
 /** [docs:ignore]
- * @brief The endianness of the system, either `Nst_LITTLE_ENDIAN` or
+ * The endianness of the system, either `Nst_LITTLE_ENDIAN` or
  * `Nst_BIG_ENDIAN`.
  */
 #define Nst_BYTEORDER Nst_LITTLE_ENDIAN
@@ -193,7 +193,7 @@
 #define NstC __cdecl
 #else
 /** [docs:ignore]
- * @brief Marks a function for for the standard C declaration (`__cdecl`).
+ * Marks a function for for the standard C declaration (`__cdecl`).
  */
 #define NstC
 #endif // !NstC
@@ -203,8 +203,8 @@
 #endif
 
 /**
- * @brief Marks the argument of a function as unused, without rasing any
- * compiler warnings.
+ * Marks the argument of a function as unused, without rasing any compiler
+ * warnings.
  */
 #define Nst_UNUSED(v) (void)(v)
 
@@ -240,8 +240,9 @@
 
 #if defined(_DEBUG)
 /**
- * @brief Aborts with an error message when an expression is false. The error
- * specifies the expression, the path and line of both the C and Nest file.
+ * Evaluates `Nst_DBG_ASSERT_CALLBACK` and prints an error message when
+ * `expr` is `false`. The error specifies the expression that is false, the
+ * path and line number of both the C and Nest file where the assertion failed.
  */
 #define Nst_assert(expr)                                                      \
     (void)(                                                                   \
@@ -265,8 +266,9 @@
     )
 
 /**
- * @brief Aborts with an error message when an expression is false. The error
- * specifies the expression and the path and line of the C file.
+ * Evaluates `Nst_DBG_ASSERT_CALLBACK` and prints an error message when
+ * `expr` is `false`. The error specifies the expression that is false, the
+ * path and line number of the C file where.
  */
 #define Nst_assert_c(expr)                                                    \
     (void)(                                                                   \
@@ -284,14 +286,16 @@
 #else
 
 /** [docs:ignore]
- * @brief Aborts with an error message when an expression is false. The error
- * specifies the expression, the path and line of both the C and Nest file.
+ * Evaluates `Nst_DBG_ASSERT_CALLBACK` and prints an error message when
+ * `expr` is `false`. The error specifies the expression that is false, the
+ * path and line number of both the C and Nest file where the assertion failed.
  */
 #define Nst_assert(expr)
 
 /** [docs:ignore]
- * @brief Aborts with an error message when an expression is false. The error
- * specifies the expression and the path and line of the C file.
+ * Evaluates `Nst_DBG_ASSERT_CALLBACK` and prints an error message when
+ * `expr` is `false`. The error specifies the expression that is false, the
+ * path and line number of the C file where.
  */
 #define Nst_assert_c(expr)
 

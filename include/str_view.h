@@ -233,21 +233,21 @@ NstEXP bool NstC Nst_sv_parse_real(Nst_StrView sv, Nst_SvNumFlags flags,
  */
 NstEXP i32 NstC Nst_sv_compare(Nst_StrView str1, Nst_StrView str2);
 /**
- * Searches for `substr` inside `str` from the beginning.
+ * Searche for `substr` inside `str` from the beginning.
  *
  * @return The index where the first occurrence of `substr` appears. If
  * `substr` is not found in `str` then the function returns `-1`.
  */
 NstEXP isize NstC Nst_sv_lfind(Nst_StrView str, Nst_StrView substr);
 /**
- * Searches for `substr` inside `str` from the end.
+ * Searche for `substr` inside `str` from the end.
  *
  * @return The index where the last occurrence of `substr` appears. If `substr`
  * is not found in `str` then the function returns `-1`.
  */
 NstEXP isize NstC Nst_sv_rfind(Nst_StrView str, Nst_StrView substr);
 /**
- * Searches for `substr` inside `str` from the beginning.
+ * Searche for `substr` inside `str` from the beginning.
  *
  * @return A new string view starting from the end of the first occurrence of
  * `substr`. If `substr` is not found, the view will have length `0` and a
@@ -255,7 +255,7 @@ NstEXP isize NstC Nst_sv_rfind(Nst_StrView str, Nst_StrView substr);
  */
 NstEXP Nst_StrView NstC Nst_sv_ltok(Nst_StrView str, Nst_StrView substr);
 /**
- * Searches for `substr` inside `str` from the end.
+ * Searche for `substr` inside `str` from the end.
  *
  * @return A new string view starting from the end of the last occurrence of
  * `substr`. If `substr` is not found, the view will have length `0` and a

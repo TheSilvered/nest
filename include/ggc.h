@@ -31,8 +31,8 @@
     struct _Nst_GGCList *ggc_list
 
 /**
- * @brief Initializes the fields of a `Nst_GGCObj`. Should be called before
- * initializing other fields of the object.
+ * Initializes the fields of a `Nst_GGCObj`. Should be called after having
+ * initialized all the other fields of the object.
  */
 #define Nst_GGC_OBJ_INIT(obj) do {                                            \
     obj->p_prev = NULL;                                                       \
@@ -48,16 +48,14 @@ extern "C" {
 
 struct _Nst_GGCList;
 
-/**
- * The struct representing a garbage collector object.
- */
+/* The struct representing a garbage collector object. */
 NstEXP typedef struct _Nst_GGCObj {
     Nst_OBJ_HEAD;
     Nst_GGC_HEAD;
 } Nst_GGCObj;
 
 /**
- * The structure representing a garbage collector generation.
+ * The structure representing a generation of the garbage collector.
  *
  * @param head: the first object in the generation
  * @param tail: the last object in the generation
@@ -69,27 +67,6 @@ NstEXP typedef struct _Nst_GGCList {
     usize len;
 } Nst_GGCList;
 
-/**
- * The structure representing the garbage collector.
- *
- * @param gen1: the first generation
- * @param gen2: the second generation
- * @param gen3: the third generation
- * @param old_gen: the old generation
- * @param old_gen_pending: the number of objects in the old generation that
- * have been added since its last collection
- * @param allow_tracking: whether the tracking of new objects is allowed
- */
-NstEXP typedef struct _Nst_GarbageCollector {
-    Nst_GGCList gen1;
-    Nst_GGCList gen2;
-    Nst_GGCList gen3;
-    Nst_GGCList old_gen;
-    i64 old_gen_pending;
-} Nst_GarbageCollector;
-
-/* Collects the object of a generation */
-NstEXP void NstC Nst_ggc_collect_gen(Nst_GGCList *gen);
 /* Runs a general collection, that collects generations as needed. */
 NstEXP void NstC Nst_ggc_collect(void);
 /* Adds an object to the tracked objects by the garbage collector. */
@@ -99,7 +76,6 @@ NstEXP void NstC Nst_ggc_obj_reachable(Nst_Obj *obj);
 
 void _Nst_ggc_quit(void);
 void _Nst_ggc_init(void);
-
 
 /* The flags of a garbage collector object. */
 NstEXP typedef enum _Nst_GGCFlags {

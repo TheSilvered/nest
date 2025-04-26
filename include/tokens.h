@@ -30,15 +30,9 @@
 #define _Nst_TOK_ASSIGNMENT_TO_STACK_OP(token_type)                           \
     ((Nst_TokType)((token_type) - Nst_TT_ADD_A))
 
-/* Casts expr to `Nst_Tok *`. */
-#define Nst_TOK(expr) ((Nst_Tok *)(expr))
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
-
-// IMPORTANT when changing the order of the tokens, chance the order of the
-// functions in stack_op_func and local_op_func in interpreter.c
 
 /* [docs:link Nst_TT_INVALID Nst_TokType] */
 
@@ -146,7 +140,7 @@ NstEXP typedef struct _Nst_Tok {
 } Nst_Tok;
 
 /**
- * Creates a new token.
+ * Create a new token.
  *
  * @param span: the span of the token
  * @param type: the type of the token
@@ -155,13 +149,14 @@ NstEXP typedef struct _Nst_Tok {
  * @return The new token.
  */
 NstEXP Nst_Tok NstC Nst_tok_new(Nst_Span span, i32 type, Nst_Obj *val);
-/* Creates a new token with the type set to `Nst_TT_INVALID`. */
+/* Create a new token with the type set to `Nst_TT_INVALID`. */
 NstEXP Nst_Tok NstC Nst_tok_invalid(void);
 
+/* Destroy the contents of a `Nst_Tok`. */
 NstEXP void NstC Nst_tok_destroy(Nst_Tok *token);
 
 /**
- * Gets the token type from a string of punctuation characters.
+ * Get the token type from a string of punctuation characters.
  *
  * @brief str is expected to be at least one character long.
  *
@@ -172,10 +167,10 @@ NstEXP void NstC Nst_tok_destroy(Nst_Tok *token);
  */
 NstEXP Nst_TokType NstC Nst_tok_type_from_str(u8 *str);
 
-/* Prints a token to the Nest standard output. */
+/* Print a token to the Nest standard output. */
 NstEXP void NstC Nst_print_tok(Nst_Tok *token);
 
-/* Returns the type of the token as a string. */
+/* Convert a `Nst_TokType` to a string. */
 NstEXP const char *NstC Nst_tok_type_to_str(Nst_TokType type);
 
 #ifdef __cplusplus

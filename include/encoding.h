@@ -216,7 +216,6 @@ NstEXP u32 NstC Nst_ext_utf16le_to_utf32(u8 *str);
 /* `Nst_FromUTF32Func` for extUTF-16LE. */
 NstEXP i32 NstC Nst_ext_utf16le_from_utf32(u32 ch, u8 *str);
 
-
 /* `Nst_CheckBytesFunc` for UTF-32. */
 NstEXP i32 NstC Nst_check_utf32_bytes(u32 *str, usize len);
 /* `Nst_ToUTF32Func` for UTF-32. */
@@ -344,7 +343,7 @@ NstEXP bool NstC Nst_encoding_translate(Nst_Encoding *from, Nst_Encoding *to,
                                         void **to_buf, usize *to_len);
 
 /**
- * Checks the validity of the encoding of a string.
+ * Check the validity of the encoding of a string.
  *
  * @param encoding: the expected encoding of the string
  * @param str: the string to check
@@ -358,7 +357,7 @@ NstEXP isize NstC Nst_encoding_check(Nst_Encoding *encoding, void *str,
                                      usize str_len);
 
 /**
- * Gets the length in characters of an encoded string.
+ * Get the length in characters of an encoded string.
  *
  * @param encoding: the encoding of the string
  * @param str: the string to get the length of
@@ -372,7 +371,7 @@ NstEXP isize NstC Nst_encoding_char_len(Nst_Encoding *encoding, void *str,
                                         usize str_len);
 
 /**
- * Gets the length in characters of a UTF-8-encoded string.
+ * Get the length in characters of a UTF-8-encoded string.
  *
  * @brief Note: this function assumes that the string is valid UTF-8 and does
  * no error checking. Use `Nst_encoding_check` to check it or
@@ -393,8 +392,10 @@ NstEXP Nst_Encoding *NstC Nst_encoding(Nst_EncodingID eid);
 
 #ifdef Nst_MSVC
 /**
- * @brief WINDOWS ONLY Returns the Nest code page ID of the local ANSI code
- * page. If the ANSI code page is not supported, `Nst_EID_LATIN1` is returned.
+ * WINDOWS ONLY
+ *
+ * @return The Nest code page ID of the local ANSI code page. If
+ * the ANSI code page is not supported, `Nst_EID_LATIN1` is returned.
  */
 NstEXP Nst_EncodingID NstC Nst_acp(void);
 #endif // !Nst_MSVC
@@ -403,7 +404,7 @@ NstEXP Nst_EncodingID NstC Nst_acp(void);
 /* [docs:link wcslen <https://man7.org/linux/man-pages/man3/wcslen.3.html>] */
 
 /**
- * Translates a UTF-8 string to Unicode (UTF-16).
+ * Translate a UTF-8 string to Unicode (UTF-16).
  *
  * @brief The new string is heap-allocated. `str` is assumed to be a valid
  * non-NULL pointer.
@@ -417,7 +418,7 @@ NstEXP Nst_EncodingID NstC Nst_acp(void);
 NstEXP wchar_t *NstC Nst_char_to_wchar_t(const char *str, usize len);
 
 /**
- * Translates a Unicode (UTF-16) string to UTF-8.
+ * Translate a Unicode (UTF-16) string to UTF-8.
  *
  * @brief The new string is heap-allocated. `str` is assumed to be a valid
  * non-NULL pointer.
@@ -431,13 +432,13 @@ NstEXP wchar_t *NstC Nst_char_to_wchar_t(const char *str, usize len);
 NstEXP char *NstC Nst_wchar_t_to_char(wchar_t *str, usize len);
 
 /**
- * @brief Returns whether a code point is valid. A valid code point is smaller
+ * @return Whether a code point is valid. A valid code point is smaller
  * than or equal to U+10FFFF and is not a high or low surrogate.
  */
-NstEXP bool NstC Nst_is_valid_cp(u32 cp);
+NstEXP bool NstC Nst_cp_is_valid(u32 cp);
 
-/* Returns whether a code is a non character. */
-NstEXP bool NstC Nst_is_non_character(u32 cp);
+/* @return Whether a code is a non character. */
+NstEXP bool NstC Nst_cp_is_non_character(u32 cp);
 
 /**
  * @return The `Nst_EncodingID` deduced from the Byte Order Mark or
@@ -445,7 +446,7 @@ NstEXP bool NstC Nst_is_non_character(u32 cp);
  */
 NstEXP Nst_EncodingID NstC Nst_check_bom(char *str, usize len, i32 *bom_size);
 /**
- * Detects the encoding of a file.
+ * Detect the encoding of a file.
  *
  * @brief If no valid encoding is detected, `Nst_EID_LATIN1` is returned.
  * No error is set.

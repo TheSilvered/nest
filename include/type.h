@@ -17,7 +17,7 @@ extern "C" {
 #include "str_view.h"
 
 /**
- * Creates a new `Type` object.
+ * Create a new `Type` object.
  *
  * @brief Note: `name` must be encoded in UTF-8
  *
@@ -28,7 +28,7 @@ extern "C" {
  */
 NstEXP Nst_ObjRef *NstC Nst_type_new(const char *name, Nst_ObjDstr dstr);
 /**
- * Creates a new `Type` for containers.
+ * Create a new `Type` for containers.
  *
  * @brief Note: `name` must be encoded in UTF-8
  *
@@ -41,10 +41,10 @@ NstEXP Nst_ObjRef *NstC Nst_type_new(const char *name, Nst_ObjDstr dstr);
 NstEXP Nst_ObjRef *NstC Nst_cont_type_new(const char *name, Nst_ObjDstr dstr,
                                           Nst_ObjTrav trav);
 
-/* Get the name of the type. */
+/* @return The name of the type. */
 NstEXP Nst_StrView NstC Nst_type_name(Nst_Obj *type);
 /**
- * Get the traverse function of the type. If the type does not represent a
+ * @return The traverse function of the type. If the type does not represent a
  * container it returns `NULL`.
  */
 NstEXP Nst_ObjTrav NstC Nst_type_trav(Nst_Obj *type);

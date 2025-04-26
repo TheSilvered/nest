@@ -8,22 +8,6 @@ TheSilvered
 
 ---
 
-## Macros
-
-### `Nst_INST_IS_JUMP`
-
-**Synopsis:**
-
-```better-c
-#define Nst_INST_IS_JUMP(inst_id)
-```
-
-**Description:**
-
-Checks whether a given instruction ID represents a jump instruction.
-
----
-
 ## Structs
 
 ### `Nst_Inst`
@@ -32,23 +16,21 @@ Checks whether a given instruction ID represents a jump instruction.
 
 ```better-c
 typedef struct _Nst_Inst {
-    Nst_InstID id;
-    i64 int_val;
-    Nst_Obj *val;
+    Nst_InstCode code;
     Nst_Span span;
+    i64 val;
 } Nst_Inst
 ```
 
 **Description:**
 
-The structure representing an instruction in Nest.
+A structure representing a Nest instruction.
 
 **Fields:**
 
-- `id`: the ID of the instruction
-- `int_val`: an integer value used by the instruction
-- `val`: an object used by the instruction
-- `span`: the span of the instruction
+- `code`: the code of the instruction
+- `span`: the position of the instruction in the code
+- `val`: the integer value of the instruction
 
 ---
 
@@ -58,188 +40,353 @@ The structure representing an instruction in Nest.
 
 ```better-c
 typedef struct _Nst_InstList {
-    usize ref_count;
-    usize total_size;
-    Nst_Inst *instructions;
-    Nst_LList *functions;
+    Nst_DynArray instructions;
+    Nst_DynArray objects;
+    Nst_DynArray functions;
 } Nst_InstList
 ```
 
 **Description:**
 
-The structure representing a list of instructions in Nest.
+A structure representing a list of instructions.
 
 **Fields:**
 
-- `total_size`: the total number of instructions in the list
-- `instructions`: the array of instructions
-- `functions`: the list of functions declared withing the bytecode
+- `instructions`: the list of instructions
+- `objects`: the list of objects that the instructions reference
+- `functions`: the list of
+  [`Nst_FuncPrototype`](c_api-instructions.md#nst_funcprototype) of the
+  functions defined in the file
+
+---
+
+### `Nst_FuncPrototype`
+
+**Synopsis:**
+
+```better-c
+typedef struct _Nst_FuncPrototype {
+    Nst_InstList ilist;
+    Nst_ObjRef **arg_names;
+    usize arg_num;
+} Nst_FuncPrototype
+```
+
+**Description:**
+
+A structure representing a function before it is assembled.
+
+**Fields:**
+
+- `ilist`: the body of the function
+- `arg_names`: the names of the arguments as an array of `Str` objects
+- `arg_num`: the number of arguments the function can accept
 
 ---
 
 ## Functions
 
-### `Nst_inst_new`
+### `Nst_ic_is_jump`
 
 **Synopsis:**
 
 ```better-c
-Nst_Inst *Nst_inst_new(Nst_InstID id, Nst_Span span)
+bool Nst_ic_is_jump(Nst_InstCode code)
 ```
 
 **Description:**
 
-Creates a new instruction on the heap.
+Check if an instruction code is a jump instruction.
 
-**Parameters:**
+---
 
-- `id`: the id of the instruction to create
-- `start`: the start position of the instruction
-- `end`: the end position of the instruction
+### `Nst_ilist_init`
+
+**Synopsis:**
+
+```better-c
+bool Nst_ilist_init(Nst_InstList *list)
+```
+
+**Description:**
+
+Initialize an [`Nst_InstList`](c_api-instructions.md#nst_instlist).
+
+---
+
+### `Nst_ilist_destroy`
+
+**Synopsis:**
+
+```better-c
+void Nst_ilist_destroy(Nst_InstList *list)
+```
+
+**Description:**
+
+Destroy the contents of an [`Nst_InstList`](c_api-instructions.md#nst_instlist).
+
+---
+
+### `Nst_ilist_add`
+
+**Synopsis:**
+
+```better-c
+bool Nst_ilist_add(Nst_InstList *list, Nst_InstCode code, Nst_Span span)
+```
+
+**Description:**
+
+Add an instruction to an [`Nst_InstList`](c_api-instructions.md#nst_instlist).
+The `val` field of the instruction is set to `0`.
 
 **Returns:**
 
-The new instruction or `NULL` on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
-### `Nst_inst_new_val`
+### `Nst_ilist_add_ex`
 
 **Synopsis:**
 
 ```better-c
-Nst_Inst *Nst_inst_new_val(Nst_InstID id, Nst_Obj *val, Nst_Span span)
+bool Nst_ilist_add_ex(Nst_InstList *list, Nst_InstCode code, i64 val,
+                      Nst_Span span)
 ```
 
 **Description:**
 
-Creates a new instruction on the heap with a Nest object value.
-
-The reference count of `val` is increased.
-
-**Parameters:**
-
-- `id`: the id of the instruction to create
-- `val`: the Nest object value
-- `start`: the start position of the instruction
-- `end`: the end position of the instruction
+Add an instruction to an [`Nst_InstList`](c_api-instructions.md#nst_instlist)
+specifying its `val` field.
 
 **Returns:**
 
-The new instruction or `NULL` on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
-### `Nst_inst_new_int`
+### `Nst_ilist_add_obj`
 
 **Synopsis:**
 
 ```better-c
-Nst_Inst *Nst_inst_new_int(Nst_InstID id, i64 int_val, Nst_Span span)
+isize Nst_ilist_add_obj(Nst_InstList *list, Nst_ObjRef *obj)
 ```
 
 **Description:**
 
-Creates a new instruction on the heap with an integer value.
-
-**Parameters:**
-
-- `id`: the id of the instruction to create
-- `int_val`: the integer value
-- `start`: the start position of the instruction
-- `end`: the end position of the instruction
+Append an object to an [`Nst_InstList`](c_api-instructions.md#nst_instlist). A
+reference is taken from `obj`.
 
 **Returns:**
 
-The new instruction or `NULL` on failure. The error is set.
+The index of the added object or `-1` on failure. The error is set.
 
 ---
 
-### `Nst_inst_destroy`
+### `Nst_ilist_add_func`
 
 **Synopsis:**
 
 ```better-c
-void Nst_inst_destroy(Nst_Inst *inst)
+isize Nst_ilist_add_func(Nst_InstList *list, Nst_FuncPrototype *fp)
 ```
 
 **Description:**
 
-Destroys a [`Nst_Inst`](c_api-instructions.md#nst_inst) allocated on the heap.
+Append a function prototype to an
+[`Nst_InstList`](c_api-instructions.md#nst_instlist).
+
+**Returns:**
+
+The index of the added prototype or `-1` on failure. The error is set.
 
 ---
 
-### `Nst_inst_list_new`
+### `Nst_ilist_get_inst`
 
 **Synopsis:**
 
 ```better-c
-Nst_InstList *Nst_inst_list_new(Nst_LList *instructions)
+Nst_Inst *Nst_ilist_get_inst(Nst_InstList *list, usize idx)
 ```
 
-**Description:**
+**Returns:**
 
-Creates a new [`Nst_InstList`](c_api-instructions.md#nst_instlist) from a list
-of instructions.
+The instruction at index `idx` of an
+[`Nst_InstList`](c_api-instructions.md#nst_instlist). If the index is out of
+bounds `NULL` is returned. No error is set.
 
 ---
 
-### `Nst_inst_list_copy`
+### `Nst_ilist_get_obj`
 
 **Synopsis:**
 
 ```better-c
-Nst_InstList *Nst_inst_list_copy(Nst_InstList *inst_list)
+Nst_Obj *Nst_ilist_get_obj(Nst_InstList *list, usize idx)
 ```
 
-**Description:**
+**Returns:**
 
-Copy a [`Nst_InstList`](c_api-instructions.md#nst_instlist).
+The object at index `idx` of an
+[`Nst_InstList`](c_api-instructions.md#nst_instlist). If the index is out of
+bounds `NULL` is returned. No error is set.
 
 ---
 
-### `Nst_inst_list_destroy`
+### `Nst_ilist_get_func`
 
 **Synopsis:**
 
 ```better-c
-void Nst_inst_list_destroy(Nst_InstList *inst_list)
+Nst_FuncPrototype *Nst_ilist_get_func(Nst_InstList *list, usize idx)
 ```
 
-**Description:**
+**Returns:**
 
-Destroys a [`Nst_InstList`](c_api-instructions.md#nst_instlist).
+The function prototype at index `idx` of an
+[`Nst_InstList`](c_api-instructions.md#nst_instlist). If the index is out of
+bounds `NULL` is returned. No error is set.
 
 ---
 
-### `Nst_inst_list_print`
+### `Nst_ilist_get_inst_obj`
 
 **Synopsis:**
 
 ```better-c
-void Nst_inst_list_print(Nst_InstList *ls)
+Nst_Obj *Nst_ilist_get_inst_obj(Nst_InstList *list, usize idx)
+```
+
+**Returns:**
+
+The object associated with the instruction at `idx`. The equivalent of getting
+an instruction with
+[`Nst_ilist_get_inst`](c_api-instructions.md#nst_ilist_get_inst) and then
+getting the object with
+[`Nst_ilist_get_obj`](c_api-instructions.md#nst_ilist_get_obj) using the value
+of the instruction as the index.
+
+---
+
+### `Nst_ilist_get_inst_func`
+
+**Synopsis:**
+
+```better-c
+Nst_FuncPrototype *Nst_ilist_get_inst_func(Nst_InstList *list, usize idx)
+```
+
+**Returns:**
+
+The function prototype associated with the instruction at `idx`. The equivalent
+of getting an instruction with
+[`Nst_ilist_get_inst`](c_api-instructions.md#nst_ilist_get_inst) and then
+getting the prototype with
+[`Nst_ilist_get_func`](c_api-instructions.md#nst_ilist_get_func) using the value
+of the instruction as the index.
+
+---
+
+### `Nst_ilist_set`
+
+**Synopsis:**
+
+```better-c
+void Nst_ilist_set(Nst_InstList *list, usize idx, Nst_InstCode code)
 ```
 
 **Description:**
 
-Prints an [`Nst_InstList`](c_api-instructions.md#nst_instlist).
+Set the code of the instruction at index `idx`. Its value is set to `0`.
 
-This function is called when using the -b option.
+---
 
-**Parameters:**
+### `Nst_ilist_set_ex`
 
-- `ls`: the instruction list to print, it is expected to be valid
+**Synopsis:**
+
+```better-c
+void Nst_ilist_set_ex(Nst_InstList *list, usize idx, Nst_InstCode code,
+                      i64 val)
+```
+
+**Description:**
+
+Set the code and the value of the instruction at index `idx`.
+
+---
+
+### `Nst_ilist_len`
+
+**Synopsis:**
+
+```better-c
+usize Nst_ilist_len(Nst_InstList *list)
+```
+
+**Description:**
+
+@return The number of instructions in an
+[`Nst_InstList`](c_api-instructions.md#nst_instlist).
+
+---
+
+### `Nst_ilist_print`
+
+**Synopsis:**
+
+```better-c
+void Nst_ilist_print(Nst_InstList *list)
+```
+
+**Description:**
+
+Print an [`Nst_InstList`](c_api-instructions.md#nst_instlist) to the standard
+output.
+
+---
+
+### `Nst_fprototype_init`
+
+**Synopsis:**
+
+```better-c
+bool Nst_fprototype_init(Nst_FuncPrototype *fp, Nst_InstList ls, usize arg_num)
+```
+
+**Description:**
+
+Initialize a [`Nst_FuncPrototype`](c_api-instructions.md#nst_funcprototype).
+
+---
+
+### `Nst_fprototype_destroy`
+
+**Synopsis:**
+
+```better-c
+void Nst_fprototype_destroy(Nst_FuncPrototype *fp)
+```
+
+**Description:**
+
+Destroy the contents of a
+[`Nst_FuncPrototype`](c_api-instructions.md#nst_funcprototype).
 
 ---
 
 ## Enums
 
-### `Nst_InstID`
+### `Nst_InstCode`
 
 **Synopsis:**
 
 ```better-c
-typedef enum _Nst_InstID {
+typedef enum _Nst_InstCode {
     Nst_IC_NO_OP,
     Nst_IC_POP_VAL,
     Nst_IC_FOR_START,
@@ -248,13 +395,6 @@ typedef enum _Nst_InstID {
     Nst_IC_RETURN_VARS,
     Nst_IC_SET_VAL_LOC,
     Nst_IC_SET_CONT_LOC,
-    Nst_IC_JUMP,
-    Nst_IC_JUMPIF_T,
-    Nst_IC_JUMPIF_F,
-    Nst_IC_JUMPIF_ZERO,
-    Nst_IC_JUMPIF_IEND,
-    Nst_IC_PUSH_CATCH,
-    Nst_IC_HASH_CHECK,
     Nst_IC_THROW_ERR,
     Nst_IC_POP_CATCH,
     Nst_IC_SET_VAL,
@@ -262,6 +402,7 @@ typedef enum _Nst_InstID {
     Nst_IC_PUSH_VAL,
     Nst_IC_SET_CONT_VAL,
     Nst_IC_OP_CALL,
+    Nst_IC_OP_SEQ_CALL,
     Nst_IC_OP_CAST,
     Nst_IC_OP_RANGE,
     Nst_IC_STACK_OP,
@@ -271,7 +412,8 @@ typedef enum _Nst_InstID {
     Nst_IC_DEC_INT,
     Nst_IC_NEW_INT,
     Nst_IC_DUP,
-    Nst_IC_ROT,
+    Nst_IC_ROT_2,
+    Nst_IC_ROT_3,
     Nst_IC_MAKE_ARR,
     Nst_IC_MAKE_ARR_REP,
     Nst_IC_MAKE_VEC,
@@ -279,10 +421,16 @@ typedef enum _Nst_InstID {
     Nst_IC_MAKE_MAP,
     Nst_IC_MAKE_FUNC,
     Nst_IC_SAVE_ERROR,
-    Nst_IC_UNPACK_SEQ
-} Nst_InstID
+    Nst_IC_UNPACK_SEQ,
+    Nst_IC_JUMP,
+    Nst_IC_JUMPIF_T,
+    Nst_IC_JUMPIF_F,
+    Nst_IC_JUMPIF_ZERO,
+    Nst_IC_JUMPIF_IEND,
+    Nst_IC_PUSH_CATCH
+} Nst_InstCode
 ```
 
 **Description:**
 
-Instruction IDs in the Nest virtual machine.
+The code of a [`Nst_Inst`](c_api-instructions.md#nst_inst).

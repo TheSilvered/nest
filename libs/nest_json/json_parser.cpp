@@ -32,12 +32,12 @@ static Nst_Obj *parse_array();
 
 static Nst_Tok *pop_tok()
 {
-    return Nst_TOK(Nst_da_get(tokens, idx++));
+    return (Nst_Tok *)Nst_da_get(tokens, idx++);
 }
 
 static Nst_Tok *peek_tok()
 {
-    return Nst_TOK(Nst_da_get(tokens, idx));
+    return (Nst_Tok *)Nst_da_get(tokens, idx);
 }
 
 Nst_Obj *json_parse(char *path, Nst_DynArray *tok_arr)
@@ -54,7 +54,8 @@ Nst_Obj *json_parse(char *path, Nst_DynArray *tok_arr)
 
     if (idx + 1 != tokens->len) {
         Nst_dec_ref(res);
-        Nst_Pos err_pos = Nst_span_end(Nst_TOK(Nst_da_get(tokens, idx))->span);
+        Nst_Pos err_pos = Nst_span_end(
+            ((Nst_Tok *)Nst_da_get(tokens, idx))->span);
         JSON_SYNTAX_ERROR("unexpected token", file_path, err_pos);
         Nst_da_clear(tokens, (Nst_Destructor)Nst_tok_destroy);
         return nullptr;

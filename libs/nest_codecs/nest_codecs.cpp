@@ -30,7 +30,7 @@ Nst_Obj *NstC from_cp_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    if (!Nst_is_valid_cp((u32)cp)) {
+    if (!Nst_cp_is_valid((u32)cp)) {
         if (cp <= 0xffff)
             Nst_error_setf_value("invalid code point U+%04" PRIX64, cp);
         else
@@ -68,7 +68,7 @@ Nst_Obj *NstC cp_is_valid_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("l", arg_num, args, &cp))
         return nullptr;
 
-    Nst_RETURN_BOOL(cp >= 0 && cp <= UINT32_MAX && Nst_is_valid_cp((u32)cp));
+    Nst_RETURN_BOOL(cp >= 0 && cp <= UINT32_MAX && Nst_cp_is_valid((u32)cp));
 }
 
 Nst_Obj *NstC encoding_info_(usize arg_num, Nst_Obj **args)

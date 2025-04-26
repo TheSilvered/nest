@@ -16,7 +16,7 @@ extern "C" {
 #endif // !__cplusplus
 
 /**
- * Parses a list of tokens into an abstract syntax tree.
+ * Parse a list of tokens into an abstract syntax tree.
  *
  * @param tokens: the tokens to be parsed
  *

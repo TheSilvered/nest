@@ -2,6 +2,25 @@
 
 #define GGC_OBJ(obj) ((Nst_GGCObj *)(obj))
 
+/**
+ * The structure representing the garbage collector.
+ *
+ * @param gen1: the first generation
+ * @param gen2: the second generation
+ * @param gen3: the third generation
+ * @param old_gen: the old generation
+ * @param old_gen_pending: the number of objects in the old generation that
+ * have been added since its last collection
+ * @param allow_tracking: whether the tracking of new objects is allowed
+ */
+NstEXP typedef struct _Nst_GarbageCollector {
+    Nst_GGCList gen1;
+    Nst_GGCList gen2;
+    Nst_GGCList gen3;
+    Nst_GGCList old_gen;
+    i64 old_gen_pending;
+} Nst_GarbageCollector;
+
 static Nst_GarbageCollector ggc;
 
 static inline void move_obj(Nst_GGCObj *obj, Nst_GGCList *from, Nst_GGCList *to)
@@ -141,7 +160,7 @@ static inline void destroy_objects(Nst_GGCList *gen)
  * 7. Delete the unreachable objects.
 */
 
-void Nst_ggc_collect_gen(Nst_GGCList *gen)
+static void collect_gen(Nst_GGCList *gen)
 {
     // Unreachable values
     Nst_GGCList uv = { NULL, NULL, 0 };
@@ -245,7 +264,7 @@ void Nst_ggc_collect(void)
     if (old_gen_size > _Nst_OLD_GEN_MIN
         && ggc.old_gen_pending >= (i64)old_gen_size >> 2)
     {
-        Nst_ggc_collect_gen(&ggc.old_gen);
+        collect_gen(&ggc.old_gen);
         ggc.old_gen_pending = 0;
     }
 
@@ -254,7 +273,7 @@ void Nst_ggc_collect(void)
 
     // Collect the generations if they are over their maximum value
     if (ggc.gen1.len > _Nst_GEN1_MAX) {
-        Nst_ggc_collect_gen(&ggc.gen1);
+        collect_gen(&ggc.gen1);
         has_collected_gen1 = true;
     }
 
@@ -262,7 +281,7 @@ void Nst_ggc_collect(void)
         || (has_collected_gen1
             && ggc.gen1.len + ggc.gen2.len > _Nst_GEN2_MAX))
     {
-        Nst_ggc_collect_gen(&ggc.gen2);
+        collect_gen(&ggc.gen2);
         has_collected_gen2 = true;
     }
 
@@ -270,7 +289,7 @@ void Nst_ggc_collect(void)
         || (has_collected_gen2
             && ggc.gen2.len + ggc.gen3.len > _Nst_GEN3_MAX))
     {
-        Nst_ggc_collect_gen(&ggc.gen3);
+        collect_gen(&ggc.gen3);
         ggc.old_gen_pending += ggc.gen3.len;
         move_list(&ggc.gen3, &ggc.old_gen);
     }

@@ -98,7 +98,7 @@ The data for a [`Nst_NT_FL`](c_api-nodes.md#nst_nodetype) node.
 
 ```better-c
 typedef struct _Nst_NodeData_Fd {
-    Nst_Obj *name;
+    Nst_ObjRef *name;
     Nst_DynArray argument_names;
     Nst_Node *body;
 } Nst_NodeData_Fd
@@ -153,7 +153,7 @@ The data for a [`Nst_NT_SW`](c_api-nodes.md#nst_nodetype) node.
 typedef struct _Nst_NodeData_Tc {
     Nst_Node *try_body;
     Nst_Node *catch_body;
-    Nst_Obj *error_name;
+    Nst_ObjRef *error_name;
 } Nst_NodeData_Tc
 ```
 
@@ -271,7 +271,7 @@ The data for a [`Nst_NT_ML`](c_api-nodes.md#nst_nodetype) node.
 
 ```better-c
 typedef struct _Nst_NodeData_Vl {
-    Nst_Obj *value;
+    Nst_ObjRef *value;
 } Nst_NodeData_Vl
 ```
 
@@ -441,7 +441,7 @@ bool _Nst_node_cs_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a CS node.
+Initialize a CS node.
 
 ---
 
@@ -455,7 +455,7 @@ void _Nst_node_cs_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a CS node.
+Destroy a CS node.
 
 ---
 
@@ -469,7 +469,7 @@ bool _Nst_node_wl_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a WL node.
+Initialize a WL node.
 
 ---
 
@@ -483,7 +483,7 @@ void _Nst_node_wl_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a WL node.
+Destroy a WL node.
 
 ---
 
@@ -497,7 +497,7 @@ bool _Nst_node_fl_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a FL node.
+Initialize a FL node.
 
 ---
 
@@ -511,7 +511,7 @@ void _Nst_node_fl_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a FL node.
+Destroy a FL node.
 
 ---
 
@@ -525,7 +525,7 @@ bool _Nst_node_fd_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a FD node.
+Initialize a FD node.
 
 ---
 
@@ -539,7 +539,7 @@ void _Nst_node_fd_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a FD node.
+Destroy a FD node.
 
 ---
 
@@ -553,7 +553,7 @@ bool _Nst_node_rt_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a RT node.
+Initialize a RT node.
 
 ---
 
@@ -567,7 +567,7 @@ void _Nst_node_rt_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a RT node.
+Destroy a RT node.
 
 ---
 
@@ -581,7 +581,7 @@ bool _Nst_node_sw_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a SW node.
+Initialize a SW node.
 
 ---
 
@@ -595,7 +595,7 @@ void _Nst_node_sw_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a SW node.
+Destroy a SW node.
 
 ---
 
@@ -609,7 +609,7 @@ bool _Nst_node_tc_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a TC node.
+Initialize a TC node.
 
 ---
 
@@ -623,7 +623,7 @@ void _Nst_node_tc_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a TC node.
+Destroy a TC node.
 
 ---
 
@@ -637,7 +637,7 @@ bool _Nst_node_ws_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a WS node.
+Initialize a WS node.
 
 ---
 
@@ -651,7 +651,7 @@ void _Nst_node_ws_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a WS node.
+Destroy a WS node.
 
 ---
 
@@ -665,7 +665,7 @@ bool _Nst_node_so_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a SO node.
+Initialize a SO node.
 
 ---
 
@@ -679,7 +679,7 @@ void _Nst_node_so_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a SO node.
+Destroy a SO node.
 
 ---
 
@@ -693,7 +693,7 @@ bool _Nst_node_ls_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a LS node.
+Initialize a LS node.
 
 ---
 
@@ -707,7 +707,7 @@ void _Nst_node_ls_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a LS node.
+Destroy a LS node.
 
 ---
 
@@ -721,7 +721,7 @@ bool _Nst_node_lo_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a LO node.
+Initialize a LO node.
 
 ---
 
@@ -735,7 +735,7 @@ void _Nst_node_lo_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a LO node.
+Destroy a LO node.
 
 ---
 
@@ -749,7 +749,7 @@ bool _Nst_node_sl_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a SL node.
+Initialize a SL node.
 
 ---
 
@@ -763,7 +763,7 @@ void _Nst_node_sl_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a SL node.
+Destroy a SL node.
 
 ---
 
@@ -777,7 +777,7 @@ bool _Nst_node_ml_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a ML node.
+Initialize a ML node.
 
 ---
 
@@ -791,7 +791,7 @@ void _Nst_node_ml_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a ML node.
+Destroy a ML node.
 
 ---
 
@@ -805,7 +805,7 @@ bool _Nst_node_vl_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a VL node.
+Initialize a VL node.
 
 ---
 
@@ -819,7 +819,7 @@ void _Nst_node_vl_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a VL node.
+Destroy a VL node.
 
 ---
 
@@ -833,7 +833,7 @@ bool _Nst_node_ac_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a AC node.
+Initialize a AC node.
 
 ---
 
@@ -847,7 +847,7 @@ void _Nst_node_ac_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a AC node.
+Destroy a AC node.
 
 ---
 
@@ -861,7 +861,7 @@ bool _Nst_node_ex_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a EX node.
+Initialize a EX node.
 
 ---
 
@@ -875,7 +875,7 @@ void _Nst_node_ex_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a EX node.
+Destroy a EX node.
 
 ---
 
@@ -889,7 +889,7 @@ bool _Nst_node_as_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a AS node.
+Initialize a AS node.
 
 ---
 
@@ -903,7 +903,7 @@ void _Nst_node_as_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a AS node.
+Destroy a AS node.
 
 ---
 
@@ -917,7 +917,7 @@ bool _Nst_node_ca_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a CA node.
+Initialize a CA node.
 
 ---
 
@@ -931,7 +931,7 @@ void _Nst_node_ca_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a CA node.
+Destroy a CA node.
 
 ---
 
@@ -945,7 +945,7 @@ bool _Nst_node_ie_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a IE node.
+Initialize a IE node.
 
 ---
 
@@ -959,7 +959,7 @@ void _Nst_node_ie_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a IE node.
+Destroy a IE node.
 
 ---
 
@@ -973,7 +973,7 @@ bool _Nst_node_we_init(Nst_Node *node)
 
 **Description:**
 
-Initializes a WE node.
+Initialize a WE node.
 
 ---
 
@@ -987,7 +987,7 @@ void _Nst_node_we_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroyes a WE node.
+Destroy a WE node.
 
 ---
 
@@ -1001,7 +1001,7 @@ void Nst_node_destroy(Nst_Node *node)
 
 **Description:**
 
-Destroys the contents of `node` and frees it.
+Destroy the contents of `node` and frees it.
 
 ---
 
@@ -1015,7 +1015,35 @@ void Nst_node_destroy_contents(Nst_Node *node)
 
 **Description:**
 
-Destroys only the contents of `node` without freeing it.
+Destroy only the contents of `node` without freeing it.
+
+---
+
+### `Nst_print_node`
+
+**Synopsis:**
+
+```better-c
+void Nst_print_node(Nst_Node *node)
+```
+
+**Description:**
+
+Print an [`Nst_Node`](c_api-nodes.md#nst_node) to the standard output.
+
+---
+
+### `Nst_node_type_to_str`
+
+**Synopsis:**
+
+```better-c
+const char *Nst_node_type_to_str(Nst_NodeType nt)
+```
+
+**Description:**
+
+Convert an [`Nst_NodeType`](c_api-nodes.md#nst_nodetype) to a string.
 
 ---
 
@@ -1029,7 +1057,7 @@ bool Nst_node_change_type(Nst_Node *node, Nst_NodeType new_type)
 
 **Description:**
 
-Changes the type of a node destroying the previous contents but keeping the
+Change the type of a node destroying the previous contents but keeping the
 position.
 
 !!!note

@@ -171,11 +171,17 @@ static u64 op_arg;
 static Nst_Bytecode *bc;
 static Nst_Obj **op_objs;
 
-static bool state_init = false;
+static u64 state_init = 0;
+
+#ifdef _Nst_ENABLE_LINE_DEBUGGER
+static Nst_Span prev_pos = { 0 };
+static u64 hit_count = 0;
+#endif // !_Nst_ENABLE_LINE_DEBUGGER
 
 bool Nst_init(void)
 {
-    if (state_init)
+    state_init++;
+    if (state_init > 1)
         return true;
 
     Nst_error_set_color(Nst_supports_color());
@@ -224,10 +230,14 @@ cleanup:
 
 void Nst_quit(void)
 {
-    if (!state_init)
+    if (state_init == 0)
         return;
+    if (state_init > 1) {
+        state_init--;
+        return;
+    }
 
-    state_init = false;
+    state_init = 0;
 
     Nst_error_clear();
 
@@ -251,7 +261,7 @@ void Nst_quit(void)
 
 bool Nst_was_init(void)
 {
-    return state_init;
+    return state_init != 0;
 }
 
 static void interrupt_handler(int sig)
@@ -451,7 +461,7 @@ static Nst_Obj *make_cwd(const char *file_path)
     char *path = NULL;
     char *file_part = NULL;
 
-    Nst_get_full_path(file_path, &path, &file_part);
+    Nst_abs_path(file_path, &path, &file_part);
     if (path == NULL) {
         Nst_error_clear();
         return NULL;
@@ -589,6 +599,23 @@ static bool complete_function(void)
             continue;
         }
         extend_arg = false;
+
+#ifdef _Nst_ENABLE_LINE_DEBUGGER
+        Nst_Span pos = Nst_state_span();
+        if (pos.start_line != prev_pos.start_line || pos.text != prev_pos.text) {
+            const char *line = pos.text->lines[pos.start_line];
+            hit_count++;
+            Nst_printf(
+                "%5" PRIu64 "h %5" PRIi64 "i %5" PRIi32 "l %.*s\n",
+                hit_count,
+                i_state.idx,
+                pos.start_line,
+                (int)(strchr(line, '\n') - line),
+                line);
+        }
+        prev_pos = pos;
+#endif // !_Nst_ENABLE_LINE_DEBUGGER
+
         OpResult result = inst_func[Nst_OP_CODE(op)]();
 
         if (interrupt) {
@@ -1085,9 +1112,9 @@ static OpResult call_c_func(bool is_seq_call, usize arg_num, Nst_Obj *args_seq,
     if (tot_args == 0)
         args = NULL;
     else if (is_seq_call && null_args == 0)
-        args = _Nst_seq_objs(args_seq);
+        args = Nst_seq_objs(args_seq);
     else if (is_seq_call && tot_args <= 10) {
-        memcpy(stack_args, _Nst_seq_objs(args_seq), arg_num * sizeof(Nst_Obj *));
+        memcpy(stack_args, Nst_seq_objs(args_seq), arg_num * sizeof(Nst_Obj *));
         args = stack_args;
     } else if (is_seq_call) {
         args = Nst_malloc_c(tot_args, Nst_Obj *);
@@ -1096,7 +1123,7 @@ static OpResult call_c_func(bool is_seq_call, usize arg_num, Nst_Obj *args_seq,
             Nst_dec_ref(func);
             return INST_FAILED;
         }
-        memcpy(args, _Nst_seq_objs(args_seq), arg_num * sizeof(Nst_Obj *));
+        memcpy(args, Nst_seq_objs(args_seq), arg_num * sizeof(Nst_Obj *));
     } else if (tot_args <= 10) {
         for (i64 i = (i64)arg_num - 1; i >= 0; i--)
             stack_args[i] = pop_val();
@@ -1192,7 +1219,7 @@ static OpResult exe_op_seq_call(void)
         func,
         Nst_state_span(),
         arg_num,
-        _Nst_seq_objs(args_seq),
+        Nst_seq_objs(args_seq),
         NULL);
     Nst_dec_ref(args_seq);
     return result ? INST_NEW_FUNC : INST_FAILED;
@@ -1473,7 +1500,7 @@ static OpResult complete_seq(Nst_Obj *seq)
     if (seq == NULL)
         return INST_FAILED;
 
-    Nst_Obj **objs = _Nst_seq_objs(seq);
+    Nst_Obj **objs = Nst_seq_objs(seq);
     for (u64 i = 1; i <= op_arg; i++)
         objs[op_arg - i] = pop_val();
 
@@ -1503,7 +1530,7 @@ static i32 complete_seq_rep(Nst_Obj *seq, usize size)
         return INST_FAILED;
 
     Nst_Obj *val = pop_val();
-    Nst_Obj **objs = _Nst_seq_objs(seq);
+    Nst_Obj **objs = Nst_seq_objs(seq);
     for (u64 i = 0; i < size; i++)
         objs[i] = Nst_inc_ref(val);
     Nst_dec_ref(val);

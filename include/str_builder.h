@@ -37,8 +37,8 @@ NstEXP typedef struct _Nst_StrBuilder {
  */
 NstEXP bool NstC Nst_sb_init(Nst_StrBuilder *sb, usize reserve);
 /**
- * @brief Destroy an `Nst_StrBuilder`. Calling this function on a builder that
- * failed to initialize, that was already destroyed or that was passed to
+ * Destroy an `Nst_StrBuilder`. Calling this function on a builder that failed
+ * to initialize, that was already destroyed or that was passed to
  * `Nst_str_from_sb` will do nothing.
  */
 NstEXP void NstC Nst_sb_destroy(Nst_StrBuilder *sb);

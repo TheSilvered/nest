@@ -15,12 +15,13 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_new(Nst_Obj *start, Nst_Obj *next, Nst_Obj *value)
+Nst_ObjRef *Nst_iter_new(Nst_ObjRef *start, Nst_ObjRef *next,
+                         Nst_ObjRef *value)
 ```
 
 **Description:**
 
-Creates a new Nest iterator object.
+Create a new Nest iterator object.
 
 !!!note
     This function takes one reference of `start`, `next` and `value` both on
@@ -48,7 +49,7 @@ void _Nst_iter_traverse(Nst_Obj *iter)
 
 **Description:**
 
-Traverse function for Nest iter objects.
+[`Nst_ObjTrav`](c_api-obj.md#nst_objtrav) function for `Iter` objects.
 
 ---
 
@@ -62,7 +63,7 @@ Nst_Obj *Nst_iter_start_func(Nst_Obj *iter)
 
 **Description:**
 
-Get the `start` function of an iterator. No reference is added.
+@return The `start` function of an iterator. No reference is added.
 
 ---
 
@@ -76,7 +77,7 @@ Nst_Obj *Nst_iter_next_func(Nst_Obj *iter)
 
 **Description:**
 
-Get the `next` function of an iterator. No reference is added.
+@return The `next` function of an iterator. No reference is added.
 
 ---
 
@@ -88,10 +89,9 @@ Get the `next` function of an iterator. No reference is added.
 Nst_Obj *Nst_iter_value(Nst_Obj *iter)
 ```
 
-**Description:**
+**Returns:**
 
-Get the `value` passed to `start` and `next` of an iterator. No reference is
-added.
+The `value` passed to `start` and `next` of an iterator. No reference is added.
 
 ---
 
@@ -105,7 +105,7 @@ bool Nst_iter_start(Nst_Obj *iter)
 
 **Description:**
 
-Calls the `start` function of an `Iter` object.
+Call the `start` function of an `Iter` object.
 
 **Parameters:**
 
@@ -122,12 +122,12 @@ Calls the `start` function of an `Iter` object.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_next(Nst_Obj *iter)
+Nst_ObjRef *Nst_iter_next(Nst_Obj *iter)
 ```
 
 **Description:**
 
-Calls the `next` function of an `Iter` object.
+Call the `next` function of an `Iter` object.
 
 **Parameters:**
 
@@ -144,7 +144,7 @@ The resulting object on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_range_new(i64 start, i64 stop, i64 step)
+Nst_ObjRef *Nst_iter_range_new(i64 start, i64 stop, i64 step)
 ```
 
 **Description:**
@@ -158,12 +158,12 @@ Create a new range object.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_seq_new(Nst_Obj *seq)
+Nst_ObjRef *Nst_iter_seq_new(Nst_Obj *seq)
 ```
 
 **Description:**
 
-Create a sequence iterator.
+Create a new sequence iterator.
 
 ---
 
@@ -172,12 +172,12 @@ Create a sequence iterator.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_str_new(Nst_Obj *seq)
+Nst_ObjRef *Nst_iter_str_new(Nst_Obj *seq)
 ```
 
 **Description:**
 
-Create a string iterator.
+Create a new string iterator.
 
 ---
 
@@ -186,12 +186,12 @@ Create a string iterator.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_map_new(Nst_Obj *seq)
+Nst_ObjRef *Nst_iter_map_new(Nst_Obj *seq)
 ```
 
 **Description:**
 
-Create a map iterator.
+Create a new map iterator.
 
 ---
 
@@ -200,7 +200,7 @@ Create a map iterator.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_range_start(usize arg_num, Nst_Obj **args)
+Nst_ObjRef *Nst_iter_range_start(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -214,7 +214,7 @@ The `start` function of the range iterator.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_range_next(usize arg_num, Nst_Obj **args)
+Nst_ObjRef *Nst_iter_range_next(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -228,7 +228,7 @@ The `next` function of the range iterator.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_seq_start(usize arg_num, Nst_Obj **args)
+Nst_ObjRef *Nst_iter_seq_start(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -242,7 +242,7 @@ The `start` function of the sequence iterator.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_seq_next(usize arg_num, Nst_Obj **args)
+Nst_ObjRef *Nst_iter_seq_next(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -256,7 +256,7 @@ The `next` function of the sequence iterator.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_str_start(usize arg_num, Nst_Obj **args)
+Nst_ObjRef *Nst_iter_str_start(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -270,7 +270,7 @@ The `start` function of the string iterator.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_str_next(usize arg_num, Nst_Obj **args)
+Nst_ObjRef *Nst_iter_str_next(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -284,7 +284,7 @@ The `next` function of the string iterator.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_map_start(usize arg_num, Nst_Obj **args)
+Nst_ObjRef *Nst_iter_map_start(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -298,7 +298,7 @@ The `start` function of the map iterator.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_map_next(usize arg_num, Nst_Obj **args)
+Nst_ObjRef *Nst_iter_map_next(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**

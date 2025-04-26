@@ -931,7 +931,7 @@ Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
     u8 *byte_array = Nst_malloc_c(len + 1, u8);
     if (byte_array == nullptr)
         return nullptr;
-    Nst_Obj **objs = _Nst_seq_objs(seq);
+    Nst_Obj **objs = Nst_seq_objs(seq);
 
     for (usize i = 0; i < len; i++)
         byte_array[i] = Nst_byte_u8(objs[i]);
@@ -1184,7 +1184,7 @@ Nst_Obj *NstC lsplit_(usize arg_num, Nst_Obj **args)
 Nst_Obj *reverse_vector(Nst_Obj *vector)
 {
     usize vec_len = Nst_seq_len(vector);
-    Nst_Obj **objs = _Nst_seq_objs(vector);
+    Nst_Obj **objs = Nst_seq_objs(vector);
     for (usize i = 0, n = vec_len / 2; i < n; i++) {
         Nst_Obj *temp = objs[i];
         objs[i] = objs[vec_len - i - 1];
@@ -1432,5 +1432,8 @@ Nst_Obj *NstC fmt_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s A", arg_num, args, &format_str, &format_values))
         return nullptr;
 
-    return Nst_fmt_objs(format_str, format_values);
+    return Nst_fmt_objs(
+        format_str,
+        Nst_seq_objs(format_values),
+        Nst_seq_len(format_values));
 }

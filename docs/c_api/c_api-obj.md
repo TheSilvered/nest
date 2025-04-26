@@ -28,7 +28,7 @@ Maximum size for an object pool.
 
 **Description:**
 
-Casts `obj` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
+Cast `obj` to [`Nst_Obj *`](c_api-typedefs.md#nst_obj).
 
 ---
 
@@ -86,7 +86,7 @@ Sets `flag` of `obj` to `false`.
 
 **Description:**
 
-Checks if `flag` is set.
+Check if `flag` is set.
 
 ---
 
@@ -100,7 +100,7 @@ Checks if `flag` is set.
 
 **Description:**
 
-Creates a flag from an id. `n` can be between 1 and 28 included.
+Create a flag from an id. `n` can be between 1 and 28 included.
 
 ---
 
@@ -114,7 +114,7 @@ Creates a flag from an id. `n` can be between 1 and 28 included.
 
 **Description:**
 
-Clears all flags from an object, except for the reserved ones.
+Clear all flags from an object, except for the reserved ones.
 
 ---
 
@@ -127,39 +127,6 @@ The macro used to make a struct an object.
 It must be placed before any other arguments in the struct. Custom flags cannot
 occupy the four most significant bits of the flags field because they are
 reserved for the garbage collector.
-
----
-
-## Structs
-
-### `Nst_Obj`
-
-**Synopsis:**
-
-```better-c
-typedef struct _Nst_Obj {
-    Nst_OBJ_HEAD;
-} Nst_Obj
-```
-
-**Description:**
-
-The structure representing a basic Nest object.
-
-**Fields:**
-
-- `ref_count`: the reference count of the object
-- `type`: the type of the object
-- `p_next`: the next object in the type's pool
-- `hash`: the hash of the object, `-1` if it has not yet been hashed or is not
-  hashable
-- `flags`: the flags of the object
-- `init_line`: **THIS FIELD ONLY EXISTS WHEN `Nst_DBG_TRACK_OBJ_INIT_POS` IS
-  DEFINED** the line of the instruction that initialized the object
-- `init_col`: **THIS FIELD ONLY EXISTS WHEN `Nst_DBG_TRACK_OBJ_INIT_POS` IS
-  DEFINED** the column of the instruction that initialized the object
-- `init_path`: **THIS FIELD ONLY EXISTS WHEN `Nst_DBG_TRACK_OBJ_INIT_POS` IS
-  DEFINED** the path to the file where the object was initialized
 
 ---
 
@@ -210,7 +177,7 @@ objects, should be left untouched.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_obj_alloc(usize size, Nst_Obj *type)
+Nst_ObjRef *_Nst_obj_alloc(usize size, Nst_Obj *type)
 ```
 
 **Description:**
@@ -250,12 +217,12 @@ function, this function does nothing.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_inc_ref(Nst_Obj *obj)
+Nst_ObjRef *Nst_inc_ref(Nst_Obj *obj)
 ```
 
 **Description:**
 
-Increases the reference count of an object. Returns `obj`.
+Increase the reference count of an object. Returns `obj`.
 
 ---
 
@@ -264,13 +231,13 @@ Increases the reference count of an object. Returns `obj`.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_ninc_ref(Nst_Obj *obj)
+Nst_ObjRef *Nst_ninc_ref(Nst_Obj *obj)
 ```
 
 **Description:**
 
-Calls [`Nst_inc_ref`](c_api-obj.md#nst_inc_ref) if `obj` is not a `NULL`
-pointer. Returns `obj`.
+Call [`Nst_inc_ref`](c_api-obj.md#nst_inc_ref) if `obj` is not a `NULL` pointer.
+Returns `obj`.
 
 ---
 
@@ -279,12 +246,12 @@ pointer. Returns `obj`.
 **Synopsis:**
 
 ```better-c
-void Nst_dec_ref(Nst_Obj *obj)
+void Nst_dec_ref(Nst_ObjRef *obj)
 ```
 
 **Description:**
 
-Decreases the reference count of an object.
+Decrease the reference count of an object.
 
 ---
 
@@ -293,13 +260,12 @@ Decreases the reference count of an object.
 **Synopsis:**
 
 ```better-c
-void Nst_ndec_ref(Nst_Obj *obj)
+void Nst_ndec_ref(Nst_ObjRef *obj)
 ```
 
 **Description:**
 
-Calls [`Nst_dec_ref`](c_api-obj.md#nst_dec_ref) if `obj` is not a `NULL`
-pointer. Returns `obj`.
+Call [`Nst_dec_ref`](c_api-obj.md#nst_dec_ref) if `obj` is not a `NULL` pointer.
 
 ---
 

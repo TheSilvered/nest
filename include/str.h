@@ -21,7 +21,7 @@ extern "C" {
 Nst_ObjRef *NstC _Nst_str_new_no_err(const char *val);
 
 /**
- * Creates a new string object with a value taken from a C string of unknown
+ * Create a new string object with a value taken from a C string of unknown
  * length.
  *
  * @param val: the value of the string in extUTF-8 encoding
@@ -32,7 +32,7 @@ Nst_ObjRef *NstC _Nst_str_new_no_err(const char *val);
  */
 NstEXP Nst_ObjRef *NstC Nst_str_new_c_raw(const char *val, bool allocated);
 /**
- * Creates a new string object from a string literal of known length.
+ * Create a new string object from a string literal of known length.
  *
  * @param val: the value of the string in extUTF-8 encoding
  * @param len: the length of `val` in bytes
@@ -44,7 +44,7 @@ NstEXP Nst_ObjRef *NstC Nst_str_new_c_raw(const char *val, bool allocated);
 NstEXP Nst_ObjRef *NstC Nst_str_new_c(const char *val, usize len,
                                       bool allocated);
 /**
- * Creates a new string object.
+ * Create a new string object.
  *
  * @param val: the value of the string to create in extUTF-8 encoding
  * @param len: the length of `val` in bytes
@@ -55,7 +55,7 @@ NstEXP Nst_ObjRef *NstC Nst_str_new_c(const char *val, usize len,
  */
 NstEXP Nst_ObjRef *NstC Nst_str_new(u8 *val, usize len, bool allocated);
 /**
- * Creates a new string object from a heap-allocated value.
+ * Create a new string object from a heap-allocated value.
  *
  * @brief `val` is freed if the string fails to be created.
  *
@@ -67,7 +67,7 @@ NstEXP Nst_ObjRef *NstC Nst_str_new(u8 *val, usize len, bool allocated);
 NstEXP Nst_ObjRef *NstC Nst_str_new_allocated(u8 *val, usize len);
 
 /**
- * Creates a new string object with known length.
+ * Create a new string object with known length.
  *
  * @param val: the value of the string to create
  * @param len: the length in bytes of `val`
@@ -80,7 +80,7 @@ NstEXP Nst_ObjRef *NstC Nst_str_new_len(u8 *val, usize len, usize char_len,
                                         bool allocated);
 
 /**
- * Creates a new string copying the contents of an already existing one.
+ * Create a new string copying the contents of an already existing one.
  *
  * @brief `src` remains untouched even if the function fails.
  *
@@ -91,7 +91,7 @@ NstEXP Nst_ObjRef *NstC Nst_str_new_len(u8 *val, usize len, usize char_len,
  */
 NstEXP Nst_ObjRef *NstC Nst_str_copy(Nst_Obj *src);
 /**
- * Creates a new string by making a string representation of an existing one
+ * Create a new string by making a string representation of an existing one
  * that replaces any special characters such as newlines and tabs with their
  * code representation.
  *
@@ -104,7 +104,7 @@ NstEXP Nst_ObjRef *NstC Nst_str_copy(Nst_Obj *src);
  */
 NstEXP Nst_ObjRef *NstC Nst_str_repr(Nst_Obj *src);
 /**
- * Creates a new one-character string with a character of an existing string.
+ * Create a new one-character string with a character of an existing string.
  *
  * @brief If `idx` negative it is subtracted to the length to get the actual
  * index.
@@ -128,7 +128,7 @@ NstEXP Nst_ObjRef *NstC Nst_str_get_obj(Nst_Obj *str, i64 idx);
 NstEXP i32 NstC Nst_str_get(Nst_Obj *str, i64 idx);
 
 /**
- * Iterates over the characters of a string.
+ * Iterate over the characters of a string.
  *
  * @brief In order to start pass `-1` as `idx`, this will start from the first
  * character.
@@ -143,7 +143,7 @@ NstEXP i32 NstC Nst_str_get(Nst_Obj *str, i64 idx);
 NstEXP isize NstC Nst_str_next(Nst_Obj *str, isize idx);
 
 /**
- * Iterates over the characters of a string.
+ * Iterate over the characters of a string.
  *
  * @brief In order to start set `idx` to `-1`, this will start from the first
  * character.
@@ -157,7 +157,7 @@ NstEXP isize NstC Nst_str_next(Nst_Obj *str, isize idx);
  */
 NstEXP Nst_ObjRef *NstC Nst_str_next_obj(Nst_Obj *str, isize *idx);
 /**
- * Iterates over the characters of a string.
+ * Iterate over the characters of a string.
  *
  * @brief In order to start set `idx` to `-1`, this will start from the first
  * character.
@@ -171,7 +171,7 @@ NstEXP Nst_ObjRef *NstC Nst_str_next_obj(Nst_Obj *str, isize *idx);
  */
 NstEXP i32 NstC Nst_str_next_utf32(Nst_Obj *str, isize *idx);
 /**
- * Iterates over the characters of a string.
+ * Iterate over the characters of a string.
  *
  * @brief In order to start set `idx` to `-1`, this will start from the first
  * character.
@@ -188,7 +188,8 @@ NstEXP i32 NstC Nst_str_next_utf32(Nst_Obj *str, isize *idx);
 NstEXP i32 NstC Nst_str_next_utf8(Nst_Obj *str, isize *idx, u8 *ch_buf);
 
 /**
- * Parses an `Int` object from a string.
+ * Parse an `Int` object from a string. Use `Nst_sv_parse_int` for better
+ * control.
  *
  * @brief `base` can be any number between `2` and `36`, where above `10`
  * letters start to be used and the function is case-insensitive. If the base
@@ -205,7 +206,8 @@ NstEXP i32 NstC Nst_str_next_utf8(Nst_Obj *str, isize *idx, u8 *ch_buf);
  */
 NstEXP Nst_ObjRef *NstC Nst_str_parse_int(Nst_Obj *str, i32 base);
 /**
- * Parses a `Byte` object from a string.
+ * Parse a `Byte` object from a string. Use `Nst_sv_parse_byte` for better
+ * control.
  *
  * @brief If an invalid literal is found, the function fails rather than
  * returning zero. Valid literals follow Nest's byte syntax, because of this 10
@@ -217,7 +219,8 @@ NstEXP Nst_ObjRef *NstC Nst_str_parse_int(Nst_Obj *str, i32 base);
  */
 NstEXP Nst_ObjRef *NstC Nst_str_parse_byte(Nst_Obj *str);
 /**
- * Parses a `Real` object from a string.
+ * Parse a `Real` object from a string. Use `Nst_sv_parse_real` for better
+ * control.
  *
  * @brief If an invalid literal is found, the function fails rather than
  * returning zero. Valid literals follow Nest's real syntax, because of this
@@ -230,8 +233,7 @@ NstEXP Nst_ObjRef *NstC Nst_str_parse_byte(Nst_Obj *str);
 NstEXP Nst_ObjRef *NstC Nst_str_parse_real(Nst_Obj *str);
 /* [docs:link strcmp <https://man7.org/linux/man-pages/man3/strcmp.3.html>] */
 /**
- * Compares two Nest strings, similarly to `strcmp` but takes into account
- * possible `NUL` bytes inside the compared string.
+ * Compare two Nest strings, similarly to `strcmp`.
  *
  * @param str1: the first string to compare
  * @param str2: the second string to compare
@@ -243,11 +245,11 @@ NstEXP i32 NstC Nst_str_compare(Nst_Obj *str1, Nst_Obj *str2);
 
 void _Nst_str_destroy(Nst_Obj *str);
 
-/* Get the value of a Nest `Str` object. */
+/* @return The value of a Nest `Str` object. */
 NstEXP u8 *NstC Nst_str_value(Nst_Obj *str);
-/* Get the length in bytes of the value of a Nest `Str` object. */
+/* @return The length in bytes of the value of a Nest `Str` object. */
 NstEXP usize NstC Nst_str_len(Nst_Obj *str);
-/* Get the number of characters in a Nest `Str` object. */
+/* @return The number of characters in a Nest `Str` object. */
 NstEXP usize NstC Nst_str_char_len(Nst_Obj *str);
 
 /* Flags for `Str` objects. */

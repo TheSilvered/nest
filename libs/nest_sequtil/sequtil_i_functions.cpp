@@ -15,7 +15,7 @@ void destroy_reverse_data(Nst_Obj *data_obj)
 Nst_Obj *NstC map_i_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
+    Nst_Obj **c_args = Nst_seq_objs(args[0]);
     if (!Nst_iter_start(c_args[0]))
         return nullptr;
     return Nst_null_ref();
@@ -24,7 +24,7 @@ Nst_Obj *NstC map_i_start(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC map_i_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
+    Nst_Obj **c_args = Nst_seq_objs(args[0]);
     Nst_Obj *iter = c_args[0];
     Nst_Obj *func = c_args[1];
     Nst_Obj *raw_value = Nst_iter_next(iter);
@@ -93,7 +93,7 @@ Nst_Obj *NstC slice_i_str_next(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC filter_i_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
+    Nst_Obj **c_args = Nst_seq_objs(args[0]);
     if (!Nst_iter_start(c_args[0]))
         return nullptr;
     return Nst_null_ref();
@@ -102,7 +102,7 @@ Nst_Obj *NstC filter_i_start(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC filter_i_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
+    Nst_Obj **c_args = Nst_seq_objs(args[0]);
     Nst_Obj *iter = c_args[0];
     Nst_Obj *func = c_args[1];
     Nst_Obj *value;

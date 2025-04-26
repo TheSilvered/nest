@@ -18,48 +18,48 @@ TheSilvered
 typedef struct _Nst_StrConsts {
     // Built-in type names
 
-    Nst_Obj *t_Type;
-    Nst_Obj *t_Int;
-    Nst_Obj *t_Real;
-    Nst_Obj *t_Bool;
-    Nst_Obj *t_Null;
-    Nst_Obj *t_Str;
-    Nst_Obj *t_Array;
-    Nst_Obj *t_Vector;
-    Nst_Obj *t_Map;
-    Nst_Obj *t_Func;
-    Nst_Obj *t_Iter;
-    Nst_Obj *t_Byte;
-    Nst_Obj *t_IOFile;
-    Nst_Obj *t_IEnd;
+    Nst_ObjRef *t_Type;
+    Nst_ObjRef *t_Int;
+    Nst_ObjRef *t_Real;
+    Nst_ObjRef *t_Bool;
+    Nst_ObjRef *t_Null;
+    Nst_ObjRef *t_Str;
+    Nst_ObjRef *t_Array;
+    Nst_ObjRef *t_Vector;
+    Nst_ObjRef *t_Map;
+    Nst_ObjRef *t_Func;
+    Nst_ObjRef *t_Iter;
+    Nst_ObjRef *t_Byte;
+    Nst_ObjRef *t_IOFile;
+    Nst_ObjRef *t_IEnd;
 
     // Constant strings
 
-    Nst_Obj *c_true;
-    Nst_Obj *c_false;
-    Nst_Obj *c_null;
-    Nst_Obj *c_inf;
-    Nst_Obj *c_nan;
-    Nst_Obj *c_neginf;
-    Nst_Obj *c_negnan;
+    Nst_ObjRef *c_true;
+    Nst_ObjRef *c_false;
+    Nst_ObjRef *c_null;
+    Nst_ObjRef *c_inf;
+    Nst_ObjRef *c_nan;
+    Nst_ObjRef *c_neginf;
+    Nst_ObjRef *c_negnan;
 
     // Standard error names
 
-    Nst_Obj *e_SyntaxError;
-    Nst_Obj *e_MemoryError;
-    Nst_Obj *e_ValueError;
-    Nst_Obj *e_TypeError;
-    Nst_Obj *e_CallError;
-    Nst_Obj *e_MathError;
-    Nst_Obj *e_ImportError;
-    Nst_Obj *e_Interrupt;
+    Nst_ObjRef *e_SyntaxError;
+    Nst_ObjRef *e_MemoryError;
+    Nst_ObjRef *e_ValueError;
+    Nst_ObjRef *e_TypeError;
+    Nst_ObjRef *e_CallError;
+    Nst_ObjRef *e_MathError;
+    Nst_ObjRef *e_ImportError;
+    Nst_ObjRef *e_Interrupt;
 
     // Other
 
-    Nst_Obj *o__vars_;
-    Nst_Obj *o__globals_;
-    Nst_Obj *o__args_;
-    Nst_Obj *o_failed_alloc;
+    Nst_ObjRef *o__vars_;
+    Nst_ObjRef *o__globals_;
+    Nst_ObjRef *o__args_;
+    Nst_ObjRef *o_failed_alloc;
 } Nst_StrConsts
 ```
 
@@ -79,20 +79,20 @@ are others.
 
 ```better-c
 typedef struct _Nst_TypeObjs {
-    Nst_Obj *Type;
-    Nst_Obj *Int;
-    Nst_Obj *Real;
-    Nst_Obj *Bool;
-    Nst_Obj *Null;
-    Nst_Obj *Str;
-    Nst_Obj *Array;
-    Nst_Obj *Vector;
-    Nst_Obj *Map;
-    Nst_Obj *Func;
-    Nst_Obj *Iter;
-    Nst_Obj *Byte;
-    Nst_Obj *IOFile;
-    Nst_Obj *IEnd;
+    Nst_ObjRef *Type;
+    Nst_ObjRef *Int;
+    Nst_ObjRef *Real;
+    Nst_ObjRef *Bool;
+    Nst_ObjRef *Null;
+    Nst_ObjRef *Str;
+    Nst_ObjRef *Array;
+    Nst_ObjRef *Vector;
+    Nst_ObjRef *Map;
+    Nst_ObjRef *Func;
+    Nst_ObjRef *Iter;
+    Nst_ObjRef *Byte;
+    Nst_ObjRef *IOFile;
+    Nst_ObjRef *IEnd;
 } Nst_TypeObjs
 ```
 
@@ -108,21 +108,21 @@ Type constants.
 
 ```better-c
 typedef struct _Nst_Consts {
-    Nst_Obj *Bool_true;
-    Nst_Obj *Bool_false;
-    Nst_Obj *Null_null;
-    Nst_Obj *IEnd_iend;
-    Nst_Obj *Int_0;
-    Nst_Obj *Int_1;
-    Nst_Obj *Int_neg1;
-    Nst_Obj *Real_0;
-    Nst_Obj *Real_1;
-    Nst_Obj *Real_nan;
-    Nst_Obj *Real_negnan;
-    Nst_Obj *Real_inf;
-    Nst_Obj *Real_neginf;
-    Nst_Obj *Byte_0;
-    Nst_Obj *Byte_1;
+    Nst_ObjRef *Bool_true;
+    Nst_ObjRef *Bool_false;
+    Nst_ObjRef *Null_null;
+    Nst_ObjRef *IEnd_iend;
+    Nst_ObjRef *Int_0;
+    Nst_ObjRef *Int_1;
+    Nst_ObjRef *Int_neg1;
+    Nst_ObjRef *Real_0;
+    Nst_ObjRef *Real_1;
+    Nst_ObjRef *Real_nan;
+    Nst_ObjRef *Real_negnan;
+    Nst_ObjRef *Real_inf;
+    Nst_ObjRef *Real_neginf;
+    Nst_ObjRef *Byte_0;
+    Nst_ObjRef *Byte_1;
 } Nst_Consts
 ```
 
@@ -140,9 +140,9 @@ Each constants is preceded by the name of its type.
 
 ```better-c
 typedef struct _Nst_StdStreams {
-    Nst_Obj *in;
-    Nst_Obj *out;
-    Nst_Obj *err;
+    Nst_ObjRef *in;
+    Nst_ObjRef *out;
+    Nst_ObjRef *err;
 } Nst_StdStreams
 ```
 
@@ -167,7 +167,7 @@ bool _Nst_globals_init(void)
 
 **Description:**
 
-Initializes all the global constants and IO streams.
+Initialize all the global constants and IO streams.
 
 **Returns:**
 
@@ -185,7 +185,7 @@ void _Nst_globals_quit(void)
 
 **Description:**
 
-Deletes all the global constants and IO streams.
+Delete all the global constants and IO streams.
 
 ---
 
@@ -199,7 +199,7 @@ Nst_Obj *Nst_true(void)
 
 **Description:**
 
-Returns the true object constant.
+@return The `true` object constant.
 
 ---
 
@@ -208,12 +208,12 @@ Returns the true object constant.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_true_ref(void)
+Nst_ObjRef *Nst_true_ref(void)
 ```
 
 **Description:**
 
-Returns a new reference to the true object constant.
+@return A new reference to the `true` object constant.
 
 ---
 
@@ -227,7 +227,7 @@ Nst_Obj *Nst_false(void)
 
 **Description:**
 
-Returns the false object constant.
+@return The `false` object constant.
 
 ---
 
@@ -236,12 +236,12 @@ Returns the false object constant.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_false_ref(void)
+Nst_ObjRef *Nst_false_ref(void)
 ```
 
 **Description:**
 
-Returns a new reference to the false object constant.
+@return A new reference to the `false` object constant.
 
 ---
 
@@ -255,7 +255,7 @@ Nst_Obj *Nst_null(void)
 
 **Description:**
 
-Returns the null object constant.
+@return The `null` object constant.
 
 ---
 
@@ -264,12 +264,12 @@ Returns the null object constant.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_null_ref(void)
+Nst_ObjRef *Nst_null_ref(void)
 ```
 
 **Description:**
 
-Returns a new reference to the null object constant.
+@return A new reference to the `null` object constant.
 
 ---
 
@@ -283,7 +283,7 @@ Nst_Obj *Nst_iend(void)
 
 **Description:**
 
-Returns the iend object constant.
+@return The `iend` object constant.
 
 ---
 
@@ -292,12 +292,12 @@ Returns the iend object constant.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iend_ref(void)
+Nst_ObjRef *Nst_iend_ref(void)
 ```
 
 **Description:**
 
-Returns a new reference to the iend object constant.
+@return A new reference to the `iend` object constant.
 
 ---
 
@@ -311,7 +311,7 @@ const Nst_TypeObjs *Nst_type(void)
 
 **Description:**
 
-Returns a [`Nst_TypeObjs`](c_api-global_consts.md#nst_typeobjs) struct
+@return A [`Nst_TypeObjs`](c_api-global_consts.md#nst_typeobjs) struct
 containing all the types.
 
 ---
@@ -326,7 +326,7 @@ const Nst_StrConsts *Nst_str(void)
 
 **Description:**
 
-Returns a [`Nst_StrConsts`](c_api-global_consts.md#nst_strconsts) struct
+@return A [`Nst_StrConsts`](c_api-global_consts.md#nst_strconsts) struct
 containing all the string constants.
 
 ---
@@ -341,7 +341,7 @@ const Nst_Consts *Nst_const(void)
 
 **Description:**
 
-Returns a [`Nst_Consts`](c_api-global_consts.md#nst_consts) struct containing
+@return A [`Nst_Consts`](c_api-global_consts.md#nst_consts) struct containing
 all the object constants.
 
 ---
@@ -356,5 +356,5 @@ Nst_StdStreams *Nst_stdio(void)
 
 **Description:**
 
-Returns a [`Nst_StdStreams`](c_api-global_consts.md#nst_stdstreams) struct
+@return A [`Nst_StdStreams`](c_api-global_consts.md#nst_stdstreams) struct
 containing all the standard IO streams.

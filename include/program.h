@@ -29,6 +29,10 @@ NstEXP typedef struct _Nst_Program {
     Nst_ObjRef *source_path;
 } Nst_Program;
 
+/* [docs:link Nst_EK_ERROR Nst_ExecutionKind] */
+/* [docs:link Nst_EK_RUN Nst_ExecutionKind] */
+/* [docs:link Nst_EK_INFO Nst_ExecutionKind] */
+
 /**
  * The kind of execution to perform a the program.
  *
@@ -53,7 +57,7 @@ NstEXP typedef enum _Nst_ExecutionKind {
  * error is set when `Nst_EK_ERROR` is returned.
  */
 NstEXP Nst_ExecutionKind NstC Nst_prog_init(Nst_Program *prog, Nst_CLArgs args);
-/* Destroys the contents of a program. */
+/* Destroy the contents of a program. */
 NstEXP void NstC Nst_prog_destroy(Nst_Program *es);
 
 #ifdef __cplusplus

@@ -65,7 +65,13 @@ enum BuiltinIdx {
     BOOL_C_CAST= 0b0110000000000000
 };
 
-static Nst_Obj *allocated_objects;
+static Nst_Obj *allocated_objects = NULL;
+
+static Nst_Obj *custom_obj_types = NULL;
+
+static Nst_DynArray lib_paths = { 0 };
+static Nst_DynArray loaded_libs = { 0 };
+static Nst_Obj *lib_handles = NULL;
 
 static void destroy_match_type(MatchType *mt)
 {
@@ -735,15 +741,40 @@ bool Nst_extract_args(const char *types, usize arg_num, Nst_Obj **args, ...)
     return true;
 }
 
+Nst_Obj *get_type(usize size, const char *name, Nst_ObjDstr dstr)
+{
+    Nst_Obj *type_id = Nst_sprintf("%s::%zu", name, size);
+    Nst_Obj *type = NULL;
+    if (type_id == NULL)
+        return Nst_type_new(name, dstr);
+    type = Nst_map_get(custom_obj_types, type_id);
+    if (type != NULL) {
+        Nst_dec_ref(type_id);
+        return type;
+    }
+    type = Nst_type_new(name, dstr);
+    if (type == NULL) {
+        Nst_dec_ref(type_id);
+        return NULL;
+    }
+    if (!Nst_map_set(custom_obj_types, type_id, type)) {
+        Nst_dec_ref(type_id);
+        Nst_dec_ref(type);
+        return NULL;
+    }
+    Nst_dec_ref(type_id);
+    return type;
+}
+
 Nst_ObjRef *_Nst_obj_custom(usize size, void *data, const char *name)
 {
     return _Nst_obj_custom_ex(size, data, name, NULL);
 }
 
 Nst_ObjRef *_Nst_obj_custom_ex(usize size, void *data, const char *name,
-                            Nst_ObjDstr dstr)
+                               Nst_ObjDstr dstr)
 {
-    Nst_Obj *type = Nst_type_new(name, dstr);
+    Nst_Obj *type = get_type(size, name, dstr);
     if (type == NULL)
         return NULL;
     Nst_Obj *obj = _Nst_obj_alloc(sizeof(Nst_Obj) + size, type);
@@ -759,10 +790,6 @@ void *Nst_obj_custom_data(Nst_Obj *obj)
     return (void *)(obj + 1);
 }
 
-static Nst_DynArray lib_paths = { 0 };
-static Nst_DynArray loaded_libs = { 0 };
-static Nst_Obj *lib_handles = NULL;
-
 static void close_lib(lib_t *lib)
 {
     dlclose(*lib);
@@ -772,6 +799,9 @@ bool _Nst_import_init(void)
 {
     lib_handles = Nst_map_new();
     if (lib_handles == NULL)
+        return false;
+    custom_obj_types = Nst_map_new();
+    if (custom_obj_types == NULL)
         return false;
 
     if (!Nst_da_init(&lib_paths, sizeof(Nst_Obj *), 10))
@@ -784,6 +814,7 @@ bool _Nst_import_init(void)
 void _Nst_import_quit(void)
 {
     Nst_ndec_ref(lib_handles);
+    Nst_ndec_ref(custom_obj_types);
     Nst_da_clear_p(&lib_paths, (Nst_Destructor)Nst_dec_ref);
 
     for (usize i = 0; i < loaded_libs.len; i++) {
@@ -830,7 +861,7 @@ Nst_ObjRef *Nst_import_lib(const char *path)
         path_len -= 6;
     }
 
-    Nst_Obj *import_path = _Nst_get_import_path(path, path_len);
+    Nst_Obj *import_path = Nst_import_full_lib_path(path, path_len);
     if (import_path == NULL)
         return NULL;
 
@@ -962,7 +993,7 @@ fail:
 static Nst_Obj *search_local_directory(const char *initial_path)
 {
     char *file_path;
-    usize new_len = Nst_get_full_path(initial_path, &file_path, NULL);
+    usize new_len = Nst_abs_path(initial_path, &file_path, NULL);
     if (file_path == NULL)
         return NULL;
 
@@ -985,7 +1016,7 @@ static Nst_Obj *rel_path_to_abs_path_str_if_found(u8 *file_path)
     fclose(file);
 
     u8 *abs_path;
-    usize abs_path_len = Nst_get_full_path(
+    usize abs_path_len = Nst_abs_path(
         (const char *)file_path,
         (char **)&abs_path,
         NULL);
@@ -1063,7 +1094,7 @@ static Nst_Obj *search_stdlib_directory(const char *initial_path,
 #endif
 }
 
-Nst_Obj *_Nst_get_import_path(const char *initial_path, usize path_len)
+Nst_Obj *Nst_import_full_lib_path(const char *initial_path, usize path_len)
 {
     Nst_Obj *full_path = search_local_directory(initial_path);
     if (full_path != NULL)
@@ -1082,7 +1113,7 @@ Nst_Obj *_Nst_get_import_path(const char *initial_path, usize path_len)
     return full_path;
 }
 
-usize Nst_get_full_path(const char *file_path, char **buf, char **file_part)
+usize Nst_abs_path(const char *file_path, char **buf, char **file_part)
 {
     *buf = NULL;
     if (file_part != NULL)

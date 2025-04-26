@@ -290,8 +290,8 @@ Nst_Obj *NstC dist_nd_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    Nst_Obj **objs1 = _Nst_seq_objs(p1);
-    Nst_Obj **objs2 = _Nst_seq_objs(p2);
+    Nst_Obj **objs1 = Nst_seq_objs(p1);
+    Nst_Obj **objs2 = Nst_seq_objs(p2);
 
     f64 tot = 0;
 
@@ -555,7 +555,7 @@ Nst_Obj *gcd_or_lcm_seq(Nst_Obj *seq, Nst_NestCallable func)
     if (Nst_seq_len(seq) == 0)
         return Nst_inc_ref(Nst_const()->Int_0);
 
-    Nst_Obj **objs = _Nst_seq_objs(seq);
+    Nst_Obj **objs = Nst_seq_objs(seq);
     Nst_Obj *prev = Nst_inc_ref(objs[0]);
     Nst_Obj *curr = nullptr;
     Nst_Obj *gcd_args[2] = { prev, nullptr };

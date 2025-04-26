@@ -606,7 +606,8 @@ void _Nst_error_init(void)
 
 void Nst_error_add_span(Nst_Span span)
 {
-    if (span.text == NULL)
+    Nst_assert(Nst_error_occurred());
+    if (span.text == NULL || !tb.error_occurred)
         return;
 
     Nst_da_append(&tb.positions, &span);

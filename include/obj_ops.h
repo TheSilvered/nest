@@ -17,9 +17,9 @@
 extern "C" {
 #endif // !__cplusplus
 
-/* Calls `Nst_obj_eq` making the result a C bool. */
+/* Call `Nst_obj_eq` making the result a C bool. */
 NstEXP bool NstC Nst_obj_eq_c(Nst_Obj *ob1, Nst_Obj *ob2);
-/* Calls `Nst_obj_ne` making the result a C bool. */
+/* Call `Nst_obj_ne` making the result a C bool. */
 NstEXP bool NstC Nst_obj_ne_c(Nst_Obj *ob1, Nst_Obj *ob2);
 
 // Comparisons
@@ -96,7 +96,7 @@ NstEXP Nst_ObjRef *NstC Nst_obj_import(Nst_Obj *ob);
 // Other
 
 /**
- * Casts an object to its string representation.
+ * Cast an object to its string representation.
  *
  * @brief All objects can be casted, even custom types, but the function can
  * still fail to allocate memory.
@@ -108,7 +108,7 @@ NstEXP Nst_ObjRef *NstC Nst_obj_import(Nst_Obj *ob);
 NstEXP Nst_ObjRef *NstC Nst_obj_to_repr_str(Nst_Obj *ob);
 
 /**
- * Casts an object from a type to another.
+ * Cast an object from a type to another.
  *
  * @brief Casting an object to `Bool` is guaranteed to not fail. All objects
  * can be casted to `Str` but the function can still fail if a memory
@@ -123,7 +123,7 @@ NstEXP Nst_ObjRef *NstC Nst_obj_cast(Nst_Obj *ob, Nst_Obj *type);
 /* Implements the `<.>` operator. On failure the error is set. */
 NstEXP Nst_ObjRef *NstC Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2);
 /**
- * Concatenates two objects into a string.
+ * Concatenate two objects into a string.
  *
  * @brief Both objects are casted to `Str` before being concatenated.
  *
@@ -135,7 +135,7 @@ NstEXP Nst_ObjRef *NstC Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2);
  */
 NstEXP Nst_ObjRef *NstC Nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2);
 /**
- * Creates a range object given the start, stop and step.
+ * Create a range object given the start, stop and step.
  *
  * @param start: the starting value of the range
  * @param stop: the the excluded stopping index of the range

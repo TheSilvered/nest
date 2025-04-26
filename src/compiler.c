@@ -414,7 +414,6 @@ static bool compile_for_as_l(Nst_Node *node)
         return false;
 
     replace_placeholder_jumps(start, end, loop_id, cond_idx, exit_idx);
-    dec_loop_id();
     return true;
 }
 

@@ -16,7 +16,7 @@ extern "C" {
 #endif // !__cplusplus
 
 /**
- * Optimizes the AST.
+ * Optimize the AST.
  *
  * @brief The AST is destroyed if an error occurs.
  *
@@ -28,9 +28,7 @@ extern "C" {
 NstEXP Nst_Node *NstC Nst_optimize_ast(Nst_Node *ast);
 
 /**
- * Optimizes an instruction list.
- *
- * @brief The instruction list is destroyed if an error occurs.
+ * Optimize an instruction list. This function is guaranteed to not fail.
  *
  * @param ls: the instruction list to optimize
  * @param optimize_builtins: whether accesses to builtins such as Int and false

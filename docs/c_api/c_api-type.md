@@ -15,12 +15,12 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_type_new(const char *name, Nst_ObjDstr dstr)
+Nst_ObjRef *Nst_type_new(const char *name, Nst_ObjDstr dstr)
 ```
 
 **Description:**
 
-Creates a new `Type` object.
+Create a new `Type` object.
 
 !!!note
     `name` must be encoded in UTF-8
@@ -41,13 +41,13 @@ The new object on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_cont_type_new(const char *name, Nst_ObjDstr dstr,
-                           Nst_ObjTrav trav)
+Nst_ObjRef *Nst_cont_type_new(const char *name, Nst_ObjDstr dstr,
+                              Nst_ObjTrav trav)
 ```
 
 **Description:**
 
-Creates a new `Type` for containers.
+Create a new `Type` for containers.
 
 !!!note
     `name` must be encoded in UTF-8
@@ -74,7 +74,7 @@ Nst_StrView Nst_type_name(Nst_Obj *type)
 
 **Description:**
 
-Get the name of the type.
+@return The name of the type.
 
 ---
 
@@ -86,7 +86,7 @@ Get the name of the type.
 Nst_ObjTrav Nst_type_trav(Nst_Obj *type)
 ```
 
-**Description:**
+**Returns:**
 
-Get the traverse function of the type. If the type does not represent a
-container it returns `NULL`.
+The traverse function of the type. If the type does not represent a container it
+returns `NULL`.

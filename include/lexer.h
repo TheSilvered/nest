@@ -17,7 +17,7 @@ extern "C" {
 #endif // !__cplusplus
 
 /**
- * Tokenizes text.
+ * Tokenize a `Nst_SourceText`.
  *
  * @param text: the text to tokenize
  *
@@ -25,7 +25,6 @@ extern "C" {
  * error is set.
  */
 NstEXP Nst_DynArray NstC Nst_tokenize(Nst_SourceText *text);
-
 
 #ifdef __cplusplus
 }

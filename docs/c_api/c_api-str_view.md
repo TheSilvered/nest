@@ -111,7 +111,7 @@ The new [`Nst_StrView`](c_api-str_view.md#nst_strview). It will have a `len` of
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_from_sv(Nst_StrView sv)
+Nst_ObjRef *Nst_str_from_sv(Nst_StrView sv)
 ```
 
 **Description:**
@@ -380,7 +380,7 @@ isize Nst_sv_lfind(Nst_StrView str, Nst_StrView substr)
 
 **Description:**
 
-Searches for `substr` inside `str` from the beginning.
+Searche for `substr` inside `str` from the beginning.
 
 **Returns:**
 
@@ -399,7 +399,7 @@ isize Nst_sv_rfind(Nst_StrView str, Nst_StrView substr)
 
 **Description:**
 
-Searches for `substr` inside `str` from the end.
+Searche for `substr` inside `str` from the end.
 
 **Returns:**
 
@@ -418,7 +418,7 @@ Nst_StrView Nst_sv_ltok(Nst_StrView str, Nst_StrView substr)
 
 **Description:**
 
-Searches for `substr` inside `str` from the beginning.
+Searche for `substr` inside `str` from the beginning.
 
 **Returns:**
 
@@ -437,7 +437,7 @@ Nst_StrView Nst_sv_rtok(Nst_StrView str, Nst_StrView substr)
 
 **Description:**
 
-Searches for `substr` inside `str` from the end.
+Searche for `substr` inside `str` from the end.
 
 **Returns:**
 

@@ -21,11 +21,10 @@ extern "C" {
 
 Nst_ObjRef *_Nst_func_new(Nst_Obj **arg_names, usize arg_num, Nst_Bytecode *bc);
 Nst_ObjRef *_Nst_func_new_outer_vars(Nst_Obj *func, Nst_Obj *vars);
+void _Nst_func_set_mod_globals(Nst_Obj *func, Nst_Obj *globals);
 
 /**
- * Creates a new function object with a C function body.
- *
- * @brief Note: the `args` array must NOT be set since it is not used.
+ * Create a new function object with a C function body.
  *
  * @param arg_num: the maximum number of arguments the function accepts
  * @param cbody: the body of the function
@@ -34,25 +33,26 @@ Nst_ObjRef *_Nst_func_new_outer_vars(Nst_Obj *func, Nst_Obj *vars);
  */
 NstEXP Nst_ObjRef *NstC Nst_func_new_c(usize arg_num, Nst_NestCallable cbody);
 
-void _Nst_func_set_mod_globals(Nst_Obj *func, Nst_Obj *globals);
-
-/* Gets the number of arguments a function takes. */
+/* @return The maximum number of arguments a function accepts. */
 NstEXP usize NstC Nst_func_arg_num(Nst_Obj *func);
-/* Gets the argument names as a list of objects. */
+/**
+ * @return The argument names as a list of objects. If the function has a C
+ * body the return value is `NULL`.
+ */
 NstEXP Nst_Obj **NstC Nst_func_args(Nst_Obj *func);
-/* Gets the body of a C-function wrapper. */
+/* @return The body of a C function wrapper. */
 NstEXP Nst_NestCallable NstC Nst_func_c_body(Nst_Obj *func);
-/* Gets the body of a Nest function. */
+/* @return The body of a Nest function. */
 NstEXP Nst_Bytecode *NstC Nst_func_nest_body(Nst_Obj *func);
 /**
- * @brief Gets the `_globals_` variable map of a function. No reference is
+ * @return The `_globals_` variable map of a function. No reference is
  * added. It may be `NULL`.
  */
 NstEXP Nst_Obj *NstC Nst_func_mod_globals(Nst_Obj *func);
-/* Gets the outer variables that the function can access when defined. */
+/* @return The outer variables that the function can access when defined. */
 NstEXP Nst_Obj *NstC Nst_func_outer_vars(Nst_Obj *func);
 
-/* Traverse function for `Func` objects. */
+/* `Nst_ObjTrav` function for `Func` objects. */
 NstEXP void NstC _Nst_func_traverse(Nst_Obj *func);
 
 void _Nst_func_destroy(Nst_Obj *func);

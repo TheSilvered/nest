@@ -21,7 +21,7 @@ extern "C" {
 /* [docs:link strtod <https://man7.org/linux/man-pages/man3/strtod.3p.html>] */
 
 /**
- * Converts a double to an ASCII string.
+ * Convert a `double` to an ASCII string.
  *
  * @brief Modes:
  *! `0`: shortest string that yields `value` when read in and rounded to
@@ -57,10 +57,10 @@ extern "C" {
  */
 NstEXP char *NstC Nst_dtoa(f64 value, int mode, int n_digits,
                            int *decimal_point, int *sign, char **str_end);
-/* Frees a string returned by `Nst_dtoa`. */
+/* Free a string returned by `Nst_dtoa`. */
 NstEXP void NstC Nst_freedtoa(char *str);
 /**
- * Converts a string to a double.
+ * Convert a string to a double.
  *
  * @brief This function works like `strtod` in the C standard.
  *

@@ -1143,7 +1143,7 @@ isize Nst_encoding_check(Nst_Encoding *encoding, void *str, usize str_len)
 
 **Description:**
 
-Checks the validity of the encoding of a string.
+Check the validity of the encoding of a string.
 
 **Parameters:**
 
@@ -1169,7 +1169,7 @@ isize Nst_encoding_char_len(Nst_Encoding *encoding, void *str, usize str_len)
 
 **Description:**
 
-Gets the length in characters of an encoded string.
+Get the length in characters of an encoded string.
 
 **Parameters:**
 
@@ -1194,7 +1194,7 @@ usize Nst_encoding_utf8_char_len(u8 *str, usize str_len)
 
 **Description:**
 
-Gets the length in characters of a UTF-8-encoded string.
+Get the length in characters of a UTF-8-encoded string.
 
 !!!note
     This function assumes that the string is valid UTF-8 and does no error
@@ -1239,9 +1239,12 @@ Nst_EncodingID Nst_acp(void)
 
 **Description:**
 
-**WINDOWS ONLY** Returns the Nest code page ID of the local ANSI code page. If
-the ANSI code page is not supported,
-[`Nst_EID_LATIN1`](c_api-encoding.md#nst_encodingid) is returned.
+**WINDOWS ONLY**
+
+**Returns:**
+
+The Nest code page ID of the local ANSI code page. If the ANSI code page is not
+supported, [`Nst_EID_LATIN1`](c_api-encoding.md#nst_encodingid) is returned.
 
 ---
 
@@ -1255,7 +1258,7 @@ wchar_t *Nst_char_to_wchar_t(const char *str, usize len)
 
 **Description:**
 
-Translates a UTF-8 string to Unicode (UTF-16).
+Translate a UTF-8 string to Unicode (UTF-16).
 
 The new string is heap-allocated. `str` is assumed to be a valid non-NULL
 pointer.
@@ -1283,7 +1286,7 @@ char *Nst_wchar_t_to_char(wchar_t *str, usize len)
 
 **Description:**
 
-Translates a Unicode (UTF-16) string to UTF-8.
+Translate a Unicode (UTF-16) string to UTF-8.
 
 The new string is heap-allocated. `str` is assumed to be a valid non-NULL
 pointer.
@@ -1301,32 +1304,32 @@ the error is set.
 
 ---
 
-### `Nst_is_valid_cp`
+### `Nst_cp_is_valid`
 
 **Synopsis:**
 
 ```better-c
-bool Nst_is_valid_cp(u32 cp)
+bool Nst_cp_is_valid(u32 cp)
 ```
 
-**Description:**
+**Returns:**
 
-Returns whether a code point is valid. A valid code point is smaller than or
-equal to U+10FFFF and is not a high or low surrogate.
+Whether a code point is valid. A valid code point is smaller than or equal to
+U+10FFFF and is not a high or low surrogate.
 
 ---
 
-### `Nst_is_non_character`
+### `Nst_cp_is_non_character`
 
 **Synopsis:**
 
 ```better-c
-bool Nst_is_non_character(u32 cp)
+bool Nst_cp_is_non_character(u32 cp)
 ```
 
 **Description:**
 
-Returns whether a code is a non character.
+@return Whether a code is a non character.
 
 ---
 
@@ -1356,7 +1359,7 @@ Nst_EncodingID Nst_encoding_detect(char *str, usize len, i32 *bom_size)
 
 **Description:**
 
-Detects the encoding of a file.
+Detect the encoding of a file.
 
 If no valid encoding is detected,
 [`Nst_EID_LATIN1`](c_api-encoding.md#nst_encodingid) is returned. No error is

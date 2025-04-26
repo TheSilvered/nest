@@ -202,7 +202,7 @@ encoded in extUTF-8.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_from_sb(Nst_StrBuilder *sb)
+Nst_ObjRef *Nst_str_from_sb(Nst_StrBuilder *sb)
 ```
 
 **Description:**

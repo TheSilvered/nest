@@ -16,7 +16,7 @@ TheSilvered
 
 ```better-c
 typedef struct _Nst_ValueStack {
-    Nst_Obj **stack;
+    Nst_ObjRef **stack;
     usize len;
     usize cap;
 } Nst_ValueStack
@@ -40,10 +40,10 @@ A structure representing the value stack.
 
 ```better-c
 typedef struct _Nst_FuncCall {
-    Nst_Obj *func;
-    Nst_Obj *cwd;
+    Nst_ObjRef *func;
+    Nst_ObjRef *cwd;
     Nst_Span span;
-    Nst_VarTable *vt;
+    Nst_VarTable vt;
     i64 idx;
     usize cstack_len;
 } Nst_FuncCall
@@ -98,7 +98,7 @@ A structure representing the call stack.
 typedef struct _Nst_CatchFrame {
     usize f_stack_len;
     usize v_stack_len;
-    i64 inst_idx;
+    i64 idx;
 } Nst_CatchFrame
 ```
 
@@ -139,30 +139,6 @@ A structure representing the catch stack.
 
 ---
 
-### `Nst_GenericStack`
-
-**Synopsis:**
-
-```better-c
-typedef struct _Nst_GenericStack {
-    void *stack;
-    usize len;
-    usize cap;
-} Nst_GenericStack
-```
-
-**Description:**
-
-A structure representing a generic stack.
-
-**Fields:**
-
-- `stack`: the pointer to the array of elements in the stack
-- `len`: the current size of the stack
-- `cap`: the maximum size of the stack before it needs to be expanded
-
----
-
 ## Functions
 
 ### `Nst_vstack_init`
@@ -175,11 +151,7 @@ bool Nst_vstack_init(Nst_ValueStack *v_stack)
 
 **Description:**
 
-Initializes a value stack.
-
-**Parameters:**
-
-- `v_stack`: the value stack to initialize
+Initialize a value stack.
 
 **Returns:**
 
@@ -197,7 +169,7 @@ bool Nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj)
 
 **Description:**
 
-Pushes a value on a value stack.
+Push a value on a value stack.
 
 **Parameters:**
 
@@ -215,12 +187,12 @@ Pushes a value on a value stack.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_vstack_pop(Nst_ValueStack *v_stack)
+Nst_ObjRef *Nst_vstack_pop(Nst_ValueStack *v_stack)
 ```
 
 **Description:**
 
-Pops the top value from a value stack.
+Pop the top value from a value stack.
 
 **Parameters:**
 
@@ -242,7 +214,7 @@ Nst_Obj *Nst_vstack_peek(Nst_ValueStack *v_stack)
 
 **Description:**
 
-Peeks at the top value of a value stack.
+Peek at the top value of a value stack.
 
 **Parameters:**
 
@@ -265,7 +237,7 @@ bool Nst_vstack_dup(Nst_ValueStack *v_stack)
 
 **Description:**
 
-Duplicates the top value of a value stack.
+Duplicate the top value of a value stack.
 
 If the stack is empty nothing is done.
 
@@ -290,7 +262,7 @@ void Nst_vstack_destroy(Nst_ValueStack *v_stack)
 
 **Description:**
 
-Destroys the contents of a value stack.
+Destroy the contents of a value stack.
 
 ---
 
@@ -304,7 +276,7 @@ bool Nst_fstack_init(Nst_CallStack *f_stack)
 
 **Description:**
 
-Initializes a call stack.
+Initialize a call stack.
 
 **Parameters:**
 
@@ -326,7 +298,7 @@ bool Nst_fstack_push(Nst_CallStack *f_stack, Nst_FuncCall call)
 
 **Description:**
 
-Pushes a call on a call stack.
+Push a call on a call stack.
 
 !!!note
     The reference count of the function inside `call` is automatically
@@ -353,7 +325,7 @@ Nst_FuncCall Nst_fstack_pop(Nst_CallStack *f_stack)
 
 **Description:**
 
-Pops the top call from a call stack
+Pop the top call from a call stack
 
 **Parameters:**
 
@@ -377,7 +349,7 @@ Nst_FuncCall Nst_fstack_peek(Nst_CallStack *f_stack)
 
 **Description:**
 
-Peeks at the top call of a call stack.
+Peek at the top call of a call stack.
 
 **Parameters:**
 
@@ -401,7 +373,7 @@ void Nst_fstack_destroy(Nst_CallStack *f_stack)
 
 **Description:**
 
-Destroys the contents of a call stack.
+Destroy the contents of a call stack.
 
 ---
 
@@ -415,7 +387,7 @@ bool Nst_cstack_init(Nst_CatchStack *c_stack)
 
 **Description:**
 
-Initializes a catch stack.
+Initialize a catch stack.
 
 **Parameters:**
 
@@ -437,7 +409,7 @@ bool Nst_cstack_push(Nst_CatchStack *c_stack, Nst_CatchFrame frame)
 
 **Description:**
 
-Pushes a frame on a catch stack.
+Push a frame on a catch stack.
 
 **Parameters:**
 
@@ -461,7 +433,7 @@ Nst_CatchFrame Nst_cstack_peek(Nst_CatchStack *c_stack)
 
 **Description:**
 
-Peeks at the top frame of a catch stack.
+Peek at the top frame of a catch stack.
 
 **Parameters:**
 
@@ -485,7 +457,7 @@ Nst_CatchFrame Nst_cstack_pop(Nst_CatchStack *c_stack)
 
 **Description:**
 
-Pops the top value of a catch stack.
+Pop the top value of a catch stack.
 
 **Parameters:**
 
@@ -509,73 +481,4 @@ void Nst_cstack_destroy(Nst_CatchStack *c_stack)
 
 **Description:**
 
-Destroys the contents of a catch stack.
-
----
-
-### `Nst_stack_init`
-
-**Synopsis:**
-
-```better-c
-bool Nst_stack_init(Nst_GenericStack *g_stack, usize unit_size,
-                    usize starting_size)
-```
-
-**Description:**
-
-Initializes a new generic stack.
-
-**Parameters:**
-
-- `g_stack`: the stack to initialize
-- `unit_size`: the size in bytes of one element in the stack
-- `starting_size`: the initial number of elements in the stack
-
-**Returns:**
-
-`true` on success and `false` on failure. The error is set.
-
----
-
-### `Nst_stack_expand`
-
-**Synopsis:**
-
-```better-c
-bool Nst_stack_expand(Nst_GenericStack *g_stack, usize unit_size)
-```
-
-**Description:**
-
-Expands a generic stack if needed.
-
-**Parameters:**
-
-- `g_stack`: the stack to expand
-- `unit_size`: the size of one element in the stack
-
-**Returns:**
-
-`true` on success and `false` on failure. The error is set.
-
----
-
-### `Nst_stack_shrink`
-
-**Synopsis:**
-
-```better-c
-void Nst_stack_shrink(Nst_GenericStack *g_stack, usize min_size,
-                      usize unit_size)
-```
-
-**Description:**
-
-Shrinks a runtime stack if needed.
-
-**Parameters:**
-
-- `g_stack`: the stack to shrink
-- `min_size`: the minimum size that the stack can reach
-- `unit_size`: the size of one element in the stack
+Destroy the contents of a catch stack.

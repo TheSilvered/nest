@@ -141,7 +141,7 @@ Nst_UnicodeChInfo Nst_unicode_get_ch_info(u32 codepoint)
 
 **Description:**
 
-Get the [`Nst_UnicodeChInfo`](c_api-unicode_db.md#nst_unicodechinfo) about a
+@return The [`Nst_UnicodeChInfo`](c_api-unicode_db.md#nst_unicodechinfo) about a
 character.
 
 ---
@@ -156,7 +156,7 @@ usize Nst_unicode_expand_case(u32 codepoint, i32 casing, u32 *out_codepoints)
 
 **Description:**
 
-Changes a codepoint's case.
+Change the casing of a codepoint.
 
 **Parameters:**
 
@@ -199,4 +199,7 @@ bool Nst_unicode_is_titlecase(Nst_UnicodeChInfo ch_info)
 
 **Description:**
 
-Check if a character is titlecase.
+Check if a character is titlecase. To check if a character is uppercase or
+lowercase use
+[`Nst_UCD_MASK_UPPERCASE`](c_api-unicode_db.md#nst_ucd_mask_uppercase) and
+[`Nst_UCD_MASK_LOWERCASE`](c_api-unicode_db.md#nst_ucd_mask_lowercase) instead.

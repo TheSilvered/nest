@@ -48,7 +48,7 @@ bool Nst_da_init(Nst_DynArray *arr, usize unit_size, usize reserve)
 
 **Description:**
 
-Initializes a [`Nst_DynArray`](c_api-dyn_array.md#nst_dynarray).
+Initialize a [`Nst_DynArray`](c_api-dyn_array.md#nst_dynarray).
 
 If `reserve` is `0` no memory is allocated.
 
@@ -136,7 +136,7 @@ bool Nst_da_pop(Nst_DynArray *arr, Nst_Destructor dstr)
 
 **Description:**
 
-Pops the last element of the array.
+Pop the last element of the array.
 
 **Returns:**
 
@@ -155,7 +155,7 @@ bool Nst_da_pop_p(Nst_DynArray *arr, Nst_Destructor dstr)
 
 **Description:**
 
-Pops the last element of the array. The array is considered to be an array of
+Pop the last element of the array. The array is considered to be an array of
 `void *` and the element itself is passed to the destructor.
 
 **Returns:**
@@ -175,7 +175,7 @@ bool Nst_da_remove_swap(Nst_DynArray *arr, usize index, Nst_Destructor dstr)
 
 **Description:**
 
-Remove the element of an array at `index` and puts the last element of the array
+Remove the element of an array at `index` and put the last element of the array
 in its place.
 
 !!!note
@@ -198,7 +198,7 @@ bool Nst_da_remove_swap_p(Nst_DynArray *arr, usize index, Nst_Destructor dstr)
 
 **Description:**
 
-Remove the element of an array at `index` and puts the last element of the array
+Remove the element of an array at `index` and put the last element of the array
 in its place. The array is considered to be an array of `void *` and the element
 itself is passed to the destructor.
 

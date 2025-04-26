@@ -87,7 +87,7 @@ Nst_Obj *NstC shuffle_(usize arg_num, Nst_Obj **args)
     }
 
     usize seq_len = Nst_seq_len(seq);
-    Nst_Obj **objs = _Nst_seq_objs(seq);
+    Nst_Obj **objs = Nst_seq_objs(seq);
 
     for (usize i = 0; i + 1 < seq_len; i++) {
         usize idx = usize(rand_range(i, seq_len));

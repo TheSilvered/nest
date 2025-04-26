@@ -494,7 +494,7 @@ Nst_Obj *NstC write_bytes_(usize arg_num, Nst_Obj **args)
     }
 
     usize seq_len = Nst_seq_len(seq);
-    Nst_Obj **objs = _Nst_seq_objs(seq);
+    Nst_Obj **objs = Nst_seq_objs(seq);
     u8 *bytes = Nst_malloc_c(seq_len + 1, u8);
     if (bytes == nullptr)
         return nullptr;

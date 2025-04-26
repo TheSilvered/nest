@@ -318,7 +318,7 @@ usize Nst_vector_cap(Nst_Obj *vect)
     return SEQ(vect)->cap;
 }
 
-Nst_Obj **_Nst_seq_objs(Nst_Obj *seq)
+Nst_Obj **Nst_seq_objs(Nst_Obj *seq)
 {
     assert_sequence(seq);
     return SEQ(seq)->objs;

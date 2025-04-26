@@ -6,7 +6,6 @@
  * @author TheSilvered
  */
 
-
 #ifndef RUNTIME_STACK_H
 #define RUNTIME_STACK_H
 
@@ -102,7 +101,7 @@ NstEXP typedef struct _Nst_CatchStack {
  */
 NstEXP bool NstC Nst_vstack_init(Nst_ValueStack *v_stack);
 /**
- * Pushes a value on a value stack.
+ * Push a value on a value stack.
  *
  * @param v_stack: the value stack push the object onto
  * @param obj: the value to be pushed, if not `NULL` its refcount is increased
@@ -111,7 +110,7 @@ NstEXP bool NstC Nst_vstack_init(Nst_ValueStack *v_stack);
  */
 NstEXP bool NstC Nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj);
 /**
- * Pops the top value from a value stack.
+ * Pop the top value from a value stack.
  *
  * @param v_stack: the value stack to pop the value from
  *
@@ -120,7 +119,7 @@ NstEXP bool NstC Nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj);
  */
 NstEXP Nst_ObjRef *NstC Nst_vstack_pop(Nst_ValueStack *v_stack);
 /**
- * Peeks at the top value of a value stack.
+ * Peek at the top value of a value stack.
  *
  * @param v_stack: the value stack to peek from
  *
@@ -129,7 +128,7 @@ NstEXP Nst_ObjRef *NstC Nst_vstack_pop(Nst_ValueStack *v_stack);
  */
 NstEXP Nst_Obj *NstC Nst_vstack_peek(Nst_ValueStack *v_stack);
 /**
- * Duplicates the top value of a value stack.
+ * Duplicate the top value of a value stack.
  *
  * @brief If the stack is empty nothing is done.
  *
@@ -139,11 +138,11 @@ NstEXP Nst_Obj *NstC Nst_vstack_peek(Nst_ValueStack *v_stack);
  * function always succeeds. The error is set.
  */
 NstEXP bool NstC Nst_vstack_dup(Nst_ValueStack *v_stack);
-/* Destroys the contents of a value stack. */
+/* Destroy the contents of a value stack. */
 NstEXP void NstC Nst_vstack_destroy(Nst_ValueStack *v_stack);
 
 /**
- * Initializes a call stack.
+ * Initialize a call stack.
  *
  * @param f_stack: the call stack to initialize
  *
@@ -151,7 +150,7 @@ NstEXP void NstC Nst_vstack_destroy(Nst_ValueStack *v_stack);
  */
 NstEXP bool NstC Nst_fstack_init(Nst_CallStack *f_stack);
 /**
- * Pushes a call on a call stack.
+ * Push a call on a call stack.
  *
  * @brief Note: the reference count of the function inside `call` is
  * automatically increased. `func` may still be `NULL`.
@@ -163,7 +162,7 @@ NstEXP bool NstC Nst_fstack_init(Nst_CallStack *f_stack);
  */
 NstEXP bool NstC Nst_fstack_push(Nst_CallStack *f_stack, Nst_FuncCall call);
 /**
- * Pops the top call from a call stack
+ * Pop the top call from a call stack
  *
  * @param f_stack: the call stack to pop the value from
  *
@@ -172,7 +171,7 @@ NstEXP bool NstC Nst_fstack_push(Nst_CallStack *f_stack, Nst_FuncCall call);
  */
 NstEXP Nst_FuncCall NstC Nst_fstack_pop(Nst_CallStack *f_stack);
 /**
- * Peeks at the top call of a call stack.
+ * Peek at the top call of a call stack.
  *
  * @param f_stack: the call stack to peek from
  *
@@ -180,11 +179,11 @@ NstEXP Nst_FuncCall NstC Nst_fstack_pop(Nst_CallStack *f_stack);
  * `Nst_FuncCall` with a `NULL` `func` and `vt` is returned. No error is set.
  */
 NstEXP Nst_FuncCall NstC Nst_fstack_peek(Nst_CallStack *f_stack);
-/* Destroys the contents of a call stack. */
+/* Destroy the contents of a call stack. */
 NstEXP void NstC Nst_fstack_destroy(Nst_CallStack *f_stack);
 
 /**
- * Initializes a catch stack.
+ * Initialize a catch stack.
  *
  * @param c_stack: the catch stack to initialize
  *
@@ -192,7 +191,7 @@ NstEXP void NstC Nst_fstack_destroy(Nst_CallStack *f_stack);
  */
 NstEXP bool NstC Nst_cstack_init(Nst_CatchStack *c_stack);
 /**
- * Pushes a frame on a catch stack.
+ * Push a frame on a catch stack.
  *
  * @param c_stack: the catch stack to push the frame onto
  * @param frame: the `Nst_CatchFrame` to push on the stack
@@ -201,7 +200,7 @@ NstEXP bool NstC Nst_cstack_init(Nst_CatchStack *c_stack);
  */
 NstEXP bool NstC Nst_cstack_push(Nst_CatchStack *c_stack, Nst_CatchFrame frame);
 /**
- * Peeks at the top frame of a catch stack.
+ * Peek at the top frame of a catch stack.
  *
  * @param c_stack: the catch stack to peek from
  *
@@ -210,7 +209,7 @@ NstEXP bool NstC Nst_cstack_push(Nst_CatchStack *c_stack, Nst_CatchFrame frame);
  */
 NstEXP Nst_CatchFrame NstC Nst_cstack_peek(Nst_CatchStack *c_stack);
 /**
- * Pops the top value of a catch stack.
+ * Pop the top value of a catch stack.
  *
  * @param c_stack: the catch stack to pop the frame from
  *
@@ -218,7 +217,7 @@ NstEXP Nst_CatchFrame NstC Nst_cstack_peek(Nst_CatchStack *c_stack);
  * `inst_idx` of `-1` is returned. No error is set.
  */
 NstEXP Nst_CatchFrame NstC Nst_cstack_pop(Nst_CatchStack *c_stack);
-/* Destroys the contents of a catch stack. */
+/* Destroy the contents of a catch stack. */
 NstEXP void NstC Nst_cstack_destroy(Nst_CatchStack *c_stack);
 
 #ifdef __cplusplus

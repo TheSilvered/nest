@@ -17,17 +17,17 @@
 #include <windows.h>
 #endif // !Nst_MSVC
 
-/* Checks if `f` is closed. */
+/* Check if `f` is closed. */
 #define Nst_IOF_IS_CLOSED(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_IS_CLOSED)
-/* Checks if `f` was opened in binary mode. */
+/* Check if `f` was opened in binary mode. */
 #define Nst_IOF_IS_BIN(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_IS_BIN)
-/* Checks if `f` is a TTY. */
+/* Check if `f` is a TTY. */
 #define Nst_IOF_IS_TTY(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_IS_TTY)
-/* Checks if `f` can be written. */
+/* Check if `f` can be written. */
 #define Nst_IOF_CAN_WRITE(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_CAN_WRITE)
-/* Checks if `f` can be read. */
+/* Check if `f` can be read. */
 #define Nst_IOF_CAN_READ(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_CAN_READ)
-/* Checks if `f` can be seeked. */
+/* Check if `f` can be seeked. */
 #define Nst_IOF_CAN_SEEK(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_CAN_SEEK)
 
 #ifdef __cplusplus
@@ -216,8 +216,8 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_seek_f)(Nst_SeekWhence origin,
 NstEXP typedef Nst_IOResult (*Nst_IOFile_close_f)(Nst_Obj *f);
 
 /**
- * @brief A structure representing the functions necessary to operate a Nest
- * file object.
+ * A structure representing the functions necessary to operate a Nest file
+ * object.
  */
 NstEXP typedef struct _Nst_IOFuncSet {
     Nst_IOFile_read_f read;
@@ -232,10 +232,7 @@ NstEXP typedef struct _Nst_IOFuncSet {
 
 #define _Nst_WIN_STDIN_BUF_SIZE 2048
 
-/**
- * @brief WINDOWS ONLY A structure representing the standard input file on
- * Windows.
- */
+/* WINDOWS ONLY A structure representing the standard input file on Windows. */
 NstEXP typedef struct _Nst_StdIn {
     HANDLE hd;
     wchar_t buf[_Nst_WIN_STDIN_BUF_SIZE];
@@ -259,7 +256,7 @@ NstEXP typedef enum _Nst_IOFileFlag {
 } Nst_IOFileFlag;
 
 /**
- * Creates a new `IOFile` object from a C file pointer.
+ * Create a new `IOFile` object from a C file pointer.
  *
  * @param value: the value of the new object
  * @param bin: if the file is in binary mode
@@ -272,7 +269,7 @@ NstEXP typedef enum _Nst_IOFileFlag {
 NstEXP Nst_ObjRef *NstC Nst_iof_new(FILE *value, bool bin, bool read,
                                     bool write, Nst_Encoding *encoding);
 /**
- * Creates a new `IOFile` object that is not a C file pointer.
+ * Create a new `IOFile` object that is not a C file pointer.
  *
  * @param value: the value of the new object
  * @param bin: if the file is in binary mode
@@ -290,34 +287,37 @@ NstEXP Nst_ObjRef *NstC Nst_iof_new_fake(void *value, bool bin, bool read,
                                          Nst_Encoding *encoding,
                                          Nst_IOFuncSet func_set);
 
-/* Get the `Nst_IOFuncSet` of a file. */
+/* @return The `Nst_IOFuncSet` of a file. */
 NstEXP Nst_IOFuncSet *NstC Nst_iof_func_set(Nst_Obj *f);
-/* Get the file descriptor, if it's negative the file is fake. */
+/**
+ * @return The file descriptor of a file. If it's negative the file is not a
+ * real file on disk.
+ */
 NstEXP int NstC Nst_iof_fd(Nst_Obj *f);
 /**
- * @brief Get a pointer to the file's data. If the descriptor is positive this
- * is of type `FILE *`.
+ * @return A pointer to the internal data of a file. If the descriptor returned
+ * by `Nst_iof_fd` is positive this is of type `FILE *`.
  */
 NstEXP void *NstC Nst_iof_fp(Nst_Obj *f);
-/* Get the encoding of a file. */
+/* @return The encoding of a file. */
 NstEXP Nst_Encoding *NstC Nst_iof_encoding(Nst_Obj *f);
 
 void _Nst_iofile_destroy(Nst_Obj *obj);
 
-/* Calls the read function of the file, see `Nst_IOFile_read_f`. */
+/* Call the read function of the file, see `Nst_IOFile_read_f`. */
 NstEXP Nst_IOResult NstC Nst_fread(u8 *buf, usize buf_size, usize count,
                                    usize *buf_len, Nst_Obj *f);
-/* Calls the write function of the file, see `Nst_IOFile_write_f`. */
+/* Call the write function of the file, see `Nst_IOFile_write_f`. */
 NstEXP Nst_IOResult NstC Nst_fwrite(u8 *buf, usize buf_len, usize *count,
                                     Nst_Obj *f);
-/* Calls the flush function of the file, see `Nst_IOFile_flush_f`. */
+/* Call the flush function of the file, see `Nst_IOFile_flush_f`. */
 NstEXP Nst_IOResult NstC Nst_fflush(Nst_Obj *f);
-/* Calls the tell function of the file, see `Nst_IOFile_tell_f`. */
+/* Call the tell function of the file, see `Nst_IOFile_tell_f`. */
 NstEXP Nst_IOResult NstC Nst_ftell(Nst_Obj *f, usize *pos);
-/* Calls the seek function of the file, see `Nst_IOFile_seek_f`. */
+/* Call the seek function of the file, see `Nst_IOFile_seek_f`. */
 NstEXP Nst_IOResult NstC Nst_fseek(Nst_SeekWhence origin, isize offset,
                                    Nst_Obj *f);
-/* Calls the close function of the file, see `Nst_IOFile_close_f`. */
+/* Call the close function of the file, see `Nst_IOFile_close_f`. */
 NstEXP Nst_IOResult NstC Nst_fclose(Nst_Obj *f);
 
 /* Read function for standard C file descriptors. */
@@ -337,7 +337,7 @@ NstEXP Nst_IOResult NstC Nst_FILE_seek(Nst_SeekWhence origin, isize offset,
 NstEXP Nst_IOResult NstC Nst_FILE_close(Nst_Obj *f);
 
 /**
- * Gets the details of the `Nst_IOResult` returned by the functions.
+ * Get the details of the `Nst_IOResult` returned by the functions.
  *
  * @brief This function can only be called when the returned `Nst_IOResult` is
  * either `Nst_IO_INVALID_ENCODING` or `Nst_IO_INVALID_DECODING`. If the result
@@ -358,12 +358,12 @@ NstEXP Nst_IOResult NstC Nst_FILE_close(Nst_Obj *f);
 NstEXP void NstC Nst_io_result_get_details(u32 *ill_encoded_ch,
                                            usize *position,
                                            const char **encoding_name);
-/* Sets the values returned with `Nst_io_result_get_details`. */
+/* Set the values returned with `Nst_io_result_get_details`. */
 NstEXP void NstC Nst_io_result_set_details(u32 ill_encoded_ch,
                                            usize position,
                                            const char *encoding_name);
 /**
- * Opens a file given a path that can contain unicode characters in UTF-8.
+ * Open a file given a path that can contain unicode characters in UTF-8.
  *
  * @param path: the path to the file
  * @param mode: the mode to open the file with

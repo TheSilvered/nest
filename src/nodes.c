@@ -744,14 +744,11 @@ void Nst_print_node(Nst_Node *node)
     if (Nst_error_occurred())
         return;
 
-    Nst_LList *levels = Nst_llist_new();
-    if (levels == NULL) {
-        Nst_error_clear();
-        return;
-    }
+    Nst_LList levels;
+    Nst_llist_init(&levels);
 
-    print_node(NULL, node, levels, true);
-    Nst_llist_destroy(levels, NULL);
+    print_node(NULL, node, &levels, true);
+    Nst_llist_empty(&levels, NULL);
     Nst_error_clear();
 }
 

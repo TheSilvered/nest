@@ -54,10 +54,10 @@ typedef struct _Nst_UnicodeChInfo {
     u32 flags;
 } Nst_UnicodeChInfo;
 
-/* Get the `Nst_UnicodeChInfo` about a character. */
+/* @return The `Nst_UnicodeChInfo` about a character. */
 NstEXP Nst_UnicodeChInfo Nst_unicode_get_ch_info(u32 codepoint);
 /**
- * Changes a codepoint's case.
+ * Change the casing of a codepoint.
  *
  * @param codepoint: the codepoint to change the case of
  * @param casing: the casing to change to, pass to this parameter `lower`,
@@ -73,7 +73,10 @@ NstEXP usize Nst_unicode_expand_case(u32 codepoint, i32 casing,
                                      u32 *out_codepoints);
 /* Check if a character is whitespace. */
 NstEXP bool Nst_unicode_is_whitespace(u32 codepoint);
-/* Check if a character is titlecase. */
+/**
+ * Check if a character is titlecase. To check if a character is uppercase or
+ * lowercase use `Nst_UCD_MASK_UPPERCASE` and `Nst_UCD_MASK_LOWERCASE` instead.
+ */
 NstEXP bool Nst_unicode_is_titlecase(Nst_UnicodeChInfo ch_info);
 
 #ifdef __cplusplus

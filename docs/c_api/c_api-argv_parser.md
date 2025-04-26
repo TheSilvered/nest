@@ -16,11 +16,11 @@ TheSilvered
 
 ```better-c
 typedef struct _Nst_CLArgs {
-    bool print_tokens, print_ast, print_bytecode;
+    bool print_tokens, print_ast, print_instructions, print_bytecode;
     bool force_execution;
     bool no_default;
+    u8 opt_level;
     Nst_EncodingID encoding;
-    i32 opt_level;
     i32 args_start;
     i32 argc;
     char **argv;
@@ -39,6 +39,8 @@ A structure representing the command-line arguments of Nest.
 
 - `print_tokens`: whether the tokens of the program should be printed
 - `print_ast`: whether the AST of the program should be printed
+- `print_instructions`: whether the instructions of the program should be
+  printed
 - `print_bytecode`: whether the bytecode of the program should be printed
 - `force_execution`: whether to execute the program when `print_tokens`,
   `print_ast` or `print_bytecode` are true
@@ -65,8 +67,8 @@ void Nst_cl_args_init(Nst_CLArgs *args, int argc, char **argv)
 
 **Description:**
 
-Initializes a [`Nst_CLArgs`](c_api-argv_parser.md#nst_clargs) struct with
-default values.
+Initialize a [`Nst_CLArgs`](c_api-argv_parser.md#nst_clargs) struct with default
+values.
 
 **Parameters:**
 
@@ -86,7 +88,7 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
 
 **Description:**
 
-Parses command-line arguments.
+Parse command-line arguments.
 
 **Parameters:**
 
@@ -140,7 +142,7 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, char ***argv)
 
 **Description:**
 
-**WINDOWS ONLY** Re-encodes Unicode arguments to UTF-8.
+**WINDOWS ONLY** Re-encode Unicode arguments to UTF-8.
 
 **Parameters:**
 
@@ -164,4 +166,4 @@ void _Nst_console_mode_init(void)
 
 **Description:**
 
-**WINDOWS ONLY** Initializes the console.
+**WINDOWS ONLY** Initialize the console.

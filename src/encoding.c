@@ -1941,12 +1941,12 @@ char *Nst_wchar_t_to_char(wchar_t *str, usize len)
     return out_str;
 }
 
-bool Nst_is_valid_cp(u32 cp)
+bool Nst_cp_is_valid(u32 cp)
 {
     return cp <= 0x10ffff && (cp < 0xd800 || cp > 0xdfff);
 }
 
-bool Nst_is_non_character(u32 cp)
+bool Nst_cp_is_non_character(u32 cp)
 {
     return (cp > 0xfdd0 && cp < 0xfdef)
         || ((cp & 0xfff0) == 0xfff0 && (cp & 0xf) > 0xe);

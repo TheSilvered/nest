@@ -17,12 +17,9 @@ extern "C" {
 #endif // !__cplusplus
 
 /**
- * Compiles the AST.
+ * Compile the AST.
  *
- * @brief Both `ast` and `error` are expected to be not NULL. The AST is
- * destroyed when passed to this function.
- *
- * @param ast: the AST to compile, will be freed by the function
+ * @param ast: the AST to compile
  * @param is_module: whether the AST is of an imported module or of the main
  * file
  *

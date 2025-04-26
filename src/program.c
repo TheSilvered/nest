@@ -48,7 +48,7 @@ Nst_ExecutionKind Nst_prog_init(Nst_Program *prog, Nst_CLArgs args)
 
     if (args.print_tokens) {
         for (usize i = 0; i < tokens.len; i++) {
-            Nst_print_tok(Nst_TOK(Nst_da_get(&tokens, i)));
+            Nst_print_tok((Nst_Tok *)Nst_da_get(&tokens, i));
             Nst_println("");
         }
         Nst_println("");

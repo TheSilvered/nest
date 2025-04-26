@@ -28,12 +28,12 @@ allowed:
 - `s` for `char *` (string)
 - `B` for `u8` (takes a `uint` but expects values in the range `[0, 255]`)
 - `i` for `int` or `uint` (`unsigned int`)
-- `l` for `i32` (`long`) or `u32` (`unsigned long`)
-- `L` for `i64` (`long long`) or `u64` (`unsigned long long`)
-- `z` for `isize` (`size_t`) or `usize` (`ptrdiff_t`)
-- `b` for `bool` (takes an int but writes `true` or `false` instead of `1` and
-  `0`)
-- `f` for `f32` (`float`) or `f64` (`double`)
+- `l` for `i32` or `u32`
+- `L` for `i64` or `u64`
+- `z` for `isize` or `usize`
+- `b` for `bool` (takes an `int` but writes `true` or `false` instead of `1`
+  and `0`)
+- `f` for `f32` or `f64`
 - `c` for `char`
 - `p` for `void *`
 
@@ -560,7 +560,7 @@ extern "C" {
 #endif // !__cplusplus
 
 /**
- * Prints a string to the Nest standard output.
+ * Print a string to the Nest standard output.
  *
  * @brief Warning: do not use this function to print `Str` objects, use
  * `Nst_fwrite` instead.
@@ -572,7 +572,7 @@ extern "C" {
  */
 NstEXP isize NstC Nst_print(const char *buf);
 /**
- * Prints a string to a Nest file object.
+ * Print a string to a Nest file object.
  *
  * @brief Warning: do not use this function to print `Str` objects, use
  * `Nst_fwrite` instead.
@@ -586,7 +586,7 @@ NstEXP isize NstC Nst_print(const char *buf);
 NstEXP isize NstC Nst_fprint(Nst_Obj *f, const char *buf);
 
 /**
- * Prints a string to the Nest standard output appending a newline character.
+ * Print a string to the Nest standard output appending a newline character.
  *
  * @brief Warning: do not use this function to print `Str` objects, use
  * `Nst_fwrite` instead.
@@ -601,7 +601,7 @@ NstEXP isize NstC Nst_fprint(Nst_Obj *f, const char *buf);
  */
 NstEXP isize NstC Nst_println(const char *buf);
 /**
- * Prints a string to a Nest file object appending a newline character.
+ * Print a string to a Nest file object appending a newline character.
  *
  * @brief On all platforms only a newline (U+000A) is appended, NOT a carriage
  * return.
@@ -618,7 +618,7 @@ NstEXP isize NstC Nst_println(const char *buf);
 NstEXP isize NstC Nst_fprintln(Nst_Obj *f, const char *buf);
 
 /**
- * Prints a formatted string to the Nest standard output. The format specifier
+ * Print a formatted string to the Nest standard output. The format specifier
  * works like that of C's `printf`.
  *
  * @param fmt: the format placeholder
@@ -635,7 +635,7 @@ NstEXP isize NstC Nst_fprintln(Nst_Obj *f, const char *buf);
 NstEXP isize NstC Nst_printf(Nst_WIN_FMT const char *fmt, ...)
                              Nst_NIX_FMT(1, 2);
 /**
- * Prints a formatted string to a Nest file object. The format specifier
+ * Print a formatted string to a Nest file object. The format specifier
  * works like that of C's `printf`.
  *
  * @param f: the file to print the string to
@@ -656,7 +656,7 @@ NstEXP isize NstC Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const char *fmt, ...)
 NstEXP isize NstC Nst_vfprintf(Nst_Obj *f, const char *fmt, va_list args);
 
 /**
- * Creates a Nest string object from a format placeholder. The format specifier
+ * Create a Nest string object from a format placeholder. The format specifier
  * works like that of C's `printf`.
  *
  * @brief Check the full `printf format rules`.
@@ -672,7 +672,7 @@ NstEXP Nst_ObjRef *NstC Nst_sprintf(Nst_WIN_FMT const char *fmt, ...)
 NstEXP Nst_ObjRef *NstC Nst_vsprintf(const char *fmt, va_list args);
 
 /**
- * Creates a heap-allocated string formatted with a more customizable format
+ * Create a heap-allocated string formatted with a more customizable format
  * placeholder.
  *
  * @brief Check the `full format rules` for this function.
@@ -692,15 +692,22 @@ NstEXP u8 *NstC Nst_fmt(const char *fmt, usize fmt_len, usize *out_len, ...);
 NstEXP u8 *NstC Nst_vfmt(const char *fmt, usize fmt_len, usize *out_len,
                          va_list args);
 /**
- * Similar to `Nst_fmt`, creates a string object formatted with the values
- * given.
+ * Create a string object formatted using Nest objects.
+ *
+ * @brief The format is similar to the `full format rules` of `Nst_fmt` except
+ * that the type of the value to format is taken from the object and the
+ * general syntax for a format placeholder becomes
+ * `{[Flags][Width][.Precision][,SeparatorWidth][Alignment]}` (the `Type` and
+ * the `:` have been removed).
  *
  * @param fmt: the format placeholder
- * @param values: the values to format
+ * @param values: the objects to use when formatting
+ * @param value_count: the number of objects given
  *
  * @return A new object of type `Str` or `NULL` on failure. The error is set.
  */
-NstEXP Nst_ObjRef *NstC Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj *values);
+NstEXP Nst_ObjRef *NstC Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj **values,
+                                     usize value_count);
 
 /**
  * Make a string into its representation, like using the `r`, `R`, `a` and `A`

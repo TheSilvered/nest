@@ -130,7 +130,7 @@ Nst_Obj *NstC try_(usize arg_num, Nst_Obj **args)
         objs = nullptr;
     } else {
         func_args_len = Nst_seq_len(func_args);
-        objs = _Nst_seq_objs(func_args);
+        objs = Nst_seq_objs(func_args);
     }
     usize func_arg_num = Nst_func_arg_num(func);
 

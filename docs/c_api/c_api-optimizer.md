@@ -20,7 +20,7 @@ Nst_Node *Nst_optimize_ast(Nst_Node *ast)
 
 **Description:**
 
-Optimizes the AST.
+Optimize the AST.
 
 The AST is destroyed if an error occurs.
 
@@ -34,26 +34,20 @@ The optimized AST on success and `NULL` on failure. The error is set.
 
 ---
 
-### `Nst_optimize_bytecode`
+### `Nst_optimize_ilist`
 
 **Synopsis:**
 
 ```better-c
-Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins)
+void Nst_optimize_ilist(Nst_InstList *ls, bool optimize_builtins)
 ```
 
 **Description:**
 
-Optimizes bytecode.
-
-The bytecode is destroyed if an error occurs.
+Optimize an instruction list. This function is guaranteed to not fail.
 
 **Parameters:**
 
-- `bc`: the bytecode to optimize
+- `ls`: the instruction list to optimize
 - `optimize_builtins`: whether accesses to builtins such as Int and false should
   be replaced by their values when they are not modified
-
-**Returns:**
-
-The optimized bytecode on success and `NULL` on failure. The error is set.

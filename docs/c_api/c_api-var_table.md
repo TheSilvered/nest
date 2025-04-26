@@ -16,8 +16,8 @@ TheSilvered
 
 ```better-c
 typedef struct _Nst_VarTable {
-    Nst_Obj *vars;
-    Nst_Obj *global_table;
+    Nst_ObjRef *vars;
+    Nst_ObjRef *global_table;
 } Nst_VarTable
 ```
 
@@ -34,17 +34,18 @@ Structure representing the Nest variable table
 
 ## Functions
 
-### `Nst_vt_new`
+### `Nst_vt_init`
 
 **Synopsis:**
 
 ```better-c
-Nst_VarTable *Nst_vt_new(Nst_Obj *global_table, Nst_Obj *args, bool no_default)
+bool Nst_vt_init(Nst_VarTable *vt, Nst_Obj *global_table, Nst_Obj *args,
+                 bool no_default)
 ```
 
 **Description:**
 
-Creates a new var table on the heap.
+Initialize a variable table.
 
 **Parameters:**
 
@@ -54,6 +55,10 @@ Creates a new var table on the heap.
 - `args`: the command line arguments, ignored when `global_table` is not `NULL`
   or `no_default` is `true`
 - `no_default`: whether to create predefined variables
+
+**Returns:**
+
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -67,7 +72,8 @@ void Nst_vt_destroy(Nst_VarTable *vt)
 
 **Description:**
 
-[`Nst_VarTable`](c_api-var_table.md#nst_vartable) destructor.
+Destroy the contents of an [`Nst_VarTable`](c_api-var_table.md#nst_vartable). If
+`_vars_` still points to the `vars` field of the table it is dropped.
 
 ---
 
@@ -76,12 +82,12 @@ void Nst_vt_destroy(Nst_VarTable *vt)
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_vt_get(Nst_VarTable *vt, Nst_Obj *name)
+Nst_ObjRef *Nst_vt_get(Nst_VarTable vt, Nst_Obj *name)
 ```
 
 **Description:**
 
-Retrieves a value from a variable table.
+Get a value from a variable table.
 
 **Parameters:**
 
@@ -101,12 +107,12 @@ table.
 **Synopsis:**
 
 ```better-c
-bool Nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val)
+bool Nst_vt_set(Nst_VarTable vt, Nst_Obj *name, Nst_Obj *val)
 ```
 
 **Description:**
 
-Sets a value in a variable table.
+Set a value in a variable table.
 
 **Parameters:**
 

@@ -85,9 +85,21 @@ NstEXP typedef struct _Nst_Bytecode {
     Nst_ObjRef **objects;
 } Nst_Bytecode;
 
+/**
+ * Assemble an `Nst_InstList` into bytecode. The bytecode is heap allocated and
+ * must be freed with `Nst_bc_destroy`.
+ *
+ * @return The new bytecode or `NULL` on failure. The error is set.
+ */
 NstEXP Nst_Bytecode *NstC Nst_assemble(Nst_InstList *ilist);
+/* Make a copy of an `Nst_Bytecode`. Success is guaranteed. */
 NstEXP Nst_Bytecode *NstC Nst_bc_copy(Nst_Bytecode *bc);
+/**
+ * Destroy and free an `Nst_Bytecode`. This function must be called for every
+ * copy made.
+ */
 NstEXP void NstC Nst_bc_destroy(Nst_Bytecode *bc);
+/* Print the bytecode to the standard output. */
 NstEXP void NstC Nst_bc_print(Nst_Bytecode *bc);
 
 #ifdef __cplusplus

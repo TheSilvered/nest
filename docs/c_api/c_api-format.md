@@ -24,12 +24,12 @@ allowed:
 - `s` for `char *` (string)
 - `B` for `u8` (takes a `uint` but expects values in the range `[0, 255]`)
 - `i` for `int` or `uint` (`unsigned int`)
-- `l` for `i32` (`long`) or `u32` (`unsigned long`)
-- `L` for `i64` (`long long`) or `u64` (`unsigned long long`)
-- `z` for `isize` (`size_t`) or `usize` (`ptrdiff_t`)
-- `b` for `bool` (takes an int but writes `true` or `false` instead of `1` and
-  `0`)
-- `f` for `f32` (`float`) or `f64` (`double`)
+- `l` for `i32` or `u32`
+- `L` for `i64` or `u64`
+- `z` for `isize` or `usize`
+- `b` for `bool` (takes an `int` but writes `true` or `false` instead of `1`
+  and `0`)
+- `f` for `f32` or `f64`
 - `c` for `char`
 - `p` for `void *`
 
@@ -558,7 +558,7 @@ isize Nst_print(const char *buf)
 
 **Description:**
 
-Prints a string to the Nest standard output.
+Print a string to the Nest standard output.
 
 !!!warning
     Do not use this function to print `Str` objects, use
@@ -585,7 +585,7 @@ isize Nst_fprint(Nst_Obj *f, const char *buf)
 
 **Description:**
 
-Prints a string to a Nest file object.
+Print a string to a Nest file object.
 
 !!!warning
     Do not use this function to print `Str` objects, use
@@ -613,7 +613,7 @@ isize Nst_println(const char *buf)
 
 **Description:**
 
-Prints a string to the Nest standard output appending a newline character.
+Print a string to the Nest standard output appending a newline character.
 
 !!!warning
     Do not use this function to print `Str` objects, use
@@ -642,7 +642,7 @@ isize Nst_fprintln(Nst_Obj *f, const char *buf)
 
 **Description:**
 
-Prints a string to a Nest file object appending a newline character.
+Print a string to a Nest file object appending a newline character.
 
 On all platforms only a newline (U+000A) is appended, NOT a carriage return.
 
@@ -672,8 +672,8 @@ isize Nst_printf(const char *fmt, ...)
 
 **Description:**
 
-Prints a formatted string to the Nest standard output. The format specifier
-works like that of C's
+Print a formatted string to the Nest standard output. The format specifier works
+like that of C's
 [`printf`](https://man7.org/linux/man-pages/man3/printf.3.html).
 
 **Parameters:**
@@ -703,7 +703,7 @@ isize Nst_fprintf(Nst_Obj *f, const char *fmt, ...)
 
 **Description:**
 
-Prints a formatted string to a Nest file object. The format specifier works like
+Print a formatted string to a Nest file object. The format specifier works like
 that of C's [`printf`](https://man7.org/linux/man-pages/man3/printf.3.html).
 
 **Parameters:**
@@ -743,12 +743,12 @@ isize Nst_vfprintf(Nst_Obj *f, const char *fmt, va_list args)
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_sprintf(const char *fmt, ...)
+Nst_ObjRef *Nst_sprintf(const char *fmt, ...)
 ```
 
 **Description:**
 
-Creates a Nest string object from a format placeholder. The format specifier
+Create a Nest string object from a format placeholder. The format specifier
 works like that of C's
 [`printf`](https://man7.org/linux/man-pages/man3/printf.3.html).
 
@@ -770,7 +770,7 @@ The function returns the newly created string object.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_vsprintf(const char *fmt, va_list args)
+Nst_ObjRef *Nst_vsprintf(const char *fmt, va_list args)
 ```
 
 **Description:**
@@ -789,7 +789,7 @@ u8 *Nst_fmt(const char *fmt, usize fmt_len, usize *out_len, ...)
 
 **Description:**
 
-Creates a heap-allocated string formatted with a more customizable format
+Create a heap-allocated string formatted with a more customizable format
 placeholder.
 
 Check the [full format rules](c_api-format.md#nst_fmt-format-rules) for this
@@ -830,18 +830,25 @@ u8 *Nst_vfmt(const char *fmt, usize fmt_len, usize *out_len, va_list args)
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj *values)
+Nst_ObjRef *Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj **values, usize value_count)
 ```
 
 **Description:**
 
-Similar to [`Nst_fmt`](c_api-format.md#nst_fmt), creates a string object
-formatted with the values given.
+Create a string object formatted using Nest objects.
+
+The format is similar to the
+[full format rules](c_api-format.md#nst_fmt-format-rules) of
+[`Nst_fmt`](c_api-format.md#nst_fmt) except that the type of the value to format
+is taken from the object and the general syntax for a format placeholder becomes
+`{[Flags][Width][.Precision][,SeparatorWidth][Alignment]}` (the `Type` and the
+`:` have been removed).
 
 **Parameters:**
 
 - `fmt`: the format placeholder
-- `values`: the values to format
+- `values`: the objects to use when formatting
+- `value_count`: the number of objects given
 
 **Returns:**
 

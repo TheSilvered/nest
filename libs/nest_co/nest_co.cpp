@@ -99,7 +99,7 @@ static Nst_Obj *call_coroutine(CoroutineObj *co, Nst_Obj *args)
         result = Nst_func_call(
             co->func,
             args == nullptr ? 0 : Nst_seq_len(args),
-            args == nullptr ? nullptr : _Nst_seq_objs(args));
+            args == nullptr ? nullptr : Nst_seq_objs(args));
     }
 
     co_c_stack_pop();

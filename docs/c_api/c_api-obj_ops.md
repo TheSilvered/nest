@@ -20,7 +20,7 @@ bool Nst_obj_eq_c(Nst_Obj *ob1, Nst_Obj *ob2)
 
 **Description:**
 
-Calls [`Nst_obj_eq`](c_api-obj_ops.md#nst_obj_eq) making the result a C bool.
+Call [`Nst_obj_eq`](c_api-obj_ops.md#nst_obj_eq) making the result a C bool.
 
 ---
 
@@ -34,7 +34,7 @@ bool Nst_obj_ne_c(Nst_Obj *ob1, Nst_Obj *ob2)
 
 **Description:**
 
-Calls [`Nst_obj_ne`](c_api-obj_ops.md#nst_obj_ne) making the result a C bool.
+Call [`Nst_obj_ne`](c_api-obj_ops.md#nst_obj_ne) making the result a C bool.
 
 ---
 
@@ -43,7 +43,7 @@ Calls [`Nst_obj_ne`](c_api-obj_ops.md#nst_obj_ne) making the result a C bool.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -57,7 +57,7 @@ Implements the `==` operator. Is guaranteed to not fail.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -71,7 +71,7 @@ Implements the `!=` operator. Is guaranteed to not fail.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -85,7 +85,7 @@ Implements the `>` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -99,7 +99,7 @@ Implements the `<` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -113,7 +113,7 @@ Implements the `>=` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -127,7 +127,7 @@ Implements the `<=` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -141,7 +141,7 @@ Implements the `+` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -155,7 +155,7 @@ Implements the `-` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -169,7 +169,7 @@ Implements the `null` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -183,7 +183,7 @@ Implements the `/` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -197,7 +197,7 @@ Implements the `^` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -211,7 +211,7 @@ Implements the `%` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -225,7 +225,7 @@ Implements the `|` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -239,7 +239,7 @@ Implements the `&` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -253,7 +253,7 @@ Implements the `^^` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -267,7 +267,7 @@ Implements the `<<` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -281,7 +281,7 @@ Implements the `>>` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -295,7 +295,7 @@ Implements the `||` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -309,7 +309,7 @@ Implements the `&&` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -323,7 +323,7 @@ Implements the `&|` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_neg(Nst_Obj *ob)
+Nst_ObjRef *Nst_obj_neg(Nst_Obj *ob)
 ```
 
 **Description:**
@@ -337,7 +337,7 @@ Implements the `-:` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_len(Nst_Obj *ob)
+Nst_ObjRef *Nst_obj_len(Nst_Obj *ob)
 ```
 
 **Description:**
@@ -351,7 +351,7 @@ Implements the `$` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_bwnot(Nst_Obj *ob)
+Nst_ObjRef *Nst_obj_bwnot(Nst_Obj *ob)
 ```
 
 **Description:**
@@ -365,7 +365,7 @@ Implements the `~` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_lgnot(Nst_Obj *ob)
+Nst_ObjRef *Nst_obj_lgnot(Nst_Obj *ob)
 ```
 
 **Description:**
@@ -379,7 +379,7 @@ Implements the `!` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_stdout(Nst_Obj *ob)
+Nst_ObjRef *Nst_obj_stdout(Nst_Obj *ob)
 ```
 
 **Description:**
@@ -393,7 +393,7 @@ Implements the `>>>` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_stdin(Nst_Obj *ob)
+Nst_ObjRef *Nst_obj_stdin(Nst_Obj *ob)
 ```
 
 **Description:**
@@ -407,7 +407,7 @@ Implements the `<<<` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_typeof(Nst_Obj *ob)
+Nst_ObjRef *Nst_obj_typeof(Nst_Obj *ob)
 ```
 
 **Description:**
@@ -421,7 +421,7 @@ Implements the `?::` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_import(Nst_Obj *ob)
+Nst_ObjRef *Nst_obj_import(Nst_Obj *ob)
 ```
 
 **Description:**
@@ -435,12 +435,12 @@ Implements the `|#|` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_to_repr_str(Nst_Obj *ob)
+Nst_ObjRef *Nst_obj_to_repr_str(Nst_Obj *ob)
 ```
 
 **Description:**
 
-Casts an object to its string representation.
+Cast an object to its string representation.
 
 All objects can be casted, even custom types, but the function can still fail to
 allocate memory.
@@ -460,12 +460,12 @@ The new string or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_cast(Nst_Obj *ob, Nst_Obj *type)
+Nst_ObjRef *Nst_obj_cast(Nst_Obj *ob, Nst_Obj *type)
 ```
 
 **Description:**
 
-Casts an object from a type to another.
+Cast an object from a type to another.
 
 Casting an object to `Bool` is guaranteed to not fail. All objects can be casted
 to `Str` but the function can still fail if a memory allocation is unsuccessful.
@@ -486,7 +486,7 @@ The casted object or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -500,12 +500,12 @@ Implements the `<.>` operator. On failure the error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_ObjRef *Nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
 
-Concatenates two objects into a string.
+Concatenate two objects into a string.
 
 Both objects are casted to `Str` before being concatenated.
 
@@ -525,12 +525,12 @@ The result of the concatenation or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step)
+Nst_ObjRef *Nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step)
 ```
 
 **Description:**
 
-Creates a range object given the start, stop and step.
+Create a range object given the start, stop and step.
 
 **Parameters:**
 
@@ -541,30 +541,3 @@ Creates a range object given the start, stop and step.
 **Returns:**
 
 The new range object or `NULL` on failure. The error is set.
-
----
-
-### `_Nst_get_import_path`
-
-**Synopsis:**
-
-```better-c
-Nst_Obj *_Nst_get_import_path(const char *initial_path, usize path_len)
-```
-
-**Description:**
-
-Returns the absolute path for a library to import.
-
-If the library is not found on the given path, the standard library directory is
-checked.
-
-**Parameters:**
-
-- `initial_path`: the relative path used to import the library
-- `path_len`: the length in bytes of `initial_path`
-
-**Returns:**
-
-The path on success and `NULL` on failure. The error is set. This function fails
-if the specified library is not found.

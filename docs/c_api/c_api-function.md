@@ -15,15 +15,12 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_func_new_c(usize arg_num, Nst_NestCallable cbody)
+Nst_ObjRef *Nst_func_new_c(usize arg_num, Nst_NestCallable cbody)
 ```
 
 **Description:**
 
-Creates a new function object with a C function body.
-
-!!!note
-    The `args` array must NOT be set since it is not used.
+Create a new function object with a C function body.
 
 **Parameters:**
 
@@ -46,7 +43,7 @@ usize Nst_func_arg_num(Nst_Obj *func)
 
 **Description:**
 
-Gets the number of arguments a function takes.
+@return The maximum number of arguments a function accepts.
 
 ---
 
@@ -58,9 +55,10 @@ Gets the number of arguments a function takes.
 Nst_Obj **Nst_func_args(Nst_Obj *func)
 ```
 
-**Description:**
+**Returns:**
 
-Gets the argument names as a list of objects.
+The argument names as a list of objects. If the function has a C body the return
+value is `NULL`.
 
 ---
 
@@ -74,7 +72,7 @@ Nst_NestCallable Nst_func_c_body(Nst_Obj *func)
 
 **Description:**
 
-Gets the body of a C-function wrapper.
+@return The body of a C function wrapper.
 
 ---
 
@@ -83,12 +81,12 @@ Gets the body of a C-function wrapper.
 **Synopsis:**
 
 ```better-c
-Nst_InstList *Nst_func_nest_body(Nst_Obj *func)
+Nst_Bytecode *Nst_func_nest_body(Nst_Obj *func)
 ```
 
 **Description:**
 
-Gets the body of a Nest function.
+@return The body of a Nest function.
 
 ---
 
@@ -100,10 +98,10 @@ Gets the body of a Nest function.
 Nst_Obj *Nst_func_mod_globals(Nst_Obj *func)
 ```
 
-**Description:**
+**Returns:**
 
-Gets the `_globals_` variable map of a function. No reference is added. It may
-be `NULL`.
+The `_globals_` variable map of a function. No reference is added. It may be
+`NULL`.
 
 ---
 
@@ -117,7 +115,7 @@ Nst_Obj *Nst_func_outer_vars(Nst_Obj *func)
 
 **Description:**
 
-Gets the outer variables that the function can access when defined.
+@return The outer variables that the function can access when defined.
 
 ---
 
@@ -131,7 +129,7 @@ void _Nst_func_traverse(Nst_Obj *func)
 
 **Description:**
 
-Traverse function for `Func` objects.
+[`Nst_ObjTrav`](c_api-obj.md#nst_objtrav) function for `Func` objects.
 
 ---
 

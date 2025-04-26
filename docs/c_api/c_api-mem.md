@@ -20,7 +20,7 @@ TheSilvered
 
 **Description:**
 
-Calls [`Nst_malloc`](c_api-mem.md#nst_malloc) using `sizeof(type)` for the size
+Call [`Nst_malloc`](c_api-mem.md#nst_malloc) using `sizeof(type)` for the size
 and casting the result to a pointer of `type`.
 
 ---
@@ -35,7 +35,7 @@ and casting the result to a pointer of `type`.
 
 **Description:**
 
-Calls [`Nst_calloc`](c_api-mem.md#nst_calloc) using `sizeof(type)` for the size
+Call [`Nst_calloc`](c_api-mem.md#nst_calloc) using `sizeof(type)` for the size
 and casting the result to a pointer of `type`.
 
 ---
@@ -50,8 +50,8 @@ and casting the result to a pointer of `type`.
 
 **Description:**
 
-Calls [`Nst_realloc`](c_api-mem.md#nst_realloc) using `sizeof(type)` for the
-size and casting the result to a pointer of `type`.
+Call [`Nst_realloc`](c_api-mem.md#nst_realloc) using `sizeof(type)` for the size
+and casting the result to a pointer of `type`.
 
 ---
 
@@ -65,7 +65,7 @@ size and casting the result to a pointer of `type`.
 
 **Description:**
 
-Calls [`Nst_crealloc`](c_api-mem.md#nst_crealloc) using `sizeof(type)` for the
+Call [`Nst_crealloc`](c_api-mem.md#nst_crealloc) using `sizeof(type)` for the
 size and casting the result to a pointer of `type`.
 
 ---
@@ -178,7 +178,7 @@ void *Nst_malloc(usize count, usize size)
 
 **Description:**
 
-Allocates memory on the heap.
+Allocate memory on the heap.
 
 The elements are contiguous in memory.
 
@@ -203,7 +203,7 @@ void *Nst_calloc(usize count, usize size, void *init_value)
 
 **Description:**
 
-Allocates memory on the heap initializing it.
+Allocate memory on the heap initializing it.
 
 The elements are contiguous in memory. If `init_value` is `NULL`, the function
 has a similar behaviour to
@@ -233,11 +233,9 @@ void *Nst_realloc(void *block, usize new_count, usize size, usize count)
 
 **Description:**
 
-Changes the size of an allocated memory block.
+Change the size of an allocated memory block.
 
-This function never fails when the block is shrunk because if the call to
-[`realloc`](https://man7.org/linux/man-pages/man3/malloc.3.html) fails, the old
-block is returned.
+This function never fails when the block shrinks in size.
 
 **Parameters:**
 
@@ -265,12 +263,11 @@ void *Nst_crealloc(void *block, usize new_count, usize size, usize count,
 
 **Description:**
 
-Changes the size of an allocated memory block initializing new memory.
+Change the size of an allocated memory block initializing new memory.
 
-This function never fails when the block is shrunk because if the call to
-[`realloc`](https://man7.org/linux/man-pages/man3/malloc.3.html) fails, the old
-block is returned. If `init_value` is `NULL`, the function just fills the new
-memory with zeroes. `init_value` is expected to have a size of `size`.
+This function never fails when the block shrinks. If `init_value` is `NULL`, the
+function just fills the new memory with zeroes. `init_value` is expected to have
+a size of `size`.
 
 **Parameters:**
 
@@ -298,7 +295,7 @@ void Nst_memset(void *block, usize size, usize count, void *value)
 
 **Description:**
 
-Sets the value of an array in memory.
+Set the value of an array in memory.
 
 !!!note
     Unlike [`memset`](https://man7.org/linux/man-pages/man3/memset.3.html) in

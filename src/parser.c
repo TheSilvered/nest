@@ -132,7 +132,7 @@ static inline Nst_Tok *peek_top(void)
 {
     if (state.idx >= state.tokens->len)
         return NULL;
-    return Nst_TOK(Nst_da_get(state.tokens, state.idx));
+    return (Nst_Tok *)Nst_da_get(state.tokens, state.idx);
 }
 
 // Returns the type of the head token in the tokens list

@@ -258,120 +258,122 @@ NstEXP typedef struct _Nst_Node {
     } v;
 } Nst_Node;
 
-/* Initializes a CS node. */
+/* Initialize a CS node. */
 NstEXP bool NstC _Nst_node_cs_init(Nst_Node *node);
-/* Destroyes a CS node. */
+/* Destroy a CS node. */
 NstEXP void NstC _Nst_node_cs_destroy(Nst_Node *node);
 
-/* Initializes a WL node. */
+/* Initialize a WL node. */
 NstEXP bool NstC _Nst_node_wl_init(Nst_Node *node);
-/* Destroyes a WL node. */
+/* Destroy a WL node. */
 NstEXP void NstC _Nst_node_wl_destroy(Nst_Node *node);
 
-/* Initializes a FL node. */
+/* Initialize a FL node. */
 NstEXP bool NstC _Nst_node_fl_init(Nst_Node *node);
-/* Destroyes a FL node. */
+/* Destroy a FL node. */
 NstEXP void NstC _Nst_node_fl_destroy(Nst_Node *node);
 
-/* Initializes a FD node. */
+/* Initialize a FD node. */
 NstEXP bool NstC _Nst_node_fd_init(Nst_Node *node);
-/* Destroyes a FD node. */
+/* Destroy a FD node. */
 NstEXP void NstC _Nst_node_fd_destroy(Nst_Node *node);
 
-/* Initializes a RT node. */
+/* Initialize a RT node. */
 NstEXP bool NstC _Nst_node_rt_init(Nst_Node *node);
-/* Destroyes a RT node. */
+/* Destroy a RT node. */
 NstEXP void NstC _Nst_node_rt_destroy(Nst_Node *node);
 
-/* Initializes a SW node. */
+/* Initialize a SW node. */
 NstEXP bool NstC _Nst_node_sw_init(Nst_Node *node);
-/* Destroyes a SW node. */
+/* Destroy a SW node. */
 NstEXP void NstC _Nst_node_sw_destroy(Nst_Node *node);
 
-/* Initializes a TC node. */
+/* Initialize a TC node. */
 NstEXP bool NstC _Nst_node_tc_init(Nst_Node *node);
-/* Destroyes a TC node. */
+/* Destroy a TC node. */
 NstEXP void NstC _Nst_node_tc_destroy(Nst_Node *node);
 
-/* Initializes a WS node. */
+/* Initialize a WS node. */
 NstEXP bool NstC _Nst_node_ws_init(Nst_Node *node);
-/* Destroyes a WS node. */
+/* Destroy a WS node. */
 NstEXP void NstC _Nst_node_ws_destroy(Nst_Node *node);
 
-/* Initializes a SO node. */
+/* Initialize a SO node. */
 NstEXP bool NstC _Nst_node_so_init(Nst_Node *node);
-/* Destroyes a SO node. */
+/* Destroy a SO node. */
 NstEXP void NstC _Nst_node_so_destroy(Nst_Node *node);
 
-/* Initializes a LS node. */
+/* Initialize a LS node. */
 NstEXP bool NstC _Nst_node_ls_init(Nst_Node *node);
-/* Destroyes a LS node. */
+/* Destroy a LS node. */
 NstEXP void NstC _Nst_node_ls_destroy(Nst_Node *node);
 
-/* Initializes a LO node. */
+/* Initialize a LO node. */
 NstEXP bool NstC _Nst_node_lo_init(Nst_Node *node);
-/* Destroyes a LO node. */
+/* Destroy a LO node. */
 NstEXP void NstC _Nst_node_lo_destroy(Nst_Node *node);
 
-/* Initializes a SL node. */
+/* Initialize a SL node. */
 NstEXP bool NstC _Nst_node_sl_init(Nst_Node *node);
-/* Destroyes a SL node. */
+/* Destroy a SL node. */
 NstEXP void NstC _Nst_node_sl_destroy(Nst_Node *node);
 
-/* Initializes a ML node. */
+/* Initialize a ML node. */
 NstEXP bool NstC _Nst_node_ml_init(Nst_Node *node);
-/* Destroyes a ML node. */
+/* Destroy a ML node. */
 NstEXP void NstC _Nst_node_ml_destroy(Nst_Node *node);
 
-/* Initializes a VL node. */
+/* Initialize a VL node. */
 NstEXP bool NstC _Nst_node_vl_init(Nst_Node *node);
-/* Destroyes a VL node. */
+/* Destroy a VL node. */
 NstEXP void NstC _Nst_node_vl_destroy(Nst_Node *node);
 
-/* Initializes a AC node. */
+/* Initialize a AC node. */
 NstEXP bool NstC _Nst_node_ac_init(Nst_Node *node);
-/* Destroyes a AC node. */
+/* Destroy a AC node. */
 NstEXP void NstC _Nst_node_ac_destroy(Nst_Node *node);
 
-/* Initializes a EX node. */
+/* Initialize a EX node. */
 NstEXP bool NstC _Nst_node_ex_init(Nst_Node *node);
-/* Destroyes a EX node. */
+/* Destroy a EX node. */
 NstEXP void NstC _Nst_node_ex_destroy(Nst_Node *node);
 
-/* Initializes a AS node. */
+/* Initialize a AS node. */
 NstEXP bool NstC _Nst_node_as_init(Nst_Node *node);
-/* Destroyes a AS node. */
+/* Destroy a AS node. */
 NstEXP void NstC _Nst_node_as_destroy(Nst_Node *node);
 
-/* Initializes a CA node. */
+/* Initialize a CA node. */
 NstEXP bool NstC _Nst_node_ca_init(Nst_Node *node);
-/* Destroyes a CA node. */
+/* Destroy a CA node. */
 NstEXP void NstC _Nst_node_ca_destroy(Nst_Node *node);
 
-/* Initializes a IE node. */
+/* Initialize a IE node. */
 NstEXP bool NstC _Nst_node_ie_init(Nst_Node *node);
-/* Destroyes a IE node. */
+/* Destroy a IE node. */
 NstEXP void NstC _Nst_node_ie_destroy(Nst_Node *node);
 
-/* Initializes a WE node. */
+/* Initialize a WE node. */
 NstEXP bool NstC _Nst_node_we_init(Nst_Node *node);
-/* Destroyes a WE node. */
+/* Destroy a WE node. */
 NstEXP void NstC _Nst_node_we_destroy(Nst_Node *node);
 
 NstEXP Nst_Node *NstC Nst_node_new(Nst_NodeType type);
 NstEXP void NstC Nst_node_set_span(Nst_Node *node, Nst_Span span);
 
-/* Destroys the contents of `node` and frees it. */
+/* Destroy the contents of `node` and frees it. */
 NstEXP void NstC Nst_node_destroy(Nst_Node *node);
-/* Destroys only the contents of `node` without freeing it. */
+/* Destroy only the contents of `node` without freeing it. */
 NstEXP void NstC Nst_node_destroy_contents(Nst_Node *node);
 
+/* Print an `Nst_Node` to the standard output. */
 NstEXP void NstC Nst_print_node(Nst_Node *node);
 
+/* Convert an `Nst_NodeType` to a string. */
 NstEXP const char *NstC Nst_node_type_to_str(Nst_NodeType nt);
 
 /**
- * Changes the type of a node destroying the previous contents but keeping the
+ * Change the type of a node destroying the previous contents but keeping the
  * position.
  *
  * @brief Note: changing the node to a `Nst_NT_NP` is guaranteed to succeed.

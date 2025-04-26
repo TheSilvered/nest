@@ -204,8 +204,10 @@ warnings.
 
 **Description:**
 
-Aborts with an error message when an expression is false. The error specifies
-the expression, the path and line of both the C and Nest file.
+Evaluates [`Nst_DBG_ASSERT_CALLBACK`](c_api-typedefs.md#nst_dbg_assert_callback)
+and prints an error message when `expr` is `false`. The error specifies the
+expression that is false, the path and line number of both the C and Nest file
+where the assertion failed.
 
 ---
 
@@ -219,8 +221,54 @@ the expression, the path and line of both the C and Nest file.
 
 **Description:**
 
-Aborts with an error message when an expression is false. The error specifies
-the expression and the path and line of the C file.
+Evaluates [`Nst_DBG_ASSERT_CALLBACK`](c_api-typedefs.md#nst_dbg_assert_callback)
+and prints an error message when `expr` is `false`. The error specifies the
+expression that is false, the path and line number of the C file where.
+
+---
+
+## Structs
+
+### `Nst_Obj`
+
+**Synopsis:**
+
+```better-c
+typedef struct _Nst_Obj {
+    struct _Nst_Obj *type;
+    struct _Nst_Obj *p_next;
+    isize ref_count;
+    i32 hash;
+    u32 flags;
+#ifdef Nst_DBG_TRACK_OBJ_INIT_POS
+    i32 init_line;
+    i32 init_col;
+    char *init_path;
+#endif // !Nst_DBG_TRACK_OBJ_INIT_POS
+} Nst_Obj
+```
+
+**Description:**
+
+The structure representing a basic Nest object.
+
+**Fields:**
+
+- `ref_count`: the reference count of the object
+- `type`: the type of the object
+- `p_next`: the next object in the type's pool
+- `hash`: the hash of the object, `-1` if it has not yet been hashed or is not
+  hashable
+- `flags`: the flags of the object
+- `init_line`: **this field only exists when
+  [`Nst_DBG_TRACK_OBJ_INIT_POS`](c_api-typedefs.md#nst_dbg_track_obj_init_pos)
+  is defined** - the line of the instruction that initialized the object
+- `init_col`: **this field only exists when
+  [`Nst_DBG_TRACK_OBJ_INIT_POS`](c_api-typedefs.md#nst_dbg_track_obj_init_pos)
+  is defined** - the column of the instruction that initialized the object
+- `init_path`: **this field only exists when
+  [`Nst_DBG_TRACK_OBJ_INIT_POS`](c_api-typedefs.md#nst_dbg_track_obj_init_pos)
+  is defined** - the path to the file where the object was initialized
 
 ---
 
@@ -408,12 +456,35 @@ typedef ptrdiff_t isize
 
 ---
 
+### `Nst_ObjRef`
+
+**Synopsis:**
+
+```better-c
+typedef Nst_Obj Nst_ObjRef
+```
+
+**Description:**
+
+Using [`Nst_ObjRef *`](c_api-typedefs.md#nst_objref) instead of
+[`Nst_Obj *`](c_api-typedefs.md#nst_obj) signals that an object reference is
+being passed or owned. Depending on context it has different meanings:
+
+- When used as the type of a function argument it signals that a reference is
+  taken from the argument itself.
+- When used as the type of the return value of a function it signals that the
+  function returns a new reference to the object.
+- When used in a struct it signals that the struct owns a reference to the
+  object.
+
+---
+
 ### `Nst_NestCallable`
 
 **Synopsis:**
 
 ```better-c
-typedef Nst_Obj *(*Nst_NestCallable)(usize, Nst_Obj **)
+typedef Nst_ObjRef *(*Nst_NestCallable)(usize, Nst_Obj **)
 ```
 
 **Description:**

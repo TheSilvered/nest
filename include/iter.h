@@ -16,7 +16,7 @@ extern "C" {
 #endif // !__cplusplus
 
 /**
- * Creates a new Nest iterator object.
+ * Create a new Nest iterator object.
  *
  * @brief Note: this function takes one reference of `start`, `next` and
  * `value` both on success and on failure.
@@ -32,21 +32,21 @@ NstEXP Nst_ObjRef *NstC Nst_iter_new(Nst_ObjRef *start, Nst_ObjRef *next,
 
 void _Nst_iter_destroy(Nst_Obj *iter);
 
-/* Traverse function for Nest iter objects. */
+/* `Nst_ObjTrav` function for `Iter` objects. */
 NstEXP void NstC _Nst_iter_traverse(Nst_Obj *iter);
 
-/* Get the `start` function of an iterator. No reference is added. */
+/* @return The `start` function of an iterator. No reference is added. */
 NstEXP Nst_Obj *NstC Nst_iter_start_func(Nst_Obj *iter);
-/* Get the `next` function of an iterator. No reference is added. */
+/* @return The `next` function of an iterator. No reference is added. */
 NstEXP Nst_Obj *NstC Nst_iter_next_func(Nst_Obj *iter);
 /**
- * @brief Get the `value` passed to `start` and `next` of an iterator. No
+ * @return The `value` passed to `start` and `next` of an iterator. No
  * reference is added.
  */
 NstEXP Nst_Obj *NstC Nst_iter_value(Nst_Obj *iter);
 
 /**
- * Calls the `start` function of an `Iter` object.
+ * Call the `start` function of an `Iter` object.
  *
  * @param iter: the iterator to start
  *
@@ -55,7 +55,7 @@ NstEXP Nst_Obj *NstC Nst_iter_value(Nst_Obj *iter);
 NstEXP bool NstC Nst_iter_start(Nst_Obj *iter);
 
 /**
- * Calls the `next` function of an `Iter` object.
+ * Call the `next` function of an `Iter` object.
  *
  * @param iter: the iterator to get the value from
  *
@@ -66,11 +66,11 @@ NstEXP Nst_ObjRef *NstC Nst_iter_next(Nst_Obj *iter);
 
 /* Create a new range object. */
 NstEXP Nst_ObjRef *NstC Nst_iter_range_new(i64 start, i64 stop, i64 step);
-/* Create a sequence iterator. */
+/* Create a new sequence iterator. */
 NstEXP Nst_ObjRef *NstC Nst_iter_seq_new(Nst_Obj *seq);
-/* Create a string iterator. */
+/* Create a new string iterator. */
 NstEXP Nst_ObjRef *NstC Nst_iter_str_new(Nst_Obj *seq);
-/* Create a map iterator. */
+/* Create a new map iterator. */
 NstEXP Nst_ObjRef *NstC Nst_iter_map_new(Nst_Obj *seq);
 
 // Functions for range iterators

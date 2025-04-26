@@ -53,7 +53,7 @@ NstEXP typedef struct _Nst_CLArgs {
 } Nst_CLArgs;
 
 /**
- * Initializes a `Nst_CLArgs` struct with default values.
+ * Initialize a `Nst_CLArgs` struct with default values.
  *
  * @param args: the struct to initialize
  * @param argc: the number of arguments passed to main
@@ -62,7 +62,7 @@ NstEXP typedef struct _Nst_CLArgs {
 NstEXP void NstC Nst_cl_args_init(Nst_CLArgs *args, int argc, char **argv);
 
 /**
- * Parses command-line arguments.
+ * Parse command-line arguments.
  *
  * @param cl_args: the struct where to put the parsed arguments, it must be
  * initialized with `Nst_cl_args_init`
@@ -84,7 +84,7 @@ NstEXP void NstC _Nst_supports_color_override(bool value);
 #ifdef Nst_MSVC
 
 /**
- * WINDOWS ONLY Re-encodes Unicode arguments to UTF-8.
+ * WINDOWS ONLY Re-encode Unicode arguments to UTF-8.
  *
  * @param argc: the length of `wargv`
  * @param wargv: the arguments given
@@ -94,7 +94,7 @@ NstEXP void NstC _Nst_supports_color_override(bool value);
  */
 NstEXP bool NstC _Nst_wargv_to_argv(int argc, wchar_t **wargv, char ***argv);
 
-/* WINDOWS ONLY Initializes the console. */
+/* WINDOWS ONLY Initialize the console. */
 NstEXP void NstC _Nst_console_mode_init(void);
 
 #endif // !Nst_MSVC

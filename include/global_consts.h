@@ -140,43 +140,43 @@ typedef struct _Nst_IterFunctions {
 } Nst_IterFunctions;
 
 /**
- * Initializes all the global constants and IO streams.
+ * Initialize all the global constants and IO streams.
  *
  * @return `true` on success and `false` on failure. No error is set.
  */
 NstEXP bool NstC _Nst_globals_init(void);
-/* Deletes all the global constants and IO streams. */
+/* Delete all the global constants and IO streams. */
 NstEXP void NstC _Nst_globals_quit(void);
 
-/* Returns the true object constant. */
+
+
+/* @return The `true` object constant. */
 NstEXP Nst_Obj *NstC Nst_true(void);
-/* Returns a new reference to the true object constant. */
+/* @return A new reference to the `true` object constant. */
 NstEXP Nst_ObjRef *NstC Nst_true_ref(void);
 
-/* Returns the false object constant. */
+/* @return The `false` object constant. */
 NstEXP Nst_Obj *NstC Nst_false(void);
-/* Returns a new reference to the false object constant. */
+/* @return A new reference to the `false` object constant. */
 NstEXP Nst_ObjRef *NstC Nst_false_ref(void);
 
-/* Returns the null object constant. */
+/* @return The `null` object constant. */
 NstEXP Nst_Obj *NstC Nst_null(void);
-/* Returns a new reference to the null object constant. */
+/* @return A new reference to the `null` object constant. */
 NstEXP Nst_ObjRef *NstC Nst_null_ref(void);
 
-/* Returns the iend object constant. */
+/* @return The `iend` object constant. */
 NstEXP Nst_Obj *NstC Nst_iend(void);
-/* Returns a new reference to the iend object constant. */
+/* @return A new reference to the `iend` object constant. */
 NstEXP Nst_ObjRef *NstC Nst_iend_ref(void);
 
-/* [docs:link Nst_type()->Bool Nst_type] */
-
-/* Returns a `Nst_TypeObjs` struct containing all the types. */
+/* @return A `Nst_TypeObjs` struct containing all the types. */
 NstEXP const Nst_TypeObjs *NstC Nst_type(void);
-/* Returns a `Nst_StrConsts` struct containing all the string constants. */
+/* @return A `Nst_StrConsts` struct containing all the string constants. */
 NstEXP const Nst_StrConsts *NstC Nst_str(void);
-/* Returns a `Nst_Consts` struct containing all the object constants. */
+/* @return A `Nst_Consts` struct containing all the object constants. */
 NstEXP const Nst_Consts *NstC Nst_const(void);
-/* Returns a `Nst_StdStreams` struct containing all the standard IO streams. */
+/* @return A `Nst_StdStreams` struct containing all the standard IO streams. */
 NstEXP Nst_StdStreams *NstC Nst_stdio(void);
 
 extern Nst_TypeObjs Nst_t;

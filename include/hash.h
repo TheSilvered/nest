@@ -16,7 +16,7 @@ extern "C" {
 #endif // !__cplusplus
 
 /**
- * Hashes a Nest object setting its hash field.
+ * Hash a Nest object setting its hash field.
  *
  * @brief If the object is not hashable `-1` is set.
  *

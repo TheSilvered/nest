@@ -15,12 +15,12 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_int_new(i64 value)
+Nst_ObjRef *Nst_int_new(i64 value)
 ```
 
 **Description:**
 
-Creates a new `Int` object.
+Create a new `Int` object.
 
 **Parameters:**
 
@@ -42,7 +42,8 @@ i64 Nst_int_i64(Nst_Obj *obj)
 
 **Description:**
 
-Get the value of an `Int` object as an [`i64`](c_api_index.md#type-definitions).
+@return The value of an `Int` object as an
+[`i64`](c_api_index.md#type-definitions).
 
 ---
 
@@ -51,12 +52,12 @@ Get the value of an `Int` object as an [`i64`](c_api_index.md#type-definitions).
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_real_new(f64 value)
+Nst_ObjRef *Nst_real_new(f64 value)
 ```
 
 **Description:**
 
-Creates a new `Real` object.
+Create a new `Real` object.
 
 **Parameters:**
 
@@ -78,7 +79,8 @@ f64 Nst_real_f64(Nst_Obj *obj)
 
 **Description:**
 
-Get the value of a `Real` object as an [`f64`](c_api_index.md#type-definitions).
+@return The value of a `Real` object as an
+[`f64`](c_api_index.md#type-definitions).
 
 ---
 
@@ -92,7 +94,8 @@ f32 Nst_real_f32(Nst_Obj *obj)
 
 **Description:**
 
-Get the value of a `Real` object as an [`f32`](c_api_index.md#type-definitions).
+@return The value of a `Real` object as an
+[`f32`](c_api_index.md#type-definitions).
 
 ---
 
@@ -101,12 +104,12 @@ Get the value of a `Real` object as an [`f32`](c_api_index.md#type-definitions).
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_byte_new(u8 value)
+Nst_ObjRef *Nst_byte_new(u8 value)
 ```
 
 **Description:**
 
-Creates a new `Byte` object.
+Create a new `Byte` object.
 
 **Parameters:**
 
@@ -128,7 +131,7 @@ u8 Nst_byte_u8(Nst_Obj *obj)
 
 **Description:**
 
-Get the value of a `Byte` object.
+@return The value of a `Byte` object.
 
 ---
 
@@ -142,7 +145,7 @@ u8 Nst_number_to_u8(Nst_Obj *number)
 
 **Description:**
 
-Converts the value of a numeric object (`Int`, `Real`, `Byte`) to a
+Convert the value of a numeric object (`Int`, `Real`, `Byte`) to a
 [`u8`](c_api_index.md#type-definitions).
 
 **Parameters:**
@@ -166,7 +169,7 @@ int Nst_number_to_int(Nst_Obj *number)
 
 **Description:**
 
-Converts the value of a numeric object (`Int`, `Real`, `Byte`) to an `int`.
+Convert the value of a numeric object (`Int`, `Real`, `Byte`) to an `int`.
 
 **Parameters:**
 
@@ -189,7 +192,7 @@ i32 Nst_number_to_i32(Nst_Obj *number)
 
 **Description:**
 
-Converts the value of a numeric object (`Int`, `Real`, `Byte`) to an
+Convert the value of a numeric object (`Int`, `Real`, `Byte`) to an
 [`i32`](c_api_index.md#type-definitions).
 
 **Parameters:**
@@ -213,7 +216,7 @@ i64 Nst_number_to_i64(Nst_Obj *number)
 
 **Description:**
 
-Converts the value of a numeric object (`Int`, `Real`, `Byte`) to an
+Convert the value of a numeric object (`Int`, `Real`, `Byte`) to an
 [`i64`](c_api_index.md#type-definitions).
 
 **Parameters:**
@@ -237,7 +240,7 @@ f32 Nst_number_to_f32(Nst_Obj *number)
 
 **Description:**
 
-Converts the value of a numeric object (`Int`, `Real`, `Byte`) to an
+Convert the value of a numeric object (`Int`, `Real`, `Byte`) to an
 [`f32`](c_api_index.md#type-definitions).
 
 **Parameters:**
@@ -261,7 +264,7 @@ f64 Nst_number_to_f64(Nst_Obj *number)
 
 **Description:**
 
-Converts the value of a numeric object (`Int`, `Real`, `Byte`) to an
+Convert the value of a numeric object (`Int`, `Real`, `Byte`) to an
 [`f64`](c_api_index.md#type-definitions).
 
 **Parameters:**
@@ -285,6 +288,4 @@ bool Nst_obj_to_bool(Nst_Obj *obj)
 
 **Description:**
 
-Converts any object to a boolean. Exactly the same as casting the object to
-[`Nst_type()->Bool`](c_api-global_consts.md#nst_type) and then checking if the
-result matches [`Nst_true()`](c_api-global_consts.md#nst_true).
+@return `true` if the object is truthy and `false` otherwise.

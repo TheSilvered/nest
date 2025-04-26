@@ -31,7 +31,7 @@ NstEXP typedef struct _Nst_DynArray {
 } Nst_DynArray;
 
 /**
- * Initializes a `Nst_DynArray`.
+ * Initialize a `Nst_DynArray`.
  *
  * @brief If `reserve` is `0` no memory is allocated.
  *
@@ -68,23 +68,23 @@ NstEXP bool NstC Nst_da_reserve(Nst_DynArray *arr, usize amount);
  */
 NstEXP bool NstC Nst_da_append(Nst_DynArray *arr, void *element);
 /**
- * Pops the last element of the array.
+ * Pop the last element of the array.
  *
  * @return `true` if the element was popped successfully and `false` if there
  * was no item to pop. No error is set.
  */
 NstEXP bool NstC Nst_da_pop(Nst_DynArray *arr, Nst_Destructor dstr);
 /**
- * Pops the last element of the array. The array is considered to be an array
- * of `void *` and the element itself is passed to the destructor.
+ * Pop the last element of the array. The array is considered to be an array of
+ * `void *` and the element itself is passed to the destructor.
  *
  * @return `true` if the element was popped successfully and `false` if there
  * was no item to pop. No error is set.
  */
 NstEXP bool NstC Nst_da_pop_p(Nst_DynArray *arr, Nst_Destructor dstr);
 /**
- * Remove the element of an array at `index` and puts the last element of
- * the array in its place.
+ * Remove the element of an array at `index` and put the last element of the
+ * array in its place.
  *
  * @brief Note: this function operates in constant time.
  *
@@ -94,8 +94,8 @@ NstEXP bool NstC Nst_da_pop_p(Nst_DynArray *arr, Nst_Destructor dstr);
 NstEXP bool NstC Nst_da_remove_swap(Nst_DynArray *arr, usize index,
                                     Nst_Destructor dstr);
 /**
- * Remove the element of an array at `index` and puts the last element of
- * the array in its place. The array is considered to be an array of `void *`
+ * Remove the element of an array at `index` and put the last element of the
+ * array in its place. The array is considered to be an array of `void *`
  * and the element itself is passed to the destructor.
  *
  * @brief Note: this function operates in constant time.

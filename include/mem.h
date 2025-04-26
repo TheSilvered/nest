@@ -14,28 +14,28 @@
 #include "error.h"
 
 /**
- * @brief Calls `Nst_malloc` using `sizeof(type)` for the size and casting the
- * result to a pointer of `type`.
+ * Call `Nst_malloc` using `sizeof(type)` for the size and casting the result
+ * to a pointer of `type`.
  */
 #define Nst_malloc_c(count, type) ((type *)Nst_malloc(count, sizeof(type)))
 
 /**
- * @brief Calls `Nst_calloc` using `sizeof(type)` for the size and casting the
- * result to a pointer of `type`.
+ * Call `Nst_calloc` using `sizeof(type)` for the size and casting the result
+ * to a pointer of `type`.
  */
 #define Nst_calloc_c(count, type, init_value)                                 \
     ((type *)Nst_calloc(count, sizeof(type), (void *)(init_value)))
 
 /**
- * @brief Calls `Nst_realloc` using `sizeof(type)` for the size and casting the
- * result to a pointer of `type`.
+ * Call `Nst_realloc` using `sizeof(type)` for the size and casting the result
+ * to a pointer of `type`.
  */
 #define Nst_realloc_c(block, new_count, type, count)                          \
     ((type *)Nst_realloc((void *)(block), new_count, sizeof(type), count))
 
 /**
- * @brief Calls `Nst_crealloc` using `sizeof(type)` for the size and casting
- * the result to a pointer of `type`.
+ * Call `Nst_crealloc` using `sizeof(type)` for the size and casting the result
+ * to a pointer of `type`.
  */
 #define Nst_crealloc_c(block, new_count, type, count, init_value)             \
     ((type *)Nst_crealloc(                                                    \
@@ -101,7 +101,7 @@ void free(void *ptr) __attribute__((deprecated("use Nst_raw_free or Nst_free")))
 #define Nst_free Nst_raw_free
 
 /**
- * Allocates memory on the heap.
+ * Allocate memory on the heap.
  *
  * @brief The elements are contiguous in memory.
  *
@@ -113,7 +113,7 @@ void free(void *ptr) __attribute__((deprecated("use Nst_raw_free or Nst_free")))
  */
 NstEXP void *NstC Nst_malloc(usize count, usize size);
 /**
- * Allocates memory on the heap initializing it.
+ * Allocate memory on the heap initializing it.
  *
  * @brief The elements are contiguous in memory. If `init_value` is `NULL`, the
  * function has a similar behaviour to `calloc` filling the memory with zeroes.
@@ -129,10 +129,9 @@ NstEXP void *NstC Nst_malloc(usize count, usize size);
  */
 NstEXP void *NstC Nst_calloc(usize count, usize size, void *init_value);
 /**
- * Changes the size of an allocated memory block.
+ * Change the size of an allocated memory block.
  *
- * @brief This function never fails when the block is shrunk because if the
- * call to `realloc` fails, the old block is returned.
+ * @brief This function never fails when the block shrinks in size.
  *
  * @param block: the block to reallocate
  * @param new_count: the new number of elements of the block
@@ -146,10 +145,9 @@ NstEXP void *NstC Nst_calloc(usize count, usize size, void *init_value);
 NstEXP void *NstC Nst_realloc(void *block, usize new_count, usize size,
                               usize count);
 /**
- * Changes the size of an allocated memory block initializing new memory.
+ * Change the size of an allocated memory block initializing new memory.
  *
- * @brief This function never fails when the block is shrunk because if the
- * call to `realloc` fails, the old block is returned. If `init_value` is
+ * @brief This function never fails when the block shrinks. If `init_value` is
  * `NULL`, the function just fills the new memory with zeroes. `init_value` is
  * expected to have a size of `size`.
  *
@@ -170,7 +168,7 @@ NstEXP void *NstC Nst_crealloc(void *block, usize new_count, usize size,
 /* [docs:link memset <https://man7.org/linux/man-pages/man3/memset.3.html>] */
 
 /**
- * Sets the value of an array in memory.
+ * Set the value of an array in memory.
  *
  * @brief Note: unlike `memset` in `string.h` this function does not return a
  * value.

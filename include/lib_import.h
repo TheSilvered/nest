@@ -187,7 +187,7 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 #include "global_consts.h"
 
 /**
- * Initializes a function declaration.
+ * Initialize a function declaration.
  *
  * @brief For the name of the function the name of the function pointer is
  * used.
@@ -198,7 +198,7 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 #define Nst_FUNCDECLR(func_ptr, argc) { (void *)(func_ptr), argc, #func_ptr }
 
 /**
- * Initializes a function declaration with a custom name.
+ * Initialize a function declaration with a custom name.
  *
  * @param func_ptr: the function pointer to use
  * @param argc: the number of arguments the function accepts
@@ -208,7 +208,7 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
     { (void *)(func_ptr), argc, name }
 
 /**
- * Initialized an object declaration.
+ * Initialize an object declaration.
  *
  * @brief For the name of the object the name of the function pointer is used.
  *
@@ -218,9 +218,7 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 #define Nst_CONSTDECLR(func_ptr) { (void *)(func_ptr), -1, #func_ptr }
 
 /**
- * Initialized an object declaration.
- *
- * @brief For the name of the object the name of the pointer is used.
+ * Initialize an object declaration with a custom name.
  *
  * @param func_ptr: the pointer to a function that returns the value of the
  * constant, this function is of signature `Nst_ConstFunc`
@@ -228,11 +226,11 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
  */
 #define Nst_NAMED_CONSTDECLR(func_ptr, name) { (void *)(func_ptr), -1, name }
 
-/* Used to end the declarations array. */
+/* End the declarations array. */
 #define Nst_DECLR_END { NULL, 0, NULL }
 
 /**
- * @brief Returns `Nst_true_ref()` if `expr` is `true` and `Nst_false_ref()`
+ * @return `Nst_true_ref()` if `expr` is `true` and `Nst_false_ref()`
  * otherwise. `expr` is a C boolean expression.
  */
 #define Nst_RETURN_BOOL(expr)                                                 \
@@ -242,7 +240,7 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 #define Nst_DEF_VAL(obj, val, def_val)                                        \
     (NstOBJ(obj) == Nst_null() ? (def_val) : (val))
 
-/* Checks if the type of an object is `type_name`. */
+/* Check if the type of an object is `type_name`. */
 #define Nst_T(obj, type_name) ((obj)->type == Nst_type()->type_name)
 
 /**
@@ -258,6 +256,18 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 #define Nst_obj_custom(type, data)                                            \
     _Nst_obj_custom(sizeof(type), (void *)(data), #type)
 
+/**
+ * Create an object with custom data. This is a wrapper for
+ * `_Nst_obj_custom_ex`.
+ *
+ * @brief The `size` and `name` parameters are derived from `type`.
+ *
+ * @param type: the type of the data to insert
+ * @param data: the data to copy
+ * @param dstr: the destructor to use for the type
+ *
+ * @return The new object or `NULL` on error.
+ */
 #define Nst_obj_custom_ex(type, data, dstr)                                   \
     _Nst_obj_custom_ex(sizeof(type), (void *)(data), #type, dstr)
 
@@ -269,7 +279,7 @@ extern "C" {
 typedef Nst_ObjRef *(*Nst_ConstFunc)(void);
 
 /**
- * Structure defining an object declaration for a C library.
+ * A structure representing an object declaration for a C library.
  *
  * @param ptr: the pointer to the function
  * @param arg_num: the number of arguments if the object is a function, `-1`
@@ -283,7 +293,7 @@ NstEXP typedef struct _Nst_Declr {
 } Nst_Declr;
 
 /**
- * Checks the types of the arguments and extracts their values.
+ * Check the types of the arguments and extracts their values.
  *
  * @brief Check the syntax for the types argument in `lib_import.h`.
  *
@@ -319,7 +329,7 @@ NstEXP Nst_ObjRef *NstC _Nst_obj_custom(usize size, void *data,
  */
 NstEXP Nst_ObjRef *NstC _Nst_obj_custom_ex(usize size, void *data,
                                            const char *name, Nst_ObjDstr dstr);
-/* Get the data of an object created with `Nst_obj_custom`. */
+/* @return The data of an object created with `Nst_obj_custom`. */
 NstEXP void *NstC Nst_obj_custom_data(Nst_Obj *obj);
 
 bool _Nst_import_init(void);
@@ -333,35 +343,35 @@ void _Nst_import_clear_paths(void);
 NstEXP Nst_ObjRef *NstC Nst_import_lib(const char *path);
 
 /**
- * Returns the absolute path for a library to import.
+ * Get the absolute path of a library.
  *
  * @brief If the library is not found on the given path, the standard library
  * directory is checked.
  *
- * @param initial_path: the relative path used to import the library
- * @param path_len: the length in bytes of `initial_path`
+ * @param rel_path: the relative path used to import the library
+ * @param path_len: the length in bytes of `rel_path`
  *
  * @return The path on success and `NULL` on failure. The error is set. This
  * function fails if the specified library is not found.
  */
-NstEXP Nst_ObjRef *NstC _Nst_get_import_path(const char *initial_path,
-                                             usize path_len);
+NstEXP Nst_ObjRef *NstC Nst_import_full_lib_path(const char *rel_path,
+                                                 usize path_len);
 /**
-* Returns the absolute path to a file system object.
-*
-* @brief Note: the absolute path is allocated on the heap and should be freed
-* with `Nst_free` when appropriate.
-*
-* @param file_path: the relative path to the object
-* @param buf: the buf where the absolute path is placed
-* @param file_part: where the start of the file name inside the file path is
-* put, this may be `NULL` in which case it is ignored
-*
-* @return The length in bytes of the absolute path or 0 on failure. The error
-* is set.
-*/
-NstEXP usize NstC Nst_get_full_path(const char *file_path, char **buf,
-                                    char **file_part);
+ * Get the absolute path to a file system object.
+ *
+ * @brief Note: the absolute path is allocated on the heap and should be freed
+ * with `Nst_free`.
+ *
+ * @param file_path: the relative path to the object
+ * @param out_buf: the buf where the absolute path is placed
+ * @param out_file_part: where the start of the file name inside the file path
+ * is put, this may be `NULL` in which case it is ignored
+ *
+ * @return The length in bytes of the absolute path or `0` on failure. The
+ * error is set.
+ */
+NstEXP usize NstC Nst_abs_path(const char *file_path, char **out_buf,
+                               char **out_file_part);
 
 #ifdef __cplusplus
 }

@@ -20,13 +20,13 @@ extern "C" {
 #endif // !__cplusplus
 
 /**
- * Creates a new map object.
+ * Create a new map object.
  *
  * @return The new object or `NULL` on failure. The error is set.
  */
 NstEXP Nst_ObjRef *NstC Nst_map_new(void);
 /**
- * Creates a shallow copy of a map object.
+ * Create a shallow copy of a map object.
  *
  * @param map: the map to copy
  *
@@ -36,16 +36,16 @@ NstEXP Nst_ObjRef *NstC Nst_map_copy(Nst_Obj *map);
 
 void _Nst_map_destroy(Nst_Obj *map);
 
-/* The traverse function for the map object. */
+/* `Nst_ObjTrav` function for `Map` objects. */
 NstEXP void NstC _Nst_map_traverse(Nst_Obj *map);
 
-/* Get the number of key-value pairs in a map. */
+/* @return The number of key-value pairs in a map. */
 NstEXP usize NstC Nst_map_len(Nst_Obj *map);
-/* Get the current capacity of a map. */
+/* @return The current capacity of a map. */
 NstEXP usize NstC Nst_map_cap(Nst_Obj *map);
 
 /**
- * Inserts or modifies a value in the map. Adds a reference to both the key and
+ * Insert or modify a value in the map. Adds a reference to both the key and
  * the value.
  *
  * @param map: the map to update
@@ -56,7 +56,7 @@ NstEXP usize NstC Nst_map_cap(Nst_Obj *map);
  */
 NstEXP bool NstC Nst_map_set(Nst_Obj *map, Nst_Obj *key, Nst_Obj *value);
 /**
- * Gets the value associated with a key.
+ * Get the value associated with a key.
  *
  * @param map: the map to get the value from
  * @param key: the key to get
@@ -66,7 +66,7 @@ NstEXP bool NstC Nst_map_set(Nst_Obj *map, Nst_Obj *key, Nst_Obj *value);
  */
 NstEXP Nst_ObjRef *NstC Nst_map_get(Nst_Obj *map, Nst_Obj *key);
 /**
- * Drops a key from a map and returns its value.
+ * Drop a key from a map and returns its value.
  *
  * @param map: the map to drop the key from
  * @param key: the key to drop
@@ -77,7 +77,7 @@ NstEXP Nst_ObjRef *NstC Nst_map_get(Nst_Obj *map, Nst_Obj *key);
 NstEXP Nst_ObjRef *NstC Nst_map_drop(Nst_Obj *map, Nst_Obj *key);
 
 /**
- * Inserts or modifies a value in the map.
+ * Insert or modifies a value in the map using a C string as the key.
  *
  * @param map: the map to update
  * @param key: the key to insert or modify as a C string
@@ -87,7 +87,7 @@ NstEXP Nst_ObjRef *NstC Nst_map_drop(Nst_Obj *map, Nst_Obj *key);
  */
 NstEXP bool NstC Nst_map_set_str(Nst_Obj *map, const char *key, Nst_Obj *value);
 /**
- * Gets the value associated with a key.
+ * Get the value associated with a key using a C string as the key.
  *
  * @param map: the map to get the value from
  * @param key: the key to get as a C string
@@ -97,7 +97,7 @@ NstEXP bool NstC Nst_map_set_str(Nst_Obj *map, const char *key, Nst_Obj *value);
  */
 NstEXP Nst_ObjRef *NstC Nst_map_get_str(Nst_Obj *map, const char *key);
 /**
- * Drops a key from a map and returns its value.
+ * Drops a key from a map and returns its value using a C string as the key.
  *
  * @param map: the map to drop the key from
  * @param key: the key to drop as a C string

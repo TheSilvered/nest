@@ -19,7 +19,7 @@
 #define _Nst_P_LEN_MAX 256
 #endif
 
-/* Casts `obj` to `Nst_Obj *`. */
+/* Cast `obj` to `Nst_Obj *`. */
 #define NstOBJ(obj) ((Nst_Obj *)(obj))
 
 /**
@@ -33,11 +33,11 @@
 #define Nst_SET_FLAG(obj, flag) ((obj)->flags |= (flag))
 /* Sets `flag` of `obj` to `false`. */
 #define Nst_DEL_FLAG(obj, flag) ((obj)->flags &= ~(flag))
-/* Checks if `flag` is set. */
+/* Check if `flag` is set. */
 #define Nst_HAS_FLAG(obj, flag) ((obj)->flags & (flag))
-/* Creates a flag from an id. `n` can be between 1 and 28 included.  */
+/* Create a flag from an id. `n` can be between 1 and 28 included.  */
 #define Nst_FLAG(n) (1 << ((n) - 1))
-/* Clears all flags from an object, except for the reserved ones. */
+/* Clear all flags from an object, except for the reserved ones. */
 #define Nst_CLEAR_FLAGS(obj) ((obj)->flags &= 0xff000000)
 
 /**
@@ -112,7 +112,7 @@ extern "C" {
 NstEXP Nst_ObjRef *NstC _Nst_obj_alloc(usize size, Nst_Obj *type);
 
 /**
- * @brief Traverse an object for the GGC. If the object's type does not have a
+ * Traverse an object for the GGC. If the object's type does not have a
  * traverse function, this function does nothing.
  */
 NstEXP void NstC Nst_obj_traverse(Nst_Obj *obj);
@@ -120,13 +120,13 @@ NstEXP void NstC Nst_obj_traverse(Nst_Obj *obj);
 void _Nst_obj_destroy(Nst_Obj *obj);
 void _Nst_obj_free(Nst_Obj *obj);
 
-/* Increases the reference count of an object. Returns `obj`. */
+/* Increase the reference count of an object. Returns `obj`. */
 NstEXP Nst_ObjRef *NstC Nst_inc_ref(Nst_Obj *obj);
-/* Calls `Nst_inc_ref` if `obj` is not a `NULL` pointer. Returns `obj`. */
+/* Call `Nst_inc_ref` if `obj` is not a `NULL` pointer. Returns `obj`. */
 NstEXP Nst_ObjRef *NstC Nst_ninc_ref(Nst_Obj *obj);
-/* Decreases the reference count of an object. */
+/* Decrease the reference count of an object. */
 NstEXP void NstC Nst_dec_ref(Nst_ObjRef *obj);
-/* Calls `Nst_dec_ref` if `obj` is not a `NULL` pointer. Returns `obj`. */
+/* Call `Nst_dec_ref` if `obj` is not a `NULL` pointer. */
 NstEXP void NstC Nst_ndec_ref(Nst_ObjRef *obj);
 
 /* Flags of a Nest object. */

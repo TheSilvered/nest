@@ -8,22 +8,6 @@ TheSilvered
 
 ---
 
-## Macros
-
-### `Nst_TOK`
-
-**Synopsis:**
-
-```better-c
-#define Nst_TOK(expr)
-```
-
-**Description:**
-
-Casts expr to [`Nst_Tok *`](c_api-tokens.md#nst_tok).
-
----
-
 ## Structs
 
 ### `Nst_Tok`
@@ -34,7 +18,7 @@ Casts expr to [`Nst_Tok *`](c_api-tokens.md#nst_tok).
 typedef struct _Nst_Tok {
     Nst_Span span;
     Nst_TokType type;
-    Nst_Obj *value;
+    Nst_ObjRef *value;
 } Nst_Tok
 ```
 
@@ -63,7 +47,7 @@ Nst_Tok Nst_tok_new(Nst_Span span, i32 type, Nst_Obj *val)
 
 **Description:**
 
-Creates a new token.
+Create a new token.
 
 **Parameters:**
 
@@ -87,8 +71,22 @@ Nst_Tok Nst_tok_invalid(void)
 
 **Description:**
 
-Creates a new token with the type set to
+Create a new token with the type set to
 [`Nst_TT_INVALID`](c_api-tokens.md#nst_toktype).
+
+---
+
+### `Nst_tok_destroy`
+
+**Synopsis:**
+
+```better-c
+void Nst_tok_destroy(Nst_Tok *token)
+```
+
+**Description:**
+
+Destroy the contents of a [`Nst_Tok`](c_api-tokens.md#nst_tok).
 
 ---
 
@@ -102,7 +100,7 @@ Nst_TokType Nst_tok_type_from_str(u8 *str)
 
 **Description:**
 
-Gets the token type from a string of punctuation characters.
+Get the token type from a string of punctuation characters.
 
 str is expected to be at least one character long.
 
@@ -127,7 +125,7 @@ void Nst_print_tok(Nst_Tok *token)
 
 **Description:**
 
-Prints a token to the Nest standard output.
+Print a token to the Nest standard output.
 
 ---
 
@@ -141,7 +139,7 @@ const char *Nst_tok_type_to_str(Nst_TokType type)
 
 **Description:**
 
-Returns the type of the token as a string.
+Convert a [`Nst_TokType`](c_api-tokens.md#nst_toktype) to a string.
 
 ---
 

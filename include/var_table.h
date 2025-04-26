@@ -41,10 +41,13 @@ NstEXP typedef struct _Nst_VarTable {
  */
 NstEXP bool NstC Nst_vt_init(Nst_VarTable *vt, Nst_Obj *global_table,
                              Nst_Obj *args, bool no_default);
-/* `Nst_VarTable` destructor. */
+/**
+ * Destroy the contents of an `Nst_VarTable`. If `_vars_` still points to the
+ * `vars` field of the table it is dropped.
+ */
 NstEXP void NstC Nst_vt_destroy(Nst_VarTable *vt);
 /**
- * Retrieves a value from a variable table.
+ * Get a value from a variable table.
  *
  * @param vt: the variable table to get the value from
  * @param name: the name of the value to get
@@ -54,7 +57,7 @@ NstEXP void NstC Nst_vt_destroy(Nst_VarTable *vt);
  */
 NstEXP Nst_ObjRef *NstC Nst_vt_get(Nst_VarTable vt, Nst_Obj *name);
 /**
- * Sets a value in a variable table.
+ * Set a value in a variable table.
  *
  * @param vt: the variable table to set the value into
  * @param name: the name of the value to set
