@@ -36,8 +36,6 @@ NstEXP typedef struct _Nst_ValueStack {
  * A structure representing a function call.
  *
  * @param func: the function being called
- * @param cwd: the current working directory, changed when the call is back on
- * top of the stack; nothing is done if it is `NULL`
  * @param span: the position of the call
  * @param vt: the variable table of the call
  * @param idx: the instruction index of the call
@@ -45,7 +43,6 @@ NstEXP typedef struct _Nst_ValueStack {
  */
 NstEXP typedef struct _Nst_FuncCall {
     Nst_ObjRef *func;
-    Nst_ObjRef *cwd;
     Nst_Span span;
     Nst_VarTable vt;
     i64 idx;

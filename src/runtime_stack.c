@@ -167,7 +167,6 @@ Nst_FuncCall Nst_fstack_pop(Nst_CallStack *f_stack)
 {
     Nst_FuncCall call = {
         .func = NULL,
-        .cwd = NULL,
         .span = Nst_span_empty(),
         .vt.vars = NULL,
         .vt.global_table = NULL,
@@ -191,7 +190,6 @@ Nst_FuncCall Nst_fstack_peek(Nst_CallStack *f_stack)
     if (f_stack->len == 0) {
         Nst_FuncCall ret_val = {
             .func = NULL,
-            .cwd = NULL,
             .span = Nst_span_empty(),
             .vt.vars = NULL,
             .vt.global_table = NULL,
@@ -211,7 +209,6 @@ void Nst_fstack_destroy(Nst_CallStack *f_stack)
 
     for (usize i = 0, n = f_stack->len; i < n; i++) {
         Nst_ndec_ref(f_stack->stack[i].func);
-        Nst_ndec_ref(f_stack->stack[i].cwd);
         Nst_vt_destroy(&f_stack->stack[i].vt);
     }
 

@@ -11,6 +11,7 @@
 
 #else
 
+#include <linux/limits.h>
 #include <unistd.h>
 
 #endif // !Nst_MSVC
@@ -34,7 +35,6 @@ static inline bool unwind_error(usize initial_stack_size);
 
 static bool push_func(Nst_Obj *func, Nst_Span span, usize arg_num,
                       Nst_Obj **args, Nst_VarTable *vt);
-static Nst_Obj *make_cwd(const char *file_path);
 static Nst_Bytecode *compile_file(Nst_CLArgs *args);
 static bool push_module(const char *filename);
 
@@ -431,7 +431,6 @@ static bool push_func(Nst_Obj *func, Nst_Span span, usize arg_num,
     if (i_state.func != NULL) {
         Nst_FuncCall call = {
             .func = i_state.func,
-            .cwd = Nst_getcwd(),
             .span = span,
             .vt = i_state.vt,
             .idx = i_state.idx,
@@ -440,7 +439,6 @@ static bool push_func(Nst_Obj *func, Nst_Span span, usize arg_num,
 
         if (!Nst_fstack_push(&i_state.f_stack, call)) {
             Nst_vt_destroy(&new_vt);
-            Nst_dec_ref(call.cwd);
             pop_and_destroy();
             return false;
         }
@@ -454,27 +452,6 @@ static bool push_func(Nst_Obj *func, Nst_Span span, usize arg_num,
     bc = NULL;
 
     return true;
-}
-
-static Nst_Obj *make_cwd(const char *file_path)
-{
-    char *path = NULL;
-    char *file_part = NULL;
-
-    Nst_abs_path(file_path, &path, &file_part);
-    if (path == NULL) {
-        Nst_error_clear();
-        return NULL;
-    }
-
-    *(file_part - 1) = 0;
-    Nst_Obj *str = Nst_str_new((u8 *)path, file_part - path - 1, true);
-    if (str == NULL) {
-        Nst_error_clear();
-        Nst_free(path);
-        return NULL;
-    }
-    return str;
 }
 
 static Nst_Bytecode *compile_file(Nst_CLArgs *args)
@@ -516,7 +493,6 @@ static Nst_Bytecode *compile_file(Nst_CLArgs *args)
 static bool push_module(const char *filename)
 {
     Nst_Obj *mod_func = NULL;
-    Nst_Obj *path_str = NULL;
 
     Nst_CLArgs args;
     Nst_cl_args_init(&args, 0, NULL);
@@ -548,14 +524,17 @@ static bool push_module(const char *filename)
         return false;
     }
 
-    path_str = make_cwd(filename);
-    if (path_str == NULL) {
-        Nst_dec_ref(mod_func);
-        return false;
+    char *path = NULL;
+    char *file_part = NULL;
+    Nst_abs_path(filename, &path, &file_part);
+    if (path == NULL) {
+        Nst_error_clear();
+        return NULL;
     }
+    *(file_part - 1) = 0;
+    i32 chdir_result = chdir(path);
+    Nst_free(path);
 
-    i32 chdir_result = Nst_chdir(path_str);
-    Nst_dec_ref(path_str);
     if (chdir_result != 0) {
         Nst_dec_ref(mod_func);
         return false;
@@ -653,11 +632,6 @@ static inline void destroy_call(Nst_FuncCall *call)
 
     bc = Nst_func_nest_body(i_state.func);
     op_objs = bc->objects;
-
-    if (call->cwd != NULL) {
-        Nst_chdir(call->cwd);
-        Nst_dec_ref(call->cwd);
-    }
 }
 
 static inline bool unwind_error(usize initial_stack_size)
@@ -754,10 +728,24 @@ static inline bool push_val(Nst_Obj *obj)
 
 Nst_Obj *Nst_run_module(const char *filename)
 {
+    char buf[PATH_MAX];
+    const char *prev_cwd = getcwd(buf, PATH_MAX);
+    if (prev_cwd == NULL) {
+        Nst_error_setc_call("failed to get the current working directory");
+        return NULL;
+    }
+
     if (!push_module(filename))
         return false;
 
-    return complete_function() ? pop_val() : NULL;
+    bool result = complete_function();
+
+    if (chdir(prev_cwd) != 0) {
+        Nst_error_setc_call("failed to change the current working directory");
+        return NULL;
+    }
+
+    return result ? pop_val() : NULL;
 }
 
 Nst_Obj *Nst_func_call(Nst_Obj *func, usize arg_num, Nst_Obj **args)

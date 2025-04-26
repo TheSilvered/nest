@@ -41,7 +41,6 @@ A structure representing the value stack.
 ```better-c
 typedef struct _Nst_FuncCall {
     Nst_ObjRef *func;
-    Nst_ObjRef *cwd;
     Nst_Span span;
     Nst_VarTable vt;
     i64 idx;
@@ -56,8 +55,6 @@ A structure representing a function call.
 **Fields:**
 
 - `func`: the function being called
-- `cwd`: the current working directory, changed when the call is back on top of
-  the stack; nothing is done if it is `NULL`
 - `span`: the position of the call
 - `vt`: the variable table of the call
 - `idx`: the instruction index of the call
