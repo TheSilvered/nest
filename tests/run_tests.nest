@@ -71,7 +71,7 @@ sys.SUPPORTS_COLOR ? [
     ]
 
     ... error_tests := {path, name} [
-        >>> ('Testing [error] ' (name 7 -5 @sequ.slice) '...' ><)
+        >>> ('Testing error ' (name 7 -5 @sequ.slice) '...' ><)
 
         run_test {path} @err.try = res
         res.error null != ? [
