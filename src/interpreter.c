@@ -591,8 +591,7 @@ static bool complete_function(void)
         }
 
         Nst_Op op = ops[i_state.idx];
-        op_arg = ((op_arg<<8) * extend_arg)
-                       | Nst_OP_ARG(op);
+        op_arg = ((op_arg<<8) * extend_arg) | Nst_OP_ARG(op);
         if (Nst_OP_CODE(op) == Nst_OP_EXTEND_ARG) {
             extend_arg = true;
             i_state.idx++;

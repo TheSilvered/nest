@@ -476,3 +476,4 @@ build/linux/_update_tests.sh
 \[ignore\]*
 \[ignore\]*/
 *.old
+perf.data

@@ -15,6 +15,7 @@ typedef HMODULE lib_t;
 
 #else
 
+#include <linux/limits.h>
 #include <dlfcn.h>
 typedef void * lib_t;
 #define dlopen(lib) dlopen(lib, RTLD_LAZY)
@@ -1062,12 +1063,12 @@ static Nst_Obj *search_stdlib_directory(const char *initial_path,
 #else
 #ifdef Nst_MSVC
 
-    u8 *appdata = getenv("LOCALAPPDATA");
+    u8 *appdata = (u8 *)getenv("LOCALAPPDATA");
     if (appdata == NULL) {
         Nst_error_failed_alloc();
         return NULL;
     }
-    usize appdata_len = strlen(appdata);
+    usize appdata_len = strlen((const char *)appdata);
     const char *nest_files = "\\Programs\\nest\\nest_libs\\";
     usize nest_files_len = strlen(nest_files);
     usize tot_len = appdata_len + nest_files_len + path_len;
@@ -1075,7 +1076,7 @@ static Nst_Obj *search_stdlib_directory(const char *initial_path,
     u8 *file_path = Nst_malloc_c(tot_len + 1, u8);
     if (file_path == NULL)
         return NULL;
-    sprintf(file_path, "%s%s%s", appdata, nest_files, initial_path);
+    sprintf((char *)file_path, "%s%s%s", appdata, nest_files, initial_path);
 
 #else
 

@@ -33,7 +33,9 @@
         "var_table.h": "c",
         "chrono": "c",
         "xiosbase": "c",
-        "cmath": "c"
+        "cmath": "c",
+        "limits.h": "c",
+        "dlfcn.h": "c"
     },
     "makefile.makeDirectory": "build/linux/makefiles",
     "makefile.dryrunSwitches": [
