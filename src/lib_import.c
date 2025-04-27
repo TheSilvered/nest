@@ -1007,92 +1007,74 @@ static Nst_Obj *search_local_directory(const char *initial_path)
     return Nst_str_new_allocated((u8 *)file_path, new_len);
 }
 
-static Nst_Obj *rel_path_to_abs_path_str_if_found(u8 *file_path)
+static Nst_Obj *rel_path_to_abs_path_str_if_found(char *file_path)
 {
-    FILE *file = Nst_fopen_unicode((const char *)file_path, "rb");
+    FILE *file = Nst_fopen_unicode(file_path, "rb");
     if (file == NULL) {
         Nst_free(file_path);
         return NULL;
     }
     fclose(file);
 
-    u8 *abs_path;
-    usize abs_path_len = Nst_abs_path(
-        (const char *)file_path,
-        (char **)&abs_path,
-        NULL);
+    char *abs_path;
+    usize abs_path_len = Nst_abs_path(file_path, &abs_path, NULL);
     Nst_free(file_path);
 
     if (abs_path == NULL)
         return NULL;
-    return Nst_str_new_allocated(abs_path, abs_path_len);
+    return Nst_str_new_allocated((u8 *)abs_path, abs_path_len);
 }
-
-#if defined(_DEBUG) && defined(Nst_MSVC)
-
-static Nst_Obj *search_debug_directory(const char *initial_path,
-                                       usize path_len)
-{
-    // little hack to get the absolute path without using it explicitly
-    const char *root_path = __FILE__;
-    const char *obj_ops_path_suffix = "src\\lib_import.c";
-    const char *nest_files = "libs\\_nest_files\\";
-    usize root_len = strlen(root_path) - strlen(obj_ops_path_suffix);
-    usize nest_files_len = strlen(nest_files);
-    usize full_size = root_len + nest_files_len + path_len;
-
-    u8 *file_path = Nst_malloc_c(full_size + 1, u8);
-    if (file_path == NULL)
-        return NULL;
-
-    memcpy(file_path, root_path, root_len);
-    memcpy(file_path + root_len, nest_files, nest_files_len);
-    memcpy(file_path + root_len + nest_files_len, initial_path, path_len);
-    file_path[full_size] = '\0';
-
-    return rel_path_to_abs_path_str_if_found(file_path);
-}
-
-#endif
 
 static Nst_Obj *search_stdlib_directory(const char *initial_path,
                                         usize path_len)
 {
-#if defined(_DEBUG) && defined(Nst_MSVC)
-    return search_debug_directory(initial_path, path_len);
-#else
+    char *file_path = NULL;
+    char *stdlib_dir = getenv("NEST_LIBDIR");
+    if (stdlib_dir != NULL) {
+        usize stdlib_dir_len = strlen(stdlib_dir);
+        usize tot_len = stdlib_dir_len + path_len;
+        if (stdlib_dir_len > 0 && stdlib_dir[stdlib_dir_len - 1] != '/'
+            && stdlib_dir[stdlib_dir_len - 1] != '\\')
+        {
+            file_path = Nst_malloc_c(tot_len + 2, char);
+            if (file_path == NULL)
+                return NULL;
+            sprintf(file_path, "%s/%s", stdlib_dir, initial_path);
+        } else {
+            file_path = Nst_malloc_c(tot_len + 1, char);
+            if (file_path == NULL)
+                return NULL;
+            sprintf(file_path, "%s%s", stdlib_dir, initial_path);
+        }
+    } else {
 #ifdef Nst_MSVC
+        char *appdata = getenv("LOCALAPPDATA");
+        if (appdata == NULL) {
+            Nst_error_failed_alloc();
+            return NULL;
+        }
+        usize appdata_len = strlen(appdata);
+        const char *nest_files = "\\Programs\\nest\\nest_libs\\";
+        usize nest_files_len = strlen(nest_files);
+        usize tot_len = appdata_len + nest_files_len + path_len;
 
-    u8 *appdata = (u8 *)getenv("LOCALAPPDATA");
-    if (appdata == NULL) {
-        Nst_error_failed_alloc();
-        return NULL;
-    }
-    usize appdata_len = strlen((const char *)appdata);
-    const char *nest_files = "\\Programs\\nest\\nest_libs\\";
-    usize nest_files_len = strlen(nest_files);
-    usize tot_len = appdata_len + nest_files_len + path_len;
-
-    u8 *file_path = Nst_malloc_c(tot_len + 1, u8);
-    if (file_path == NULL)
-        return NULL;
-    sprintf((char *)file_path, "%s%s%s", appdata, nest_files, initial_path);
-
+        file_path = Nst_malloc_c(tot_len + 1, char);
+        if (file_path == NULL)
+            return NULL;
+        sprintf(file_path, "%s%s%s", appdata, nest_files, initial_path);
 #else
+        const char *nest_files = "/usr/lib/nest/";
+        usize nest_files_len = strlen(nest_files);
+        usize tot_len = nest_files_len + path_len;
 
-    const char *nest_files = "/usr/lib/nest/";
-    usize nest_files_len = strlen(nest_files);
-    usize tot_len = nest_files_len + path_len;
-
-    u8 *file_path = Nst_malloc_c(tot_len + 1, u8);
-    if (file_path == NULL)
-        return NULL;
-    sprintf((char *)file_path, "%s%s", nest_files, initial_path);
-
+        file_path = Nst_malloc_c(tot_len + 1, char);
+        if (file_path == NULL)
+            return NULL;
+        sprintf(file_path, "%s%s", nest_files, initial_path);
 #endif // !Nst_MSVC
+    }
 
     return rel_path_to_abs_path_str_if_found(file_path);
-#endif
 }
 
 Nst_Obj *Nst_import_full_lib_path(const char *initial_path, usize path_len)

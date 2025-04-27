@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -D_FILE_OFFSET_BITS=64 -I../../../include -Wall -Wextra -Wshadow     \
-         -shared -fPIC -rdynamic
+CFLAGS = -D_FILE_OFFSET_BITS=64 -I$(abspath ../../../include) -Wall -Wextra    \
+		 -Wshadow -shared -fPIC -rdynamic
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = libnest.so
 
@@ -8,11 +8,11 @@ ifneq ($(CC),clang)
     CFLAGS += -Wlogical-op -Wduplicated-cond -Wduplicated-branches
 endif
 
-INCLUDE_DIR = ../../../include
-SRC_DIR = ../../../src
-x64_DIR = ../linux_release/x64
-x86_DIR = ../linux_release/x86
-DBG_DIR = ../linux_debug
+INCLUDE_DIR = $(abspath ../../../include)
+SRC_DIR = $(abspath ../../../src)
+x64_DIR = $(abspath ../linux_release/x64)
+x86_DIR = $(abspath ../linux_release/x86)
+DBG_DIR = $(abspath ../linux_debug)
 
 CLINKS = -lm -ldl
 

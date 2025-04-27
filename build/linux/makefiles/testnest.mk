@@ -2,7 +2,7 @@ SILENT_MAKE = $(MAKE) --no-print-directory
 MAKE_FILE = $(SILENT_MAKE) -f
 
 CC = gcc
-CFLAGS = -I../../../include -Wall -Wextra -Wnull-dereference -Wshadow
+CFLAGS = -I$(abspath ../../../include) -Wall -Wextra -Wnull-dereference -Wshadow
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = test_nest
 
@@ -10,11 +10,11 @@ ifneq ($(CC),clang)
     CFLAGS += -Wlogical-op -Wduplicated-cond -Wduplicated-branches
 endif
 
-SRC_DIR = ../../../tests/test_nest
-EXE_DIR = ../linux_release
+SRC_DIR = $(abspath ../../../tests/test_nest)
+EXE_DIR = $(abspath ../linux_release)
 x64_DIR:= $(EXE_DIR)/x64
 x86_DIR:= $(EXE_DIR)/x86
-DBG_DIR = ../linux_debug
+DBG_DIR = $(abspath ../linux_debug)
 
 CLINKS = -lnest
 CLINK_DIR_DBG := -L$(DBG_DIR)

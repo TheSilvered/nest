@@ -1,8 +1,9 @@
 MAKE_FILE = $(MAKE) --no-print-directory -f
 
 CC = gcc
-CFLAGS = $(LIB_FLAGS) -D_FILE_OFFSET_BITS=64 -I../../../include -Wall -Wextra \
-         -Wnull-dereference -Wshadow -shared -fPIC -rdynamic -std=c++2a
+CFLAGS = $(LIB_FLAGS) -D_FILE_OFFSET_BITS=64 -I$(abspath ../../../include)     \
+		 -Wall -Wextra -Wnull-dereference -Wshadow -shared -fPIC -rdynamic     \
+		 -std=c++2a
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = std$(LIB_NAME).cnest
 
@@ -10,9 +11,9 @@ ifneq ($(CC),clang)
     CFLAGS += -Wlogical-op -Wduplicated-cond -Wduplicated-branches
 endif
 
-x64_DIR = ../linux_release/x64
-x86_DIR = ../linux_release/x86
-DBG_DIR = ../linux_debug
+x64_DIR = $(abspath ../linux_release/x64)
+x86_DIR = $(abspath ../linux_release/x86)
+DBG_DIR = $(abspath ../linux_debug)
 
 CLINKS = -lm -ldl -lnest -lstdc++ $(LIB_LINKS)
 CLINK_DIR_DBG := -L$(DBG_DIR)
@@ -22,8 +23,8 @@ CLINKS_DBG := $(CLINK_DIR_DBG) $(CLINKS)
 CLINKS_x86 := $(CLINK_DIR_x86) $(CLINKS)
 CLINKS_x64 := $(CLINK_DIR_x64) $(CLINKS)
 
-SRCS := $(wildcard ../../../libs/nest_$(LIB_NAME)/*.cpp)
-HEADERS := $(wildcard ../../../libs/nest_$(LIB_NAME)/*.h)
+SRCS := $(abspath $(wildcard ../../../libs/nest_$(LIB_NAME)/*.cpp))
+HEADERS := $(abspath $(wildcard ../../../libs/nest_$(LIB_NAME)/*.h))
 DBG_TARGET := $(DBG_DIR)/$(TARGET_NAME)
 x64_TARGET := $(x64_DIR)/$(TARGET_NAME)
 x86_TARGET := $(x86_DIR)/$(TARGET_NAME)

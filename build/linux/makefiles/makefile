@@ -2,8 +2,8 @@ SILENT_MAKE = $(MAKE) --no-print-directory
 MAKE_FILE = $(SILENT_MAKE) -f
 
 CC = gcc
-CFLAGS = -D_FILE_OFFSET_BITS=64 -I../../../include -Wall -Wextra -Wshadow     \
-         -Wnull-dereference
+CFLAGS = -D_FILE_OFFSET_BITS=64 -I$(abspath ../../../include) -Wall -Wextra    \
+		 -Wshadow -Wnull-dereference
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = nest
 
@@ -11,11 +11,11 @@ ifneq ($(CC),clang)
     CFLAGS += -Wlogical-op -Wduplicated-cond -Wduplicated-branches
 endif
 
-SRC_DIR = ../../../src
-EXE_DIR = ../linux_release
+SRC_DIR = $(abspath ../../../src)
+EXE_DIR = $(abspath ../linux_release)
 x64_DIR:= $(EXE_DIR)/x64
 x86_DIR:= $(EXE_DIR)/x86
-DBG_DIR = ../linux_debug
+DBG_DIR = $(abspath ../linux_debug)
 
 CLINKS = -lm -ldl -lnest
 CLINK_DIR_DBG := -L$(DBG_DIR)
@@ -33,8 +33,12 @@ NEST_LIB_DBG := $(DBG_DIR)/libnest.so
 NEST_LIB_x64 := $(x64_DIR)/libnest.so
 NEST_LIB_x86 := $(x86_DIR)/libnest.so
 
+RUN_FILE = _test.nest
+RUN_DIR = ../../../tests
+
 .PHONY: debug x86 all all-debug all-x86 help
 .PHONY: __no_libnest_x64 __no_libnest_x86 __no_libnest_dbg
+.PHONY: test test-x86 test-debug
 .PHONY: test-c test-c-x86 test-c-debug
 .PHONY: clean clear
 .PHONY: run
@@ -66,6 +70,48 @@ $(DBG_TARGET): $(SRCS) $(NEST_LIB_DBG)
 	@mkdir -p $(DBG_DIR)
 	@echo "Compiling $(TARGET_NAME) in debug mode..."
 	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS_DBG) $(DBG_FLAGS) -o $(DBG_TARGET)
+
+run:
+	@$(SILENT_MAKE) all
+	@if [ ! -d ../linux_libs ]; then mkdir ../linux_libs; fi
+	@rm ../linux_libs/*
+	@cd .. && ./_update_files.sh py
+	@cp $(x64_DIR)/std*.cnest ../linux_libs
+	@export NEST_LIBDIR=$(abspath ../linux_libs) \
+	&& export LD_LIBRARY_PATH=$(x64_DIR):$LD_LIBRARY_PATH \
+	&& cd $(RUN_DIR) \
+	&& $(x64_DIR)/nest $(RUN_FILE)
+
+run-x86:
+	@$(SILENT_MAKE) all
+	@if [ ! -d ../linux_libs ]; then mkdir ../linux_libs; fi
+	@rm ../linux_libs/*
+	@cd .. && ./_update_files.sh py
+	@cp $(x86_DIR)/std*.cnest ../linux_libs
+	@export NEST_LIBDIR=$(abspath ../linux_libs) \
+	&& export LD_LIBRARY_PATH=$(x86_DIR):$LD_LIBRARY_PATH \
+	&& cd $(RUN_DIR) \
+	&& $(x86_DIR)/nest $(RUN_FILE)
+
+run-debug:
+	@$(SILENT_MAKE) all-debug
+	@if [ ! -d ../linux_libs ]; then mkdir ../linux_libs; fi
+	@rm ../linux_libs/*
+	@cd .. && ./_update_files.sh py
+	@cp $(xDBG_DIR)/std*.cnest ../linux_libs
+	@export NEST_LIBDIR=$(abspath ../linux_libs) \
+	&& export LD_LIBRARY_PATH=$(DBG_DIR):$LD_LIBRARY_PATH \
+	&& cd $(RUN_DIR) \
+	&& $(DBG_DIR)/nest $(RUN_FILE)
+
+test:
+	@$(SILENT_MAKE) run RUN_FILE=run_tests.nest
+
+test-x86:
+	@$(SILENT_MAKE) run-x86 RUN_FILE=run_tests.nest
+
+test-debug:
+	@$(SILENT_MAKE) run-debug RUN_FILE=run_tests.nest
 
 test-c:
 	@$(MAKE_FILE) testnest.mk
@@ -138,11 +184,6 @@ all-debug:
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=sutil
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=sys
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=time
-
-run:
-	@$(SILENT_MAKE) all-debug
-	@cd .. && ./_update_files.sh py && ./_install_debug.sh
-	@cd ../../../tests && nest _test.nest
 
 install:
 	@$(SILENT_MAKE) all
