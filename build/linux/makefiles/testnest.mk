@@ -6,7 +6,7 @@ CFLAGS = -I$(abspath ../../../include) -Wall -Wextra -Wnull-dereference -Wshadow
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = test_nest
 
-ifneq ($(CC),clang)
+ifeq ($(CC),gcc)
     CFLAGS += -Wlogical-op -Wduplicated-cond -Wduplicated-branches
 endif
 
@@ -75,4 +75,4 @@ help:
 	@echo "  make -f testnest.mk __no_libnest_dbg"
 	@echo "                             compile C tests with debug symbols"
 	@echo ""
-	@echo " make -f testnest.mk help    print this message"
+	@echo "  make -f testnest.mk help    print this message"

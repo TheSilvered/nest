@@ -7,7 +7,7 @@ CFLAGS = -D_FILE_OFFSET_BITS=64 -I$(abspath ../../../include) -Wall -Wextra    \
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = nest
 
-ifneq ($(CC),clang)
+ifeq ($(CC),gcc)
     CFLAGS += -Wlogical-op -Wduplicated-cond -Wduplicated-branches
 endif
 
@@ -213,13 +213,26 @@ help:
 	@echo "  make __no_libnest_x86      compile nest for 32 bit platforms"
 	@echo "  make __no_libnest_dbg      compile nest with debug symbols"
 	@echo ""
+	@echo "  make test                  compile everything for 64 bit platforms and run"
+	@echo "                             tests/run_tests.nest"
+	@echo "  make test-x86              compile everything for 32 bit platforms and run"
+	@echo "                             tests/run_tests.nest"
+	@echo "  make test-debug            compile everything in debug mode and run"
+	@echo "                             tests/run_tests.nest"
+	@echo ""
 	@echo "  make test-c                compile C tests for 64 bit platforms and run them"
 	@echo "  make test-c-x86            compile C tests for 32 bit platforms and run them"
 	@echo "  make test-c-debug          compile C tests with debug symbols and run them"
 	@echo ""
-	@echo "  make run                   run 'make all-debug', '_update_files.sh',"
-	@echo "                             '_install_debug.sh' and then run '_test.nest'"
-	@echo "                             from 'nest/tests/'; the file needs to be created"
+	@echo "  make run                   compile everything for 64 bit platforms and run"
+	@echo "                             tests/_test.nest, change the file to run with"
+	@echo "                             RUN_FILE and the directory with RUN_DIR"
+	@echo "  make run-x86               compile everything for 32 bit platforms and run"
+	@echo "                             tests/_test.nest, change the file to run with"
+	@echo "                             RUN_FILE and the directory with RUN_DIR"
+	@echo "  make run-debug             compile everything in debug mode and run"
+	@echo "                             tests/_test.nest, change the file to run with"
+	@echo "                             RUN_FILE and the directory with RUN_DIR"
 	@echo ""
 	@echo "  make install               run 'make all' and 'linux_install_x64.sh'"
 	@echo "  make install-x86           run 'make all-x86' and 'linux_install_x86.sh'"
@@ -229,13 +242,6 @@ help:
 	@echo "  make clean, make clear     remove the output folders"
 	@echo ""
 	@echo "  make help                  print this message"
-	@echo ""
-	@$(MAKE_FILE) libnest.mk help
-	@echo ""
-	@$(MAKE_FILE) stdlib.mk help
-	@echo ""
-	@$(MAKE_FILE) testnest.mk help
-	@echo ""
 	@echo ""
 	@echo "By default this makefile uses gcc. To compile with clang add 'CC=clang' to the"
 	@echo "end of the command (e.g. 'make all CC=clang')."

@@ -7,7 +7,7 @@ CFLAGS = $(LIB_FLAGS) -D_FILE_OFFSET_BITS=64 -I$(abspath ../../../include)     \
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = std$(LIB_NAME).cnest
 
-ifneq ($(CC),clang)
+ifeq ($(CC),gcc)
     CFLAGS += -Wlogical-op -Wduplicated-cond -Wduplicated-branches
 endif
 
