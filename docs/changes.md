@@ -1,15 +1,27 @@
 ## 0.15.1
 
+### Command line
+
+**Additions**
+
+- added `-i` arguments that prints the instructions (old behaviour of `-b`)
+
+**Changes**
+
+- now `-b` actually prints the bytecode and not the instructions
+
 ### Nest
 
 **Additions**
 
 - added a new syntax for raw strings with backticks
+- added `is_ascii`, `is_decimal` and `is_numeric` to `stdsutil.nest`
 
 **Changes**
 
 - now `su.repr` escapes non-printable characters
 - now `su.fmt` escapes non printable characters when using `r` or `R`
+- renamed `iter_get_val` to `iter_next` in `stditutil.nest`
 
 **Bug fixes**
 
@@ -22,7 +34,146 @@
 
 **Additions**
 
-- added `unicode_db.h` which declares the following symbols
+- added `assembler.h` which defines the following symbols
+    - `Nst_Bytecode`
+    - `Nst_Op`
+    - `Nst_OpCode`
+    - `Nst_assemble`
+    - `Nst_bc_copy`
+    - `Nst_bc_destroy`
+    - `Nst_bc_print`
+- added `dyn_array.h` which defines the following symbols
+    - `Nst_DynArray`
+    - `Nst_da_init`
+    - `Nst_da_init_copy`
+    - `Nst_da_reserve`
+    - `Nst_da_append`
+    - `Nst_da_pop`
+    - `Nst_da_pop_p`
+    - `Nst_da_remove_swap`
+    - `Nst_da_remove_swap_p`
+    - `Nst_da_remove_shift`
+    - `Nst_da_remove_shift_p`
+    - `Nst_da_get`
+    - `Nst_da_get_p`
+    - `Nst_da_clear`
+    - `Nst_da_clear_p`
+- added `Nst_Span` to `error.h` and the following functions along with it
+    - `Nst_span_new`
+    - `Nst_span_from_pos`
+    - `Nst_span_empty`
+    - `Nst_span_join`
+    - `Nst_span_expand`
+    - `Nst_span_start`
+    - `Nst_span_end`
+- added `Nst_error_add_span` to `error.h`
+- added `Nst_iof_func_set`, `Nst_iof_fd` and `Nst_iof_fp` to `file.h`
+- added the following functions to `function.h`
+    - `Nst_func_args`
+    - `Nst_func_c_body`
+    - `Nst_func_nest_body`
+    - `Nst_func_mod_globals`
+    - `Nst_func_outer_vars`
+- added `Nst_IC_SEQ_CALL` and `Nst_IC_MAKE_FUNC` in `Nst_InstCode`
+- added `Nst_FuncPrototype` in `instructions.h`
+  - added `Nst_fprototype_init` and `Nst_fprototype_destroy`
+- added new functions to create and manage a `Nst_InstList`:
+    - `Nst_ilist_init`
+    - `Nst_ilist_destroy`
+    - `Nst_ilist_add`
+    - `Nst_ilist_add_ex`
+    - `Nst_ilist_add_obj`
+    - `Nst_ilist_add_func`
+    - `Nst_ilist_get_inst`
+    - `Nst_ilist_get_obj`
+    - `Nst_ilist_get_func`
+    - `Nst_ilist_get_inst_obj`
+    - `Nst_ilist_get_inst_func`
+    - `Nst_ilist_set`
+    - `Nst_ilist_set_ex`
+    - `Nst_ilist_len`
+    - `Nst_ilist_print`
+- added `Nst_InterpreterState` to `interpreter.h`
+- added `Nst_coroutine_yield` to `interpreter.h`
+- added `Nst_state_span` and `Nst_state` to `interpreter.h`
+- added the following functions to manage `Iter` objects:
+    - `Nst_iter_start_func`
+    - `Nst_iter_next_func`
+    - `Nst_iter_value`
+- added `Nst_iter_range_new`, `Nst_iter_seq_new`, `Nst_iter_str_new` and `Nst_iter_map_new` to `iter.h`
+- added `Nst_obj_custom` and `Nst_obj_custom_ex` macros with respective `_Nst_obj_custom` and `_Nst_obj_custom_ex` functions to `lib_import.h`
+- added `Nst_import_lib` to `lib_import.h`
+- added `Nst_map_len` and `Nst_map_cap` to `map.h`
+- added `Nst_map_next` and `Nst_map_prev` to `map.h`
+- added `Nst_node_set_span` to `nodes.h`
+- added `program.h` which defines the following symbols:
+    - `Nst_Program`
+    - `Nst_ExecutionKind`
+    - `Nst_prog_init`
+    - `Nst_prog_destroy`
+- added various new functions to `sequence.h`
+    - `Nst_array_from_objs`
+    - `Nst_array_from_objsn`
+    - `Nst_vector_from_objs`
+    - `Nst_vector_from_objsn`
+    - `Nst_seq_len`
+    - `Nst_vector_cap`
+    - `Nst_seq_objs`
+    - `Nst_seq_setf`
+    - `Nst_seq_setn`
+    - `Nst_seq_setnf`
+    - `Nst_seq_getf`
+    - `Nst_seq_getn`
+    - `Nst_seq_getnf`
+- added various new functions to `simple_types.h`
+    - `Nst_int_i64`
+    - `Nst_real_f64`
+    - `Nst_real_f32`
+    - `Nst_byte_u8`
+- added `source_loader.h` which defines the following symbols:
+    - `Nst_source_load`
+    - `Nst_source_from_sv`
+    - `Nst_source_from_file`
+    - `Nst_source_text_destroy`
+- added various new functions to `str.h`
+    - `Nst_str_get_obj`
+    - `Nst_str_value`
+    - `Nst_str_len`
+    - `Nst_str_char_len`
+- added `str_builder.h` which defines the following symbols:
+    - `Nst_StrBuilder`
+    - `Nst_sb_init`
+    - `Nst_sb_destroy`
+    - `Nst_sb_reserve`
+    - `Nst_sb_push`
+    - `Nst_sb_push_str`
+    - `Nst_sb_push_c`
+    - `Nst_sb_push_cps`
+    - `Nst_sb_push_char`
+    - `Nst_str_from_sb`
+    - `Nst_sv_from_sb`
+- added `str_view.h` which defines the following symbols:
+    - `Nst_StrView`
+    - `Nst_sv_new`
+    - `Nst_sv_new_c`
+    - `Nst_sv_from_str`
+    - `Nst_sv_from_str_slice`
+    - `Nst_sv_next`
+    - `Nst_sv_prev`
+    - `Nst_SvNumFlags`
+    - `Nst_sv_parse_int`
+    - `Nst_sv_parse_byte`
+    - `Nst_sv_parse_real`
+    - `Nst_sv_compare`
+    - `Nst_sv_lfind`
+    - `Nst_sv_rfind`
+    - `Nst_sv_ltok`
+    - `Nst_sv_rtok`
+- added `Nst_tok_new` and `Nst_tok_invalid` to `tokens.h`
+- added `Nst_type_name` and `Nst_type_trav` to `type.h`
+- added `Nst_DBG_ASSERT_CALLBACK` and `Nst_DBG_KEEP_DYN_LIBS` macros for debugging
+- added `Nst_Destructor` type alias
+- added `unicode_db.h` which defines the following symbols:
     - `Nst_UCD_MASK_UPPERCASE`
     - `Nst_UCD_MASK_LOWERCASE`
     - `Nst_UCD_MASK_CASED`
@@ -39,155 +190,160 @@
     - `Nst_unicode_expand_case`
     - `Nst_unicode_is_whitespace`
     - `Nst_unicode_is_titlecase`
-- added `Nst_buffer_append_cps` to append an array of Unicode codepoints
-- added the following symbols to `sequence.h`
-    - `Nst_seq_len`
-    - `Nst_vector_cap`
-    - `_Nst_seq_objs`
-    - `Nst_seq_setn`
-    - `Nst_seq_setf`
-    - `Nst_seq_setnf`
-    - `Nst_seq_getf`
-    - `Nst_seq_getn`
-    - `Nst_seq_getnf`
-    - `Nst_array_from_objs`
-    - `Nst_vector_from_objs`
-    - `Nst_array_from_objsn`
-    - `Nst_vector_from_objsn`
-- added `Nst_log_alloc_info`
-- added the following symbols to `iter.h`
-    - `Nst_iter_start_func`
-    - `Nst_iter_next_func`
-    - `Nst_iter_value`
-- added the following symbols to `file.h`
-    - `Nst_iof_fd`
-    - `Nst_iof_fp`
-    - `Nst_iof_func_set`
-    - `Nst_iof_encoding`
-- added the following symbols to `function.h`
-    - `Nst_FUNC_IS_C`
-    - `Nst_func_arg_num`
-    - `Nst_func_args`
-    - `Nst_func_c_body`
-    - `Nst_func_nest_body`
-    - `Nst_func_mod_globals`
-- added the following symbols to `map.h`
-    - `Nst_map_next`
-    - `Nst_map_prev`
-    - `Nst_map_len`
-    - `Nst_map_cap`
-- added the following symbols to `simple_types.h`
-    - `Nst_byte_u8`
-    - `Nst_real_f32`, `Nst_real_f64`
-- added `str_view.h` header which includes the following symbols
-    - `Nst_StrView`
-    - `Nst_sv_new`, `Nst_sv_new_c`, `Nst_sv_from_str`
-    - `Nst_sv_from_str_slice`
-    - `Nst_str_from_sv`
-    - `Nst_sv_next`
-    - `Nst_sv_compare`
-    - `Nst_sv_lfind`
-    - `Nst_sv_rfind`
-- added `str_builder.h` header which includes the following symbols
-    - `Nst_StrBuilder`
-    - `Nst_sb_init`
-    - `Nst_sb_destroy`
-    - `Nst_sb_reverse`
-    - `Nst_sb_push`
-    - `Nst_sb_push_sv`
-    - `Nst_sb_push_str`
-    - `Nst_sb_push_c`
-    - `Nst_sb_push_cps`
-    - `Nst_sb_push_char`
-    - `Nst_str_from_sb`
-    - `Nst_sv_from_sb`
+- added `Nst_vt_init` to `var_table.h`
 
 **Changes**
 
+- added `print_instructions` field in `Nst_CLArgs`
+- renamed `_Nst_clargs_parse` to `Nst_clargs_parse`
+- now `Nst_compile` returns an `Nst_InstList` instead of an `Nst_InstList *`
+- now `Nst_compile` no longer destroys the AST
 - renamed `Nst_CP_MULTIBYTE_MAX_SIZE` to `Nst_ENCODING_MULTIBYTE_MAX_SIZE`
-- renamed `Nst_CP_BOM_MAX_SIZE` to `Nst_ENCODING_BOM_MAX_SIZE`
-- renamed `Nst_CPID` to `Nst_EncodingID` and all its fields begin with `Nst_EID_*` instead of `Nst_CP_*`
+- renamed `Nst_CPID` to `Nst_EncodingID`
+    - renamed all variants from `Nst_CP_*` to `Nst_EID_*`
 - renamed `Nst_CP` to `Nst_Encoding`
 - renamed `Nst_translate_cp` to `Nst_encoding_translate`
 - renamed `Nst_check_string_cp` to `Nst_encoding_check`
-- renamed `Nst_cp` to `Nst_encoding`
-- renamed `Nst_detect_encoding` to `Nst_encoding_detect`
-- renamed `Nst_single_byte_cp` to `Nst_encoding_to_single_byte`
 - renamed `Nst_string_char_len` to `Nst_encoding_char_len`
 - renamed `Nst_string_utf8_char_len` to `Nst_encoding_utf8_char_len`
-- now `Nst_repr` and `Nst_fmt` with the flags `r` or `R` will escape non-printable characters
-- removed the following symbols from `sequence.h`
-    - `Nst_SeqObj`
-    - `Nst_ArrayObj`
-    - `Nst_VectorObj`
-    - `SEQ`
-    - `ARRAY`
-    - `VECTOR`
-    - `Nst_array_set`
-    - `Nst_array_get`
-    - `Nst_vector_set`
-    - `Nst_vector_get`
-    - `_Nst_seq_copy` (now there is only `Nst_seq_copy`)
-    - `_Nst_seq_set` (now there is only `Nst_seq_set`)
-    - `_Nst_seq_get` (now there is only `Nst_seq_get`)
-    - `_Nst_vector_append` (now there is only `Nst_vector_append`)
-    - `_Nst_vector_remove` (now there is only `Nst_vector_remove`)
-    - `_Nst_vector_pop` (now there is only `Nst_vector_pop`)
-    - `_Nst_vector_resize`
-- now `Nst_log_alloc_count` can be used without `Nst_COUNT_ALLOC` but will do nothing
-- now `Nst_ndec_ref` evaluates `obj` only once
-- removed the following symbols from `iter.h`
-    - `Nst_IterObj`
-    - `ITER`
-    - `_Nst_iter_new` (now there is only `Nst_iter_new`)
-    - `_Nst_iter_start` (now there is only `Nst_iter_start`)
-    - `_Nst_iter_get_val`
-- renamed all `_get_val` functions related to iterators as `_next`
-- removed the following symbols from `file.h`
-    - `Nst_IOFileObj`
-    - `IOFILE`
-- removed the following symbols from `function.h`
-    - `Nst_FuncObj`
-    - `Nst_FuncBody`
-    - `FUNC`
-    - `_Nst_func_set_vt` (now there is only `Nst_func_set_vt`)
-- removed `_Nst_fstack_push`, now there is only `Nst_fstack_push`
-- removed the following symbols from `map.h`
-    - `Nst_MapObj`
-    - `Nst_MapNode`
-    - `MAP`
-    - `Nst_map_get_next_idx`, `_Nst_map_get_next_idx` in favour of `Nst_map_next`
-    - `Nst_map_get_prev_idx`, `_Nst_map_get_prev_idx` in favour of `Nst_map_prev`
-    - `_Nst_map_set` (now there is only `Nst_map_set`)
-    - `_Nst_map_get` (now there is only `Nst_map_get`)
-    - `_Nst_map_drop` (now there is only `Nst_map_drop`)
-    - `_Nst_map_set_str` (now there is only `Nst_map_set_str`)
-    - `_Nst_map_get_str` (now there is only `Nst_map_get_str`)
-    - `_Nst_map_drop_str` (now there is only `Nst_map_drop_str`)
-    - `_Nst_map_resize`
-- removed the following symbols from `simple_types.h`
-    - `AS_BOOL`, `AS_BYTE`, `AS_REAL`
-    - `Nst_BoolObj`, `Nst_ByteObj`, `Nst_RealObj`
-    - `Nst_bool_new`
-    - `_Nst_number_to_f32` (now there is only `Nst_number_to_f32`)
-    - `_Nst_number_to_f64` (now there is only `Nst_number_to_f64`)
-    - `_Nst_number_to_i32` (now there is only `Nst_number_to_i32`)
-    - `_Nst_number_to_i64` (now there is only `Nst_number_to_i64`)
-    - `_Nst_number_to_int` (now there is only `Nst_number_to_int`)
-    - `_Nst_number_to_u8` (now there is only `Nst_number_to_u8`)
-    - `_Nst_obj_to_bool` (now there is only `Nst_obj_to_bool`)
-- removed the following symbols from `obj.h`
-    - `_Nst_dec_ref` (now there is only `Nst_dec_ref`)
-    - `_Nst_inc_ref` (now there is only `Nst_inc_ref`)
-    - `Nst_obj_destroy`, `_Nst_obj_destroy`
-    - `_Nst_obj_free`
-- removed `Nst_Buffer` and all `Nst_buffer_*` functions, use `Nst_StrBuilder` instead
-- removed `Nst_SizedBuffer` and all `Nst_sbuffer_*` functions, use `Nst_DynArray` instead
+- renamed `Nst_cp` to `Nst_encoding`
+- renamed `Nst_is_valid_cp` to `Nst_cp_is_valid`
+- renamed `Nst_is_non_character` to `Nst_cp_is_non_character`
+- renamed `Nst_detect_encoding` to `Nst_encoding_detect`
+- renamed `Nst_single_byte_cp` to `Nst_encoding_to_single_byte`
+- renamed `_Nst_EM_WRONG_ARG_NUM` to `_Nst_WRONG_ARG_NUM`
+- moved `Nst_SourceText` from `error.h` to `source_loader.h`
+- renamed `Nst_set_color` to `Nst_error_set_color`
+- removed `Nst_copy_pos`
+- renamed `Nst_no_pos` to `Nst_pos_empty`
+- renamed `Nst_tb_print` to `Nst_error_print`
+- removed `Nst_set_error`, renamed `_Nst_set_error` to `Nst_error_set`
+- removed `Nst_set_*_error` macros, renamed `_Nst_set_*_error` functions  to `Nst_error_set_*`
+- renamed `Nst_set_*_errorf` macros to `Nst_error_setf_*` and made them functions
+- renamed `Nst_set_*_error_c` funcions to `Nst_error_setc_*`
+- removed all `Nst_set_internal_*` and `Nst_set_internal_*_c` functions
+- renamed `Nst_failed_alloc` to `Nst_error_failed_alloc`
+- removed `Nst_error_add_pos` in favour of `Nst_error_add_span`
+- removed `IOFILE`, `FUNC`, `MAP`, `SEQ`, `ARRAY`, `VECTOR`, `ITER`, `TYPE`, `CONT_TYP`, `AS_INT`, `AS_BOOL`, `AS_BYTE` and `AS_REAL`
+- made `Nst_IOFileObj` private
+- removed `_Nst_iof_destroy`
+- made `Nst_FuncObj` and `Nst_FuncBody` private
+- removed `Nst_func_set_vt` and `_Nst_func_set_vt`
+- removed `Nst_func_new` and `_Nst_func_destroy`
+- removed `GGC_OBJ`
+- made `Nst_GarbageCollector` private
+- removed `Nst_ggc_collect_gen`, `_Nst_ggc_init` and `_Nst_ggc_delete_objs`
+- renamed `_Nst_ggc_obj_reachable` to `Nst_ggc_obj_reachable` and removed macro alias
+- made `Nst_IC_IS_JUMP` a function called `Nst_ic_is_jump`
+- renamed `Nst_IC_FOR_GET_VAL` to `Nst_IC_FOR_NEXT`
+- split `Nst_IC_ROT` into `Nst_IC_ROT_2` and `Nst_IC_ROT_3`
+- renamed `Nst_InstID` to `Nst_InstCode`
+- renamed `id` field in `Nst_Inst` to `code`
+- replaced `start` and `end` fields in `Nst_Inst` with `span`
+- removed `val` and renamed `int_val` to `val` in `Nst_Inst`
+- now `Nst_InstList` contains three `Nst_DynArray` fields called `instructions`, `objects` and `functions`
+- removed `Nst_inst_new`, `_Nst_inst_new_val`, `Nst_inst_new_val` and `Nst_inst_new_int`
+- removed `Nst_IntrState`
+- now `Nst_init` does not take any arguments
+- now `Nst_run` takes an `Nst_Program` instead of an `Nst_FuncObj`
+- now `Nst_run_module` only takes the file name of the module to run and returns an `Nst_Obj`
+- renamed `Nst_run_paused_coroutine` to `Nst_coroutine_resume`
+- removed `Nst_state_set_es`
+- removed `Nst_current_inst`
+- made `Nst_IterObj` private
+- renamed `_Nst_iter_new` to `Nst_iter_new` and remove macro alias
+- removed `_Nst_iter_destroy`
+- renamed `_Nst_iter_start` to `Nst_iter_start` and removed macro alias
+- renamed `_Nst_iter_get_val` to `Nst_iter_next` and removed macro alias
+- renamed `Nst_iter_*_get_val` functions to `Nst_iter_*_nest`
+- removed `Nst_tokenizef`, `Nst_add_lines` and `Nst_normalize_encoding`
+- now `Nst_tokenize` returns an `Nst_DynArray`
+- removed `Nst_RETURN_TRUE`, `Nst_RETURN_FALSE`, `Nst_RETURN_NULL`, `Nst_RETURN_IEND`, `Nst_RETURN_ZERO`, `Nst_RETURN_ONE` and `Nst_IS_NULL` from `lib_import.h`
+- renamed `_Nst_get_import_path` to `Nst_import_full_lib_path` and moved the function to `lib_import.h`
+- renamed `Nst_get_full_path` to `Nst_abs_path` and moved it to `lib_import.h`
+- removed `Nst_llist_new` and `Nst_llist_destroy`
+- made `Nst_MapObj` and `Nst_MapNode` private
+- renamed `_Nst_map_copy` to `Nst_map_copy` and removed macro alias
+- removed `Nst_map_destroy`
+- renamed `_Nst_map_set` to `Nst_map_set` and removed macro alias
+- renamed `_Nst_map_get` to `Nst_map_get` and removed macro alias
+- renamed `_Nst_map_drop` to `Nst_map_drop` and removed macro alias
+- renamed `_Nst_map_set_str` to `Nst_map_set_str` and removed macro alias
+- renamed `_Nst_map_get_str` to `Nst_map_get_str` and removed macro alias
+- renamed `_Nst_map_drop_str` to `Nst_map_drop_str` and removed macro alias
+- removed `_Nst_map_get_next_idx` and `_Nst_map_get_prev_idx`
+- removed `Nst_SBuffer` in favour of `Nst_DynArray`
+    - removed `Nst_sbuffer_*` functions
+- removed `Nst_Buffer` in favour of `Nst_StrBuilder`
+    - removed `Nst_buffer_*` functions
+- removed `Nst_node_set_pos` in favour of `Nst_node_set_span`
+- renamed `OBJ` to `NstOBJ`
+- renamed `_Nst_inc_ref` to `Nst_inc_ref` and removed macro alias
+- renamed `_Nst_ninc_ref` to `Nst_ninc_ref` and removed macro alias
+- renamed `_Nst_dec_ref` to `Nst_dec_ref` and removed macro alias
+- renamed `_Nst_ndec_ref` to `Nst_ndec_ref` and removed macro alias
+- renamed `_Nst_ndec_ref` to `Nst_ndec_ref` and removed macro alias
+- removed `Nst_NullObj`
+- removed `_Nst_obj_free` and `_Nst_obj_destroy`
+-
+- renamed `_Nst_obj_*` operations in `obj_ops.h` to `Nst_obj_*` and removed macro aliases
+- renamed `_Nst_repr_str_cast` to `Nst_obj_to_repr_str`
+- removed `_Nst_obj_str_cast_seq` and `_Nst_obj_str_cast_map`
+- renamed `Nst_optimize_bytecode` to `Nst_optimize_ilist`
+- removed `runner.h` and the following symbols:
+    - `Nst_ExecutionState`
+    - `Nst_es_init`
+    - `Nst_es_destroy`
+    - `Nst_func_call_from_es`
+    - `Nst_es_init_vt`
+    - `Nst_execute`
+    - `Nst_es_set_cwd`
+    - `Nst_es_push_module`
+    - `Nst_es_push_func`
+    - `Nst_es_push_paused_coroutine`
+    - `Nst_es_force_function_end`
+- renamed `_Nst_fstack_push` to `Nst_fstack_push` and removed macro alias
+- renamed `_Nst_vstack_push` to `Nst_vstack_push` and removed macro alias
+- removed `cwd` from `Nst_FuncCall` and replaced `start` and `end` with `span`
+- renamed `inst_idx` field of `Nst_CatchFrame` to `idx`
+- removed `Nst_GenericStack`
+    - removed `Nst_stack_init`, `Nst_stack_expand` and `Nst_stack_shrink`
+- made `Nst_SeqObj` private, removed `Nst_ArrayObj` and `Nst_VectorObj`
+- renamed `_Nst_seq_set` to `Nst_seq_set` and removed macro alias
+- renamed `_Nst_seq_get` to `Nst_seq_get` and removed macro alias
+- removed `_Nst_vector_resize`
+- renamed `_Nst_vector_append` to `Nst_vector_append` and removed macro alias
+- renamed `_Nst_vector_remove` to `Nst_vector_remove` and removed macro alias
+- renamed `_Nst_vector_pop` to `Nst_vector_pop` and removed macro alias
+- made `Nst_IntObj`, `Nst_RealObj`, `Nst_BoolObj` and `Nst_ByteObj` private
+- renamed `_Nst_number_to_*` functions in `simple_types.h` to `Nst_number_to_*` and removed macro aliases
+- renamed `_Nst_obj_to_bool` to `Nst_obj_to_bool` and removed macro alias
+- moved `Nst_SourceText` from `error.h` to `source_loader.h`
+- made `Nst_StrObj` private
+- removed `TYPE_NAME`, `Nst_TYPE_STR` and `Nst_STR_IS_ALLOC` macros
+- removed `Nst_str_temp`
+- removed `_Nst_str_destroy`
+- renamed `_Nst_str_copy` to `Nst_str_copy` and removed macro alias
+- renamed `_Nst_str_repr` to `Nst_str_repr` and removed macro alias
+- renamed `_Nst_str_get` to `Nst_str_get` and removed macro alias
+  - now `Nst_str_get` returns the Unicode code point instead of an object, use the new `Nst_str_get_obj` for the old behaviour
+- removed `Nst_TOK`, `Nst_tok_new_value`, `Nst_tok_new_noval`, `Nst_tok_new_noend`
+- made `Nst_TypeObj` private, removed `Nst_ContTypeObj`
+- removed `Nst_TypeFlags` and `_Nst_type_destroy`
+- renamed `Nst_TRACK_OBJ_INIT_POS` to `Nst_DBG_TRACK_OBJ_INIT_POS`
+- renamed `Nst_DISABLE_POOLS` to `Nst_DBG_DISABLE_POOLS`
+- renamed `Nst_COUNT_ALLOC` to `Nst_DBG_COUNT_ALLOC`
+- removed `Nst_BREAKPOINT_ON_ASSERTION_FAIL` in favour of `Nst_DBG_ASSERT_CALLBACK`
+- now integer types (`i8`, `i32`, ...) use the types from `<inttypes.h>`
+- moved `Nst_obj` from `obj.h` to `typedefs.h`
+- removed `Nst_vt_new` and `Nst_vt_from_func` from `var_table.h`
+- renamed `_Nst_vt_get` to `Nst_vt_get` and removed macro alias
+- renamed `_Nst_vt_set` to `Nst_vt_set` and removed macro alias
 
 **Bug fixes**
 
-- now sequences are never exposed when invalid
-- fixed `Nst_CLEAR_FLAGS` that would incorrectly clear all flags
+- now when building on linux the files are correctly rebuilt when header files change
+- fixed `Nst_CLEAR_FLAGS` not keeping reserved flags intact
 
 ## 0.15.0
 
@@ -1338,7 +1494,7 @@ _General changes_:
 - now circular imports correctly show an error
 - added `stdtime.nest` to the standard library
 - added `flush` function to `stdio.nest`
-- now `_cwd_` containst the full path and not the relative path
+- now `_cwd_` contains the full path and not the relative path
 
 ---
 
