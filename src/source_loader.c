@@ -24,6 +24,7 @@ void _Nst_source_loader_quit(void)
 
 Nst_SourceText *Nst_source_load(Nst_CLArgs *inout_args)
 {
+
     Nst_SourceText *src_text;
     if (inout_args->filename != NULL)
         src_text = load_file(inout_args, true);
@@ -131,7 +132,7 @@ static Nst_SourceText *load_command(Nst_CLArgs *inout_args, bool parse_line)
 
     usize str_len = strlen(inout_args->command);
 
-    text = Nst_calloc(str_len + 1, sizeof(char), inout_args->command);
+    text = Nst_calloc(1, str_len + 1, inout_args->command);
     if (text == NULL)
         goto cleanup;
 

@@ -127,10 +127,13 @@ Nst_ExecutionKind Nst_prog_init(Nst_Program *prog, Nst_CLArgs args)
         Nst_prog_destroy(prog);
         return Nst_EK_ERROR;
     }
-    prog->source_path = Nst_str_new_c_raw(src->path, false);
-    if (prog->source_path == NULL) {
-        Nst_prog_destroy(prog);
-        return Nst_EK_ERROR;
+    if (src->path != NULL) {
+        prog->source_path = Nst_str_new_c_raw(src->path, false);
+
+        if (prog->source_path == NULL) {
+            Nst_prog_destroy(prog);
+            return Nst_EK_ERROR;
+        }
     }
 
     Nst_VarTable prog_vt;

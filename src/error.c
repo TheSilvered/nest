@@ -283,9 +283,13 @@ static void print_position(Nst_Pos start, Nst_Pos end)
         Nst_fprintf(
             err_stream,
             "File " C_GRN "\"%s\"" C_RES " at ",
-            start.text->path);
-    } else
-        Nst_fprintf(err_stream, "File \"%s\" at ", start.text->path);
+            start.text->path == NULL ? "<string>" : start.text->path);
+    } else {
+        Nst_fprintf(
+            err_stream,
+            "File \"%s\" at ",
+            start.text->path == NULL ? "<string>" : start.text->path);
+    }
 
     if (start.line != end.line) {
         if (use_color) {
