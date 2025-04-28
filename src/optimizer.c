@@ -411,6 +411,7 @@ static Nst_InstCode inst_code(Nst_InstList *ls, usize idx)
 
 void Nst_optimize_ilist(Nst_InstList *ls, bool optimize_builtins)
 {
+    optimize_inst_list(ls);
     if (optimize_builtins)
         replace_builtins(ls);
     optimize_inst_list(ls);
@@ -645,13 +646,27 @@ static bool has_jumps_to(Nst_InstList *ls, i64 idx, i64 avoid_start,
                          i64 avoid_end)
 {
     usize size = Nst_ilist_len(ls);
+    isize no_op_count = 0;
+    for (i64 i = idx - 1; i > 0; i--) {
+        if (i >= avoid_start && i <= avoid_end) {
+            no_op_count++;
+            continue;
+        }
+        Nst_Inst *inst = Nst_ilist_get_inst(ls, i);
+        if (inst->code == Nst_IC_NO_OP)
+            no_op_count++;
+        else
+            break;
+    }
 
     for (i64 i = 0; (usize)i < size; i++) {
         if (i >= avoid_start && i <= avoid_end)
             continue;
 
         Nst_Inst *inst = Nst_ilist_get_inst(ls, i);
-        if (Nst_ic_is_jump(inst->code) && inst->val == idx)
+        if (!Nst_ic_is_jump(inst->code))
+            continue;
+        if (inst->val >= idx - no_op_count && inst->val <= idx)
             return true;
     }
 

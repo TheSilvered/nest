@@ -102,7 +102,7 @@ run-debug:
 	@if [ ! -d ../linux_libs ]; then mkdir ../linux_libs; fi
 	@rm ../linux_libs/*
 	@cd .. && ./_update_files.sh py
-	@cp $(xDBG_DIR)/std*.cnest ../linux_libs
+	@cp $(DBG_DIR)/std*.cnest ../linux_libs
 	@export NEST_LIBDIR=$(abspath ../linux_libs) \
 	&& export LD_LIBRARY_PATH=$(DBG_DIR):$LD_LIBRARY_PATH \
 	&& cd $(RUN_DIR) \
