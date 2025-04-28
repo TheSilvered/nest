@@ -41,9 +41,9 @@ The new function object or `NULL` on failure. The error is set.
 usize Nst_func_arg_num(Nst_Obj *func)
 ```
 
-**Description:**
+**Returns:**
 
-@return The maximum number of arguments a function accepts.
+The maximum number of arguments a function accepts.
 
 ---
 
@@ -70,9 +70,9 @@ value is `NULL`.
 Nst_NestCallable Nst_func_c_body(Nst_Obj *func)
 ```
 
-**Description:**
+**Returns:**
 
-@return The body of a C function wrapper.
+The body of a C function wrapper.
 
 ---
 
@@ -84,9 +84,9 @@ Nst_NestCallable Nst_func_c_body(Nst_Obj *func)
 Nst_Bytecode *Nst_func_nest_body(Nst_Obj *func)
 ```
 
-**Description:**
+**Returns:**
 
-@return The body of a Nest function.
+The body of a Nest function.
 
 ---
 
@@ -113,9 +113,9 @@ The `_globals_` variable map of a function. No reference is added. It may be
 Nst_Obj *Nst_func_outer_vars(Nst_Obj *func)
 ```
 
-**Description:**
+**Returns:**
 
-@return The outer variables that the function can access when defined.
+The outer variables that the function can access when defined.
 
 ---
 

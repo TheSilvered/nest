@@ -1,7 +1,7 @@
 /**
  * @file assembler.h
  *
- * @file Assemble an instruction sequence into bytecode.
+ * @brief Assemble an instruction sequence into bytecode.
  *
  * @author TheSilvered
  */

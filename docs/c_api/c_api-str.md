@@ -470,9 +470,9 @@ and a value `> 0` if `str1` is greater than `str2`.
 u8 *Nst_str_value(Nst_Obj *str)
 ```
 
-**Description:**
+**Returns:**
 
-@return The value of a Nest `Str` object.
+The value of a Nest `Str` object.
 
 ---
 
@@ -484,9 +484,9 @@ u8 *Nst_str_value(Nst_Obj *str)
 usize Nst_str_len(Nst_Obj *str)
 ```
 
-**Description:**
+**Returns:**
 
-@return The length in bytes of the value of a Nest `Str` object.
+The length in bytes of the value of a Nest `Str` object.
 
 ---
 
@@ -498,9 +498,9 @@ usize Nst_str_len(Nst_Obj *str)
 usize Nst_str_char_len(Nst_Obj *str)
 ```
 
-**Description:**
+**Returns:**
 
-@return The number of characters in a Nest `Str` object.
+The number of characters in a Nest `Str` object.
 
 ---
 

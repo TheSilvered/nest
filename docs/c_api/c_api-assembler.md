@@ -1,6 +1,6 @@
 # `assembler.h`
 
-No description.
+Assemble an instruction sequence into bytecode.
 
 ## Authors
 

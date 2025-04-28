@@ -498,9 +498,9 @@ a destructor.
 void *Nst_obj_custom_data(Nst_Obj *obj)
 ```
 
-**Description:**
+**Returns:**
 
-@return The data of an object created with
+The data of an object created with
 [`Nst_obj_custom`](c_api-lib_import.md#nst_obj_custom).
 
 ---

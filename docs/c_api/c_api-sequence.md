@@ -342,9 +342,9 @@ objects.
 usize Nst_seq_len(Nst_Obj *seq)
 ```
 
-**Description:**
+**Returns:**
 
-@return The length of a sequence.
+The length of a sequence.
 
 ---
 
@@ -356,9 +356,9 @@ usize Nst_seq_len(Nst_Obj *seq)
 usize Nst_vector_cap(Nst_Obj *vect)
 ```
 
-**Description:**
+**Returns:**
 
-@return The capacity of a vector.
+The capacity of a vector.
 
 ---
 
@@ -370,9 +370,9 @@ usize Nst_vector_cap(Nst_Obj *vect)
 Nst_Obj **Nst_seq_objs(Nst_Obj *seq)
 ```
 
-**Description:**
+**Returns:**
 
-@return The object array of a sequence.
+The object array of a sequence.
 
 ---
 

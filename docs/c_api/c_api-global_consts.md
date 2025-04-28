@@ -197,9 +197,9 @@ Delete all the global constants and IO streams.
 Nst_Obj *Nst_true(void)
 ```
 
-**Description:**
+**Returns:**
 
-@return The `true` object constant.
+The `true` object constant.
 
 ---
 
@@ -211,9 +211,9 @@ Nst_Obj *Nst_true(void)
 Nst_ObjRef *Nst_true_ref(void)
 ```
 
-**Description:**
+**Returns:**
 
-@return A new reference to the `true` object constant.
+A new reference to the `true` object constant.
 
 ---
 
@@ -225,9 +225,9 @@ Nst_ObjRef *Nst_true_ref(void)
 Nst_Obj *Nst_false(void)
 ```
 
-**Description:**
+**Returns:**
 
-@return The `false` object constant.
+The `false` object constant.
 
 ---
 
@@ -239,9 +239,9 @@ Nst_Obj *Nst_false(void)
 Nst_ObjRef *Nst_false_ref(void)
 ```
 
-**Description:**
+**Returns:**
 
-@return A new reference to the `false` object constant.
+A new reference to the `false` object constant.
 
 ---
 
@@ -253,9 +253,9 @@ Nst_ObjRef *Nst_false_ref(void)
 Nst_Obj *Nst_null(void)
 ```
 
-**Description:**
+**Returns:**
 
-@return The `null` object constant.
+The `null` object constant.
 
 ---
 
@@ -267,9 +267,9 @@ Nst_Obj *Nst_null(void)
 Nst_ObjRef *Nst_null_ref(void)
 ```
 
-**Description:**
+**Returns:**
 
-@return A new reference to the `null` object constant.
+A new reference to the `null` object constant.
 
 ---
 
@@ -281,9 +281,9 @@ Nst_ObjRef *Nst_null_ref(void)
 Nst_Obj *Nst_iend(void)
 ```
 
-**Description:**
+**Returns:**
 
-@return The `iend` object constant.
+The `iend` object constant.
 
 ---
 
@@ -295,9 +295,9 @@ Nst_Obj *Nst_iend(void)
 Nst_ObjRef *Nst_iend_ref(void)
 ```
 
-**Description:**
+**Returns:**
 
-@return A new reference to the `iend` object constant.
+A new reference to the `iend` object constant.
 
 ---
 
@@ -309,10 +309,10 @@ Nst_ObjRef *Nst_iend_ref(void)
 const Nst_TypeObjs *Nst_type(void)
 ```
 
-**Description:**
+**Returns:**
 
-@return A [`Nst_TypeObjs`](c_api-global_consts.md#nst_typeobjs) struct
-containing all the types.
+A [`Nst_TypeObjs`](c_api-global_consts.md#nst_typeobjs) struct containing all
+the types.
 
 ---
 
@@ -324,10 +324,10 @@ containing all the types.
 const Nst_StrConsts *Nst_str(void)
 ```
 
-**Description:**
+**Returns:**
 
-@return A [`Nst_StrConsts`](c_api-global_consts.md#nst_strconsts) struct
-containing all the string constants.
+A [`Nst_StrConsts`](c_api-global_consts.md#nst_strconsts) struct containing all
+the string constants.
 
 ---
 
@@ -339,10 +339,10 @@ containing all the string constants.
 const Nst_Consts *Nst_const(void)
 ```
 
-**Description:**
+**Returns:**
 
-@return A [`Nst_Consts`](c_api-global_consts.md#nst_consts) struct containing
-all the object constants.
+A [`Nst_Consts`](c_api-global_consts.md#nst_consts) struct containing all the
+object constants.
 
 ---
 
@@ -354,7 +354,7 @@ all the object constants.
 Nst_StdStreams *Nst_stdio(void)
 ```
 
-**Description:**
+**Returns:**
 
-@return A [`Nst_StdStreams`](c_api-global_consts.md#nst_stdstreams) struct
-containing all the standard IO streams.
+A [`Nst_StdStreams`](c_api-global_consts.md#nst_stdstreams) struct containing
+all the standard IO streams.

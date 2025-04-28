@@ -61,9 +61,9 @@ void _Nst_iter_traverse(Nst_Obj *iter)
 Nst_Obj *Nst_iter_start_func(Nst_Obj *iter)
 ```
 
-**Description:**
+**Returns:**
 
-@return The `start` function of an iterator. No reference is added.
+The `start` function of an iterator. No reference is added.
 
 ---
 
@@ -75,9 +75,9 @@ Nst_Obj *Nst_iter_start_func(Nst_Obj *iter)
 Nst_Obj *Nst_iter_next_func(Nst_Obj *iter)
 ```
 
-**Description:**
+**Returns:**
 
-@return The `next` function of an iterator. No reference is added.
+The `next` function of an iterator. No reference is added.
 
 ---
 

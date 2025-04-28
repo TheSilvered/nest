@@ -328,9 +328,9 @@ Set the code and the value of the instruction at index `idx`.
 usize Nst_ilist_len(Nst_InstList *list)
 ```
 
-**Description:**
+**Returns:**
 
-@return The number of instructions in an
+The number of instructions in an
 [`Nst_InstList`](c_api-instructions.md#nst_instlist).
 
 ---

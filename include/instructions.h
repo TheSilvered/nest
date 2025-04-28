@@ -179,7 +179,9 @@ NstEXP void NstC Nst_ilist_set(Nst_InstList *list, usize idx,
 /* Set the code and the value of the instruction at index `idx`. */
 NstEXP void NstC Nst_ilist_set_ex(Nst_InstList *list, usize idx,
                                   Nst_InstCode code, i64 val);
-/* @return The number of instructions in an `Nst_InstList`. */
+/**
+ * @return The number of instructions in an `Nst_InstList`.
+ */
 NstEXP usize NstC Nst_ilist_len(Nst_InstList *list);
 
 /* Print an `Nst_InstList` to the standard output. */

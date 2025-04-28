@@ -1,9 +1,13 @@
 SILENT_MAKE = $(MAKE) --no-print-directory
 MAKE_FILE = $(SILENT_MAKE) -f
 
+ifndef CLARGS
+CLARGS = $(REC_CLARGS)
+endif
+
 CC = gcc
 CFLAGS = -D_FILE_OFFSET_BITS=64 -I$(abspath ../../../include) -Wall -Wextra    \
-		 -Wshadow -Wnull-dereference
+		 -Wshadow -Wnull-dereference $(CLARGS)
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = nest
 
@@ -72,7 +76,7 @@ $(DBG_TARGET): $(SRCS) $(NEST_LIB_DBG)
 	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS_DBG) $(DBG_FLAGS) -o $(DBG_TARGET)
 
 run:
-	@$(SILENT_MAKE) all
+	@$(SILENT_MAKE) all CLARGS=$(CLARGS) REC_CLARGS=$(REC_CLARGS) CC=$(CC)
 	@if [ ! -d ../linux_libs ]; then mkdir ../linux_libs; fi
 	@rm ../linux_libs/*
 	@cd .. && ./_update_files.sh py
@@ -83,7 +87,7 @@ run:
 	&& $(x64_DIR)/nest $(RUN_FILE)
 
 run-x86:
-	@$(SILENT_MAKE) all
+	@$(SILENT_MAKE) all-x86 CLARGS=$(CLARGS) REC_CLARGS=$(REC_CLARGS) CC=$(CC)
 	@if [ ! -d ../linux_libs ]; then mkdir ../linux_libs; fi
 	@rm ../linux_libs/*
 	@cd .. && ./_update_files.sh py
@@ -94,7 +98,7 @@ run-x86:
 	&& $(x86_DIR)/nest $(RUN_FILE)
 
 run-debug:
-	@$(SILENT_MAKE) all-debug
+	@$(SILENT_MAKE) all-debug CLARGS=$(CLARGS) REC_CLARGS=$(REC_CLARGS) CC=$(CC)
 	@if [ ! -d ../linux_libs ]; then mkdir ../linux_libs; fi
 	@rm ../linux_libs/*
 	@cd .. && ./_update_files.sh py
@@ -114,17 +118,17 @@ test-debug:
 	@$(SILENT_MAKE) run-debug RUN_FILE=run_tests.nest
 
 test-c:
-	@$(MAKE_FILE) testnest.mk
+	@$(MAKE_FILE) testnest.mk CLARGS=$(REC_CLARGS)
 	@echo "Running test_nest..."
 	@export LD_LIBRARY_PATH=. && echo $(x64_DIR) && cd $(x64_DIR) && ./test_nest
 
 test-c-x86:
-	@$(MAKE_FILE) testnest.mk x86
+	@$(MAKE_FILE) testnest.mk x86 CLARGS=$(REC_CLARGS)
 	@echo "Running test_nest..."
 	@export LD_LIBRARY_PATH=. && cd $(x86_DIR) && ./test_nest
 
 test-c-debug:
-	@$(MAKE_FILE) testnest.mk debug
+	@$(MAKE_FILE) testnest.mk debug CLARGS=$(REC_CLARGS)
 	@echo "Running test_nest..."
 	@export LD_LIBRARY_PATH=. && echo $(DBG_DIR) && cd $(DBG_DIR) && ./test_nest
 
@@ -135,55 +139,55 @@ clean:
 	rm -frv $(DBG_DIR)
 
 all:
-	@$(MAKE_FILE) libnest.mk
-	@$(SILENT_MAKE) __no_libnest_x64
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=co
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=codecs
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=err
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=fs
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=io
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=itutil
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=json
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=math
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=rand
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=sequtil
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=sutil
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=sys
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=time
+	@$(MAKE_FILE) libnest.mk CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(SILENT_MAKE) __no_libnest_x64 CLARGS=$(CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=co      CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=codecs  CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=err     CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=fs      CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=io      CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=itutil  CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=json    CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=math    CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=rand    CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=sequtil CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=sutil   CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=sys     CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=time    CLARGS=$(REC_CLARGS) CC=$(CC)
 
 all-x86:
-	@$(MAKE_FILE) libnest.mk x86
-	@$(SILENT_MAKE) __no_libnest_x86
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=co
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=codecs
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=err
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=fs
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=io
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=itutil
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=json
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=math
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=rand
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=sequtil
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=sutil
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=sys
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=time
+	@$(MAKE_FILE) libnest.mk x86 CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(SILENT_MAKE) __no_libnest_x86 CLARGS=$(CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=co      CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=codecs  CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=err     CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=fs      CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=io      CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=itutil  CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=json    CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=math    CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=rand    CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=sequtil CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=sutil   CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=sys     CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=time    CLARGS=$(REC_CLARGS) CC=$(CC)
 
 all-debug:
-	@$(MAKE_FILE) libnest.mk debug
-	@$(SILENT_MAKE) __no_libnest_dbg
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=co
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=codecs
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=err
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=fs
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=io
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=itutil
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=json
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=math
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=rand
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=sequtil
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=sutil
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=sys
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=time
+	@$(MAKE_FILE) libnest.mk debug CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(SILENT_MAKE) __no_libnest_dbg CLARGS=$(CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=co      CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=codecs  CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=err     CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=fs      CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=io      CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=itutil  CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=json    CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=math    CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=rand    CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=sequtil CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=sutil   CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=sys     CLARGS=$(REC_CLARGS) CC=$(CC)
+	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=time    CLARGS=$(REC_CLARGS) CC=$(CC)
 
 install:
 	@$(SILENT_MAKE) all
@@ -243,5 +247,10 @@ help:
 	@echo ""
 	@echo "  make help                  print this message"
 	@echo ""
-	@echo "By default this makefile uses gcc. To compile with clang add 'CC=clang' to the"
-	@echo "end of the command (e.g. 'make all CC=clang')."
+	@echo "User-defined variables:"
+	@echo "  CC                         by default set to gcc, can be set to clang"
+	@echo "  CLARGS                     additional arguments passed when compiling nest,"
+	@echo "                             it overwrites REC_CLARGS"
+	@echo "  REC_CLARGS                 additional arguments passed when compiling"
+	@echo "                             libnest.so and the libraries, they are also passed"
+	@echo "                             when compiling nest if CLARGS is not set"

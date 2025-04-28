@@ -150,33 +150,57 @@ NstEXP void NstC _Nst_globals_quit(void);
 
 
 
-/* @return The `true` object constant. */
+/**
+ * @return The `true` object constant.
+ */
 NstEXP Nst_Obj *NstC Nst_true(void);
-/* @return A new reference to the `true` object constant. */
+/**
+ * @return A new reference to the `true` object constant.
+ */
 NstEXP Nst_ObjRef *NstC Nst_true_ref(void);
 
-/* @return The `false` object constant. */
+/**
+ * @return The `false` object constant.
+ */
 NstEXP Nst_Obj *NstC Nst_false(void);
-/* @return A new reference to the `false` object constant. */
+/**
+ * @return A new reference to the `false` object constant.
+ */
 NstEXP Nst_ObjRef *NstC Nst_false_ref(void);
 
-/* @return The `null` object constant. */
+/**
+ * @return The `null` object constant.
+ */
 NstEXP Nst_Obj *NstC Nst_null(void);
-/* @return A new reference to the `null` object constant. */
+/**
+ * @return A new reference to the `null` object constant.
+ */
 NstEXP Nst_ObjRef *NstC Nst_null_ref(void);
 
-/* @return The `iend` object constant. */
+/**
+ * @return The `iend` object constant.
+ */
 NstEXP Nst_Obj *NstC Nst_iend(void);
-/* @return A new reference to the `iend` object constant. */
+/**
+ * @return A new reference to the `iend` object constant.
+ */
 NstEXP Nst_ObjRef *NstC Nst_iend_ref(void);
 
-/* @return A `Nst_TypeObjs` struct containing all the types. */
+/**
+ * @return A `Nst_TypeObjs` struct containing all the types.
+ */
 NstEXP const Nst_TypeObjs *NstC Nst_type(void);
-/* @return A `Nst_StrConsts` struct containing all the string constants. */
+/**
+ * @return A `Nst_StrConsts` struct containing all the string constants.
+ */
 NstEXP const Nst_StrConsts *NstC Nst_str(void);
-/* @return A `Nst_Consts` struct containing all the object constants. */
+/**
+ * @return A `Nst_Consts` struct containing all the object constants.
+ */
 NstEXP const Nst_Consts *NstC Nst_const(void);
-/* @return A `Nst_StdStreams` struct containing all the standard IO streams. */
+/**
+ * @return A `Nst_StdStreams` struct containing all the standard IO streams.
+ */
 NstEXP Nst_StdStreams *NstC Nst_stdio(void);
 
 extern Nst_TypeObjs Nst_t;

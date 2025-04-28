@@ -41,7 +41,9 @@ NstEXP Nst_ObjRef *NstC Nst_type_new(const char *name, Nst_ObjDstr dstr);
 NstEXP Nst_ObjRef *NstC Nst_cont_type_new(const char *name, Nst_ObjDstr dstr,
                                           Nst_ObjTrav trav);
 
-/* @return The name of the type. */
+/**
+ * @return The name of the type.
+ */
 NstEXP Nst_StrView NstC Nst_type_name(Nst_Obj *type);
 /**
  * @return The traverse function of the type. If the type does not represent a

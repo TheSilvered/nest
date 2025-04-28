@@ -72,9 +72,9 @@ The new object on success and `NULL` on failure. The error is set.
 Nst_StrView Nst_type_name(Nst_Obj *type)
 ```
 
-**Description:**
+**Returns:**
 
-@return The name of the type.
+The name of the type.
 
 ---
 

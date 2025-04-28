@@ -133,9 +133,13 @@ NstEXP Nst_ObjRef *NstC Nst_coroutine_resume(Nst_Obj *func, i64 idx,
                                              usize value_stack_len,
                                              Nst_VarTable vt);
 
-/* @return The position of the current operation. */
+/**
+ * @return The position of the current operation.
+ */
 NstEXP Nst_Span NstC Nst_state_span(void);
-/* @return The current state of the interpreter. */
+/**
+ * @return The current state of the interpreter.
+ */
 NstEXP const Nst_InterpreterState *NstC Nst_state(void);
 
 /**

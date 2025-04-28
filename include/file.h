@@ -287,7 +287,9 @@ NstEXP Nst_ObjRef *NstC Nst_iof_new_fake(void *value, bool bin, bool read,
                                          Nst_Encoding *encoding,
                                          Nst_IOFuncSet func_set);
 
-/* @return The `Nst_IOFuncSet` of a file. */
+/**
+ * @return The `Nst_IOFuncSet` of a file.
+ */
 NstEXP Nst_IOFuncSet *NstC Nst_iof_func_set(Nst_Obj *f);
 /**
  * @return The file descriptor of a file. If it's negative the file is not a
@@ -299,7 +301,9 @@ NstEXP int NstC Nst_iof_fd(Nst_Obj *f);
  * by `Nst_iof_fd` is positive this is of type `FILE *`.
  */
 NstEXP void *NstC Nst_iof_fp(Nst_Obj *f);
-/* @return The encoding of a file. */
+/**
+ * @return The encoding of a file.
+ */
 NstEXP Nst_Encoding *NstC Nst_iof_encoding(Nst_Obj *f);
 
 void _Nst_iofile_destroy(Nst_Obj *obj);

@@ -212,9 +212,9 @@ Expand a span to include the given position.
 Nst_Pos Nst_span_start(Nst_Span span)
 ```
 
-**Description:**
+**Returns:**
 
-@return The start position of a span.
+The start position of a span.
 
 ---
 
@@ -226,9 +226,9 @@ Nst_Pos Nst_span_start(Nst_Span span)
 Nst_Pos Nst_span_end(Nst_Span span)
 ```
 
-**Description:**
+**Returns:**
 
-@return The end position of a span.
+The end position of a span.
 
 ---
 

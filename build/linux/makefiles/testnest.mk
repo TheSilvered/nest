@@ -2,7 +2,8 @@ SILENT_MAKE = $(MAKE) --no-print-directory
 MAKE_FILE = $(SILENT_MAKE) -f
 
 CC = gcc
-CFLAGS = -I$(abspath ../../../include) -Wall -Wextra -Wnull-dereference -Wshadow
+CFLAGS = -I$(abspath ../../../include) -Wall -Wextra -Wnull-dereference        \
+		 -Wshadow $(CLARGS)
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = test_nest
 
@@ -76,3 +77,5 @@ help:
 	@echo "                             compile C tests with debug symbols"
 	@echo ""
 	@echo "  make -f testnest.mk help    print this message"
+	@echo ""
+	@echo ""

@@ -82,9 +82,9 @@ void _Nst_map_traverse(Nst_Obj *map)
 usize Nst_map_len(Nst_Obj *map)
 ```
 
-**Description:**
+**Returns:**
 
-@return The number of key-value pairs in a map.
+The number of key-value pairs in a map.
 
 ---
 
@@ -96,9 +96,9 @@ usize Nst_map_len(Nst_Obj *map)
 usize Nst_map_cap(Nst_Obj *map)
 ```
 
-**Description:**
+**Returns:**
 
-@return The current capacity of a map.
+The current capacity of a map.
 
 ---
 

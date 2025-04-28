@@ -464,9 +464,9 @@ The new object on success or `NULL` on failure. The error is set.
 Nst_IOFuncSet *Nst_iof_func_set(Nst_Obj *f)
 ```
 
-**Description:**
+**Returns:**
 
-@return The [`Nst_IOFuncSet`](c_api-file.md#nst_iofuncset) of a file.
+The [`Nst_IOFuncSet`](c_api-file.md#nst_iofuncset) of a file.
 
 ---
 
@@ -508,9 +508,9 @@ A pointer to the internal data of a file. If the descriptor returned by
 Nst_Encoding *Nst_iof_encoding(Nst_Obj *f)
 ```
 
-**Description:**
+**Returns:**
 
-@return The encoding of a file.
+The encoding of a file.
 
 ---
 

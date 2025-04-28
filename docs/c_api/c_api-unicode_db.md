@@ -139,9 +139,9 @@ Unicode character information.
 Nst_UnicodeChInfo Nst_unicode_get_ch_info(u32 codepoint)
 ```
 
-**Description:**
+**Returns:**
 
-@return The [`Nst_UnicodeChInfo`](c_api-unicode_db.md#nst_unicodechinfo) about a
+The [`Nst_UnicodeChInfo`](c_api-unicode_db.md#nst_unicodechinfo) about a
 character.
 
 ---

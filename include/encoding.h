@@ -437,7 +437,9 @@ NstEXP char *NstC Nst_wchar_t_to_char(wchar_t *str, usize len);
  */
 NstEXP bool NstC Nst_cp_is_valid(u32 cp);
 
-/* @return Whether a code is a non character. */
+/**
+ * @return Whether a code is a non character.
+ */
 NstEXP bool NstC Nst_cp_is_non_character(u32 cp);
 
 /**

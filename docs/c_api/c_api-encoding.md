@@ -1327,9 +1327,9 @@ U+10FFFF and is not a high or low surrogate.
 bool Nst_cp_is_non_character(u32 cp)
 ```
 
-**Description:**
+**Returns:**
 
-@return Whether a code is a non character.
+Whether a code is a non character.
 
 ---
 

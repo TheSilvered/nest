@@ -3,7 +3,7 @@ MAKE_FILE = $(MAKE) --no-print-directory -f
 CC = gcc
 CFLAGS = $(LIB_FLAGS) -D_FILE_OFFSET_BITS=64 -I$(abspath ../../../include)     \
 		 -Wall -Wextra -Wnull-dereference -Wshadow -shared -fPIC -rdynamic     \
-		 -std=c++2a
+		 -std=c++2a $(CLARGS)
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = std$(LIB_NAME).cnest
 

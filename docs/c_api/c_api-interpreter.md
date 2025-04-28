@@ -245,9 +245,9 @@ The result of the function or `NULL` on failure. The error is set.
 Nst_Span Nst_state_span(void)
 ```
 
-**Description:**
+**Returns:**
 
-@return The position of the current operation.
+The position of the current operation.
 
 ---
 
@@ -259,9 +259,9 @@ Nst_Span Nst_state_span(void)
 const Nst_InterpreterState *Nst_state(void)
 ```
 
-**Description:**
+**Returns:**
 
-@return The current state of the interpreter.
+The current state of the interpreter.
 
 ---
 

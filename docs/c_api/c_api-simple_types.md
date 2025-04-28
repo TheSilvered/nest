@@ -40,10 +40,9 @@ The new object on success or `NULL` on failure. The error is set.
 i64 Nst_int_i64(Nst_Obj *obj)
 ```
 
-**Description:**
+**Returns:**
 
-@return The value of an `Int` object as an
-[`i64`](c_api_index.md#type-definitions).
+The value of an `Int` object as an [`i64`](c_api_index.md#type-definitions).
 
 ---
 
@@ -77,10 +76,9 @@ The new object on success or `NULL` on failure. The error is set.
 f64 Nst_real_f64(Nst_Obj *obj)
 ```
 
-**Description:**
+**Returns:**
 
-@return The value of a `Real` object as an
-[`f64`](c_api_index.md#type-definitions).
+The value of a `Real` object as an [`f64`](c_api_index.md#type-definitions).
 
 ---
 
@@ -92,10 +90,9 @@ f64 Nst_real_f64(Nst_Obj *obj)
 f32 Nst_real_f32(Nst_Obj *obj)
 ```
 
-**Description:**
+**Returns:**
 
-@return The value of a `Real` object as an
-[`f32`](c_api_index.md#type-definitions).
+The value of a `Real` object as an [`f32`](c_api_index.md#type-definitions).
 
 ---
 
@@ -129,9 +126,9 @@ The new object on success or `NULL` on failure. The error is set.
 u8 Nst_byte_u8(Nst_Obj *obj)
 ```
 
-**Description:**
+**Returns:**
 
-@return The value of a `Byte` object.
+The value of a `Byte` object.
 
 ---
 
@@ -286,6 +283,6 @@ error is set.
 bool Nst_obj_to_bool(Nst_Obj *obj)
 ```
 
-**Description:**
+**Returns:**
 
-@return `true` if the object is truthy and `false` otherwise.
+`true` if the object is truthy and `false` otherwise.

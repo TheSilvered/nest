@@ -88,9 +88,13 @@ NstEXP Nst_Span NstC Nst_span_empty(void);
 NstEXP Nst_Span NstC Nst_span_join(Nst_Span span1, Nst_Span span2);
 /* Expand a span to include the given position. */
 NstEXP Nst_Span NstC Nst_span_expand(Nst_Span span, Nst_Pos pos);
-/* @return The start position of a span. */
+/**
+ * @return The start position of a span.
+ */
 NstEXP Nst_Pos NstC Nst_span_start(Nst_Span span);
-/* @return The end position of a span. */
+/**
+ * @return The end position of a span.
+ */
 NstEXP Nst_Pos NstC Nst_span_end(Nst_Span span);
 
 void _Nst_error_init(void);

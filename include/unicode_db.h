@@ -54,7 +54,9 @@ typedef struct _Nst_UnicodeChInfo {
     u32 flags;
 } Nst_UnicodeChInfo;
 
-/* @return The `Nst_UnicodeChInfo` about a character. */
+/**
+ * @return The `Nst_UnicodeChInfo` about a character.
+ */
 NstEXP Nst_UnicodeChInfo Nst_unicode_get_ch_info(u32 codepoint);
 /**
  * Change the casing of a codepoint.

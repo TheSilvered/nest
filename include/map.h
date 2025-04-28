@@ -39,9 +39,13 @@ void _Nst_map_destroy(Nst_Obj *map);
 /* `Nst_ObjTrav` function for `Map` objects. */
 NstEXP void NstC _Nst_map_traverse(Nst_Obj *map);
 
-/* @return The number of key-value pairs in a map. */
+/**
+ * @return The number of key-value pairs in a map.
+ */
 NstEXP usize NstC Nst_map_len(Nst_Obj *map);
-/* @return The current capacity of a map. */
+/**
+ * @return The current capacity of a map.
+ */
 NstEXP usize NstC Nst_map_cap(Nst_Obj *map);
 
 /**

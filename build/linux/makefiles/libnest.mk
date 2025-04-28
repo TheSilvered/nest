@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -D_FILE_OFFSET_BITS=64 -I$(abspath ../../../include) -Wall -Wextra    \
-		 -Wshadow -shared -fPIC -rdynamic
+		 -Wshadow -shared -fPIC -rdynamic $(CLARGS)
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = libnest.so
 

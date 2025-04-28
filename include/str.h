@@ -245,11 +245,17 @@ NstEXP i32 NstC Nst_str_compare(Nst_Obj *str1, Nst_Obj *str2);
 
 void _Nst_str_destroy(Nst_Obj *str);
 
-/* @return The value of a Nest `Str` object. */
+/**
+ * @return The value of a Nest `Str` object.
+ */
 NstEXP u8 *NstC Nst_str_value(Nst_Obj *str);
-/* @return The length in bytes of the value of a Nest `Str` object. */
+/**
+ * @return The length in bytes of the value of a Nest `Str` object.
+ */
 NstEXP usize NstC Nst_str_len(Nst_Obj *str);
-/* @return The number of characters in a Nest `Str` object. */
+/**
+ * @return The number of characters in a Nest `Str` object.
+ */
 NstEXP usize NstC Nst_str_char_len(Nst_Obj *str);
 
 /* Flags for `Str` objects. */

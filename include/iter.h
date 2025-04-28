@@ -35,9 +35,13 @@ void _Nst_iter_destroy(Nst_Obj *iter);
 /* `Nst_ObjTrav` function for `Iter` objects. */
 NstEXP void NstC _Nst_iter_traverse(Nst_Obj *iter);
 
-/* @return The `start` function of an iterator. No reference is added. */
+/**
+ * @return The `start` function of an iterator. No reference is added.
+ */
 NstEXP Nst_Obj *NstC Nst_iter_start_func(Nst_Obj *iter);
-/* @return The `next` function of an iterator. No reference is added. */
+/**
+ * @return The `next` function of an iterator. No reference is added.
+ */
 NstEXP Nst_Obj *NstC Nst_iter_next_func(Nst_Obj *iter);
 /**
  * @return The `value` passed to `start` and `next` of an iterator. No

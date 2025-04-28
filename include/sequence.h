@@ -172,11 +172,17 @@ void _Nst_seq_destroy(Nst_Obj *seq);
 /* `Nst_ObjTrav` function for `Array` and `Vector` objects. */
 NstEXP void NstC _Nst_seq_traverse(Nst_Obj *seq);
 
-/* @return The length of a sequence. */
+/**
+ * @return The length of a sequence.
+ */
 NstEXP usize NstC Nst_seq_len(Nst_Obj *seq);
-/* @return The capacity of a vector. */
+/**
+ * @return The capacity of a vector.
+ */
 NstEXP usize NstC Nst_vector_cap(Nst_Obj *vect);
-/* @return The object array of a sequence. */
+/**
+ * @return The object array of a sequence.
+ */
 NstEXP Nst_Obj **NstC Nst_seq_objs(Nst_Obj *seq);
 
 /**

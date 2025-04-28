@@ -25,7 +25,9 @@ extern "C" {
  * @return The new object on success or `NULL` on failure. The error is set.
  */
 NstEXP Nst_ObjRef *NstC Nst_int_new(i64 value);
-/* @return The value of an `Int` object as an `i64`. */
+/**
+ * @return The value of an `Int` object as an `i64`.
+ */
 NstEXP i64 NstC Nst_int_i64(Nst_Obj *obj);
 
 void _Nst_counter_dec(Nst_Obj *counter);
@@ -38,9 +40,13 @@ void _Nst_counter_dec(Nst_Obj *counter);
  * @return The new object on success or `NULL` on failure. The error is set.
  */
 NstEXP Nst_ObjRef *NstC Nst_real_new(f64 value);
-/* @return The value of a `Real` object as an `f64`. */
+/**
+ * @return The value of a `Real` object as an `f64`.
+ */
 NstEXP f64 NstC Nst_real_f64(Nst_Obj *obj);
-/* @return The value of a `Real` object as an `f32`. */
+/**
+ * @return The value of a `Real` object as an `f32`.
+ */
 NstEXP f32 NstC Nst_real_f32(Nst_Obj *obj);
 
 /**
@@ -51,7 +57,9 @@ NstEXP f32 NstC Nst_real_f32(Nst_Obj *obj);
  * @return The new object on success or `NULL` on failure. The error is set.
  */
 NstEXP Nst_ObjRef *NstC Nst_byte_new(u8 value);
-/* @return The value of a `Byte` object. */
+/**
+ * @return The value of a `Byte` object.
+ */
 NstEXP u8 NstC Nst_byte_u8(Nst_Obj *obj);
 
 /**
@@ -109,7 +117,9 @@ NstEXP f32 NstC Nst_number_to_f32(Nst_Obj *number);
  */
 NstEXP f64 NstC Nst_number_to_f64(Nst_Obj *number);
 
-/* @return `true` if the object is truthy and `false` otherwise. */
+/**
+ * @return `true` if the object is truthy and `false` otherwise.
+ */
 NstEXP bool NstC Nst_obj_to_bool(Nst_Obj *obj);
 
 #ifdef __cplusplus

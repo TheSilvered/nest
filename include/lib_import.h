@@ -329,7 +329,9 @@ NstEXP Nst_ObjRef *NstC _Nst_obj_custom(usize size, void *data,
  */
 NstEXP Nst_ObjRef *NstC _Nst_obj_custom_ex(usize size, void *data,
                                            const char *name, Nst_ObjDstr dstr);
-/* @return The data of an object created with `Nst_obj_custom`. */
+/**
+ * @return The data of an object created with `Nst_obj_custom`.
+ */
 NstEXP void *NstC Nst_obj_custom_data(Nst_Obj *obj);
 
 bool _Nst_import_init(void);
