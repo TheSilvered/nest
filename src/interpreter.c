@@ -8,6 +8,7 @@
 
 #include <direct.h>
 #define PATH_MAX 4096
+#define chdir _chdir
 
 #else
 
@@ -529,7 +530,7 @@ static bool push_module(const char *filename)
     Nst_abs_path(filename, &path, &file_part);
     if (path == NULL) {
         Nst_error_clear();
-        return NULL;
+        return false;
     }
     *(file_part - 1) = 0;
     i32 chdir_result = chdir(path);
