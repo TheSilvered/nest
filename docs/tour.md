@@ -1,15 +1,20 @@
 # A quick tour
 
-## Hello, World!
+## Hello, World
 
-This is one of the first programs everyone writes when learning a new language
-and in Nest it is written as
+This is one of the first programs everyone writes when learning a new
+programming language. In Nest Hello, World is written like this:
 
 ```nest
 >>> 'Hello, World!\n'
 ```
 
-though a more complete version might be
+Here `>>>` is an operator that prints to the standard output (there is also
+`<<<` that will read from the standard input!) and
+`'Hello, World!\n` is a string with a newline character at the end.
+
+To avoid writing the newline the standard library has a function that will do
+just that.
 
 ```nest
 |#| 'std.nest' = std
@@ -17,10 +22,15 @@ though a more complete version might be
 'Hello, World!' @std.io.println
 ```
 
+You can ignore the syntax that is used for importing the standard library and
+calling the function for now, just know that this program will print any
+expression before `@std.io.println`.
+
 ## Numbers and arithmetic operations
 
-In Nest operate in a lisp-like way but with a different syntax, this program
-adds the numbers `1`, `2` and `3` and prints them to the standard output:
+Operators in Nest are similar to the ones in lisp even if the syntax is a little
+different. This program, for example adds the numbers `1`, `2`, and `3` and
+prints them:
 
 ```nest
 |#| 'std.nest' = std
@@ -55,7 +65,7 @@ This program will output `true`.
 
 This expression is normally written as `2^2 == 2*2` (or `2**2 + 2*2`) and
 strictly speaking the first pair of parenthesis is redundant but it makes the
-code more readable in my opinion.
+code more readable showing clearly the order of operations.
 
 ## Local operators
 
@@ -194,27 +204,27 @@ loop) and the second executes its body before checking the condition (a
 
 ## Collections
 
-In Nest there are multiple collection types.
+In Nest there are multiple types of collections.
 
 ### Strings
 
-Strings are a sequence of Unicode characters. They are ordered and immutable.
-
-To write a string you can use both single quotes (`'`) and double quotes (`"`).
+Strings are a sequence of Unicode characters. They are ordered and immutable. To
+write a string you can use both single quotes (`'`) and double quotes (`"`).
 
 ```nest
 'This is a string'
 "This is also a string"
 ```
 
-Strings support various escape sequences such as `\n` and `\t` and also value
-interpolation with `\(...)` where instead of `...` there is an expression.
+Strings support various common escape sequences such as `\n` for newlines and
+`\t` for tabs. Nest also allows the interpolation of an expression with
+`\(...)` (the expression is put in place of the `...`).
 
 ```nest
 |#| 'std.nest' = std
 
-'World' = var
-'Hello, \(var)!' @std.io.println  --> prints Hello, World!
+'Nest' = var
+'Hello, \(var)!' @std.io.println --> prints Hello, Nest!
 ```
 
 To join multiple strings together use the `><` operator, this works with
@@ -292,8 +302,8 @@ arr.-1 @std.io.println --> prints last
 str.-1 @std.io.println --> prints ✅
 ```
 
-Using this notation you can also modify the items inside (except in strings as
-they are immutable):
+Using this notation you can also modify the items inside a collection, with the
+exception of strings as they are immutable:
 
 ```nest
 |#| 'std.nest' = std
@@ -417,4 +427,197 @@ You can also iterate through a range using the `start -> end` notation or
 ... 0 2 -> 11 := num [
     num @std.io.println
 ]
+```
+
+## Functions
+
+### Definition
+
+To define a function in Nest you can use a hash sign (`#`):
+
+```nest
+|#| 'std.nest' = std
+
+#greet [
+    'Hello, world!' @std.io.println
+]
+```
+
+In this example the function `greet` prints `Hello, world!` and to actually call
+it you can use an at sign (`@`):
+
+```nest
+|#| 'std.nest' = std
+
+#greet [
+    'Hello, world!' @std.io.println
+]
+
+@greet --> prints Hello, world!
+```
+
+### Arguments
+
+A function can take any number of arguments which will be able to access when it
+is called. The arguments are passed to the function before the `@`:
+
+```nest
+|#| 'std.nest' = std
+
+#greet name [
+    'Hello, \(name)!' @std.io.println
+]
+
+'Nest' @greet --> prints Hello, Nest!
+```
+
+If you do not pass enough arguments to a function the missing ones will be set
+to `null`:
+
+```nest
+|#| 'std.nest' = std
+
+#greet name [
+    'Hello, \(name)!' @std.io.println
+]
+
+@greet --> prints Hello, null!
+```
+
+### Returning a value
+
+A return statement is introduced by `=>` and will return the value that follows
+it. If a function has no explicit return it will implicitly return `null`.
+
+```nest
+|#| 'std.nest' = std
+
+#greet name [
+    => 'Hello, \(name)!'
+]
+
+'Nest' @greet @std.io.println --> prints Hello, null!
+```
+
+If the only statement of the function is the return then you can avoid the
+square brackets:
+
+```nest
+|#| 'std.nest' = std
+
+#greet name => 'Hello, \(name)!'
+
+'Nest' @greet @std.io.println --> prints Hello, null!
+```
+
+If after the `=>` you do not write anything the function will return `null`:
+
+```nest
+|#| 'std.nest' = std
+
+#greet name [
+    name 'Nest' == ?
+        =>
+    :
+        => 'Hello, \(name)!'
+]
+
+'Nest' @greet @std.io.println --> prints null
+```
+
+### Anonymus functions
+
+To define an anonymus function you use two hashes instead of one:
+
+```nest
+|#| 'std.nest' = std
+
+(## name => 'Hello, \(name)!') = greet
+
+'Nest' @greet @std.io.println --> prints null
+```
+
+### Outer scopes
+
+A function will always reference the variables of the module where it is
+defined. For example:
+
+```nest
+|#| 'std.nest' = std
+
+#greet name [
+    'Hello, \(name)!' @std.io.println
+]
+
+'Nest' @greet --> prints Hello, Nest!
+```
+
+Here the function `greet` is referencing `std` from the global scope.
+
+If a function is defined inside another function it will be able to reference
+any variable defined before its definition:
+
+```nest
+|#| 'std.nest' = std
+
+#outer [
+    1 = outer_var
+
+    #inner [
+        outer_var @std.io.println --> prints 1
+        outer_var_2 @std.io.println --> prints null
+    ]
+
+    2 = outer_var_2
+    => inner
+]
+
+@(@outer) --> prints `1` on the first line and `null` on the second
+```
+
+### Classes
+
+Nest does not have classes as a special language construct, rather they are a
+result of a clever trick you can do with functions. Take the following example:
+
+```nest
+#vec2 x y [
+    {
+        'x': x,
+        'y': y
+    } = self
+
+    ## [
+        => '(\(self.x), \(self.y))'
+    ] = self.to_str
+
+    ## other [
+        => (self.x other.x +) (self.y other.y) @vec2
+    ] = self.add
+
+    ## factor [
+        factor *= self.x
+        factor *= self.y
+    ] = self.scale
+
+    => self
+]
+```
+
+This can be considered a very rudamentary class. All functions can reference
+`self` and since it is the same object they can change its contents and see the
+changes made by another function.
+
+```nest
+|#| 'std.nest' = std
+
+#vec2 x y [...]
+
+2.0 4.0 @vec2 = vec
+@vec.to_str @std.io.println --> prints (2.0, 4.0)
+0.5 @vec.scale
+@vec.to_str @std.io.println --> prints (1.0, 2.0)
+
+4.0 3.0 @vec2 @vec.add = sum
+@sum.to_str @std.io.println --> prints (5.0, 5.0)
 ```
