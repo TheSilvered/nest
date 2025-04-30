@@ -283,8 +283,6 @@ void _Nst_supports_color_override(bool value)
     supports_color = value;
 }
 
-#ifdef Nst_MSVC
-
 bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, char ***argv)
 {
     usize tot_size = 0;
@@ -323,6 +321,8 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, char ***argv)
     *argv = local_argv;
     return true;
 }
+
+#ifdef Nst_MSVC
 
 void _Nst_console_mode_init(void)
 {

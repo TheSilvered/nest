@@ -87,10 +87,7 @@ bool ref_obj_to_bool(Nst_Obj *obj);
 // argv_parser.h
 
 TestResult test_cl_args_parse(void);
-
-#ifdef Nst_MSVC
 TestResult test_wargv_to_argv(void);
-#endif
 
 // dyn_array.h
 
