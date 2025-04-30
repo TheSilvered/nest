@@ -10,7 +10,7 @@
 #pragma warning(disable: 4102)
 #endif
 
-#define RUN_TEST(test) run_test(test, #test);
+#define run_test(test) run_test_(test, #test);
 
 #define ENTER_TEST TestResult test_result__ = TEST_SUCCESS
 #define EXIT_TEST test_exit: return test_result__
@@ -65,8 +65,17 @@ typedef enum _TestResult {
 typedef TestResult (*Test)(void);
 
 void test_init(void);
-void run_test(Test test, const char *name);
+void run_test_(Test test, const char *name);
 i32 tests_failed_count(void);
+
+// Begin capturing the output of stdout and stderr. The return value is false
+// on error.
+bool capture_output_begin(void);
+// Finish capturing the output of stdout and stderr, the return value is valid
+// until the next call to `capture_output_begin`
+// out_lenth is set to the length of the buffer, can be NULL. The buffer is
+// NUL-terminated or NULL on error.
+const char *capture_output_end(usize *out_length);
 
 bool fail_if_(bool cond, TestResult *result, int line, ...);
 bool crit_fail_if_(bool cond, TestResult *result, int line, ...);

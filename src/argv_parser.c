@@ -99,7 +99,7 @@ static i32 long_arg(char *arg, Nst_CLArgs *cl_args)
     else if (strcmp(arg, "--ast") == 0)
         cl_args->print_ast = true;
     else if (strcmp(arg, "--instructions") == 0)
-        cl_args->print_ast = true;
+        cl_args->print_instructions = true;
     else if (strcmp(arg, "--bytecode") == 0)
         cl_args->print_bytecode = true;
     else if (strcmp(arg, "--force-execution") == 0)
@@ -141,6 +141,7 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
     char **argv = cl_args->argv;
 
     if (argc < 2) {
+        printf("No file provided\n");
         printf(USAGE_MESSAGE);
         return -1;
     }
@@ -245,8 +246,9 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
                     return 0;
                 }
 
-                if (long_arg(arg, cl_args))
-                    return -1;
+                i32 result = long_arg(arg, cl_args);
+                if (result != 0)
+                    return result;
 
                 j = (i32)arg_len;
                 break;

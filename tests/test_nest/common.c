@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "tests.h"
+
+#define CAPTURE_BUF_SIZE 4096
 
 static const char *RED = "\x1b[31m";
 static const char *GREEN = "\x1b[32m";
@@ -9,6 +12,12 @@ static const char *RESET = "\x1b[0m";
 
 static i32 tests_failed = 0;
 static i32 cases_failed = 0;
+
+static bool capturing = false;
+static char capture_buf[CAPTURE_BUF_SIZE];
+static FILE *orig_stdout = NULL;
+static FILE *orig_stderr = NULL;
+static FILE *capture_file = NULL;
 
 void test_init(void)
 {
@@ -21,10 +30,13 @@ void test_init(void)
     tests_failed = 0;
 }
 
-void run_test(Test test, const char *test_name)
+void run_test_(Test test, const char *test_name)
 {
     cases_failed = 0;
     TestResult result = test();
+
+    if (capturing)
+        capture_output_end(NULL);
 
     if (Nst_error_occurred()) {
         Nst_error_print();
@@ -155,4 +167,74 @@ bool ref_obj_to_bool(Nst_Obj *obj)
     bool result = Nst_obj_to_bool(obj);
     Nst_dec_ref(obj);
     return result;
+}
+
+bool capture_output_begin(void)
+{
+    if (capturing) {
+        stderr = orig_stderr;
+        stdout = orig_stdout;
+        fclose(capture_file);
+        Nst_fprintf(
+            Nst_stdio()->err,
+            "capture_output_begin failed, already capturing\n");
+        return false;
+    }
+    orig_stdout = stdout;
+    orig_stderr = stderr;
+    memset(capture_buf, 0, CAPTURE_BUF_SIZE * sizeof(char));
+    capture_file = tmpfile();
+    if (capture_file == NULL) {
+        Nst_fprintf(
+            Nst_stdio()->err,
+            "capture_output_begin failed to create temp file\n");
+        return false;
+    }
+    capturing = true;
+    stdout = capture_file;
+    stderr = capture_file;
+    return true;
+}
+
+const char *capture_output_end(usize *out_length)
+{
+    if (!capturing) {
+        Nst_fprintf(
+            Nst_stdio()->err,
+            "capture_output_end failed, capturing not started\n");
+        if (out_length != NULL)
+            *out_length = 0;
+        return NULL;
+    }
+    stdout = orig_stdout;
+    stderr = orig_stderr;
+    capturing = false;
+
+    if (fseek(capture_file, 0, SEEK_SET) != 0) {
+        fclose(capture_file);
+        Nst_fprintf(
+            Nst_stdio()->err,
+            "capture_output_end failed to seek file\n");
+        if (out_length != NULL)
+            *out_length = 0;
+        return NULL;
+    }
+    usize bytes_written = fread(
+        capture_buf,
+        sizeof(char),
+        CAPTURE_BUF_SIZE - 1,
+        capture_file);
+    if (ferror(capture_file)) {
+        fclose(capture_file);
+        Nst_fprintf(
+            Nst_stdio()->err,
+            "capture_output_end failed to read file\n");
+        if (out_length != NULL)
+            *out_length = 0;
+        return NULL;
+    }
+    capture_buf[bytes_written] = '\0';
+    if (out_length != NULL)
+        *out_length = bytes_written;
+    return (const char *)capture_buf;
 }
