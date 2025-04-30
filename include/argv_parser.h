@@ -81,8 +81,10 @@ NstEXP bool NstC Nst_supports_color(void);
 /* Ovverrides the value returned by `Nst_supports_color`. */
 NstEXP void NstC _Nst_supports_color_override(bool value);
 
+#ifdef Nst_MSVC
+
 /**
- * Re-encode Unicode (UTF-16) arguments to UTF-8.
+ * WINDOWS ONLY Re-encode Unicode (UTF-16) arguments to UTF-8.
  *
  * @param argc: the length of `wargv`
  * @param wargv: the arguments given
@@ -91,8 +93,6 @@ NstEXP void NstC _Nst_supports_color_override(bool value);
  * @return `true` on success and `false` on failure. No error is set.
  */
 NstEXP bool NstC _Nst_wargv_to_argv(int argc, wchar_t **wargv, char ***argv);
-
-#ifdef Nst_MSVC
 
 /* WINDOWS ONLY Initialize the console. */
 NstEXP void NstC _Nst_console_mode_init(void);
