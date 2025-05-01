@@ -23,7 +23,9 @@ isize Nst_printf(Nst_WIN_FMT const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    return Nst_vfprintf(Nst_io.out, fmt, args);
+    isize result = Nst_vfprintf(Nst_io.out, fmt, args);
+    va_end(args);
+    return result;
 }
 
 isize Nst_fprint(Nst_Obj *f, const char *buf)
@@ -56,14 +58,18 @@ isize Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const char *fmt, ...)
     Nst_assert(f->type == Nst_t.IOFile);
     va_list args;
     va_start(args, fmt);
-    return Nst_vfprintf(f, fmt, args);
+    isize result = Nst_vfprintf(f, fmt, args);
+    va_end(args);
+    return result;
 }
 
 Nst_Obj *Nst_sprintf(Nst_WIN_FMT const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    return Nst_vsprintf(fmt, args);
+    Nst_Obj *result = Nst_vsprintf(fmt, args);
+    va_end(args);
+    return result;
 }
 
 Nst_Obj *Nst_vsprintf(const char *fmt, va_list args)
@@ -71,18 +77,15 @@ Nst_Obj *Nst_vsprintf(const char *fmt, va_list args)
     va_list args_copy;
     va_copy(args_copy, args);
     isize buf_size = vsnprintf(NULL, 0, fmt, args_copy) + 1;
-    if (buf_size < 0) {
-        va_end(args);
+    va_end(args_copy);
+    if (buf_size < 0)
         return NULL;
-    }
     char *buf = Nst_calloc_c(buf_size, char, NULL);
     if (buf == NULL) {
         Nst_error_clear();
-        va_end(args);
         return NULL;
     }
     int len = vsprintf(buf, fmt, args);
-    va_end(args);
 
     if (len < 0) {
         Nst_free(buf);
@@ -101,25 +104,22 @@ isize Nst_vfprintf(Nst_Obj *f, const char *fmt, va_list args)
 {
     Nst_assert(f->type == Nst_t.IOFile);
     if (Nst_IOF_IS_CLOSED(f)) {
-        va_end(args);
         return -2;
     }
 
     va_list args_copy;
     va_copy(args_copy, args);
     isize buf_size = vsnprintf(NULL, 0, fmt, args_copy) + 1;
+    va_end(args_copy);
     if (buf_size < 0) {
-        va_end(args);
         return -3;
     }
     char *buf = Nst_calloc_c(buf_size, char, NULL);
     if (buf == NULL) {
         Nst_error_clear();
-        va_end(args);
         return -4;
     }
     int len = vsprintf(buf, fmt, args);
-    va_end(args);
 
     if (len < 0) {
         Nst_free(buf);
@@ -377,7 +377,9 @@ u8 *Nst_fmt(const char *fmt, usize fmt_len, usize *out_len, ...)
 {
     va_list args;
     va_start(args, out_len);
-    return Nst_vfmt(fmt, fmt_len, out_len, args);
+    u8 *result = Nst_vfmt(fmt, fmt_len, out_len, args);
+    va_end(args);
+    return result;
 }
 
 Nst_Obj *Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj **values, usize value_count)
@@ -402,11 +404,13 @@ Nst_Obj *Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj **values, usize value_count)
 
 u8 *Nst_vfmt(const char *fmt, usize fmt_len, usize *out_len, va_list args)
 {
-    va_list args_cpy;
-    va_copy(args_cpy, args);
+    va_list args_copy;
+    va_copy(args_copy, args);
     FmtValues values;
-    fmt_values_init_va_args(&values, &args_cpy);
-    return general_fmt(fmt, fmt_len, out_len, &values);
+    fmt_values_init_va_args(&values, &args_copy);
+    u8 *result = general_fmt(fmt, fmt_len, out_len, &values);
+    va_end(args_copy);
+    return result;
 }
 
 u8 *NstC Nst_repr(u8 *str, usize str_len, usize *out_len, bool shallow,

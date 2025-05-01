@@ -302,7 +302,7 @@ i32 Nst_str_next_utf8(Nst_Obj *str, isize *idx, u8 *ch_buf)
     if (ch_buf == NULL)
         return ch_len;
     memset(ch_buf, 0, 4);
-    ch_buf = memcpy(ch_buf, STR(str)->value + *idx, ch_len);
+    memcpy(ch_buf, STR(str)->value + *idx, ch_len);
     return ch_len;
 }
 

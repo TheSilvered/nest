@@ -106,6 +106,7 @@ static Nst_SourceText *load_file(Nst_CLArgs *inout_args, bool parse_line)
 
     if (!normalize_encoding(src_text, inout_args->encoding))
         goto cleanup;
+    text = NULL;
     if (!add_lines(src_text))
         goto cleanup;
     return src_text;
@@ -149,6 +150,7 @@ static Nst_SourceText *load_command(Nst_CLArgs *inout_args, bool parse_line)
     // ignore the encoding parsed in the first line if any
     if (!normalize_encoding(src_text, Nst_EID_UNKNOWN))
         goto cleanup;
+    text = NULL;
     if (!add_lines(src_text))
         goto cleanup;
 

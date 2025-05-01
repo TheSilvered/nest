@@ -696,8 +696,10 @@ bool Nst_extract_args(const char *types, usize arg_num, Nst_Obj **args, ...)
     const char *tp = types;
     usize idx = 0;
     allocated_objects = Nst_vector_new(0);
-    if (allocated_objects == NULL)
+    if (allocated_objects == NULL) {
+        va_end(args_list);
         return false;
+    }
 
     do {
         MatchType *type = compile_type_match(tp, &tp, types, &args_list, true);
@@ -715,6 +717,7 @@ bool Nst_extract_args(const char *types, usize arg_num, Nst_Obj **args, ...)
             for (usize i = 0, n = Nst_seq_len(allocated_objects); i < n; i++)
                 Nst_dec_ref(Nst_seq_getnf(allocated_objects, n));
             Nst_dec_ref(allocated_objects);
+            va_end(args_list);
             return false;
         }
 
@@ -727,6 +730,7 @@ bool Nst_extract_args(const char *types, usize arg_num, Nst_Obj **args, ...)
             for (usize i = 0, n = Nst_seq_len(allocated_objects); i < n; i++)
                 Nst_dec_ref(Nst_seq_getnf(allocated_objects, n));
             Nst_dec_ref(allocated_objects);
+            va_end(args_list);
             return false;
         }
         free_type_match(type);

@@ -1,4 +1,4 @@
-﻿#include "nest.h"
+#include "nest.h"
 
 #ifdef Nst_MSVC
 

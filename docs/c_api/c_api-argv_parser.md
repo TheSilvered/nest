@@ -142,7 +142,7 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, char ***argv)
 
 **Description:**
 
-Re-encode Unicode (UTF-16) arguments to UTF-8.
+**WINDOWS ONLY** Re-encode Unicode (UTF-16) arguments to UTF-8.
 
 **Parameters:**
 

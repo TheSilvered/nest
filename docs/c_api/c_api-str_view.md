@@ -178,8 +178,8 @@ number when no more characters are available.
 **Synopsis:**
 
 ```better-c
-bool Nst_sv_parse_int(Nst_StrView sv, u8 base, Nst_SvNumFlags flags,
-                      i64 *out_num, Nst_StrView *out_rest)
+bool Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, i64 *out_num,
+                      Nst_StrView *out_rest)
 ```
 
 **Description:**
@@ -235,8 +235,8 @@ not NULL and `out_rest` is equal to `sv`.
 **Synopsis:**
 
 ```better-c
-bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, Nst_SvNumFlags flags,
-                       u8 *out_num, Nst_StrView *out_rest)
+bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u8 *out_num,
+                       Nst_StrView *out_rest)
 ```
 
 **Description:**
@@ -298,7 +298,7 @@ not NULL and `out_rest` is equal to `sv`.
 **Synopsis:**
 
 ```better-c
-bool Nst_sv_parse_real(Nst_StrView sv, Nst_SvNumFlags flags, f64 *out_num,
+bool Nst_sv_parse_real(Nst_StrView sv, u32 flags, f64 *out_num,
                        Nst_StrView *out_rest)
 ```
 

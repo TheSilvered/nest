@@ -680,7 +680,7 @@ static bool format_escape(Nst_StrBuilder *sb, bool is_format_string,
 static Nst_Tok make_str_literal(void)
 {
     Nst_Pos start = cursor.pos;
-    Nst_Pos escape_start = start;
+    Nst_Pos escape_start = { 0 };
     u8 closing_ch = cursor.ch;
     bool allow_multiline = cursor.ch == '"';
     bool is_format_string = false;

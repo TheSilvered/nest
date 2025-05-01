@@ -13,6 +13,7 @@ Nst_StdIn Nst_stdin;
 #else
 
 #include <unistd.h>
+#include <sys/types.h>
 
 #endif
 
@@ -187,7 +188,7 @@ Nst_IOResult Nst_FILE_read(u8 *buf, usize buf_size, usize count,
         else
             out_buf = buf;
 
-        if (buf == NULL)
+        if (out_buf == NULL)
             return Nst_IO_ALLOC_FAILED;
 
         usize original_count = count;

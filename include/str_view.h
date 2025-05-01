@@ -132,8 +132,7 @@ NstEXP typedef enum _Nst_SvNumFlags {
  * @return `true` on success and `false` on failure. On failure `out_num` is
  * set to `0` if not NULL and `out_rest` is equal to `sv`.
  */
-NstEXP bool NstC Nst_sv_parse_int(Nst_StrView sv,
-                                  u8 base, Nst_SvNumFlags flags,
+NstEXP bool NstC Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags,
                                   i64 *out_num, Nst_StrView *out_rest);
 /**
  * Parse an unsigned byte from `sv`. Any leading whitespace is ignored.
@@ -180,8 +179,7 @@ NstEXP bool NstC Nst_sv_parse_int(Nst_StrView sv,
  * @return `true` on success and `false` on failure. On failure `out_num` is
  * set to `0` if not NULL and `out_rest` is equal to `sv`.
  */
-NstEXP bool NstC Nst_sv_parse_byte(Nst_StrView sv,
-                                   u8 base, Nst_SvNumFlags flags,
+NstEXP bool NstC Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags,
                                    u8 *out_num, Nst_StrView *out_rest);
 /**
  * Parse a double precision floating point number from `sv`. Any leading
@@ -220,8 +218,8 @@ NstEXP bool NstC Nst_sv_parse_byte(Nst_StrView sv,
  * @return `true` on success and `false` on failure. On failure `out_num` is
  * set to `0` if not NULL and `out_rest` is equal to `sv`.
  */
-NstEXP bool NstC Nst_sv_parse_real(Nst_StrView sv, Nst_SvNumFlags flags,
-                                   f64 *out_num, Nst_StrView *out_rest);
+NstEXP bool NstC Nst_sv_parse_real(Nst_StrView sv, u32 flags, f64 *out_num,
+                                   Nst_StrView *out_rest);
 
 /**
  * Compare two `Nst_StrView`'s.
