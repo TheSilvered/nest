@@ -16,10 +16,8 @@ then
     sudo dnf -y update
     sudo dnf -y install gcc g++ glibc-devel.i686 libstdc++-devel.i686
     sudo dnf -y groupinstall "Development Tools"
-    sudo dnf -y install pkg-config
 else
     sudo apt-get -y update
     sudo apt-get -y upgrade
     sudo apt-get -y install build-essential gcc-multilib g++-multilib
-    sudo apt-get -y install pkg-config
 fi
