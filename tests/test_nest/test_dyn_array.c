@@ -2,7 +2,11 @@
 
 TestResult test_da_init(void)
 {
-    return TEST_NOT_IMPL;
+    ENTER_TEST;
+
+
+
+    EXIT_TEST;
 }
 
 TestResult test_da_init_copy(void)

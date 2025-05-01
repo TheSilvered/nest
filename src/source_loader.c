@@ -10,16 +10,16 @@ static void read_first_line(char *text, usize len, Nst_CLArgs *args);
 static Nst_SourceText *load_file(Nst_CLArgs *inout_args, bool parse_line);
 static Nst_SourceText *load_command(Nst_CLArgs *inout_args, bool parse_line);
 
-static Nst_DynArray loaded_texts;
+static Nst_PtrArray loaded_texts;
 
 bool _Nst_source_loader_init(void)
 {
-    return Nst_da_init(&loaded_texts, sizeof(Nst_SourceText *), 20);
+    return Nst_pa_init(&loaded_texts, 20);
 }
 
 void _Nst_source_loader_quit(void)
 {
-    Nst_da_clear_p(&loaded_texts, (Nst_Destructor)Nst_source_text_destroy);
+    Nst_pa_clear(&loaded_texts, (Nst_Destructor)Nst_source_text_destroy);
 }
 
 Nst_SourceText *Nst_source_load(Nst_CLArgs *inout_args)
@@ -34,7 +34,7 @@ Nst_SourceText *Nst_source_load(Nst_CLArgs *inout_args)
         Nst_error_setc_value("Nst_source_load: invalid arguments");
         return NULL;
     }
-    if (src_text != NULL && !Nst_da_append(&loaded_texts, &src_text)) {
+    if (src_text != NULL && !Nst_pa_append(&loaded_texts, src_text)) {
         Nst_source_text_destroy(src_text);
         return NULL;
     }

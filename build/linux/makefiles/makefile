@@ -6,7 +6,7 @@ CLARGS = $(REC_CLARGS)
 endif
 
 CC = gcc
-CFLAGS = -D_FILE_OFFSET_BITS=64 -I$(abspath ../../../include) -Wall -Wextra    \
+CFLAGS = -D_FILE_OFFSET_BITS=64 -I$(abspath ../../../include) -Wall -Wextra \
 		 -Wshadow -Wnull-dereference $(CLARGS)
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = nest
@@ -106,16 +106,19 @@ run-debug:
 	@export NEST_LIBDIR=$(abspath ../linux_libs) \
 	&& export LD_LIBRARY_PATH=$(DBG_DIR):$LD_LIBRARY_PATH \
 	&& cd $(RUN_DIR) \
-	&& $(DBG_DIR)/nest $(RUN_FILE)
+	&& $(DEBUGGER) $(DBG_DIR)/nest $(RUN_FILE)
 
 test:
-	@$(SILENT_MAKE) run RUN_FILE=run_tests.nest
+	@$(SILENT_MAKE) run RUN_FILE=run_tests.nest CLARGS=$(CLARGS) \
+	REC_CLARGS=$(REC_CLARGS) CC=$(CC)
 
 test-x86:
-	@$(SILENT_MAKE) run-x86 RUN_FILE=run_tests.nest
+	@$(SILENT_MAKE) run-x86 RUN_FILE=run_tests.nest CLARGS=$(CLARGS) \
+	REC_CLARGS=$(REC_CLARGS) CC=$(CC)
 
 test-debug:
-	@$(SILENT_MAKE) run-debug RUN_FILE=run_tests.nest
+	@$(SILENT_MAKE) run-debug RUN_FILE=run_tests.nest CLARGS=$(CLARGS) \
+	REC_CLARGS=$(REC_CLARGS) CC=$(CC)
 
 test-c:
 	@$(MAKE_FILE) testnest.mk CLARGS=$(REC_CLARGS)
@@ -130,7 +133,10 @@ test-c-x86:
 test-c-debug:
 	@$(MAKE_FILE) testnest.mk debug CLARGS=$(REC_CLARGS)
 	@echo "Running test_nest..."
-	@export LD_LIBRARY_PATH=. && echo $(DBG_DIR) && cd $(DBG_DIR) && ./test_nest
+	@export LD_LIBRARY_PATH=. \
+		&& echo $(DBG_DIR) && \
+		cd $(DBG_DIR) \
+		&& DEBUGGER=$(DEBUGGER) ./test_nest
 
 clear:
 	@$(SILENT_MAKE) clean
@@ -254,3 +260,5 @@ help:
 	@echo "  REC_CLARGS                 additional arguments passed when compiling"
 	@echo "                             libnest.so and the libraries, they are also passed"
 	@echo "                             when compiling nest if CLARGS is not set"
+	@echo "  DEBUGGER                   program used to run nest when executing"
+	@echo "                             'make run-debug' and 'make test-c-debug'"

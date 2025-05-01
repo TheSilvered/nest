@@ -70,7 +70,7 @@ static Nst_Obj *allocated_objects = NULL;
 
 static Nst_Obj *custom_obj_types = NULL;
 
-static Nst_DynArray lib_paths = { 0 };
+static Nst_PtrArray lib_paths = { 0 };
 static Nst_DynArray loaded_libs = { 0 };
 static Nst_Obj *lib_handles = NULL;
 
@@ -809,7 +809,7 @@ bool _Nst_import_init(void)
     if (custom_obj_types == NULL)
         return false;
 
-    if (!Nst_da_init(&lib_paths, sizeof(Nst_Obj *), 10))
+    if (!Nst_pa_init(&lib_paths, 10))
         return false;
     if (!Nst_da_init(&loaded_libs, sizeof(lib_t), 20))
         return false;
@@ -820,7 +820,7 @@ void _Nst_import_quit(void)
 {
     Nst_ndec_ref(lib_handles);
     Nst_ndec_ref(custom_obj_types);
-    Nst_da_clear_p(&lib_paths, (Nst_Destructor)Nst_dec_ref);
+    Nst_pa_clear(&lib_paths, (Nst_Destructor)Nst_dec_ref);
 
     for (usize i = 0; i < loaded_libs.len; i++) {
         lib_t *lib = Nst_da_get(&loaded_libs, i);
@@ -837,17 +837,17 @@ void _Nst_import_close_libs(void)
 
 bool _Nst_import_push_path(Nst_ObjRef *path)
 {
-    return Nst_da_append(&lib_paths, &path);
+    return Nst_pa_append(&lib_paths, path);
 }
 
 void _Nst_import_pop_path(void)
 {
-    Nst_da_pop_p(&lib_paths, (Nst_Destructor)Nst_dec_ref);
+    Nst_pa_pop(&lib_paths, (Nst_Destructor)Nst_dec_ref);
 }
 
 void _Nst_import_clear_paths(void)
 {
-    Nst_da_clear(&lib_paths, (Nst_Destructor)Nst_dec_ref);
+    Nst_pa_clear(&lib_paths, (Nst_Destructor)Nst_dec_ref);
 }
 
 static Nst_Obj *import_nest_lib(Nst_Obj *file_path);
@@ -872,7 +872,7 @@ Nst_ObjRef *Nst_import_lib(const char *path)
 
     // Check if the module is in the import stack
     for (usize i = 0; i < lib_paths.len; i++) {
-        Nst_Obj *lib_path = NstOBJ(Nst_da_get_p(&lib_paths, i));
+        Nst_Obj *lib_path = NstOBJ(Nst_pa_get(&lib_paths, i));
         if (Nst_str_compare(import_path, lib_path) == 0) {
             Nst_dec_ref(import_path);
             Nst_error_setc_import("circular import");

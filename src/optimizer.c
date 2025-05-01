@@ -93,7 +93,7 @@ static bool optimize_node(Nst_Node *node)
 static bool optimize_cs(Nst_Node *node)
 {
     for (usize i = 0, n = node->v.cs.statements.len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_da_get_p(&node->v.cs.statements, i))))
+        if (!optimize_node(Nst_NODE(Nst_pa_get(&node->v.cs.statements, i))))
             return false;
     }
     return true;
@@ -156,11 +156,11 @@ static bool optimize_switch_s(Nst_Node *node)
     // it cannot be optimized to jump to the correct value if known because of
     // possible fallthrough
     for (usize i = 0, n = node->v.sw.values.len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_da_get_p(&node->v.sw.values, i))))
+        if (!optimize_node(Nst_NODE(Nst_pa_get(&node->v.sw.values, i))))
             return false;
     }
     for (usize i = 0, n = node->v.sw.bodies.len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_da_get_p(&node->v.sw.bodies, i))))
+        if (!optimize_node(Nst_NODE(Nst_pa_get(&node->v.sw.bodies, i))))
             return false;
     }
     return optimize_node(node->v.sw.default_body);
@@ -185,11 +185,11 @@ static bool optimize_s_wrapper(Nst_Node *node)
     return true;
 }
 
-static bool optimize_stack_values(Nst_DynArray *values, Nst_TokType op,
+static bool optimize_stack_values(Nst_PtrArray *values, Nst_TokType op,
                                   Nst_Node *node)
 {
     for (usize i = 0, n = values->len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_da_get_p(values, i))))
+        if (!optimize_node(Nst_NODE(Nst_pa_get(values, i))))
             return false;
     }
 
@@ -219,22 +219,22 @@ static bool optimize_stack_values(Nst_DynArray *values, Nst_TokType op,
         return true;
     }
 
-    Nst_Node *first_node = Nst_NODE(Nst_da_get_p(values, 0));
+    Nst_Node *first_node = Nst_NODE(Nst_pa_get(values, 0));
     Nst_Obj *curr_value = get_value(first_node);
     if (curr_value == NULL)
         return true;
     Nst_inc_ref(curr_value);
 
     while (values->len != 1) {
-        Nst_Obj *new_value = get_value(Nst_NODE(Nst_da_get_p(values, 1)));
+        Nst_Obj *new_value = get_value(Nst_NODE(Nst_pa_get(values, 1)));
         if (new_value == NULL) {
             Nst_dec_ref(first_node->v.vl.value);
             first_node->v.vl.value = curr_value;
             return true;
         }
-        Nst_da_remove_shift_p(values, 0, (Nst_Destructor)Nst_node_destroy);
+        Nst_pa_remove_shift(values, 0, (Nst_Destructor)Nst_node_destroy);
 
-        first_node = Nst_NODE(Nst_da_get_p(values, 0));
+        first_node = Nst_NODE(Nst_pa_get(values, 0));
         Nst_Obj *result = op_func(curr_value, new_value);
         Nst_dec_ref(curr_value);
         if (result == NULL) {
@@ -254,8 +254,8 @@ static bool optimize_stack_op(Nst_Node *node)
         return false;
 
     if (node->v.so.values.len == 1) {
-        Nst_Node *expr = Nst_da_get_p(&node->v.so.values, 0);
-        Nst_da_clear(&node->v.so.values, NULL);
+        Nst_Node *expr = Nst_pa_get(&node->v.so.values, 0);
+        Nst_pa_clear(&node->v.so.values, NULL);
         move_into(expr, node);
     }
     return true;
@@ -264,7 +264,7 @@ static bool optimize_stack_op(Nst_Node *node)
 static bool optimize_local_stack_op(Nst_Node *node)
 {
     for (usize i = 0, n = node->v.ls.values.len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_da_get_p(&node->v.ls.values, i))))
+        if (!optimize_node(Nst_NODE(Nst_pa_get(&node->v.ls.values, i))))
             return false;
     }
 
@@ -306,7 +306,7 @@ static bool optimize_local_op(Nst_Node *node)
 static bool optimize_seq_lit(Nst_Node *node)
 {
     for (usize i = 0, n = node->v.sl.values.len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_da_get_p(&node->v.sl.values, i))))
+        if (!optimize_node(Nst_NODE(Nst_pa_get(&node->v.sl.values, i))))
             return false;
     }
     return true;
@@ -315,12 +315,12 @@ static bool optimize_seq_lit(Nst_Node *node)
 static bool optimize_map_lit(Nst_Node *node)
 {
     for (usize i = 0, n = node->v.ml.keys.len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_da_get_p(&node->v.ml.keys, i))))
+        if (!optimize_node(Nst_NODE(Nst_pa_get(&node->v.ml.keys, i))))
             return false;
     }
 
     for (usize i = 0, n = node->v.ml.values.len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_da_get_p(&node->v.ml.values, i))))
+        if (!optimize_node(Nst_NODE(Nst_pa_get(&node->v.ml.values, i))))
             return false;
     }
     return true;
@@ -496,7 +496,7 @@ static void replace_constant(Nst_InstList *ls, Nst_Obj *name, Nst_Obj *val)
 
     // do not add the value if it is never used
     if (!changed && (usize)idx == prev_len)
-        Nst_da_pop_p(&ls->objects, (Nst_Destructor)Nst_dec_ref);
+        Nst_pa_pop(&ls->objects, (Nst_Destructor)Nst_dec_ref);
 
     for (usize i = 0, n = ls->functions.len; i < n; i++) {
         Nst_FuncPrototype *func = Nst_ilist_get_func(ls, i);
@@ -517,7 +517,7 @@ static void replace_func_access(Nst_FuncPrototype *func, Nst_Obj *name,
     bool changed = replace_access(&func->ilist, name, (usize)idx);
     // do not add the value if it is never used
     if (!changed && (usize)idx == prev_len)
-        Nst_da_pop_p(&func->ilist.objects, (Nst_Destructor)Nst_dec_ref);
+        Nst_pa_pop(&func->ilist.objects, (Nst_Destructor)Nst_dec_ref);
 
     for (usize i = 0, n = func->ilist.functions.len; i < n; i++) {
         Nst_FuncPrototype *func_ptype = Nst_ilist_get_func(&func->ilist, i);

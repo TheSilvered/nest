@@ -206,7 +206,7 @@ static void print_node(const char *name, Nst_Node *node, Nst_LList *levels,
     remove_level(levels);
 }
 
-static void print_node_list(const char *name, Nst_DynArray nodes,
+static void print_node_list(const char *name, Nst_PtrArray nodes,
                             Nst_LList *levels, bool last)
 {
     print_levels(levels);
@@ -224,7 +224,7 @@ static void print_node_list(const char *name, Nst_DynArray nodes,
     for (usize i = 0; i < nodes.len; i++) {
         print_node(
             NULL,
-            Nst_NODE(Nst_da_get_p(&nodes, i)),
+            Nst_NODE(Nst_pa_get(&nodes, i)),
             levels,
             i == nodes.len - 1);
     }
@@ -270,7 +270,7 @@ static void print_tok_type(const char *name, Nst_TokType tok_type,
     Nst_printf("%s: %s\n", name, Nst_tok_type_to_str(tok_type));
 }
 
-static void print_obj_list(const char *name, Nst_DynArray objs,
+static void print_obj_list(const char *name, Nst_PtrArray objs,
                            Nst_LList *levels, bool last)
 {
     print_levels(levels);
@@ -288,7 +288,7 @@ static void print_obj_list(const char *name, Nst_DynArray objs,
     for (usize i = 0; i < objs.len; i++) {
         print_obj(
             NULL,
-            NstOBJ(Nst_da_get_p(&objs, i)),
+            NstOBJ(Nst_pa_get(&objs, i)),
             levels,
             i == objs.len - 1);
     }
@@ -307,12 +307,12 @@ static void print_seq_node_type(const char *name, Nst_SeqNodeType snt,
 
 bool _Nst_node_cs_init(Nst_Node *node)
 {
-    return Nst_da_init(&node->v.cs.statements, sizeof(Nst_Node *), 4);
+    return Nst_pa_init(&node->v.cs.statements, 4);
 }
 
 void _Nst_node_cs_destroy(Nst_Node *node)
 {
-    Nst_da_clear_p(&node->v.cs.statements, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.cs.statements, (Nst_Destructor)Nst_node_destroy);
 }
 
 void print_cs(Nst_Node *node, Nst_LList *levels)
@@ -372,7 +372,7 @@ bool _Nst_node_fd_init(Nst_Node *node)
 {
     node->v.fd.name = NULL;
     node->v.fd.body = NULL;
-    return Nst_da_init(&node->v.fd.argument_names, sizeof(Nst_Obj *), 2);
+    return Nst_pa_init(&node->v.fd.argument_names, 2);
 }
 
 void _Nst_node_fd_destroy(Nst_Node *node)
@@ -380,7 +380,7 @@ void _Nst_node_fd_destroy(Nst_Node *node)
     Nst_ndec_ref(node->v.fd.name);
     if (node->v.fd.body != NULL)
         Nst_node_destroy(node->v.fd.body);
-    Nst_da_clear_p(&node->v.fd.argument_names, (Nst_Destructor)Nst_dec_ref);
+    Nst_pa_clear(&node->v.fd.argument_names, (Nst_Destructor)Nst_dec_ref);
 }
 
 void print_fd(Nst_Node *node, Nst_LList *levels)
@@ -410,8 +410,8 @@ void print_rt(Nst_Node *node, Nst_LList *levels)
 bool _Nst_node_sw_init(Nst_Node *node)
 {
     node->v.sw.expr = NULL;
-    Nst_da_init(&node->v.sw.values, sizeof(Nst_Node *), 0);
-    Nst_da_init(&node->v.sw.bodies, sizeof(Nst_Node *), 0);
+    Nst_pa_init(&node->v.sw.values, 0);
+    Nst_pa_init(&node->v.sw.bodies, 0);
     node->v.sw.default_body = NULL;
     return true;
 }
@@ -420,8 +420,8 @@ void _Nst_node_sw_destroy(Nst_Node *node)
 {
     if (node->v.sw.expr != NULL)
         Nst_node_destroy(node->v.sw.expr);
-    Nst_da_clear_p(&node->v.sw.values, (Nst_Destructor)Nst_node_destroy);
-    Nst_da_clear_p(&node->v.sw.bodies, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.sw.values, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.sw.bodies, (Nst_Destructor)Nst_node_destroy);
     if (node->v.sw.default_body != NULL)
         Nst_node_destroy(node->v.sw.default_body);
 }
@@ -478,12 +478,12 @@ void print_ws(Nst_Node *node, Nst_LList *levels)
 bool _Nst_node_so_init(Nst_Node *node)
 {
     node->v.so.op = Nst_TT_INVALID;
-    return Nst_da_init(&node->v.so.values, sizeof(Nst_Node *), 2);
+    return Nst_pa_init(&node->v.so.values, 2);
 }
 
 void _Nst_node_so_destroy(Nst_Node *node)
 {
-    Nst_da_clear_p(&node->v.so.values, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.so.values, (Nst_Destructor)Nst_node_destroy);
 }
 
 void print_so(Nst_Node *node, Nst_LList *levels)
@@ -496,12 +496,12 @@ bool _Nst_node_ls_init(Nst_Node *node)
 {
     node->v.ls.special_value = NULL;
     node->v.ls.op = Nst_TT_INVALID;
-    return Nst_da_init(&node->v.ls.values, sizeof(Nst_Node *), 3);
+    return Nst_pa_init(&node->v.ls.values, 3);
 }
 
 void _Nst_node_ls_destroy(Nst_Node *node)
 {
-    Nst_da_clear_p(&node->v.ls.values, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.ls.values, (Nst_Destructor)Nst_node_destroy);
     if (node->v.ls.special_value != NULL)
         Nst_node_destroy(node->v.ls.special_value);
 }
@@ -534,14 +534,14 @@ void print_lo(Nst_Node *node, Nst_LList *levels)
 
 bool _Nst_node_sl_init(Nst_Node *node)
 {
-    Nst_da_init(&node->v.sl.values, sizeof(Nst_Node *), 0);
+    Nst_pa_init(&node->v.sl.values, 0);
     node->v.sl.type = Nst_SNT_NOT_SET;
     return true;
 }
 
 void _Nst_node_sl_destroy(Nst_Node *node)
 {
-    Nst_da_clear_p(&node->v.sl.values, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.sl.values, (Nst_Destructor)Nst_node_destroy);
 }
 
 void print_sl(Nst_Node *node, Nst_LList *levels)
@@ -552,15 +552,15 @@ void print_sl(Nst_Node *node, Nst_LList *levels)
 
 bool _Nst_node_ml_init(Nst_Node *node)
 {
-    Nst_da_init(&node->v.ml.keys, sizeof(Nst_Node *), 0);
-    Nst_da_init(&node->v.ml.values, sizeof(Nst_Node *), 0);
+    Nst_pa_init(&node->v.ml.keys, 0);
+    Nst_pa_init(&node->v.ml.values, 0);
     return true;
 }
 
 void _Nst_node_ml_destroy(Nst_Node *node)
 {
-    Nst_da_clear_p(&node->v.ml.keys, (Nst_Destructor)Nst_node_destroy);
-    Nst_da_clear_p(&node->v.ml.values, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.ml.keys, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.ml.values, (Nst_Destructor)Nst_node_destroy);
 }
 
 void print_ml(Nst_Node *node, Nst_LList *levels)
@@ -647,12 +647,12 @@ bool _Nst_node_ca_init(Nst_Node *node)
 {
     node->v.ca.name = NULL;
     node->v.ca.op = Nst_TT_INVALID;
-    return Nst_da_init(&node->v.ca.values, sizeof(Nst_Node *), 2);
+    return Nst_pa_init(&node->v.ca.values, 2);
 }
 
 void _Nst_node_ca_destroy(Nst_Node *node)
 {
-    Nst_da_clear_p(&node->v.ca.values, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.ca.values, (Nst_Destructor)Nst_node_destroy);
     if (node->v.ca.name != NULL)
         Nst_node_destroy(node->v.ca.name);
 }

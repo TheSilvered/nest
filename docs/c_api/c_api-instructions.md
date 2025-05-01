@@ -41,7 +41,7 @@ A structure representing a Nest instruction.
 ```better-c
 typedef struct _Nst_InstList {
     Nst_DynArray instructions;
-    Nst_DynArray objects;
+    Nst_PtrArray objects;
     Nst_DynArray functions;
 } Nst_InstList
 ```

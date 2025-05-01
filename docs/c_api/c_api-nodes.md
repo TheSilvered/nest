@@ -46,7 +46,7 @@ Evaluates to `true` if the specified node type returns a value.
 
 ```better-c
 typedef struct _Nst_NodeData_Cs {
-    Nst_DynArray statements;
+    Nst_PtrArray statements;
 } Nst_NodeData_Cs
 ```
 
@@ -99,7 +99,7 @@ The data for a [`Nst_NT_FL`](c_api-nodes.md#nst_nodetype) node.
 ```better-c
 typedef struct _Nst_NodeData_Fd {
     Nst_ObjRef *name;
-    Nst_DynArray argument_names;
+    Nst_PtrArray argument_names;
     Nst_Node *body;
 } Nst_NodeData_Fd
 ```
@@ -133,8 +133,8 @@ The data for a [`Nst_NT_RT`](c_api-nodes.md#nst_nodetype) node.
 ```better-c
 typedef struct _Nst_NodeData_Sw {
     Nst_Node *expr;
-    Nst_DynArray values;
-    Nst_DynArray bodies;
+    Nst_PtrArray values;
+    Nst_PtrArray bodies;
     Nst_Node *default_body;
 } Nst_NodeData_Sw
 ```
@@ -185,7 +185,7 @@ The data for a [`Nst_NT_WS`](c_api-nodes.md#nst_nodetype) node.
 
 ```better-c
 typedef struct _Nst_NodeData_So {
-    Nst_DynArray values;
+    Nst_PtrArray values;
     Nst_TokType op;
 } Nst_NodeData_So
 ```
@@ -202,7 +202,7 @@ The data for a [`Nst_NT_SO`](c_api-nodes.md#nst_nodetype) node.
 
 ```better-c
 typedef struct _Nst_NodeData_Ls {
-    Nst_DynArray values;
+    Nst_PtrArray values;
     Nst_Node *special_value;
     Nst_TokType op;
 } Nst_NodeData_Ls
@@ -237,7 +237,7 @@ The data for a [`Nst_NT_LO`](c_api-nodes.md#nst_nodetype) node.
 
 ```better-c
 typedef struct _Nst_NodeData_Sl {
-    Nst_DynArray values;
+    Nst_PtrArray values;
     Nst_SeqNodeType type;
 } Nst_NodeData_Sl
 ```
@@ -254,8 +254,8 @@ The data for a [`Nst_NT_SL`](c_api-nodes.md#nst_nodetype) node.
 
 ```better-c
 typedef struct _Nst_NodeData_Ml {
-    Nst_DynArray keys;
-    Nst_DynArray values;
+    Nst_PtrArray keys;
+    Nst_PtrArray values;
 } Nst_NodeData_Ml
 ```
 
@@ -337,7 +337,7 @@ The data for a [`Nst_NT_AS`](c_api-nodes.md#nst_nodetype) node.
 
 ```better-c
 typedef struct _Nst_NodeData_Ca {
-    Nst_DynArray values;
+    Nst_PtrArray values;
     Nst_Node *name;
     Nst_TokType op;
 } Nst_NodeData_Ca

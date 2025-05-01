@@ -85,7 +85,7 @@ NstEXP typedef struct _Nst_Inst {
  */
 NstEXP typedef struct _Nst_InstList {
     Nst_DynArray instructions;
-    Nst_DynArray objects;
+    Nst_PtrArray objects;
     Nst_DynArray functions;
 } Nst_InstList;
 

@@ -231,7 +231,7 @@ static bool compile_cs(Nst_Node *node)
     */
 
     for (usize i = 0, n = node->v.cs.statements.len; i < n; i++) {
-        Nst_Node *statement = Nst_NODE(Nst_da_get_p(&node->v.cs.statements, i));
+        Nst_Node *statement = Nst_NODE(Nst_pa_get(&node->v.cs.statements, i));
         if (!compile_node(statement))
             return false;
         if (Nst_NODE_RETUNS_VALUE(statement->type)) {
@@ -550,7 +550,7 @@ static bool compile_fd(Nst_Node *node)
 
     for (usize i = 0; i < fp.arg_num; i++) {
         fp.arg_names[i] = Nst_inc_ref(
-            NstOBJ(Nst_da_get_p(&node->v.fd.argument_names, i)));
+            NstOBJ(Nst_pa_get(&node->v.fd.argument_names, i)));
     }
 
     isize func_idx = Nst_ilist_add_func(&c_state.ls, &fp);
@@ -605,7 +605,7 @@ static bool compile_stack_op(Nst_Node *node)
     STACK_OP - op
     */
 
-    Nst_Node *lnode = Nst_NODE(Nst_da_get_p(&node->v.so.values, 0));
+    Nst_Node *lnode = Nst_NODE(Nst_pa_get(&node->v.so.values, 0));
     if (!compile_node(lnode))
         return false;
 
@@ -619,7 +619,7 @@ static bool compile_stack_op(Nst_Node *node)
         return compile_lg_op(node);
 
     for (usize i = 1, n = node->v.so.values.len; i < n; i++) {
-        lnode = Nst_NODE(Nst_da_get_p(&node->v.so.values, i));
+        lnode = Nst_NODE(Nst_pa_get(&node->v.so.values, i));
         if (!compile_node(lnode))
             return false;
         if (!add_inst_ex(Nst_IC_STACK_OP, node->v.so.op, node->span))
@@ -670,7 +670,7 @@ static bool compile_comp_op(Nst_Node *node)
     }
 
     for (usize i = 1, n = node->v.so.values.len; i < n - 1; i++) {
-        Nst_Node *lnode = Nst_NODE(Nst_da_get_p(&node->v.so.values, i));
+        Nst_Node *lnode = Nst_NODE(Nst_pa_get(&node->v.so.values, i));
         if (!compile_node(lnode))
             goto failure;
         if (!add_inst(Nst_IC_DUP, node->span))
@@ -689,7 +689,7 @@ static bool compile_comp_op(Nst_Node *node)
             goto failure;
     }
 
-    Nst_Node *last_node = Nst_NODE(Nst_da_get_p(
+    Nst_Node *last_node = Nst_NODE(Nst_pa_get(
         &node->v.so.values,
         node->v.so.values.len - 1));
     if (!compile_node(last_node))
@@ -755,7 +755,7 @@ static bool compile_lg_op(Nst_Node *node)
             goto failure;
         if (!add_inst(Nst_IC_POP_VAL, node->span))
             goto failure;
-        if (!compile_node(Nst_NODE(Nst_da_get_p(&node->v.so.values, i))))
+        if (!compile_node(Nst_NODE(Nst_pa_get(&node->v.so.values, i))))
             goto failure;
     }
 
@@ -791,7 +791,7 @@ static bool compile_local_stack_op(Nst_Node *node)
     */
 
     for (usize i = 0, n = node->v.ls.values.len; i < n; i++) {
-        Nst_Node *lnode = Nst_NODE(Nst_da_get_p(&node->v.ls.values, i));
+        Nst_Node *lnode = Nst_NODE(Nst_pa_get(&node->v.ls.values, i));
         if (!compile_node(lnode))
             return false;
     }
@@ -862,7 +862,7 @@ static bool compile_seq_lit(Nst_Node *node)
     Nst_assert_c(node->v.sl.type != Nst_SNT_ASSIGNMENT_NAMES);
 
     for (usize i = 0, n = node->v.sl.values.len; i < n; i++) {
-        Nst_Node *lnode = Nst_NODE(Nst_da_get_p(&node->v.sl.values, i));
+        Nst_Node *lnode = Nst_NODE(Nst_pa_get(&node->v.sl.values, i));
         if (!compile_node(lnode))
             return false;
     }
@@ -895,8 +895,8 @@ static bool compile_map_lit(Nst_Node *node)
     Nst_assert_c(node->v.ml.keys.len == node->v.ml.values.len);
 
     for (usize i = 0, n = node->v.ml.keys.len; i < n; i++) {
-        Nst_Node *key = Nst_NODE(Nst_da_get_p(&node->v.ml.keys, i));
-        Nst_Node *val = Nst_NODE(Nst_da_get_p(&node->v.ml.values, i));
+        Nst_Node *key = Nst_NODE(Nst_pa_get(&node->v.ml.keys, i));
+        Nst_Node *val = Nst_NODE(Nst_pa_get(&node->v.ml.values, i));
         if (!compile_node(key))
             return false;
         if (!compile_node(val))
@@ -990,7 +990,7 @@ static bool compile_unpacking_assign_e(Nst_Node *node)
             return false;
 
         for (usize i = 0, n = node->v.sl.values.len; i < n; i++) {
-            Nst_Node *lnode = Nst_NODE(Nst_da_get_p(&node->v.sl.values, i));
+            Nst_Node *lnode = Nst_NODE(Nst_pa_get(&node->v.sl.values, i));
             if (!compile_unpacking_assign_e(lnode))
                 return false;
         }
@@ -1025,7 +1025,7 @@ static bool compile_comp_assign_e(Nst_Node *node)
         return false;
 
     for (usize i = 0, n = node->v.ca.values.len; i < n; i++) {
-        Nst_Node *lnode = Nst_NODE(Nst_da_get_p(&node->v.ca.values, i));
+        Nst_Node *lnode = Nst_NODE(Nst_pa_get(&node->v.ca.values, i));
         if (!compile_node(lnode))
             return false;
         if (!add_inst_ex(Nst_IC_STACK_OP, node->v.ca.op, node->span))
@@ -1110,8 +1110,8 @@ static bool compile_switch_s(Nst_Node *node)
     usize loop_id = c_state.loop_id;
 
     for (usize i = 0, n = node->v.sw.values.len; i < n; i++) {
-        Nst_Node *value = Nst_NODE(Nst_da_get_p(&node->v.sw.values, i));
-        Nst_Node *body = Nst_NODE(Nst_da_get_p(&node->v.sw.bodies, i));
+        Nst_Node *value = Nst_NODE(Nst_pa_get(&node->v.sw.values, i));
+        Nst_Node *body = Nst_NODE(Nst_pa_get(&node->v.sw.bodies, i));
 
         if (!add_inst(Nst_IC_DUP, node->span))
             goto failure;

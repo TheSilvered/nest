@@ -108,7 +108,7 @@ struct _Nst_Node;
 
 /* The data for a `Nst_NT_CS` node. */
 NstEXP typedef struct _Nst_NodeData_Cs {
-    Nst_DynArray statements;
+    Nst_PtrArray statements;
 } Nst_NodeData_Cs;
 
 /* The data for a `Nst_NT_WL` node. */
@@ -128,7 +128,7 @@ NstEXP typedef struct _Nst_NodeData_Fl {
 /* The data for a `Nst_NT_FD` node. */
 NstEXP typedef struct _Nst_NodeData_Fd {
     Nst_ObjRef *name;
-    Nst_DynArray argument_names;
+    Nst_PtrArray argument_names;
     struct _Nst_Node *body;
 } Nst_NodeData_Fd;
 
@@ -140,8 +140,8 @@ NstEXP typedef struct _Nst_NodeData_Rt {
 /* The data for a `Nst_NT_SW` node. */
 NstEXP typedef struct _Nst_NodeData_Sw {
     struct _Nst_Node *expr;
-    Nst_DynArray values;
-    Nst_DynArray bodies;
+    Nst_PtrArray values;
+    Nst_PtrArray bodies;
     struct _Nst_Node *default_body;
 } Nst_NodeData_Sw;
 
@@ -159,13 +159,13 @@ NstEXP typedef struct _Nst_NodeData_Ws {
 
 /* The data for a `Nst_NT_SO` node. */
 NstEXP typedef struct _Nst_NodeData_So {
-    Nst_DynArray values;
+    Nst_PtrArray values;
     Nst_TokType op;
 } Nst_NodeData_So;
 
 /* The data for a `Nst_NT_LS` node. */
 NstEXP typedef struct _Nst_NodeData_Ls {
-    Nst_DynArray values;
+    Nst_PtrArray values;
     struct _Nst_Node *special_value;
     Nst_TokType op;
 } Nst_NodeData_Ls;
@@ -178,14 +178,14 @@ NstEXP typedef struct _Nst_NodeData_Lo {
 
 /* The data for a `Nst_NT_SL` node. */
 NstEXP typedef struct _Nst_NodeData_Sl {
-    Nst_DynArray values;
+    Nst_PtrArray values;
     Nst_SeqNodeType type;
 } Nst_NodeData_Sl;
 
 /* The data for a `Nst_NT_ML` node. */
 NstEXP typedef struct _Nst_NodeData_Ml {
-    Nst_DynArray keys;
-    Nst_DynArray values;
+    Nst_PtrArray keys;
+    Nst_PtrArray values;
 } Nst_NodeData_Ml;
 
 /* The data for a `Nst_NT_VL` node. */
@@ -208,7 +208,7 @@ NstEXP typedef struct _Nst_NodeData_As {
 } Nst_NodeData_As;
 /* The data for a `Nst_NT_CA` node. */
 NstEXP typedef struct _Nst_NodeData_Ca {
-    Nst_DynArray values;
+    Nst_PtrArray values;
     struct _Nst_Node *name;
     Nst_TokType op;
 } Nst_NodeData_Ca;

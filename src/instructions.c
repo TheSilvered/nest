@@ -9,14 +9,14 @@ bool Nst_ic_is_jump(Nst_InstCode code)
 bool Nst_ilist_init(Nst_InstList *list)
 {
     return Nst_da_init(&list->instructions, sizeof(Nst_Inst), 16)
-        && Nst_da_init(&list->objects, sizeof(Nst_Obj *), 4)
+        && Nst_pa_init(&list->objects, 4)
         && Nst_da_init(&list->functions, sizeof(Nst_FuncPrototype), 0);
 }
 
 void Nst_ilist_destroy(Nst_InstList *list)
 {
     Nst_da_clear(&list->instructions, NULL);
-    Nst_da_clear_p(&list->objects, (Nst_Destructor)Nst_dec_ref);
+    Nst_pa_clear(&list->objects, (Nst_Destructor)Nst_dec_ref);
     Nst_da_clear(&list->functions, (Nst_Destructor)Nst_fprototype_destroy);
 }
 
@@ -35,7 +35,7 @@ bool Nst_ilist_add_ex(Nst_InstList *list, Nst_InstCode code, i64 val,
 
 isize Nst_ilist_add_obj(Nst_InstList *list, Nst_ObjRef *obj)
 {
-    if (!Nst_da_append(&list->objects, &obj))
+    if (!Nst_pa_append(&list->objects, obj))
         return -1;
     return (isize)(list->objects.len - 1);
 }
@@ -55,7 +55,7 @@ Nst_Inst *Nst_ilist_get_inst(Nst_InstList *list, usize idx)
 Nst_Obj *Nst_ilist_get_inst_obj(Nst_InstList *list, usize idx)
 {
     Nst_Inst *inst = Nst_ilist_get_inst(list, idx);
-    return NstOBJ(Nst_da_get_p(&list->objects, (usize)inst->val));
+    return NstOBJ(Nst_pa_get(&list->objects, (usize)inst->val));
 }
 
 Nst_FuncPrototype *Nst_ilist_get_inst_func(Nst_InstList *list, usize idx)
@@ -68,7 +68,7 @@ Nst_FuncPrototype *Nst_ilist_get_inst_func(Nst_InstList *list, usize idx)
 
 Nst_Obj *Nst_ilist_get_obj(Nst_InstList *list, usize idx)
 {
-    return NstOBJ(Nst_da_get_p(&list->objects, idx));
+    return NstOBJ(Nst_pa_get(&list->objects, idx));
 }
 
 Nst_FuncPrototype *Nst_ilist_get_func(Nst_InstList *list, usize idx)

@@ -15,8 +15,8 @@ static ParsingState state;
 
 static inline bool enter_func(ParsingState *initial_state);
 static inline void exit_func(ParsingState *initial_state);
-static inline bool append_node(Nst_DynArray *arr, Nst_Node *node);
-static inline bool append_tok_val(Nst_DynArray *arr, Nst_Tok *tok);
+static inline bool append_node(Nst_PtrArray *arr, Nst_Node *node);
+static inline bool append_tok_val(Nst_PtrArray *arr, Nst_Tok *tok);
 
 static inline Nst_Tok *peek_top(void);
 static inline Nst_TokType top_type(void);
@@ -31,9 +31,9 @@ static inline void set_error(const char *msg, Nst_Span span);
 static inline void skip_blank(void);
 static bool check_local_stack_op_arg_num(usize arg_num, Nst_Span span);
 
-static inline void swap_da(Nst_DynArray *arr1, Nst_DynArray *arr2)
+static inline void swap_pa(Nst_PtrArray *arr1, Nst_PtrArray *arr2)
 {
-    Nst_DynArray temp = *arr1;
+    Nst_PtrArray temp = *arr1;
     *arr1 = *arr2;
     *arr2 = temp;
 }
@@ -47,10 +47,10 @@ static Nst_Node *parse_expr(void);
 static Nst_Node *parse_sw(void);
 static Nst_Node *parse_fd(void);
 static Nst_Node *parse_stack_expr(void);
-static Nst_Node *parse_so(Nst_DynArray *values, Nst_Pos start);
-static Nst_Node *parse_ls(Nst_DynArray *values, Nst_Pos start);
+static Nst_Node *parse_so(Nst_PtrArray *values, Nst_Pos start);
+static Nst_Node *parse_ls(Nst_PtrArray *values, Nst_Pos start);
 static Nst_Node *parse_as_name(bool is_compound);
-static Nst_Node *parse_as(Nst_DynArray *values, Nst_Pos start);
+static Nst_Node *parse_as(Nst_PtrArray *values, Nst_Pos start);
 static Nst_Node *parse_ex(void);
 static Nst_Node *parse_atom(void);
 static Nst_Node *parse_vector_literal(void);
@@ -108,18 +108,18 @@ static inline void exit_func(ParsingState *initial_state)
     state.recursion_lvl = initial_state->recursion_lvl;
 }
 
-static inline bool append_node(Nst_DynArray *arr, Nst_Node *node)
+static inline bool append_node(Nst_PtrArray *arr, Nst_Node *node)
 {
-    bool result = Nst_da_append(arr, &node);
+    bool result = Nst_pa_append(arr, node);
     if (!result)
         Nst_error_add_span(node->span);
     return result;
 }
 
-static inline bool append_tok_val(Nst_DynArray *arr, Nst_Tok *tok)
+static inline bool append_tok_val(Nst_PtrArray *arr, Nst_Tok *tok)
 {
     Nst_Obj *value = Nst_inc_ref(tok->value);
-    bool result = Nst_da_append(arr, &value);
+    bool result = Nst_pa_append(arr, value);
     if (!result) {
         Nst_dec_ref(value);
         Nst_error_add_span(tok->span);
@@ -231,7 +231,7 @@ static Nst_Node *parse_cs(void)
     }
 
     if (long_s->v.cs.statements.len != 0) {
-        span = Nst_NODE(Nst_da_get_p(&long_s->v.cs.statements, 0))->span;
+        span = Nst_NODE(Nst_pa_get(&long_s->v.cs.statements, 0))->span;
     }
     Nst_node_set_span(long_s, span);
 
@@ -685,8 +685,8 @@ static Nst_Node *parse_stack_expr()
     if (!enter_func(&initial_state))
         return NULL;
 
-    Nst_DynArray values;
-    if (!Nst_da_init(&values, sizeof(Nst_Node *), 3)) {
+    Nst_PtrArray values;
+    if (!Nst_pa_init(&values, 3)) {
         Nst_error_add_span(top_span());
         return NULL;
     }
@@ -750,36 +750,36 @@ static Nst_Node *parse_stack_expr()
         goto failure;
     }
 
-    Nst_Node *expr = Nst_NODE(Nst_da_get_p(&values, 0));
-    Nst_da_clear(&values, NULL);
+    Nst_Node *expr = Nst_NODE(Nst_pa_get(&values, 0));
+    Nst_pa_clear(&values, NULL);
     exit_func(&initial_state);
     return expr;
 
 failure:
-    Nst_da_clear_p(&values, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&values, (Nst_Destructor)Nst_node_destroy);
     return NULL;
 }
 
-static Nst_Node *parse_so(Nst_DynArray *values, Nst_Pos start)
+static Nst_Node *parse_so(Nst_PtrArray *values, Nst_Pos start)
 {
     Nst_Node *stack_op = new_node(Nst_NT_SO, top_span());
     if (stack_op == NULL)
         return NULL;
     Nst_node_set_span(stack_op, Nst_span_new(start, top_end()));
-    swap_da(&stack_op->v.so.values, values);
+    swap_pa(&stack_op->v.so.values, values);
     stack_op->v.so.op = top_type();
     pop_top();
     return stack_op;
 }
 
-static Nst_Node *parse_ls(Nst_DynArray *values, Nst_Pos start)
+static Nst_Node *parse_ls(Nst_PtrArray *values, Nst_Pos start)
 {
     Nst_Pos args_end;
     if (values->len == 0)
         args_end = start;
     else {
         args_end = Nst_span_end(
-            Nst_NODE(Nst_da_get_p(values, values->len - 1))->span);
+            Nst_NODE(Nst_pa_get(values, values->len - 1))->span);
     }
 
     usize arg_num = values->len;
@@ -802,7 +802,7 @@ static Nst_Node *parse_ls(Nst_DynArray *values, Nst_Pos start)
     Nst_node_set_span(
         local_stack_op,
         Nst_span_expand(special_node->span, start));
-    swap_da(&local_stack_op->v.ls.values, values);
+    swap_pa(&local_stack_op->v.ls.values, values);
     local_stack_op->v.ls.special_value = special_node;
     local_stack_op->v.ls.op = op;
     return local_stack_op;
@@ -893,7 +893,7 @@ failure:
     return NULL;
 }
 
-static Nst_Node *parse_as(Nst_DynArray *values, Nst_Pos start)
+static Nst_Node *parse_as(Nst_PtrArray *values, Nst_Pos start)
 {
     ParsingState initial_state;
     if (!enter_func(&initial_state))
@@ -925,13 +925,13 @@ static Nst_Node *parse_as(Nst_DynArray *values, Nst_Pos start)
     Nst_node_set_span(assignment, Nst_span_expand(name->span, start));
 
     if (is_compound) {
-        swap_da(&assignment->v.ca.values, values);
+        swap_pa(&assignment->v.ca.values, values);
         assignment->v.ca.name = name;
         assignment->v.ca.op = _Nst_TOK_ASSIGNMENT_TO_STACK_OP(type);
     } else {
         assignment->v.as.name = name;
-        assignment->v.as.value = Nst_NODE(Nst_da_get_p(values, 0));
-        Nst_da_clear(values, NULL);
+        assignment->v.as.value = Nst_NODE(Nst_pa_get(values, 0));
+        Nst_pa_clear(values, NULL);
     }
 
     exit_func(&initial_state);
