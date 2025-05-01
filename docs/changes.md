@@ -44,20 +44,27 @@
     - `Nst_bc_print`
 - added `dyn_array.h` which defines the following symbols
     - `Nst_DynArray`
+    - `Nst_PtrArray`
     - `Nst_da_init`
     - `Nst_da_init_copy`
     - `Nst_da_reserve`
     - `Nst_da_append`
     - `Nst_da_pop`
-    - `Nst_da_pop_p`
     - `Nst_da_remove_swap`
-    - `Nst_da_remove_swap_p`
     - `Nst_da_remove_shift`
-    - `Nst_da_remove_shift_p`
     - `Nst_da_get`
-    - `Nst_da_get_p`
+    - `Nst_da_set`
     - `Nst_da_clear`
-    - `Nst_da_clear_p`
+    - `Nst_pa_init`
+    - `Nst_pa_init_copy`
+    - `Nst_pa_reserve`
+    - `Nst_pa_append`
+    - `Nst_pa_pop`
+    - `Nst_pa_remove_swap`
+    - `Nst_pa_remove_shift`
+    - `Nst_pa_get`
+    - `Nst_pa_set`
+    - `Nst_pa_clear`
 - added `Nst_Span` to `error.h` and the following functions along with it
     - `Nst_span_new`
     - `Nst_span_from_pos`

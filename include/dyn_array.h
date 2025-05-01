@@ -116,8 +116,6 @@ NstEXP bool NstC Nst_da_remove_shift(Nst_DynArray *arr, usize index,
  * index is out of bounds. No error is set.
  */
 NstEXP void *NstC Nst_da_get(Nst_DynArray *arr, usize index);
-/* Clear the contents of an array freeing any allocated memory. */
-NstEXP void NstC Nst_da_clear(Nst_DynArray *arr, Nst_Destructor dstr);
 /**
  * Set an element in an `Nst_DynArray`.
  *
@@ -128,6 +126,8 @@ NstEXP void NstC Nst_da_clear(Nst_DynArray *arr, Nst_Destructor dstr);
  */
 NstEXP void NstC Nst_da_set(Nst_DynArray *arr, usize index, void *element,
                             Nst_Destructor dstr);
+/* Clear the contents of an array freeing any allocated memory. */
+NstEXP void NstC Nst_da_clear(Nst_DynArray *arr, Nst_Destructor dstr);
 
 /**
  * Initialize a `Nst_PtrArray`.
@@ -200,8 +200,6 @@ NstEXP bool NstC Nst_pa_remove_shift(Nst_PtrArray *arr, usize index,
  * index is out of bounds. No error is set.
  */
 NstEXP void *NstC Nst_pa_get(Nst_PtrArray *arr, usize index);
-/* Clear the contents of an array freeing any allocated memory. */
-NstEXP void NstC Nst_pa_clear(Nst_PtrArray *arr, Nst_Destructor dstr);
 /**
  * Set an element in an `Nst_PtrArray`.
  *
@@ -212,6 +210,8 @@ NstEXP void NstC Nst_pa_clear(Nst_PtrArray *arr, Nst_Destructor dstr);
  */
 NstEXP void NstC Nst_pa_set(Nst_PtrArray *arr, usize index, void *element,
                             Nst_Destructor dstr);
+/* Clear the contents of an array freeing any allocated memory. */
+NstEXP void NstC Nst_pa_clear(Nst_PtrArray *arr, Nst_Destructor dstr);
 
 #ifdef __cplusplus
 }

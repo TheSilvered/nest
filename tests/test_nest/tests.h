@@ -99,8 +99,18 @@ TestResult test_da_reserve(void);
 TestResult test_da_append(void);
 TestResult test_da_remove_swap(void);
 TestResult test_da_remove_shift(void);
-TestResult test_da_at(void);
+TestResult test_da_get(void);
+TestResult test_da_set(void);
 TestResult test_da_clear(void);
+TestResult test_pa_init(void);
+TestResult test_pa_init_copy(void);
+TestResult test_pa_reserve(void);
+TestResult test_pa_append(void);
+TestResult test_pa_remove_swap(void);
+TestResult test_pa_remove_shift(void);
+TestResult test_pa_get(void);
+TestResult test_pa_set(void);
+TestResult test_pa_clear(void);
 
 // encoding.h
 

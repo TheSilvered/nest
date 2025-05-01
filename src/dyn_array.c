@@ -24,7 +24,7 @@ bool Nst_da_init(Nst_DynArray *arr, usize unit_size, usize count)
 
 bool Nst_da_init_copy(Nst_DynArray *src, Nst_DynArray *dst)
 {
-    void *new_data = Nst_calloc(1, src->len, src->data);
+    void *new_data = Nst_calloc(1, src->len * src->unit_size, src->data);
     if (new_data == NULL)
         return false;
 
@@ -94,7 +94,7 @@ bool Nst_da_remove_swap(Nst_DynArray *arr, usize index, Nst_Destructor dstr)
     usize unit_size = arr->unit_size;
     memcpy(
         (u8 *)arr->data + index * unit_size,
-        (u8 *)arr->data + arr->len * unit_size,
+        (u8 *)arr->data + (arr->len - 1) * unit_size,
         unit_size);
     arr->len--;
     shrink(arr);
@@ -169,7 +169,7 @@ bool Nst_pa_init(Nst_PtrArray *arr, usize reserve)
 
 bool Nst_pa_init_copy(Nst_PtrArray *src, Nst_PtrArray *dst)
 {
-    void *new_data = Nst_calloc(1, src->len, src->data);
+    void *new_data = Nst_calloc(1, src->len * sizeof(void *), src->data);
     if (new_data == NULL)
         return false;
 
@@ -233,7 +233,8 @@ bool Nst_pa_remove_swap(Nst_PtrArray *arr, usize index, Nst_Destructor dstr)
         return false;
     if (dstr != NULL)
         dstr(arr->data[index]);
-    arr->data[index] = arr->data[arr->len--];
+    arr->data[index] = arr->data[arr->len - 1];
+    arr->len--;
     shrink_p(arr);
     return true;
 }

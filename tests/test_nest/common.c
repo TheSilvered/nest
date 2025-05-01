@@ -32,6 +32,8 @@ void test_init(void)
 
 void run_test_(Test test, const char *test_name)
 {
+    Nst_printf("Running %s:", test_name);
+
     cases_failed = 0;
     TestResult result = test();
 
@@ -47,25 +49,21 @@ void run_test_(Test test, const char *test_name)
 
     switch (result) {
     case TEST_SUCCESS:
-        Nst_printf(
-            "%sTest '%s' passed.%s\n",
-            GREEN, test_name, RESET);
+        Nst_printf(" %spassed.%s\n", GREEN, RESET);
         break;
     case TEST_FAILURE:
         Nst_printf(
-            "%sTest '%s' failed on %" PRIi32 " cases.%s\n",
-            RED, test_name, cases_failed, RESET);
+            "\n  %sfailed on %" PRIi32 " checks.%s\n",
+            RED, cases_failed, RESET);
         tests_failed += 1;
         break;
     case TEST_NOT_IMPL:
-        Nst_printf(
-            "%sTest '%s' not implemented.%s\n",
-            YELLOW, test_name, RESET);
+        Nst_printf(" %snot implemented.%s\n", YELLOW, RESET);
         break;
     case TEST_CRITICAL_FAILURE:
         Nst_printf(
-            "%sTest '%s' failed on %" PRIi32 " cases.%s Stopping execution...\n",
-            YELLOW, test_name, cases_failed, RESET);
+            "\n  %sfailed on %" PRIi32 " checks.%s\nExiting.\n",
+            YELLOW, cases_failed, RESET);
         Nst_quit();
         exit(1);
     }
@@ -78,13 +76,13 @@ i32 tests_failed_count(void)
 
 static void fail(TestResult *result, int line)
 {
-    Nst_printf("%s  Failure on line %i", RED, line);
+    Nst_printf("\n%s  failure on line %i", RED, line);
     if (Nst_error_occurred()) {
         Nst_printf(" with  error%s\n    ", RESET);
         Nst_error_print();
         Nst_error_clear();
     } else {
-        Nst_printf("%s\n", RESET);
+        Nst_printf("%s", RESET);
     }
     *result = TEST_FAILURE;
     cases_failed++;
@@ -92,13 +90,13 @@ static void fail(TestResult *result, int line)
 
 static void crit_fail(TestResult *result, int line)
 {
-    Nst_printf("%s  Critical failure on line %i%s\n", RED, line, RESET);
+    Nst_printf("\n%s  critical failure on line %i%s", RED, line, RESET);
     if (Nst_error_occurred()) {
         Nst_printf(" with error%s\n    ", RESET);
         Nst_error_print();
         Nst_error_clear();
     } else {
-        Nst_printf("%s\n", RESET);
+        Nst_printf("%s", RESET);
     }
     *result = TEST_CRITICAL_FAILURE;
     cases_failed++;

@@ -234,20 +234,6 @@ of bounds. No error is set.
 
 ---
 
-### `Nst_da_clear`
-
-**Synopsis:**
-
-```better-c
-void Nst_da_clear(Nst_DynArray *arr, Nst_Destructor dstr)
-```
-
-**Description:**
-
-Clear the contents of an array freeing any allocated memory.
-
----
-
 ### `Nst_da_set`
 
 **Synopsis:**
@@ -267,6 +253,20 @@ Set an element in an [`Nst_DynArray`](c_api-dyn_array.md#nst_dynarray).
 - `index`: the index to set
 - `element`: a pointer to the value to copy
 - `dstr`: the destructor used to destroy the previous element at `index`
+
+---
+
+### `Nst_da_clear`
+
+**Synopsis:**
+
+```better-c
+void Nst_da_clear(Nst_DynArray *arr, Nst_Destructor dstr)
+```
+
+**Description:**
+
+Clear the contents of an array freeing any allocated memory.
 
 ---
 
@@ -441,20 +441,6 @@ of bounds. No error is set.
 
 ---
 
-### `Nst_pa_clear`
-
-**Synopsis:**
-
-```better-c
-void Nst_pa_clear(Nst_PtrArray *arr, Nst_Destructor dstr)
-```
-
-**Description:**
-
-Clear the contents of an array freeing any allocated memory.
-
----
-
 ### `Nst_pa_set`
 
 **Synopsis:**
@@ -474,3 +460,17 @@ Set an element in an [`Nst_PtrArray`](c_api-dyn_array.md#nst_ptrarray).
 - `index`: the index to set
 - `element`: a pointer to the value to copy
 - `dstr`: the destructor used to destroy the previous element at `index`
+
+---
+
+### `Nst_pa_clear`
+
+**Synopsis:**
+
+```better-c
+void Nst_pa_clear(Nst_PtrArray *arr, Nst_Destructor dstr)
+```
+
+**Description:**
+
+Clear the contents of an array freeing any allocated memory.

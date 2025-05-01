@@ -27,8 +27,18 @@ int main() {
     run_test(test_da_append);
     run_test(test_da_remove_swap);
     run_test(test_da_remove_shift);
-    run_test(test_da_at);
+    run_test(test_da_get);
+    run_test(test_da_set);
     run_test(test_da_clear);
+    run_test(test_pa_init);
+    run_test(test_pa_init_copy);
+    run_test(test_pa_reserve);
+    run_test(test_pa_append);
+    run_test(test_pa_remove_swap);
+    run_test(test_pa_remove_shift);
+    run_test(test_pa_get);
+    run_test(test_pa_set);
+    run_test(test_pa_clear);
 
     // encoding.h
 
