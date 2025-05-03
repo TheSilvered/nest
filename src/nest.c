@@ -22,12 +22,17 @@ int main(int argc, char **argv)
 
 #endif
 
+    if (!Nst_init()) {
+        fprintf(stderr, "Failed to initialize Nest.");
+        return -1;
+    }
+
 #ifdef _DEBUG
-    puts("**USING DEBUG BUILD - " Nst_VERSION "**");
+    Nst_println("**USING DEBUG BUILD - " Nst_VERSION "**");
     for (usize i = 0, n = strlen(Nst_VERSION) + 24; i < n; i++)
-        putc('-', stdout);
-    putc('\n', stdout);
-    fflush(stdout);
+        Nst_print("-");
+    Nst_println("");
+    Nst_fflush(Nst_stdio()->out);
 #endif
 
     Nst_CLArgs cl_args;
@@ -37,11 +42,6 @@ int main(int argc, char **argv)
         return -1;
     else if (parse_result == 1)
         return 0;
-
-    if (!Nst_init()) {
-        fprintf(stderr, "Failed to initialize Nest.");
-        return -1;
-    }
 
     Nst_Program prog;
     Nst_ExecutionKind ek = Nst_prog_init(&prog, cl_args);

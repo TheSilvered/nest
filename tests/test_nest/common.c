@@ -5,6 +5,9 @@
 
 #define CAPTURE_BUF_SIZE 4096
 
+#define NEST_STDOUT Nst_stdio()->out
+#define NEST_STDERR Nst_stdio()->err
+
 static const char *RED = "\x1b[31m";
 static const char *GREEN = "\x1b[32m";
 static const char *YELLOW = "\x1b[33m";
@@ -15,9 +18,11 @@ static i32 cases_failed = 0;
 
 static bool capturing = false;
 static char capture_buf[CAPTURE_BUF_SIZE];
-static FILE *orig_stdout = NULL;
-static FILE *orig_stderr = NULL;
-static FILE *capture_file = NULL;
+static Nst_Obj *orig_stdout = NULL;
+static Nst_Obj *orig_stderr = NULL;
+static Nst_Obj *capture_file = NULL;
+
+static void reset_capture_file(void);
 
 void test_init(void)
 {
@@ -38,7 +43,7 @@ void run_test_(Test test, const char *test_name)
     TestResult result = test();
 
     if (capturing)
-        capture_output_end(NULL);
+        reset_capture_file();
 
     if (Nst_error_occurred()) {
         Nst_error_print();
@@ -167,30 +172,58 @@ bool ref_obj_to_bool(Nst_Obj *obj)
     return result;
 }
 
+static void reset_capture_file(void)
+{
+    Nst_assert_c(capturing);
+    Nst_dec_ref(NEST_STDOUT);
+    Nst_dec_ref(NEST_STDERR);
+    NEST_STDOUT = orig_stdout;
+    NEST_STDERR = orig_stderr;
+    orig_stdout = NULL;
+    orig_stderr = NULL;
+
+    Nst_dec_ref(capture_file);
+    capture_file = NULL;
+    capturing = false;
+}
+
 bool capture_output_begin(void)
 {
     if (capturing) {
-        stderr = orig_stderr;
-        stdout = orig_stdout;
-        fclose(capture_file);
+        reset_capture_file();
         Nst_fprintf(
             Nst_stdio()->err,
             "capture_output_begin failed, already capturing\n");
         return false;
     }
-    orig_stdout = stdout;
-    orig_stderr = stderr;
-    memset(capture_buf, 0, CAPTURE_BUF_SIZE * sizeof(char));
-    capture_file = tmpfile();
-    if (capture_file == NULL) {
+
+    FILE *raw_capture_file = tmpfile();
+    if (raw_capture_file == NULL) {
         Nst_fprintf(
             Nst_stdio()->err,
             "capture_output_begin failed to create temp file\n");
         return false;
     }
+    capture_file = Nst_iof_new(raw_capture_file, true, true, true, NULL);
+    if (capture_file == NULL) {
+        fclose(raw_capture_file);
+        Nst_fprintf(
+            Nst_stdio()->err,
+            "capture_output_begin failed to create temp file\n");
+        return false;
+    }
+
     capturing = true;
-    stdout = capture_file;
-    stderr = capture_file;
+
+    // transfer references
+    orig_stdout = NEST_STDOUT;
+    orig_stderr = NEST_STDERR;
+
+    // the capture file is owned in 3 places:
+    // Nst_stdio()->out, Nst_stdio()->err and the capture_file global variable
+    NEST_STDOUT = Nst_inc_ref(capture_file);
+    NEST_STDERR = Nst_inc_ref(capture_file);
+
     return true;
 }
 
@@ -204,12 +237,9 @@ const char *capture_output_end(usize *out_length)
             *out_length = 0;
         return NULL;
     }
-    stdout = orig_stdout;
-    stderr = orig_stderr;
-    capturing = false;
 
-    if (fseek(capture_file, 0, SEEK_SET) != 0) {
-        fclose(capture_file);
+    if (Nst_fseek(SEEK_SET, 0, capture_file) != 0) {
+        reset_capture_file();
         Nst_fprintf(
             Nst_stdio()->err,
             "capture_output_end failed to seek file\n");
@@ -217,13 +247,14 @@ const char *capture_output_end(usize *out_length)
             *out_length = 0;
         return NULL;
     }
-    usize bytes_written = fread(
-        capture_buf,
-        sizeof(char),
-        CAPTURE_BUF_SIZE - 1,
-        capture_file);
-    if (ferror(capture_file)) {
-        fclose(capture_file);
+
+    usize buf_len;
+    Nst_IOResult result = Nst_fread(
+        (u8 *)capture_buf, CAPTURE_BUF_SIZE - 1, CAPTURE_BUF_SIZE - 1,
+        &buf_len, capture_file);
+
+    if (result < Nst_IO_SUCCESS) {
+        reset_capture_file();
         Nst_fprintf(
             Nst_stdio()->err,
             "capture_output_end failed to read file\n");
@@ -231,8 +262,11 @@ const char *capture_output_end(usize *out_length)
             *out_length = 0;
         return NULL;
     }
-    capture_buf[bytes_written] = '\0';
+
+    capture_buf[buf_len] = '\0';
     if (out_length != NULL)
-        *out_length = bytes_written;
+        *out_length = buf_len;
+
+    reset_capture_file();
     return (const char *)capture_buf;
 }

@@ -457,9 +457,61 @@ TestResult test_cl_args_parse(void)
 
 #ifdef Nst_MSVC
 
+typedef wchar_t *wargv_t[];
+
+#ifdef __cplusplus
+#define WARGS(...) sizeof(wargv_t { __VA_ARGS__ }) / sizeof(wchar_t *), wargv_t { __VA_ARGS__ }
+#else
+#define WARGS(...) sizeof((wargv_t){ __VA_ARGS__ }) / sizeof(wchar_t *), (wargv_t){ __VA_ARGS__ }
+#endif // !__cplusplus
+
 TestResult test_wargv_to_argv(void)
 {
-    return TEST_NOT_IMPL;
+    ENTER_TEST;
+
+    char **argv;
+    fail_if(!_Nst_wargv_to_argv(WARGS(L"arg"), &argv));
+    fail_if(argv == NULL);
+    if (argv != NULL) {
+        fail_if(str_neq((u8 *)argv[0], "arg"));
+        Nst_free(argv);
+    }
+
+    fail_if(!_Nst_wargv_to_argv(WARGS(L"\xe8"), &argv));
+    fail_if(argv == NULL);
+    if (argv != NULL) {
+        fail_if(str_neq((u8 *)argv[0], "\xc3\xa8"));
+        Nst_free(argv);
+    }
+
+    fail_if(!_Nst_wargv_to_argv(WARGS(L"\x4e16\x754c"), &argv));
+    fail_if(argv == NULL);
+    if (argv != NULL) {
+        fail_if(str_neq((u8 *)argv[0], "\xe4\xb8\x96\xe7\x95\x8c"));
+        Nst_free(argv);
+    }
+
+    fail_if(!_Nst_wargv_to_argv(WARGS(L"\xd83d\xde00"), &argv));
+    fail_if(argv == NULL);
+    if (argv != NULL) {
+        fail_if(str_neq((u8 *)argv[0], "\xF0\x9F\x98\x80"));
+        Nst_free(argv);
+    }
+
+    fail_if(!_Nst_wargv_to_argv(WARGS(
+        L"\xd83d\xdc68\xd83c\xdffc\x200d\xd83d\xdc69\xd83c\xdffe\x200d\xd83d"
+        L"\xdc67\xd83c\xdffb\x200d\xd83d\xdc66\xd83c\xdffd"), &argv));
+    fail_if(argv == NULL);
+    if (argv != NULL) {
+        fail_if(str_neq(
+            (u8 *)argv[0],
+            "\xf0\x9f\x91\xa8\xf0\x9f\x8f\xbc\xe2\x80\x8d\xf0\x9f\x91\xa9\xf0"
+            "\x9f\x8f\xbe\xe2\x80\x8d\xf0\x9f\x91\xa7\xf0\x9f\x8f\xbb\xe2\x80"
+            "\x8d\xf0\x9f\x91\xa6\xf0\x9f\x8f\xbd"));
+        Nst_free(argv);
+    }
+
+    EXIT_TEST;
 }
 
 #endif

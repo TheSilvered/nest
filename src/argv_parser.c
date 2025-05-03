@@ -109,27 +109,27 @@ static i32 long_arg(char *arg, Nst_CLArgs *cl_args)
     else if (strcmp(arg, "--no-default") == 0)
         cl_args->no_default = true;
     else if (strcmp(arg, "--help") == 0) {
-        printf(HELP_MESSAGE);
+        Nst_printf(HELP_MESSAGE);
         return 1;
     } else if (strcmp(arg, "--version") == 0) {
-        printf(VERSION_MESSAGE);
+        Nst_printf(VERSION_MESSAGE);
         return 1;
     } else if (strncmp(arg, "--encoding", 10) == 0) {
         if (strlen(arg) < 12 || arg[10] != '=') {
-            printf("Invalid usage of the option: --encoding\n");
-            printf("\n" USAGE_MESSAGE);
+            Nst_printf("Invalid usage of the option: --encoding\n");
+            Nst_printf("\n" USAGE_MESSAGE);
             return -1;
         }
         cl_args->encoding = Nst_encoding_from_name(arg + 11);
         if (cl_args->encoding == Nst_EID_UNKNOWN) {
-            printf("Unknown encoding %s\n", arg + 11);
-            printf("\n" ENCODING_MESSAGE);
+            Nst_printf("Unknown encoding %s\n", arg + 11);
+            Nst_printf("\n" ENCODING_MESSAGE);
             return -1;
         }
         cl_args->encoding = Nst_encoding_to_single_byte(cl_args->encoding);
     } else {
-        printf("Invalid option: %s\n", arg);
-        printf("\n" USAGE_MESSAGE);
+        Nst_printf("Invalid option: %s\n", arg);
+        Nst_printf("\n" USAGE_MESSAGE);
         return -1;
     }
     return 0;
@@ -141,8 +141,8 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
     char **argv = cl_args->argv;
 
     if (argc < 2) {
-        printf("No file provided\n");
-        printf(USAGE_MESSAGE);
+        Nst_printf("No file provided\n");
+        Nst_printf(USAGE_MESSAGE);
         return -1;
     }
 
@@ -158,8 +158,8 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
         }
 
         if (arg_len == 1) {
-            printf("Invalid option: -\n");
-            printf("\n" USAGE_MESSAGE);
+            Nst_printf("Invalid option: -\n");
+            Nst_printf("\n" USAGE_MESSAGE);
             return -1;
         }
 
@@ -174,21 +174,21 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
             case 'm': supports_color              = false;break;
             case 'h':
             case '?':
-                printf(HELP_MESSAGE);
+                Nst_printf(HELP_MESSAGE);
                 return 1;
             case 'V':
-                printf(VERSION_MESSAGE);
+                Nst_printf(VERSION_MESSAGE);
                 return 1;
             case 'e':
                 if (j != 1 || arg_len < 4 || arg[2] != '=') {
-                    printf("Invalid usage of the option: -e\n");
-                    printf("\n" USAGE_MESSAGE);
+                    Nst_printf("Invalid usage of the option: -e\n");
+                    Nst_printf("\n" USAGE_MESSAGE);
                     return -1;
                 }
                 cl_args->encoding = Nst_encoding_from_name(arg + 3);
                 if (cl_args->encoding == Nst_EID_UNKNOWN) {
-                    printf("Unknown encoding %s\n", arg + 3);
-                    printf("\n" ENCODING_MESSAGE);
+                    Nst_printf("Unknown encoding %s\n", arg + 3);
+                    Nst_printf("\n" ENCODING_MESSAGE);
                     return -1;
                 }
                 cl_args->encoding =
@@ -197,20 +197,20 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
                 break;
             case 'O': {
                 if (j != 1) {
-                    printf("Invalid option: -O\n");
-                    printf("\n" USAGE_MESSAGE);
+                    Nst_printf("Invalid option: -O\n");
+                    Nst_printf("\n" USAGE_MESSAGE);
                     return -1;
                 } else if (arg_len != 3) {
-                    printf("Invalid option: %s\n", arg);
-                    printf("\n" USAGE_MESSAGE);
+                    Nst_printf("Invalid option: %s\n", arg);
+                    Nst_printf("\n" USAGE_MESSAGE);
                     return -1;
                 }
 
                 u8 level = arg[j + 1] - '0';
 
                 if (level > 3) {
-                    printf("Invalid option: -O%c\n", arg[j + 1]);
-                    printf("\n" USAGE_MESSAGE);
+                    Nst_printf("Invalid option: -O%c\n", arg[j + 1]);
+                    Nst_printf("\n" USAGE_MESSAGE);
                     return -1;
                 }
 
@@ -220,8 +220,8 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
             }
             case 'c':
                 if (j != 1 || arg_len != 2 || i + 1 == argc) {
-                    printf("Invalid usage of the option: -c\n");
-                    printf("\n" USAGE_MESSAGE);
+                    Nst_printf("Invalid usage of the option: -c\n");
+                    Nst_printf("\n" USAGE_MESSAGE);
                     return -1;
                 }
 
@@ -230,15 +230,15 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
                 return 0;
             case '-':
                 if (j != 1) {
-                    printf("Invalid option: --\n");
-                    printf("\n" USAGE_MESSAGE);
+                    Nst_printf("Invalid option: --\n");
+                    Nst_printf("\n" USAGE_MESSAGE);
                     return -1;
                 } else if (arg_len == 2) {
                     if (++i < argc)
                         cl_args->filename = argv[i];
                     else {
-                        printf("No file provided\n");
-                        printf("\n" USAGE_MESSAGE);
+                        Nst_printf("No file provided\n");
+                        Nst_printf("\n" USAGE_MESSAGE);
                         return -1;
                     }
 
@@ -254,8 +254,8 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
                 break;
 
             default:
-                printf("Invalid option: -%c\n", arg[j]);
-                printf("\n" USAGE_MESSAGE);
+                Nst_printf("Invalid option: -%c\n", arg[j]);
+                Nst_printf("\n" USAGE_MESSAGE);
                 return -1;
             }
         }
@@ -264,8 +264,8 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
     if (++i < argc)
         cl_args->filename = argv[i];
     else {
-        printf("No file provided\n");
-        printf("\n" USAGE_MESSAGE);
+        Nst_printf("No file provided\n");
+        Nst_printf("\n" USAGE_MESSAGE);
         return -1;
     }
 
