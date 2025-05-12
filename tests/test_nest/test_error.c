@@ -1,6 +1,31 @@
 #include "tests.h"
 
-TestResult test_tb_add_pos(void)
+TestResult test_span_new(void)
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_span_from_pos(void)
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_span_join(void)
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_span_extend(void)
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_span_start(void)
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_span_end(void)
 {
     return TEST_NOT_IMPL;
 }
@@ -20,7 +45,12 @@ TestResult test_error_setf(void)
     return TEST_NOT_IMPL;
 }
 
-TestResult test_error_add_pos(void)
+TestResult test_error_failed_alloc(void)
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_error_add_span(void)
 {
     return TEST_NOT_IMPL;
 }

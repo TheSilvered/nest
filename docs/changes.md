@@ -216,6 +216,7 @@
 - renamed `Nst_cp` to `Nst_encoding`
 - renamed `Nst_is_valid_cp` to `Nst_cp_is_valid`
 - renamed `Nst_is_non_character` to `Nst_cp_is_non_character`
+- renamed `Nst_check_bom` to `Nst_encoding_from_bom`
 - renamed `Nst_detect_encoding` to `Nst_encoding_detect`
 - renamed `Nst_single_byte_cp` to `Nst_encoding_to_single_byte`
 - renamed `_Nst_EM_WRONG_ARG_NUM` to `_Nst_WRONG_ARG_NUM`

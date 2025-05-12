@@ -124,8 +124,8 @@ TestResult test_encoding_char_len(void);
 TestResult test_encoding_utf8_char_len(void);
 TestResult test_char_to_wchar_t(void);
 TestResult test_wchar_t_to_char(void);
-TestResult test_is_valid_cp(void);
-TestResult test_is_non_character(void);
+TestResult test_cp_is_valid(void);
+TestResult test_cp_is_non_character(void);
 TestResult test_check_bom(void);
 TestResult test_encoding_detect(void);
 TestResult test_encoding_from_name(void);
@@ -133,11 +133,17 @@ TestResult test_encoding_to_single_byte(void);
 
 // error.h
 
-TestResult test_tb_add_pos(void);
+TestResult test_span_new(void);
+TestResult test_span_from_pos(void);
+TestResult test_span_join(void);
+TestResult test_span_extend(void);
+TestResult test_span_start(void);
+TestResult test_span_end(void);
 TestResult test_error_set(void);
 TestResult test_error_setc(void);
 TestResult test_error_setf(void);
-TestResult test_error_add_pos(void);
+TestResult test_error_failed_alloc(void);
+TestResult test_error_add_span(void);
 TestResult test_error_occurred(void);
 TestResult test_error_get(void);
 TestResult test_error_clear(void);

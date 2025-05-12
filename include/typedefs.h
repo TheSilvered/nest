@@ -68,6 +68,11 @@
 /* Defined when compiling with MSVC. */
 #define Nst_MSVC
 
+#elif defined(__clang__)
+
+/* Defined when compiling with Clang. */
+#define Nst_CLANG
+
 #elif defined(__GNUC__)
 
 /* Defined when compiling with GCC. */
@@ -76,11 +81,6 @@
 #define BUILD_GGC_VER(maj, min, patch) (maj * 10000 + min * 100 + patch)
 #define GCC_VER                                                           \
     BUILD_GGC_VER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
-
-#elif defined(__clang__)
-
-/* Defined when compiling with Clang. */
-#define Nst_CLANG
 
 #else
 #error Use MSVC, GCC or clang to compile.
@@ -300,6 +300,22 @@
 #define Nst_assert_c(expr)
 
 #endif // !_DEBUG
+
+#ifdef Nst_MSVC
+/* Marks an execution path as unreachable. */
+#define Nst_UNREACHABLE __assume(0)
+/* Marks a condition as likely to be true. */
+#define Nst_LIKELY(expr) (expr)
+/* Marks a condition as likely to be false. */
+#define Nst_UNLIKELY(expr) (expr)
+#else
+/* [docs:ignore] Marks an execution path as unreachable. */
+#define Nst_UNREACHABLE __builtin_unreachable()
+/* [docs:ignore] Marks a condition as likely to be true. */
+#define Nst_LIKELY(expr)  __builtin_expect(!!(expr), 1)
+/* [docs:ignore] Marks a condition as likely to be false. */
+#define Nst_UNLIKELY(expr) __builtin_expect(!!(expr), 0)
+#endif // !Nst_MSVC
 
 #ifdef __cplusplus
 extern "C" {

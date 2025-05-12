@@ -52,8 +52,8 @@ int main() {
     run_test(test_encoding_utf8_char_len);
     run_test(test_char_to_wchar_t);
     run_test(test_wchar_t_to_char);
-    run_test(test_is_valid_cp);
-    run_test(test_is_non_character);
+    run_test(test_cp_is_valid);
+    run_test(test_cp_is_non_character);
     run_test(test_check_bom);
     run_test(test_encoding_detect);
     run_test(test_encoding_from_name);
@@ -61,11 +61,17 @@ int main() {
 
     // error.h
 
-    run_test(test_tb_add_pos);
+    run_test(test_span_new);
+    run_test(test_span_from_pos);
+    run_test(test_span_join);
+    run_test(test_span_extend);
+    run_test(test_span_start);
+    run_test(test_span_end);
     run_test(test_error_set);
     run_test(test_error_setc);
     run_test(test_error_setf);
-    run_test(test_error_add_pos);
+    run_test(test_error_failed_alloc);
+    run_test(test_error_add_span);
     run_test(test_error_occurred);
     run_test(test_error_get);
     run_test(test_error_clear);

@@ -50,12 +50,12 @@ TestResult test_wchar_t_to_char(void)
     return TEST_NOT_IMPL;
 }
 
-TestResult test_is_valid_cp(void)
+TestResult test_cp_is_valid(void)
 {
     return TEST_NOT_IMPL;
 }
 
-TestResult test_is_non_character(void)
+TestResult test_cp_is_non_character(void)
 {
     return TEST_NOT_IMPL;
 }

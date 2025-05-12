@@ -75,19 +75,19 @@ Defined when compiling with MSVC.
 
 ---
 
-### `Nst_GCC`
-
-**Description:**
-
-Defined when compiling with GCC.
-
----
-
 ### `Nst_CLANG`
 
 **Description:**
 
 Defined when compiling with Clang.
+
+---
+
+### `Nst_GCC`
+
+**Description:**
+
+Defined when compiling with GCC.
 
 ---
 
@@ -224,6 +224,42 @@ where the assertion failed.
 Evaluates [`Nst_DBG_ASSERT_CALLBACK`](c_api-typedefs.md#nst_dbg_assert_callback)
 and prints an error message when `expr` is `false`. The error specifies the
 expression that is false, the path and line number of the C file where.
+
+---
+
+### `Nst_UNREACHABLE`
+
+**Description:**
+
+Marks an execution path as unreachable.
+
+---
+
+### `Nst_LIKELY`
+
+**Synopsis:**
+
+```better-c
+#define Nst_LIKELY(expr)
+```
+
+**Description:**
+
+Marks a condition as likely to be true.
+
+---
+
+### `Nst_UNLIKELY`
+
+**Synopsis:**
+
+```better-c
+#define Nst_UNLIKELY(expr)
+```
+
+**Description:**
+
+Marks a condition as likely to be false.
 
 ---
 

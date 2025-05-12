@@ -1952,7 +1952,7 @@ bool Nst_cp_is_non_character(u32 cp)
         || ((cp & 0xfff0) == 0xfff0 && (cp & 0xf) > 0xe);
 }
 
-Nst_EncodingID Nst_check_bom(char *str, usize len, i32 *bom_size)
+Nst_EncodingID Nst_encoding_from_bom(char *str, usize len, i32 *bom_size)
 {
     Nst_EncodingID cpid = Nst_EID_UNKNOWN;
     i32 size = 0;
@@ -1996,7 +1996,7 @@ end:
 
 Nst_EncodingID Nst_encoding_detect(char *str, usize len, i32 *bom_size)
 {
-    Nst_EncodingID cpid = Nst_check_bom(str, len, bom_size);
+    Nst_EncodingID cpid = Nst_encoding_from_bom(str, len, bom_size);
     if (cpid != Nst_EID_UNKNOWN)
         return cpid;
 

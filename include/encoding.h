@@ -446,7 +446,8 @@ NstEXP bool NstC Nst_cp_is_non_character(u32 cp);
  * @return The `Nst_EncodingID` deduced from the Byte Order Mark or
  * `Nst_EID_UNKNOWN` if no BOM was detected.
  */
-NstEXP Nst_EncodingID NstC Nst_check_bom(char *str, usize len, i32 *bom_size);
+NstEXP Nst_EncodingID NstC Nst_encoding_from_bom(char *str, usize len,
+                                                 i32 *bom_size);
 /**
  * Detect the encoding of a file.
  *

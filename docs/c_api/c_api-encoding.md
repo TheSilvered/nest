@@ -1333,12 +1333,12 @@ Whether a code is a non character.
 
 ---
 
-### `Nst_check_bom`
+### `Nst_encoding_from_bom`
 
 **Synopsis:**
 
 ```better-c
-Nst_EncodingID Nst_check_bom(char *str, usize len, i32 *bom_size)
+Nst_EncodingID Nst_encoding_from_bom(char *str, usize len, i32 *bom_size)
 ```
 
 **Returns:**

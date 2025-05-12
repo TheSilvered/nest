@@ -276,7 +276,7 @@ bool normalize_encoding(Nst_SourceText *text, Nst_EncodingID encoding)
     if (encoding == Nst_EID_UNKNOWN)
         encoding = Nst_encoding_detect(text->text, text->text_len, &bom_size);
     else
-        Nst_check_bom(text->text, text->text_len, &bom_size);
+        Nst_encoding_from_bom(text->text, text->text_len, &bom_size);
 
     encoding = Nst_encoding_to_single_byte(encoding);
     Nst_Encoding *from = Nst_encoding(encoding);
@@ -363,7 +363,7 @@ static void parse_option(char *opt, Nst_CLArgs *args)
 static void read_first_line(char *text, usize len, Nst_CLArgs *args)
 {
     i32 bom_size;
-    Nst_check_bom(text, len, &bom_size);
+    Nst_encoding_from_bom(text, len, &bom_size);
     text += bom_size;
     len -= bom_size;
 
