@@ -32,7 +32,7 @@
 
 **Returns:**
 
-`true` if `file` is seekable and `false` otherwise.
+`true` if `file` can be sought and `false` otherwise.
 
 ---
 
@@ -110,7 +110,7 @@ this function fails.
 
 **Returns:**
 
-The size of the file in bytes. Throws an error if the file is not seekable or
+The size of the file in bytes. Throws an error if the file cannot be sought or
 is closed.
 
 ---
@@ -145,7 +145,7 @@ A 5-character string where each character represents a flag as follows:
 1. `r` if the file is readable
 2. `w` if the file is writable
 3. `b` if the file is binary
-4. `s` if the file is seekable
+4. `s` if the file can be sought
 5. `t` if the file is a TTY
 
 If `file` does not have a flag, that character is replaced by a hyphen (`-`).
@@ -281,9 +281,9 @@ Reads a number of characters from a file opened in `r`, `r+`, `w+` or `a+` and
 returns a `Str` object. If `size` is negative or `null` the whole file is read.
 
 !!!warning
-    The file cannot be read entirely if it is not seekable. If you try to read
-    a non-seekable file by omitting the `size` or giving it a negative value an
-    error is thrown.
+    The `file` cannot be read entirely if it cannot be sought. If you try to
+    read a file that cannot be sought while omitting the `size` or giving it a
+    negative value an error is thrown.
 
 **Arguments:**
 
@@ -312,9 +312,9 @@ returns an `Array` object. To convert the array to a string, use the
 `stdsutil.nest`. If `size` is negative or `null` the whole file is read.
 
 !!!warning
-    The file cannot be read entirely if it is not seekable. If you try to read
-    a non-seekable file by omitting the `size` or giving it a negative value an
-    error is thrown.
+    The `file` cannot be read entirely if it cannot be sought. If you try to
+    read a file that cannot be sought while omitting the `size` or giving it a
+    negative value an error is thrown.
 
 **Arguments:**
 
@@ -338,7 +338,7 @@ The content that it read as an array of `Byte` objects.
 **Description:**
 
 Moves the file position indicator from `starting_position` by `offset` bytes.
-An error is thrown if the file is closed, is not seekable or if the file
+An error is thrown if the file is closed, cannot be sought or if the file
 position indicator would go outside the file.
 
 If `starting_position` is `null`, `FROM_CUR` will be used.

@@ -78,7 +78,7 @@ NstEXP i32 NstC Nst_cl_args_parse(Nst_CLArgs *cl_args);
  */
 NstEXP bool NstC Nst_supports_color(void);
 
-/* Ovverrides the value returned by `Nst_supports_color`. */
+/* Overrides the value returned by `Nst_supports_color`. */
 NstEXP void NstC _Nst_supports_color_override(bool value);
 
 #ifdef Nst_MSVC

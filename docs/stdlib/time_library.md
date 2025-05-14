@@ -381,7 +381,7 @@ A map containing the complete month names.
 
 ---
 
-### `SHORTH_MONTH_NAMES`
+### `SHORT_MONTH_NAMES`
 
 A map containing three-letter month names.
 

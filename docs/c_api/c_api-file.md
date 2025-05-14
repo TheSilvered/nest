@@ -90,7 +90,7 @@ Check if `f` can be read.
 
 **Description:**
 
-Check if `f` can be seeked.
+Check if `f` can be sought.
 
 ---
 
@@ -170,7 +170,7 @@ This function shall read from the given file object `count` characters (or
   [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) or
   [`Nst_IO_EOF_REACHED`](c_api-file.md#nst_ioresult)
 - `buf_len`: this is an out parameter set to the length in bytes of the data
-  written in `buf` ignoring the NUL character, it may be `NULL` to not recieve
+  written in `buf` ignoring the NUL character, it may be `NULL` to not receive
   the information read when the file is opened in normal mode and to the number
   of bytes read when opened in binary mode
 - `f`: the file to read
@@ -226,7 +226,7 @@ characters under U+10FFFF.
 - `buf_len`: the length in bytes of `buf`
 - `count`: an out parameter set to the number of characters written when the
   file is opened in normal mode or to the number of bytes written when it is in
-  binary mode, it may be `NULL` to not recieve the information,a valid value can
+  binary mode, it may be `NULL` to not receive the information,a valid value can
   be expected only when the function returns
   [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult)
 - `f`: the file to write to
@@ -305,7 +305,7 @@ of the file-position indicator.
 **Parameters:**
 
 - `f`: the file to get the position from
-- `pos`: the pointer filled with the retrived position, a valid value can be
+- `pos`: the pointer filled with the retrieved position, a valid value can be
   expected only when the function returns
   [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult)
 

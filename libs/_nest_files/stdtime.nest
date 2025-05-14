@@ -53,7 +53,7 @@ __dt.year_day_           = year_day
     10: 'Oct',
     11: 'Nov',
     12: 'Dec'
-} = SHORTH_MONTH_NAMES
+} = SHORT_MONTH_NAMES
 
 {
     0: 'Sun',

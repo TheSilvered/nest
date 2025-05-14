@@ -81,7 +81,7 @@ bool Nst_sb_reserve(Nst_StrBuilder *sb, usize amount)
 
 **Description:**
 
-Ensure that the string can be expanded by `amount` bytes withot reallocating.
+Ensure that the string can be expanded by `amount` bytes without reallocating.
 
 **Returns:**
 

@@ -130,7 +130,7 @@ NstEXP void NstC Nst_llist_init(Nst_LList *llist);
 /**
  * Create a new node on the heap.
  *
- * @brief To free the node use `Nst_free`. The value is *not* handeled
+ * @brief To free the node use `Nst_free`. The value is *not* handled
  * automatically and must be freed manually.
  *
  * @return The new node or `NULL` on failure. The error is set.

@@ -17,7 +17,7 @@
 #include <limits.h>
 #include <inttypes.h>
 
-// DO NOT ENABLE, used for documentation purpuses. If you need to define these
+// DO NOT ENABLE, used for documentation purposes. If you need to define these
 // macros, define them elsewhere in this file or in the compiler.
 #if 0
 /**

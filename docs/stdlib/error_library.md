@@ -54,6 +54,7 @@ A position is a map that contains 3 keys:
 **Example:**
 
 The file `example.nest` contains this code:
+
 ```nest
 |#| 'stderr.nest' = err
 

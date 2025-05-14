@@ -127,7 +127,7 @@ void _Nst_supports_color_override(bool value)
 
 **Description:**
 
-Ovverrides the value returned by
+Overrides the value returned by
 [`Nst_supports_color`](c_api-argv_parser.md#nst_supports_color).
 
 ---

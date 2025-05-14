@@ -55,7 +55,7 @@ bool Nst_init(void)
 
 **Description:**
 
-Initialize the Nest libraray.
+Initialize the Nest library.
 
 !!!note
     [`Nst_error_set_color`](c_api-error.md#nst_error_set_color) is called with
@@ -79,7 +79,7 @@ void Nst_quit(void)
 
 **Description:**
 
-Destroy all the components of the libraray. It is not safe to access any object
+Destroy all the components of the library. It is not safe to access any object
 created while the library was initialized after this function is called. Any
 destructors that may access Nest objects must be called before calling this
 function.

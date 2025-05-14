@@ -41,7 +41,7 @@ coroutine was paused or the value that was returned by the function.
 ## [
     1 @co.yield
     => 2
-] @co.create = my_corotuine
+] @co.create = my_coroutine
 
 >>> (my_coroutine {,} @co.call '\n' ><) --> 1
 >>> (my_coroutine @co.call '\n' ><) --> 2

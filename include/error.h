@@ -78,7 +78,7 @@ NstEXP void NstC Nst_error_set_color(bool color);
 /* Create an empty position with no valid text. */
 NstEXP Nst_Pos NstC Nst_pos_empty(void);
 
-/* Make a new span from a start and an end posiiton. */
+/* Make a new span from a start and an end position. */
 NstEXP Nst_Span NstC Nst_span_new(Nst_Pos start, Nst_Pos end);
 /* Make a new span with the same start and end positions. */
 NstEXP Nst_Span NstC Nst_span_from_pos(Nst_Pos pos);

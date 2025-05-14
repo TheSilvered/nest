@@ -38,7 +38,7 @@ prints them:
 1 2 3 + @std.io.println
 ```
 
-An operator that takes all the values that preceed it is called a 'stack
+An operator that takes all the values that precede it is called a 'stack
 operator' because you can think of the values as being pushed on a stack and
 the operator clearing them and pushing the result back. Other stack operators
 include
@@ -46,7 +46,7 @@ include
 - `*` for multiplication,
 - `-` for subtraction,
 - `/` for division,
-- `^` for exponentation and
+- `^` for exponentiation and
 - `==` for equality.
 
 !!!note
@@ -266,7 +266,7 @@ Hash maps contain key-value pairs with unique keys. They are ordered.
 
 To access an item inside a collection you can use a dot (`.`). The object after
 the dot is then used to access the collection. For strings, vectors and array
-an integer is expeced to be used as an index, maps expect a key instead.
+an integer is expected to be used as an index, maps expect a key instead.
 
 If an identifier is fount right after the dot it is interpreted as a string, so
 `my_map.key` is the same as `my_map.'key'`. To interpret the identifier as a
@@ -525,9 +525,9 @@ If after the `=>` you do not write anything the function will return `null`:
 'Nest' @greet @std.io.println --> prints null
 ```
 
-### Anonymus functions
+### Anonymous functions
 
-To define an anonymus function you use two hashes instead of one:
+To define an anonymous function you use two hashes instead of one:
 
 ```nest
 |#| 'std.nest' = std
@@ -604,7 +604,7 @@ result of a clever trick you can do with functions. Take the following example:
 ]
 ```
 
-This can be considered a very rudamentary class. All functions can reference
+This can be considered a very rudimentary class. All functions can reference
 `self` and since it is the same object they can change its contents and see the
 changes made by another function.
 

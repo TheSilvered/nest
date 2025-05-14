@@ -84,7 +84,7 @@ If `reserve` is `0` no memory is allocated.
 
 **Returns:**
 
-`true` on succes and `false` on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -98,7 +98,7 @@ bool Nst_da_init_copy(Nst_DynArray *src, Nst_DynArray *dst)
 
 **Description:**
 
-Copy the contents of an arry into another.
+Copy the contents of an array into another.
 
 The data of the source buffer is copied into a new block of memory, subsequent
 changes to the source will not modify the copy.
@@ -291,7 +291,7 @@ If `reserve` is `0` no memory is allocated.
 
 **Returns:**
 
-`true` on succes and `false` on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -305,7 +305,7 @@ bool Nst_pa_init_copy(Nst_PtrArray *src, Nst_PtrArray *dst)
 
 **Description:**
 
-Copy the contents of an arry into another.
+Copy the contents of an array into another.
 
 The data of the source buffer is copied into a new block of memory, subsequent
 changes to the source will not modify the copy.

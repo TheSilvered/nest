@@ -223,7 +223,7 @@ The parsed data as a Nest object according to the
 
 ### `@set_option`
 
-**Synopsis**
+**Synopsis:**
 
 `[option: Int, value: Bool|null] @set_option -> null`
 

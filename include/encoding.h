@@ -91,7 +91,7 @@ NstEXP typedef i32 (*Nst_CheckBytesFunc)(void *str, usize len);
 NstEXP typedef u32 (*Nst_ToUTF32Func)(void *str);
 
 /**
- * @brief The signature of a function that encodesa a code point with a certain
+ * @brief The signature of a function that encodes a code point with a certain
  * encoding writing the output to a buffer.
  *
  * @brief Warning: `buf` is expected to be large enough to hold the full
@@ -464,7 +464,7 @@ NstEXP Nst_EncodingID NstC Nst_encoding_from_name(const char *name);
 /**
  * @return An encoding ID where `ch_size` is one byte. If the given encoding ID
  * has a `ch_size` of one byte already the encoding ID itself is returned.
- * Otherwies the little endian version is always returned.
+ * Otherwise the little endian version is always returned.
  */
 NstEXP Nst_EncodingID NstC Nst_encoding_to_single_byte(Nst_EncodingID encoding);
 

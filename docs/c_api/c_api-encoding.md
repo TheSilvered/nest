@@ -129,7 +129,7 @@ typedef i32 (*Nst_FromUTF32Func)(u32 ch, void *buf)
 
 **Description:**
 
-The signature of a function that encodesa a code point with a certain encoding
+The signature of a function that encodes a code point with a certain encoding
 writing the output to a buffer.
 
 !!!warning
@@ -1394,7 +1394,7 @@ Nst_EncodingID Nst_encoding_to_single_byte(Nst_EncodingID encoding)
 **Returns:**
 
 An encoding ID where `ch_size` is one byte. If the given encoding ID has a
-`ch_size` of one byte already the encoding ID itself is returned. Otherwies the
+`ch_size` of one byte already the encoding ID itself is returned. Otherwise the
 little endian version is always returned.
 
 ---

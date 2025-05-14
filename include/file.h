@@ -27,7 +27,7 @@
 #define Nst_IOF_CAN_WRITE(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_CAN_WRITE)
 /* Check if `f` can be read. */
 #define Nst_IOF_CAN_READ(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_CAN_READ)
-/* Check if `f` can be seeked. */
+/* Check if `f` can be sought. */
 #define Nst_IOF_CAN_SEEK(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_CAN_SEEK)
 
 #ifdef __cplusplus
@@ -88,7 +88,7 @@ NstEXP typedef enum _Nst_SeekWhence {
  * `Nst_IO_EOF_REACHED`
  * @param buf_len: this is an out parameter set to the length in bytes of the
  * data written in `buf` ignoring the NUL character, it may be `NULL` to not
- * recieve the information
+ * receive the information
  * read when the file is opened in normal mode and to the number of bytes read
  * when opened in binary mode
  * @param f: the file to read
@@ -124,7 +124,7 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_read_f)(u8 *buf, usize buf_size,
  * @param buf_len: the length in bytes of `buf`
  * @param count: an out parameter set to the number of characters written when
  * the file is opened in normal mode or to the number of bytes written when
- * it is in binary mode, it may be `NULL` to not recieve the information,a
+ * it is in binary mode, it may be `NULL` to not receive the information,a
  * valid value can be expected only when the function returns `Nst_IO_SUCCESS`
  * @param f: the file to write to
  *
@@ -166,7 +166,7 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_flush_f)(Nst_Obj *f);
  * the start of the file of the file-position indicator.
  *
  * @param f: the file to get the position from
- * @param pos: the pointer filled with the retrived position, a valid value can
+ * @param pos: the pointer filled with the retrieved position, a valid value can
  * be expected only when the function returns `Nst_IO_SUCCESS`
  *
  * @return This function shall return one of the following `Nst_IOResult`

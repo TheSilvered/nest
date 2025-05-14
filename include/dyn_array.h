@@ -52,11 +52,11 @@ NstEXP typedef struct _Nst_PtrArray {
  * @param unit_size: the size of the elements the array will contain
  * @param reserve: the capacity to initialize the array with
  *
- * @return `true` on succes and `false` on failure. The error is set.
+ * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_da_init(Nst_DynArray *arr, usize unit_size, usize reserve);
 /**
- * Copy the contents of an arry into another.
+ * Copy the contents of an array into another.
  *
  * @brief The data of the source buffer is copied into a new block of memory,
  * subsequent changes to the source will not modify the copy.
@@ -137,11 +137,11 @@ NstEXP void NstC Nst_da_clear(Nst_DynArray *arr, Nst_Destructor dstr);
  * @param buf: the buffer to initialize
  * @param reserve: the capacity to initialize the array with
  *
- * @return `true` on succes and `false` on failure. The error is set.
+ * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_pa_init(Nst_PtrArray *arr, usize reserve);
 /**
- * Copy the contents of an arry into another.
+ * Copy the contents of an array into another.
  *
  * @brief The data of the source buffer is copied into a new block of memory,
  * subsequent changes to the source will not modify the copy.

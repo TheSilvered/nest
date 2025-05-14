@@ -20,7 +20,7 @@ To write a curly brace `{`, write `{{`, and to write `}`, write `}}` instead.
 
 ### Format types
 
-The `fmt` function has a special behaviour for `Int`s, `Real`s, `Byte`s and
+The `fmt` function has a special behavior for `Int`s, `Real`s, `Byte`s and
 `Bool`s; any other type is first converted to a string and then treated as one
 when applying the flags.
 
@@ -61,7 +61,7 @@ representation mode to be used though mode `g` is the default.
 
 In general representation the number is represented with `precision`
 significant digits and will alternate between the `f` or `F` mode and the `e`
-or `E` modes depending on its magnetude.
+or `E` modes depending on its magnitude.
 
 The `f` or `F` mode is used when `-4 <= exp < precision` where `exp` is the
 exponent in standard notation of the number. When the exponent falls outside
@@ -162,7 +162,7 @@ unsigned integer instead of a signed one.
 
 #### The `0` flag
 
-This flag will have a different behaviour depending on the type.
+This flag will have a different behavior depending on the type.
 
 For `Int`s it will add zeroes between the number and the sign until the number
 of digits matches the precision. When using this flag the thousand separator is
@@ -213,7 +213,7 @@ characters.
 '{r}' {'hello😊\n'} @su.fmt --> "'hello😊\\n'"
 ```
 
-The `R` flag will instad only escape special characters (including the
+The `R` flag will instead only escape special characters (including the
 backslash `\` but not quotes) and leaving everything else untouched.
 
 ```nest
@@ -381,7 +381,7 @@ flag is used to specify what character to use instead of the space.
 
 When the `c` flag is used this field specifies the exact width of the resulting
 string, shorter strings will still be padded but strings that are too long will
-be cut to size reguardless of the value, this means that digits and signs can
+be cut to size regardless of the value, this means that digits and signs can
 be cut off numbers.
 
 The width can be specified directly with a number after the flags or by writing
@@ -464,7 +464,7 @@ A negative precision is ignored.
 This field applies to the types that support the `'` flag and changes the
 amount of digits between separators from the default.
 
-The default values for the separator width is as followes:
+The default values for the separator width is as follows:
 
 - `8` for numbers in binary
 - `3` for numbers in octal or decimal (including `Real`s)
@@ -492,8 +492,8 @@ will only ever be as bit as necessary.
 
 The alignment can be one of three values:
 
-- `<`: left align (default behaviour for most types)
-- `>`: right align (default behaviour for `Byte`s, `Int`s and `Real`s)
+- `<`: left align (default behavior for most types)
+- `>`: right align (default behavior for `Byte`s, `Int`s and `Real`s)
 - `^`: center align
 
 A left alignment will cause the value to be placed on the left and the padding
@@ -1106,14 +1106,14 @@ The parsed integer.
 **Synopsis:**
 
 ```nest
-[string: Str, old_substring: Str, new_substing: Str] @replace -> Str
+[string: Str, old_substring: Str, new_substring: Str] @replace -> Str
 ```
 
 **Description:**
 
 Replaces all the occurrences of `old_substring` in `string` with
-`new_substing`. `old_substring` and `new_substing` can be of different length.
-If `new_substing` is an empty string, nothing is replaced.
+`new_substring`. `old_substring` and `new_substring` can be of different length.
+If `new_substring` is an empty string, nothing is replaced.
 
 **Returns:**
 

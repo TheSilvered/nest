@@ -144,7 +144,7 @@ Nst_Span Nst_span_new(Nst_Pos start, Nst_Pos end)
 
 **Description:**
 
-Make a new span from a start and an end posiiton.
+Make a new span from a start and an end position.
 
 ---
 

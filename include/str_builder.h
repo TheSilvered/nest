@@ -43,7 +43,7 @@ NstEXP bool NstC Nst_sb_init(Nst_StrBuilder *sb, usize reserve);
  */
 NstEXP void NstC Nst_sb_destroy(Nst_StrBuilder *sb);
 /**
- * Ensure that the string can be expanded by `amount` bytes withot
+ * Ensure that the string can be expanded by `amount` bytes without
  * reallocating.
  *
  * @return `true` on success and `false` if a memory allocation fails. The

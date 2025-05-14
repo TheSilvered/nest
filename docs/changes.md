@@ -4,7 +4,7 @@
 
 **Additions**
 
-- added `-i` arguments that prints the instructions (old behaviour of `-b`)
+- added `-i` arguments that prints the instructions (old behavior of `-b`)
 
 **Changes**
 
@@ -26,7 +26,7 @@
 **Bug fixes**
 
 - fixed expressions escapes in strings that would not close properly when the last character was `-`
-- fixed an infinte loop occurring when escaping a non-ASCII character in the source code
+- fixed an infinite loop occurring when escaping a non-ASCII character in the source code
 - fixed `su.lsplit` and `su.rsplit` that would ignore separators at the end and at the beginning respectively
 - fixed file arguments (ex. `--$ --no-default`) not working
 
@@ -228,7 +228,7 @@
 - removed `Nst_set_error`, renamed `_Nst_set_error` to `Nst_error_set`
 - removed `Nst_set_*_error` macros, renamed `_Nst_set_*_error` functions  to `Nst_error_set_*`
 - renamed `Nst_set_*_errorf` macros to `Nst_error_setf_*` and made them functions
-- renamed `Nst_set_*_error_c` funcions to `Nst_error_setc_*`
+- renamed `Nst_set_*_error_c` functions to `Nst_error_setc_*`
 - removed all `Nst_set_internal_*` and `Nst_set_internal_*_c` functions
 - renamed `Nst_failed_alloc` to `Nst_error_failed_alloc`
 - removed `Nst_error_add_pos` in favour of `Nst_error_add_span`
@@ -334,7 +334,7 @@
 - renamed `_Nst_str_copy` to `Nst_str_copy` and removed macro alias
 - renamed `_Nst_str_repr` to `Nst_str_repr` and removed macro alias
 - renamed `_Nst_str_get` to `Nst_str_get` and removed macro alias
-  - now `Nst_str_get` returns the Unicode code point instead of an object, use the new `Nst_str_get_obj` for the old behaviour
+  - now `Nst_str_get` returns the Unicode code point instead of an object, use the new `Nst_str_get_obj` for the old behavior
 - removed `Nst_TOK`, `Nst_tok_new_value`, `Nst_tok_new_noval`, `Nst_tok_new_noend`
 - made `Nst_TypeObj` private, removed `Nst_ContTypeObj`
 - removed `Nst_TypeFlags` and `_Nst_type_destroy`

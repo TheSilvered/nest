@@ -74,7 +74,7 @@ representation mode to be used though mode `g` is the default.
 
 In general representation the number is represented with `precision`
 significant digits and will alternate between the `f` or `F` mode and the `e`
-or `E` modes depending on its magnetude.
+or `E` modes depending on its magnitude.
 
 The `f` or `F` mode is used when `-4 <= exp < precision` where `exp` is the
 exponent in standard notation of the number. When the exponent falls outside
@@ -181,7 +181,7 @@ Nst_fmt("{p:X}", 0, NULL, (void *)0x325c4e4); // results in "0X325c4e4"
 
 This flag is supported by `i`, `l`, `L` and `z` and indicates to use the
 unsigned variant of the types. For `i` this flag will read a `uint` instead of
-an `int`, for `l` it will read a `u32` instad of a `i32` and so on.
+an `int`, for `l` it will read a `u32` instead of a `i32` and so on.
 
 #### The `0` flag
 
@@ -247,7 +247,7 @@ characters.
 Nst_fmt("{s:r}", 0, NULL, "hello😊\n"); // results in "'hello😊\\n'"
 ```
 
-The `R` flag will instad only escape special characters (including the
+The `R` flag will instead only escape special characters (including the
 backslash `\` but not quotes) and leaving everything else untouched.
 
 ```better-c
@@ -422,7 +422,7 @@ flag is used to specify what character to use instead of the space.
 
 When the `c` flag is used this field specifies the exact width of the resulting
 string, shorter strings will still be padded but strings that are too long will
-be cut to size reguardless of the value, this means that digits and signs can
+be cut to size regardless of the value, this means that digits and signs can
 be cut off numbers.
 
 The width can be specified directly with a number after the flags or by writing
@@ -506,7 +506,7 @@ A negative precision is ignored.
 This field applies to the types that support the `'` flag and changes the
 amount of digits between separators from the default.
 
-The default values for the separator width is as followes:
+The default values for the separator width is as follows:
 
 - `8` for numbers in binary
 - `3` for numbers in octal or decimal (including all floats)
@@ -680,7 +680,7 @@ NstEXP Nst_ObjRef *NstC Nst_vsprintf(const char *fmt, va_list args);
  * @param fmt: the format placeholder
  * @param fmt_len: the length of `fmt`, if set to `0` is it determined using
  * `strlen`
- * @param out_len: pointer to a value filled with the final lenght of the
+ * @param out_len: pointer to a value filled with the final length of the
  * formatted string, it can be `NULL`
  * @param ...: the values to format
  *
@@ -716,7 +716,7 @@ NstEXP Nst_ObjRef *NstC Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj **values,
  * @param str: the initial string
  * @param str_len: the length in bytes of the string, if set to zero it will be
  * calculated with `strlen`
- * @param out_len: pointer to be set with the lengh of the output string, if
+ * @param out_len: pointer to be set with the length of the output string, if
  * set to `NULL` it will be ignored
  * @param shallow: if set to true it will only escape special characters, like
  * the `R` and `A` flags

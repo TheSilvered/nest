@@ -341,8 +341,8 @@ In order to start set `idx` to `-1`, this will start from the first character.
 
 - `str`: the string to iterate
 - `idx`: the address to the current index of the iteration
-- `ch_buf`: a buffer of length 4 where the bytes of the charcter are copied, any
-  extra bytes are set to `0`
+- `ch_buf`: a buffer of length 4 where the bytes of the character are copied,
+  any extra bytes are set to `0`
 
 **Returns:**
 

@@ -157,7 +157,7 @@ representing commonly used types into a single character.
 
 The shorthands that contain a cast (either `:` or `_`) will not cast the object
 when used to check the contents of a sequence or when they are part of a union.
-Additionaly, any cast added manually will overwrite the cast of the shorthand.
+Additionally, any cast added manually will overwrite the cast of the shorthand.
 
 ```better-c
 "S"   // matches Array, Vector and Str and casts the object to Array
@@ -275,7 +275,7 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 extern "C" {
 #endif // !__cplusplus
 
-/* The signarture of a function used to get the constant of a library. */
+/* The signature of a function used to get the constant of a library. */
 typedef Nst_ObjRef *(*Nst_ConstFunc)(void);
 
 /**

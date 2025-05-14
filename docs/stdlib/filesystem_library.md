@@ -64,7 +64,7 @@ not exits or if a system error occurs.
 
 - `from`: the path of the element to copy
 - `to`: the path the element should be copied as
-- `options`: the options that modify the default behaviour of copy
+- `options`: the options that modify the default behavior of copy
 
 ---
 

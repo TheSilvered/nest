@@ -278,7 +278,7 @@ Nst_LLNode *Nst_llnode_new(void *value, bool allocated)
 Create a new node on the heap.
 
 To free the node use [`Nst_free`](c_api-mem.md#nst_free). The value is *not*
-handeled automatically and must be freed manually.
+handled automatically and must be freed manually.
 
 **Returns:**
 

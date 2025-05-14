@@ -38,7 +38,7 @@ NstEXP typedef struct _Nst_InterpreterState {
 } Nst_InterpreterState;
 
 /**
- * Initialize the Nest libraray.
+ * Initialize the Nest library.
  *
  * @brief Note: `Nst_error_set_color` is called with the value returned by
  * `Nst_supports_color`.
@@ -49,7 +49,7 @@ NstEXP typedef struct _Nst_InterpreterState {
 NstEXP bool NstC Nst_init(void);
 
 /**
- * Destroy all the components of the libraray. It is not safe to access any
+ * Destroy all the components of the library. It is not safe to access any
  * object created while the library was initialized after this function is
  * called. Any destructors that may access Nest objects must be called before
  * calling this function.

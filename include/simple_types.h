@@ -6,8 +6,8 @@
  * @author TheSilvered
  */
 
-#ifndef SYMPLE_TYPES_H
-#define SYMPLE_TYPES_H
+#ifndef SIMPLE_TYPES_H
+#define SIMPLE_TYPES_H
 
 #include <stdio.h>
 #include "error.h"
@@ -126,4 +126,4 @@ NstEXP bool NstC Nst_obj_to_bool(Nst_Obj *obj);
 }
 #endif // !__cplusplus
 
-#endif // !SYMPLE_TYPES_H
+#endif // !SIMPLE_TYPES_H

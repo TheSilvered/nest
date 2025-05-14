@@ -380,7 +380,7 @@ isize Nst_sv_lfind(Nst_StrView str, Nst_StrView substr)
 
 **Description:**
 
-Searche for `substr` inside `str` from the beginning.
+Search for `substr` inside `str` from the beginning.
 
 **Returns:**
 
@@ -399,7 +399,7 @@ isize Nst_sv_rfind(Nst_StrView str, Nst_StrView substr)
 
 **Description:**
 
-Searche for `substr` inside `str` from the end.
+Search for `substr` inside `str` from the end.
 
 **Returns:**
 
@@ -418,7 +418,7 @@ Nst_StrView Nst_sv_ltok(Nst_StrView str, Nst_StrView substr)
 
 **Description:**
 
-Searche for `substr` inside `str` from the beginning.
+Search for `substr` inside `str` from the beginning.
 
 **Returns:**
 
@@ -437,7 +437,7 @@ Nst_StrView Nst_sv_rtok(Nst_StrView str, Nst_StrView substr)
 
 **Description:**
 
-Searche for `substr` inside `str` from the end.
+Search for `substr` inside `str` from the end.
 
 **Returns:**
 

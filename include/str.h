@@ -178,7 +178,7 @@ NstEXP i32 NstC Nst_str_next_utf32(Nst_Obj *str, isize *idx);
  *
  * @param str: the string to iterate
  * @param idx: the address to the current index of the iteration
- * @param ch_buf: a buffer of length 4 where the bytes of the charcter are
+ * @param ch_buf: a buffer of length 4 where the bytes of the character are
  * copied, any extra bytes are set to `0`
  *
  * @return The length of the character in bytes. It returns `0` when there are

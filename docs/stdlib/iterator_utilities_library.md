@@ -135,7 +135,7 @@ object returned by the `iterator` and the second is the index of the current
 iteration. When `invert_order` is set to a truthy value the first element is
 the object and the second the iteration count.
 
-`start` by default is set to `0` and `step` to `1` but this behaviour can be
+`start` by default is set to `0` and `step` to `1` but this behavior can be
 changed by passing the additional arguments.
 
 **Example:**
