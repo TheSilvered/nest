@@ -3,138 +3,138 @@
 // extract property, used to avoid mistakes when printing node data
 #define EP(data_name, name) #name, node->v.data_name.name, levels
 
-static void print_cs(Nst_Node *node, Nst_LList *levels);
-static void print_wl(Nst_Node *node, Nst_LList *levels);
-static void print_fl(Nst_Node *node, Nst_LList *levels);
-static void print_fd(Nst_Node *node, Nst_LList *levels);
-static void print_rt(Nst_Node *node, Nst_LList *levels);
-static void print_sw(Nst_Node *node, Nst_LList *levels);
-static void print_tc(Nst_Node *node, Nst_LList *levels);
-static void print_ws(Nst_Node *node, Nst_LList *levels);
-static void print_so(Nst_Node *node, Nst_LList *levels);
-static void print_ls(Nst_Node *node, Nst_LList *levels);
-static void print_lo(Nst_Node *node, Nst_LList *levels);
-static void print_sl(Nst_Node *node, Nst_LList *levels);
-static void print_ml(Nst_Node *node, Nst_LList *levels);
-static void print_vl(Nst_Node *node, Nst_LList *levels);
-static void print_ac(Nst_Node *node, Nst_LList *levels);
-static void print_ex(Nst_Node *node, Nst_LList *levels);
-static void print_as(Nst_Node *node, Nst_LList *levels);
-static void print_ca(Nst_Node *node, Nst_LList *levels);
-static void print_ie(Nst_Node *node, Nst_LList *levels);
-static void print_we(Nst_Node *node, Nst_LList *levels);
+static void print_s_list(Nst_Node *node, Nst_LList *levels);
+static void print_s_while_lp(Nst_Node *node, Nst_LList *levels);
+static void print_s_for_lp(Nst_Node *node, Nst_LList *levels);
+static void print_s_fn_decl(Nst_Node *node, Nst_LList *levels);
+static void print_s_return(Nst_Node *node, Nst_LList *levels);
+static void print_s_switch(Nst_Node *node, Nst_LList *levels);
+static void print_s_try_catch(Nst_Node *node, Nst_LList *levels);
+static void print_s_wrapper(Nst_Node *node, Nst_LList *levels);
+static void print_e_stack_op(Nst_Node *node, Nst_LList *levels);
+static void print_e_loc_stack_op(Nst_Node *node, Nst_LList *levels);
+static void print_e_local_op(Nst_Node *node, Nst_LList *levels);
+static void print_e_seq_literal(Nst_Node *node, Nst_LList *levels);
+static void print_e_map_literal(Nst_Node *node, Nst_LList *levels);
+static void print_e_value(Nst_Node *node, Nst_LList *levels);
+static void print_e_access(Nst_Node *node, Nst_LList *levels);
+static void print_e_extraction(Nst_Node *node, Nst_LList *levels);
+static void print_e_assignment(Nst_Node *node, Nst_LList *levels);
+static void print_e_comp_assign(Nst_Node *node, Nst_LList *levels);
+static void print_e_if(Nst_Node *node, Nst_LList *levels);
+static void print_e_wrapper(Nst_Node *node, Nst_LList *levels);
 
 static bool (*initializers[])(Nst_Node *) = {
-    [Nst_NT_CS] = _Nst_node_cs_init,
-    [Nst_NT_WL] = _Nst_node_wl_init,
-    [Nst_NT_FL] = _Nst_node_fl_init,
-    [Nst_NT_FD] = _Nst_node_fd_init,
-    [Nst_NT_RT] = _Nst_node_rt_init,
-    [Nst_NT_CN] = NULL,
-    [Nst_NT_BR] = NULL,
-    [Nst_NT_SW] = _Nst_node_sw_init,
-    [Nst_NT_TC] = _Nst_node_tc_init,
-    [Nst_NT_WS] = _Nst_node_ws_init,
-    [Nst_NT_NP] = NULL,
-    [Nst_NT_SO] = _Nst_node_so_init,
-    [Nst_NT_LS] = _Nst_node_ls_init,
-    [Nst_NT_LO] = _Nst_node_lo_init,
-    [Nst_NT_SL] = _Nst_node_sl_init,
-    [Nst_NT_ML] = _Nst_node_ml_init,
-    [Nst_NT_VL] = _Nst_node_vl_init,
-    [Nst_NT_AC] = _Nst_node_ac_init,
-    [Nst_NT_EX] = _Nst_node_ex_init,
-    [Nst_NT_AS] = _Nst_node_as_init,
-    [Nst_NT_CA] = _Nst_node_ca_init,
-    [Nst_NT_IE] = _Nst_node_ie_init,
-    [Nst_NT_WE] = _Nst_node_we_init,
+    [Nst_NT_S_LIST] = _Nst_node_s_list_init,
+    [Nst_NT_S_WHILE_LP] = _Nst_node_s_while_lp_init,
+    [Nst_NT_S_FOR_LP] = _Nst_node_s_for_lp_init,
+    [Nst_NT_S_FN_DECL] = _Nst_node_s_fn_decl_init,
+    [Nst_NT_S_RETURN] = _Nst_node_s_return_init,
+    [Nst_NT_S_CONTINUE] = NULL,
+    [Nst_NT_S_BREAK] = NULL,
+    [Nst_NT_S_SWITCH] = _Nst_node_s_switch_init,
+    [Nst_NT_S_TRY_CATCH] = _Nst_node_s_try_catch_init,
+    [Nst_NT_S_WRAPPER] = _Nst_node_s_wrapper_init,
+    [Nst_NT_S_NOP] = NULL,
+    [Nst_NT_E_STACK_OP] = _Nst_node_e_stack_op_init,
+    [Nst_NT_E_LOC_STACK_OP] = _Nst_node_e_loc_stack_op_init,
+    [Nst_NT_E_LOCAL_OP] = _Nst_node_e_local_op_init,
+    [Nst_NT_E_SEQ_LITERAL] = _Nst_node_e_seq_literal_init,
+    [Nst_NT_E_MAP_LITERAL] = _Nst_node_e_map_literal_init,
+    [Nst_NT_E_VALUE] = _Nst_node_e_value_init,
+    [Nst_NT_E_ACCESS] = _Nst_node_e_access_init,
+    [Nst_NT_E_EXTRACTION] = _Nst_node_e_extraction_init,
+    [Nst_NT_E_ASSIGNMENT] = _Nst_node_e_assignment_init,
+    [Nst_NT_E_COMP_ASSIGN] = _Nst_node_e_comp_assign_init,
+    [Nst_NT_E_IF] = _Nst_node_e_if_init,
+    [Nst_NT_E_WRAPPER] = _Nst_node_e_wrapper_init,
 };
 
 static void (*destructors[])(Nst_Node *) = {
-    [Nst_NT_CS] = _Nst_node_cs_destroy,
-    [Nst_NT_WL] = _Nst_node_wl_destroy,
-    [Nst_NT_FL] = _Nst_node_fl_destroy,
-    [Nst_NT_FD] = _Nst_node_fd_destroy,
-    [Nst_NT_RT] = _Nst_node_rt_destroy,
-    [Nst_NT_CN] = NULL,
-    [Nst_NT_BR] = NULL,
-    [Nst_NT_SW] = _Nst_node_sw_destroy,
-    [Nst_NT_TC] = _Nst_node_tc_destroy,
-    [Nst_NT_WS] = _Nst_node_ws_destroy,
-    [Nst_NT_NP] = NULL,
-    [Nst_NT_SO] = _Nst_node_so_destroy,
-    [Nst_NT_LS] = _Nst_node_ls_destroy,
-    [Nst_NT_LO] = _Nst_node_lo_destroy,
-    [Nst_NT_SL] = _Nst_node_sl_destroy,
-    [Nst_NT_ML] = _Nst_node_ml_destroy,
-    [Nst_NT_VL] = _Nst_node_vl_destroy,
-    [Nst_NT_AC] = _Nst_node_ac_destroy,
-    [Nst_NT_EX] = _Nst_node_ex_destroy,
-    [Nst_NT_AS] = _Nst_node_as_destroy,
-    [Nst_NT_CA] = _Nst_node_ca_destroy,
-    [Nst_NT_IE] = _Nst_node_ie_destroy,
-    [Nst_NT_WE] = _Nst_node_we_destroy
+    [Nst_NT_S_LIST] = _Nst_node_s_list_destroy,
+    [Nst_NT_S_WHILE_LP] = _Nst_node_s_while_lp_destroy,
+    [Nst_NT_S_FOR_LP] = _Nst_node_s_for_lp_destroy,
+    [Nst_NT_S_FN_DECL] = _Nst_node_s_fn_decl_destroy,
+    [Nst_NT_S_RETURN] = _Nst_node_s_return_destroy,
+    [Nst_NT_S_CONTINUE] = NULL,
+    [Nst_NT_S_BREAK] = NULL,
+    [Nst_NT_S_SWITCH] = _Nst_node_s_switch_destroy,
+    [Nst_NT_S_TRY_CATCH] = _Nst_node_s_try_catch_destroy,
+    [Nst_NT_S_WRAPPER] = _Nst_node_s_wrapper_destroy,
+    [Nst_NT_S_NOP] = NULL,
+    [Nst_NT_E_STACK_OP] = _Nst_node_e_stack_op_destroy,
+    [Nst_NT_E_LOC_STACK_OP] = _Nst_node_e_loc_stack_op_destroy,
+    [Nst_NT_E_LOCAL_OP] = _Nst_node_e_local_op_destroy,
+    [Nst_NT_E_SEQ_LITERAL] = _Nst_node_e_seq_literal_destroy,
+    [Nst_NT_E_MAP_LITERAL] = _Nst_node_e_map_literal_destroy,
+    [Nst_NT_E_VALUE] = _Nst_node_e_value_destroy,
+    [Nst_NT_E_ACCESS] = _Nst_node_e_access_destroy,
+    [Nst_NT_E_EXTRACTION] = _Nst_node_e_extraction_destroy,
+    [Nst_NT_E_ASSIGNMENT] = _Nst_node_e_assignment_destroy,
+    [Nst_NT_E_COMP_ASSIGN] = _Nst_node_e_comp_assign_destroy,
+    [Nst_NT_E_IF] = _Nst_node_e_if_destroy,
+    [Nst_NT_E_WRAPPER] = _Nst_node_e_wrapper_destroy
 };
 
 static void (*prints[])(Nst_Node *, Nst_LList *) = {
-    [Nst_NT_CS] = print_cs,
-    [Nst_NT_WL] = print_wl,
-    [Nst_NT_FL] = print_fl,
-    [Nst_NT_FD] = print_fd,
-    [Nst_NT_RT] = print_rt,
-    [Nst_NT_CN] = NULL,
-    [Nst_NT_BR] = NULL,
-    [Nst_NT_SW] = print_sw,
-    [Nst_NT_TC] = print_tc,
-    [Nst_NT_WS] = print_ws,
-    [Nst_NT_NP] = NULL,
-    [Nst_NT_SO] = print_so,
-    [Nst_NT_LS] = print_ls,
-    [Nst_NT_LO] = print_lo,
-    [Nst_NT_SL] = print_sl,
-    [Nst_NT_ML] = print_ml,
-    [Nst_NT_VL] = print_vl,
-    [Nst_NT_AC] = print_ac,
-    [Nst_NT_EX] = print_ex,
-    [Nst_NT_AS] = print_as,
-    [Nst_NT_CA] = print_ca,
-    [Nst_NT_IE] = print_ie,
-    [Nst_NT_WE] = print_we
+    [Nst_NT_S_LIST] = print_s_list,
+    [Nst_NT_S_WHILE_LP] = print_s_while_lp,
+    [Nst_NT_S_FOR_LP] = print_s_for_lp,
+    [Nst_NT_S_FN_DECL] = print_s_fn_decl,
+    [Nst_NT_S_RETURN] = print_s_return,
+    [Nst_NT_S_CONTINUE] = NULL,
+    [Nst_NT_S_BREAK] = NULL,
+    [Nst_NT_S_SWITCH] = print_s_switch,
+    [Nst_NT_S_TRY_CATCH] = print_s_try_catch,
+    [Nst_NT_S_WRAPPER] = print_s_wrapper,
+    [Nst_NT_S_NOP] = NULL,
+    [Nst_NT_E_STACK_OP] = print_e_stack_op,
+    [Nst_NT_E_LOC_STACK_OP] = print_e_loc_stack_op,
+    [Nst_NT_E_LOCAL_OP] = print_e_local_op,
+    [Nst_NT_E_SEQ_LITERAL] = print_e_seq_literal,
+    [Nst_NT_E_MAP_LITERAL] = print_e_map_literal,
+    [Nst_NT_E_VALUE] = print_e_value,
+    [Nst_NT_E_ACCESS] = print_e_access,
+    [Nst_NT_E_EXTRACTION] = print_e_extraction,
+    [Nst_NT_E_ASSIGNMENT] = print_e_assignment,
+    [Nst_NT_E_COMP_ASSIGN] = print_e_comp_assign,
+    [Nst_NT_E_IF] = print_e_if,
+    [Nst_NT_E_WRAPPER] = print_e_wrapper
 };
 
 static const char *nt_strings[] = {
-    [Nst_NT_CS] = "CS (Compound statement)",
-    [Nst_NT_WL] = "WL (While loop)",
-    [Nst_NT_FL] = "FL (For loop)",
-    [Nst_NT_FD] = "FD (Function declaration)",
-    [Nst_NT_RT] = "RT (Return statement)",
-    [Nst_NT_CN] = "CN (Continue statement)",
-    [Nst_NT_BR] = "BR (Break statement)",
-    [Nst_NT_SW] = "SW (Switch statement)",
-    [Nst_NT_TC] = "TC (Try-catch statement)",
-    [Nst_NT_WS] = "WS (Statement wrapper)",
-    [Nst_NT_NP] = "NP (No-op statement)",
-    [Nst_NT_SO] = "SO (Stack operation)",
-    [Nst_NT_LS] = "LS (Local-stack operation)",
-    [Nst_NT_LO] = "LO (Local operation)",
-    [Nst_NT_SL] = "SL (Sequence literal)",
-    [Nst_NT_ML] = "ML (Map literal)",
-    [Nst_NT_VL] = "VL (Value)",
-    [Nst_NT_AC] = "AC (Access)",
-    [Nst_NT_EX] = "EX (Extract expression)",
-    [Nst_NT_AS] = "AS (Assignment expression)",
-    [Nst_NT_CA] = "CA (Compound assignment)",
-    [Nst_NT_IE] = "IE (If expression)",
-    [Nst_NT_WE] = "WE (Expression wrapper)"
+    [Nst_NT_S_LIST] = "Statement list",
+    [Nst_NT_S_WHILE_LP] = "While loop",
+    [Nst_NT_S_FOR_LP] = "For loop",
+    [Nst_NT_S_FN_DECL] = "Function declaration",
+    [Nst_NT_S_RETURN] = "Return statement",
+    [Nst_NT_S_CONTINUE] = "Continue statement",
+    [Nst_NT_S_BREAK] = "Break statement",
+    [Nst_NT_S_SWITCH] = "Switch statement",
+    [Nst_NT_S_TRY_CATCH] = "Try-catch statement",
+    [Nst_NT_S_WRAPPER] = "Statement wrapper",
+    [Nst_NT_S_NOP] = "No-op statement",
+    [Nst_NT_E_STACK_OP] = "Stack operation",
+    [Nst_NT_E_LOC_STACK_OP] = "Local-stack operation",
+    [Nst_NT_E_LOCAL_OP] = "Local operation",
+    [Nst_NT_E_SEQ_LITERAL] = "Sequence literal",
+    [Nst_NT_E_MAP_LITERAL] = "Map literal",
+    [Nst_NT_E_VALUE] = "Value",
+    [Nst_NT_E_ACCESS] = "Access",
+    [Nst_NT_E_EXTRACTION] = "Extract expression",
+    [Nst_NT_E_ASSIGNMENT] = "Assignment expression",
+    [Nst_NT_E_COMP_ASSIGN] = "Compound assignment",
+    [Nst_NT_E_IF] = "If expression",
+    [Nst_NT_E_WRAPPER] = "Expression wrapper"
 };
 
 static const char *snt_strings[] = {
-    [Nst_SNT_ARRAY]            = "ARRAY",
-    [Nst_SNT_ARRAY_REP]        = "ARRAY_REP",
-    [Nst_SNT_VECTOR]           = "VECTOR",
-    [Nst_SNT_VECTOR_REP]       = "VECTOR_REP",
+    [Nst_SNT_ARRAY] = "ARRAY",
+    [Nst_SNT_ARRAY_REP] = "ARRAY_REP",
+    [Nst_SNT_VECTOR] = "VECTOR",
+    [Nst_SNT_VECTOR_REP] = "VECTOR_REP",
     [Nst_SNT_ASSIGNMENT_NAMES] = "ASSIGNMENT_NAMES",
-    [Nst_SNT_NOT_SET]          = "NOT_SET"
+    [Nst_SNT_NOT_SET] = "NOT_SET"
 };
 
 static void print_levels(Nst_LList *levels)
@@ -224,7 +224,7 @@ static void print_node_list(const char *name, Nst_PtrArray nodes,
     for (usize i = 0; i < nodes.len; i++) {
         print_node(
             NULL,
-            Nst_NODE(Nst_pa_get(&nodes, i)),
+            (Nst_Node *)Nst_pa_get(&nodes, i),
             levels,
             i == nodes.len - 1);
     }
@@ -305,405 +305,405 @@ static void print_seq_node_type(const char *name, Nst_SeqNodeType snt,
     Nst_printf("%s: %s\n", name, snt_strings[snt]);
 }
 
-bool _Nst_node_cs_init(Nst_Node *node)
+bool _Nst_node_s_list_init(Nst_Node *node)
 {
-    return Nst_pa_init(&node->v.cs.statements, 4);
+    return Nst_pa_init(&node->v.s_list.statements, 4);
 }
 
-void _Nst_node_cs_destroy(Nst_Node *node)
+void _Nst_node_s_list_destroy(Nst_Node *node)
 {
-    Nst_pa_clear(&node->v.cs.statements, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.s_list.statements, (Nst_Destructor)Nst_node_destroy);
 }
 
-void print_cs(Nst_Node *node, Nst_LList *levels)
+void print_s_list(Nst_Node *node, Nst_LList *levels)
 {
-    print_node_list(EP(cs, statements), true);
+    print_node_list(EP(s_list, statements), true);
 }
 
-bool _Nst_node_wl_init(Nst_Node *node)
+bool _Nst_node_s_while_lp_init(Nst_Node *node)
 {
-    node->v.wl.condition = NULL;
-    node->v.wl.body = NULL;
-    node->v.wl.is_dowhile = false;
+    node->v.s_while_lp.condition = NULL;
+    node->v.s_while_lp.body = NULL;
+    node->v.s_while_lp.is_dowhile = false;
     return true;
 }
 
-void _Nst_node_wl_destroy(Nst_Node *node)
+void _Nst_node_s_while_lp_destroy(Nst_Node *node)
 {
-    if (node->v.wl.condition != NULL)
-        Nst_node_destroy(node->v.wl.condition);
-    if (node->v.wl.body != NULL)
-        Nst_node_destroy(node->v.wl.body);
+    if (node->v.s_while_lp.condition != NULL)
+        Nst_node_destroy(node->v.s_while_lp.condition);
+    if (node->v.s_while_lp.body != NULL)
+        Nst_node_destroy(node->v.s_while_lp.body);
 }
 
-void print_wl(Nst_Node *node, Nst_LList *levels)
+void print_s_while_lp(Nst_Node *node, Nst_LList *levels)
 {
-    print_bool(EP(wl, is_dowhile), false);
-    print_node(EP(wl, condition), false);
-    print_node(EP(wl, body), true);
+    print_bool(EP(s_while_lp, is_dowhile), false);
+    print_node(EP(s_while_lp, condition), false);
+    print_node(EP(s_while_lp, body), true);
 }
 
-bool _Nst_node_fl_init(Nst_Node *node)
+bool _Nst_node_s_for_lp_init(Nst_Node *node)
 {
-    node->v.fl.iterator = NULL;
-    node->v.fl.assignment = NULL;
-    node->v.fl.body = NULL;
+    node->v.s_for_lp.iterator = NULL;
+    node->v.s_for_lp.assignment = NULL;
+    node->v.s_for_lp.body = NULL;
     return true;
 }
 
-void _Nst_node_fl_destroy(Nst_Node *node)
+void _Nst_node_s_for_lp_destroy(Nst_Node *node)
 {
-    if (node->v.fl.iterator != NULL)
-        Nst_node_destroy(node->v.fl.iterator);
-    if (node->v.fl.assignment != NULL)
-        Nst_node_destroy(node->v.fl.assignment);
-    if (node->v.fl.body != NULL)
-        Nst_node_destroy(node->v.fl.body);
+    if (node->v.s_for_lp.iterator != NULL)
+        Nst_node_destroy(node->v.s_for_lp.iterator);
+    if (node->v.s_for_lp.assignment != NULL)
+        Nst_node_destroy(node->v.s_for_lp.assignment);
+    if (node->v.s_for_lp.body != NULL)
+        Nst_node_destroy(node->v.s_for_lp.body);
 }
 
-void print_fl(Nst_Node *node, Nst_LList *levels)
+void print_s_for_lp(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(fl, iterator), false);
-    print_node(EP(fl, assignment), false);
-    print_node(EP(fl, body), true);
+    print_node(EP(s_for_lp, iterator), false);
+    print_node(EP(s_for_lp, assignment), false);
+    print_node(EP(s_for_lp, body), true);
 }
 
-bool _Nst_node_fd_init(Nst_Node *node)
+bool _Nst_node_s_fn_decl_init(Nst_Node *node)
 {
-    node->v.fd.name = NULL;
-    node->v.fd.body = NULL;
-    return Nst_pa_init(&node->v.fd.argument_names, 2);
+    node->v.s_fn_decl.name = NULL;
+    node->v.s_fn_decl.body = NULL;
+    return Nst_pa_init(&node->v.s_fn_decl.argument_names, 2);
 }
 
-void _Nst_node_fd_destroy(Nst_Node *node)
+void _Nst_node_s_fn_decl_destroy(Nst_Node *node)
 {
-    Nst_ndec_ref(node->v.fd.name);
-    if (node->v.fd.body != NULL)
-        Nst_node_destroy(node->v.fd.body);
-    Nst_pa_clear(&node->v.fd.argument_names, (Nst_Destructor)Nst_dec_ref);
+    Nst_ndec_ref(node->v.s_fn_decl.name);
+    if (node->v.s_fn_decl.body != NULL)
+        Nst_node_destroy(node->v.s_fn_decl.body);
+    Nst_pa_clear(&node->v.s_fn_decl.argument_names, (Nst_Destructor)Nst_dec_ref);
 }
 
-void print_fd(Nst_Node *node, Nst_LList *levels)
+void print_s_fn_decl(Nst_Node *node, Nst_LList *levels)
 {
-    print_obj(EP(fd, name), false);
-    print_obj_list(EP(fd, argument_names), false);
-    print_node(EP(fd, body), true);
+    print_obj(EP(s_fn_decl, name), false);
+    print_obj_list(EP(s_fn_decl, argument_names), false);
+    print_node(EP(s_fn_decl, body), true);
 }
 
-bool _Nst_node_rt_init(Nst_Node *node)
+bool _Nst_node_s_return_init(Nst_Node *node)
 {
-    node->v.rt.value = NULL;
+    node->v.s_return.value = NULL;
     return true;
 }
 
-void _Nst_node_rt_destroy(Nst_Node *node)
+void _Nst_node_s_return_destroy(Nst_Node *node)
 {
-    if (node->v.rt.value != NULL)
-        Nst_node_destroy(node->v.rt.value);
+    if (node->v.s_return.value != NULL)
+        Nst_node_destroy(node->v.s_return.value);
 }
 
-void print_rt(Nst_Node *node, Nst_LList *levels)
+void print_s_return(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(rt, value), true);
+    print_node(EP(s_return, value), true);
 }
 
-bool _Nst_node_sw_init(Nst_Node *node)
+bool _Nst_node_s_switch_init(Nst_Node *node)
 {
-    node->v.sw.expr = NULL;
-    Nst_pa_init(&node->v.sw.values, 0);
-    Nst_pa_init(&node->v.sw.bodies, 0);
-    node->v.sw.default_body = NULL;
+    node->v.s_switch.expr = NULL;
+    Nst_pa_init(&node->v.s_switch.values, 0);
+    Nst_pa_init(&node->v.s_switch.bodies, 0);
+    node->v.s_switch.default_body = NULL;
     return true;
 }
 
-void _Nst_node_sw_destroy(Nst_Node *node)
+void _Nst_node_s_switch_destroy(Nst_Node *node)
 {
-    if (node->v.sw.expr != NULL)
-        Nst_node_destroy(node->v.sw.expr);
-    Nst_pa_clear(&node->v.sw.values, (Nst_Destructor)Nst_node_destroy);
-    Nst_pa_clear(&node->v.sw.bodies, (Nst_Destructor)Nst_node_destroy);
-    if (node->v.sw.default_body != NULL)
-        Nst_node_destroy(node->v.sw.default_body);
+    if (node->v.s_switch.expr != NULL)
+        Nst_node_destroy(node->v.s_switch.expr);
+    Nst_pa_clear(&node->v.s_switch.values, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.s_switch.bodies, (Nst_Destructor)Nst_node_destroy);
+    if (node->v.s_switch.default_body != NULL)
+        Nst_node_destroy(node->v.s_switch.default_body);
 }
 
-void print_sw(Nst_Node *node, Nst_LList *levels)
+void print_s_switch(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(sw, expr), false);
-    print_node_list(EP(sw, values), false);
-    print_node_list(EP(sw, bodies), false);
-    print_node(EP(sw, default_body), true);
+    print_node(EP(s_switch, expr), false);
+    print_node_list(EP(s_switch, values), false);
+    print_node_list(EP(s_switch, bodies), false);
+    print_node(EP(s_switch, default_body), true);
 }
 
-bool _Nst_node_tc_init(Nst_Node *node)
+bool _Nst_node_s_try_catch_init(Nst_Node *node)
 {
-    node->v.tc.try_body = NULL;
-    node->v.tc.catch_body = NULL;
-    node->v.tc.error_name = NULL;
+    node->v.s_try_catch.try_body = NULL;
+    node->v.s_try_catch.catch_body = NULL;
+    node->v.s_try_catch.error_name = NULL;
     return true;
 }
 
-void _Nst_node_tc_destroy(Nst_Node *node)
+void _Nst_node_s_try_catch_destroy(Nst_Node *node)
 {
-    if (node->v.tc.try_body != NULL)
-        Nst_node_destroy(node->v.tc.try_body);
-    if (node->v.tc.catch_body != NULL)
-        Nst_node_destroy(node->v.tc.catch_body);
-    Nst_ndec_ref(node->v.tc.error_name);
+    if (node->v.s_try_catch.try_body != NULL)
+        Nst_node_destroy(node->v.s_try_catch.try_body);
+    if (node->v.s_try_catch.catch_body != NULL)
+        Nst_node_destroy(node->v.s_try_catch.catch_body);
+    Nst_ndec_ref(node->v.s_try_catch.error_name);
 }
 
-void print_tc(Nst_Node *node, Nst_LList *levels)
+void print_s_try_catch(Nst_Node *node, Nst_LList *levels)
 {
-    print_obj(EP(tc, error_name), false);
-    print_node(EP(tc, try_body), false);
-    print_node(EP(tc, catch_body), true);
+    print_obj(EP(s_try_catch, error_name), false);
+    print_node(EP(s_try_catch, try_body), false);
+    print_node(EP(s_try_catch, catch_body), true);
 }
 
-bool _Nst_node_ws_init(Nst_Node *node)
+bool _Nst_node_s_wrapper_init(Nst_Node *node)
 {
-    node->v.ws.statement = NULL;
+    node->v.s_wrapper.statement = NULL;
     return true;
 }
 
-void _Nst_node_ws_destroy(Nst_Node *node)
+void _Nst_node_s_wrapper_destroy(Nst_Node *node)
 {
-    if (node->v.ws.statement != NULL)
-        Nst_node_destroy(node->v.ws.statement);
+    if (node->v.s_wrapper.statement != NULL)
+        Nst_node_destroy(node->v.s_wrapper.statement);
 }
 
-void print_ws(Nst_Node *node, Nst_LList *levels)
+void print_s_wrapper(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(ws, statement), true);
+    print_node(EP(s_wrapper, statement), true);
 }
 
-bool _Nst_node_so_init(Nst_Node *node)
+bool _Nst_node_e_stack_op_init(Nst_Node *node)
 {
-    node->v.so.op = Nst_TT_INVALID;
-    return Nst_pa_init(&node->v.so.values, 2);
+    node->v.e_stack_op.op = Nst_TT_INVALID;
+    return Nst_pa_init(&node->v.e_stack_op.values, 2);
 }
 
-void _Nst_node_so_destroy(Nst_Node *node)
+void _Nst_node_e_stack_op_destroy(Nst_Node *node)
 {
-    Nst_pa_clear(&node->v.so.values, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.e_stack_op.values, (Nst_Destructor)Nst_node_destroy);
 }
 
-void print_so(Nst_Node *node, Nst_LList *levels)
+void print_e_stack_op(Nst_Node *node, Nst_LList *levels)
 {
-    print_tok_type(EP(so, op), false);
-    print_node_list(EP(so, values), true);
+    print_tok_type(EP(e_stack_op, op), false);
+    print_node_list(EP(e_stack_op, values), true);
 }
 
-bool _Nst_node_ls_init(Nst_Node *node)
+bool _Nst_node_e_loc_stack_op_init(Nst_Node *node)
 {
-    node->v.ls.special_value = NULL;
-    node->v.ls.op = Nst_TT_INVALID;
-    return Nst_pa_init(&node->v.ls.values, 3);
+    node->v.e_loc_stack_op.special_value = NULL;
+    node->v.e_loc_stack_op.op = Nst_TT_INVALID;
+    return Nst_pa_init(&node->v.e_loc_stack_op.values, 3);
 }
 
-void _Nst_node_ls_destroy(Nst_Node *node)
+void _Nst_node_e_loc_stack_op_destroy(Nst_Node *node)
 {
-    Nst_pa_clear(&node->v.ls.values, (Nst_Destructor)Nst_node_destroy);
-    if (node->v.ls.special_value != NULL)
-        Nst_node_destroy(node->v.ls.special_value);
+    Nst_pa_clear(&node->v.e_loc_stack_op.values, (Nst_Destructor)Nst_node_destroy);
+    if (node->v.e_loc_stack_op.special_value != NULL)
+        Nst_node_destroy(node->v.e_loc_stack_op.special_value);
 }
 
-void print_ls(Nst_Node *node, Nst_LList *levels)
+void print_e_loc_stack_op(Nst_Node *node, Nst_LList *levels)
 {
-    print_tok_type(EP(ls, op), false);
-    print_node(EP(ls, special_value), false);
-    print_node_list(EP(ls, values), true);
+    print_tok_type(EP(e_loc_stack_op, op), false);
+    print_node(EP(e_loc_stack_op, special_value), false);
+    print_node_list(EP(e_loc_stack_op, values), true);
 }
 
-bool _Nst_node_lo_init(Nst_Node *node)
+bool _Nst_node_e_local_op_init(Nst_Node *node)
 {
-    node->v.lo.value = NULL;
-    node->v.lo.op = Nst_TT_INVALID;
+    node->v.e_local_op.value = NULL;
+    node->v.e_local_op.op = Nst_TT_INVALID;
     return true;
 }
 
-void _Nst_node_lo_destroy(Nst_Node *node)
+void _Nst_node_e_local_op_destroy(Nst_Node *node)
 {
-    if (node->v.lo.value != NULL)
-        Nst_node_destroy(node->v.lo.value);
+    if (node->v.e_local_op.value != NULL)
+        Nst_node_destroy(node->v.e_local_op.value);
 }
 
-void print_lo(Nst_Node *node, Nst_LList *levels)
+void print_e_local_op(Nst_Node *node, Nst_LList *levels)
 {
-    print_tok_type(EP(lo, op), false);
-    print_node(EP(lo, value), true);
+    print_tok_type(EP(e_local_op, op), false);
+    print_node(EP(e_local_op, value), true);
 }
 
-bool _Nst_node_sl_init(Nst_Node *node)
+bool _Nst_node_e_seq_literal_init(Nst_Node *node)
 {
-    Nst_pa_init(&node->v.sl.values, 0);
-    node->v.sl.type = Nst_SNT_NOT_SET;
+    Nst_pa_init(&node->v.e_seq_literal.values, 0);
+    node->v.e_seq_literal.type = Nst_SNT_NOT_SET;
     return true;
 }
 
-void _Nst_node_sl_destroy(Nst_Node *node)
+void _Nst_node_e_seq_literal_destroy(Nst_Node *node)
 {
-    Nst_pa_clear(&node->v.sl.values, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.e_seq_literal.values, (Nst_Destructor)Nst_node_destroy);
 }
 
-void print_sl(Nst_Node *node, Nst_LList *levels)
+void print_e_seq_literal(Nst_Node *node, Nst_LList *levels)
 {
-    print_seq_node_type(EP(sl, type), false);
-    print_node_list(EP(sl, values), true);
+    print_seq_node_type(EP(e_seq_literal, type), false);
+    print_node_list(EP(e_seq_literal, values), true);
 }
 
-bool _Nst_node_ml_init(Nst_Node *node)
+bool _Nst_node_e_map_literal_init(Nst_Node *node)
 {
-    Nst_pa_init(&node->v.ml.keys, 0);
-    Nst_pa_init(&node->v.ml.values, 0);
+    Nst_pa_init(&node->v.e_map_literal.keys, 0);
+    Nst_pa_init(&node->v.e_map_literal.values, 0);
     return true;
 }
 
-void _Nst_node_ml_destroy(Nst_Node *node)
+void _Nst_node_e_map_literal_destroy(Nst_Node *node)
 {
-    Nst_pa_clear(&node->v.ml.keys, (Nst_Destructor)Nst_node_destroy);
-    Nst_pa_clear(&node->v.ml.values, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.e_map_literal.keys, (Nst_Destructor)Nst_node_destroy);
+    Nst_pa_clear(&node->v.e_map_literal.values, (Nst_Destructor)Nst_node_destroy);
 }
 
-void print_ml(Nst_Node *node, Nst_LList *levels)
+void print_e_map_literal(Nst_Node *node, Nst_LList *levels)
 {
-    print_node_list(EP(ml, keys), false);
-    print_node_list(EP(ml, values), true);
+    print_node_list(EP(e_map_literal, keys), false);
+    print_node_list(EP(e_map_literal, values), true);
 }
 
-bool _Nst_node_vl_init(Nst_Node *node)
+bool _Nst_node_e_value_init(Nst_Node *node)
 {
-    node->v.vl.value = NULL;
+    node->v.e_value.value = NULL;
     return true;
 }
 
-void _Nst_node_vl_destroy(Nst_Node *node)
+void _Nst_node_e_value_destroy(Nst_Node *node)
 {
-    Nst_ndec_ref(node->v.vl.value);
+    Nst_ndec_ref(node->v.e_value.value);
 }
 
-void print_vl(Nst_Node *node, Nst_LList *levels)
+void print_e_value(Nst_Node *node, Nst_LList *levels)
 {
-    print_obj(EP(vl, value), true);
+    print_obj(EP(e_value, value), true);
 }
 
-bool _Nst_node_ac_init(Nst_Node *node)
+bool _Nst_node_e_access_init(Nst_Node *node)
 {
-    node->v.ac.value = NULL;
+    node->v.e_access.value = NULL;
     return true;
 }
 
-void _Nst_node_ac_destroy(Nst_Node *node)
+void _Nst_node_e_access_destroy(Nst_Node *node)
 {
-    Nst_ndec_ref(node->v.ac.value);
+    Nst_ndec_ref(node->v.e_access.value);
 }
 
-void print_ac(Nst_Node *node, Nst_LList *levels)
+void print_e_access(Nst_Node *node, Nst_LList *levels)
 {
-    print_obj(EP(ac, value), true);
+    print_obj(EP(e_access, value), true);
 }
 
-bool _Nst_node_ex_init(Nst_Node *node)
+bool _Nst_node_e_extraction_init(Nst_Node *node)
 {
-    node->v.ex.container = NULL;
-    node->v.ex.key = NULL;
+    node->v.e_extraction.container = NULL;
+    node->v.e_extraction.key = NULL;
     return true;
 }
 
-void _Nst_node_ex_destroy(Nst_Node *node)
+void _Nst_node_e_extraction_destroy(Nst_Node *node)
 {
-    if (node->v.ex.container != NULL)
-        Nst_node_destroy(node->v.ex.container);
-    if (node->v.ex.key != NULL)
-        Nst_node_destroy(node->v.ex.key);
+    if (node->v.e_extraction.container != NULL)
+        Nst_node_destroy(node->v.e_extraction.container);
+    if (node->v.e_extraction.key != NULL)
+        Nst_node_destroy(node->v.e_extraction.key);
 }
 
-void print_ex(Nst_Node *node, Nst_LList *levels)
+void print_e_extraction(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(ex, container), false);
-    print_node(EP(ex, key), true);
+    print_node(EP(e_extraction, container), false);
+    print_node(EP(e_extraction, key), true);
 }
 
-bool _Nst_node_as_init(Nst_Node *node)
+bool _Nst_node_e_assignment_init(Nst_Node *node)
 {
-    node->v.as.value = NULL;
-    node->v.as.name = NULL;
+    node->v.e_assignment.value = NULL;
+    node->v.e_assignment.name = NULL;
     return true;
 }
 
-void _Nst_node_as_destroy(Nst_Node *node)
+void _Nst_node_e_assignment_destroy(Nst_Node *node)
 {
-    if (node->v.as.value != NULL)
-        Nst_node_destroy(node->v.as.value);
-    if (node->v.as.name != NULL)
-        Nst_node_destroy(node->v.as.name);
+    if (node->v.e_assignment.value != NULL)
+        Nst_node_destroy(node->v.e_assignment.value);
+    if (node->v.e_assignment.name != NULL)
+        Nst_node_destroy(node->v.e_assignment.name);
 }
 
-void print_as(Nst_Node *node, Nst_LList *levels)
+void print_e_assignment(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(as, name), false);
-    print_node(EP(as, value), true);
+    print_node(EP(e_assignment, name), false);
+    print_node(EP(e_assignment, value), true);
 }
 
-bool _Nst_node_ca_init(Nst_Node *node)
+bool _Nst_node_e_comp_assign_init(Nst_Node *node)
 {
-    node->v.ca.name = NULL;
-    node->v.ca.op = Nst_TT_INVALID;
-    return Nst_pa_init(&node->v.ca.values, 2);
+    node->v.e_comp_assignment.name = NULL;
+    node->v.e_comp_assignment.op = Nst_TT_INVALID;
+    return Nst_pa_init(&node->v.e_comp_assignment.values, 2);
 }
 
-void _Nst_node_ca_destroy(Nst_Node *node)
+void _Nst_node_e_comp_assign_destroy(Nst_Node *node)
 {
-    Nst_pa_clear(&node->v.ca.values, (Nst_Destructor)Nst_node_destroy);
-    if (node->v.ca.name != NULL)
-        Nst_node_destroy(node->v.ca.name);
+    Nst_pa_clear(&node->v.e_comp_assignment.values, (Nst_Destructor)Nst_node_destroy);
+    if (node->v.e_comp_assignment.name != NULL)
+        Nst_node_destroy(node->v.e_comp_assignment.name);
 }
 
-void print_ca(Nst_Node *node, Nst_LList *levels)
+void print_e_comp_assign(Nst_Node *node, Nst_LList *levels)
 {
-    print_tok_type(EP(ca, op), false);
-    print_node(EP(ca, name), false);
-    print_node_list(EP(ca, values), true);
+    print_tok_type(EP(e_comp_assignment, op), false);
+    print_node(EP(e_comp_assignment, name), false);
+    print_node_list(EP(e_comp_assignment, values), true);
 }
 
-bool _Nst_node_ie_init(Nst_Node *node)
+bool _Nst_node_e_if_init(Nst_Node *node)
 {
-    node->v.ie.condition = NULL;
-    node->v.ie.body_if_true = NULL;
-    node->v.ie.body_if_false = NULL;
+    node->v.e_if.condition = NULL;
+    node->v.e_if.body_if_true = NULL;
+    node->v.e_if.body_if_false = NULL;
     return true;
 }
 
-void _Nst_node_ie_destroy(Nst_Node *node)
+void _Nst_node_e_if_destroy(Nst_Node *node)
 {
-    if (node->v.ie.condition != NULL)
-        Nst_node_destroy(node->v.ie.condition);
-    if (node->v.ie.body_if_true != NULL)
-        Nst_node_destroy(node->v.ie.body_if_true);
-    if (node->v.ie.body_if_false != NULL)
-        Nst_node_destroy(node->v.ie.body_if_false);
+    if (node->v.e_if.condition != NULL)
+        Nst_node_destroy(node->v.e_if.condition);
+    if (node->v.e_if.body_if_true != NULL)
+        Nst_node_destroy(node->v.e_if.body_if_true);
+    if (node->v.e_if.body_if_false != NULL)
+        Nst_node_destroy(node->v.e_if.body_if_false);
 }
 
-void print_ie(Nst_Node *node, Nst_LList *levels)
+void print_e_if(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(ie, condition), false);
-    print_node(EP(ie, body_if_true), false);
-    print_node(EP(ie, body_if_false), true);
+    print_node(EP(e_if, condition), false);
+    print_node(EP(e_if, body_if_true), false);
+    print_node(EP(e_if, body_if_false), true);
 }
 
-bool _Nst_node_we_init(Nst_Node *node)
+bool _Nst_node_e_wrapper_init(Nst_Node *node)
 {
-    node->v.we.expr = NULL;
+    node->v.e_wrapper.expr = NULL;
     return true;
 }
 
-void _Nst_node_we_destroy(Nst_Node *node)
+void _Nst_node_e_wrapper_destroy(Nst_Node *node)
 {
-    if (node->v.we.expr != NULL)
-        Nst_node_destroy(node->v.we.expr);
+    if (node->v.e_wrapper.expr != NULL)
+        Nst_node_destroy(node->v.e_wrapper.expr);
 }
 
-void print_we(Nst_Node *node, Nst_LList *levels)
+void print_e_wrapper(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(we, expr), true);
+    print_node(EP(e_wrapper, expr), true);
 }
 
 Nst_Node *Nst_node_new(Nst_NodeType type)

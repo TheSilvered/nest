@@ -10,20 +10,6 @@ TheSilvered
 
 ## Macros
 
-### `Nst_NODE`
-
-**Synopsis:**
-
-```better-c
-#define Nst_NODE(expr)
-```
-
-**Description:**
-
-Casts `expr` to [`Nst_Node *`](c_api-nodes.md#nst_node).
-
----
-
 ### `Nst_NODE_RETUNS_VALUE`
 
 **Synopsis:**
@@ -40,346 +26,346 @@ Evaluates to `true` if the specified node type returns a value.
 
 ## Structs
 
-### `Nst_NodeData_Cs`
+### `Nst_NodeData_SList`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Cs {
+typedef struct _Nst_NodeData_SList {
     Nst_PtrArray statements;
-} Nst_NodeData_Cs
+} Nst_NodeData_SList
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_CS`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_S_LIST`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Wl`
+### `Nst_NodeData_SWhileLp`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Wl {
+typedef struct _Nst_NodeData_SWhileLp {
     Nst_Node *condition;
     Nst_Node *body;
     bool is_dowhile;
-} Nst_NodeData_Wl
+} Nst_NodeData_SWhileLp
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_WL`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_S_WHILE_LP`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Fl`
+### `Nst_NodeData_SForLp`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Fl {
+typedef struct _Nst_NodeData_SForLp {
     Nst_Node *iterator;
     Nst_Node *assignment;
     Nst_Node *body;
-} Nst_NodeData_Fl
+} Nst_NodeData_SForLp
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_FL`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_S_FOR_LP`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Fd`
+### `Nst_NodeData_SFnDecl`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Fd {
+typedef struct _Nst_NodeData_SFnDecl {
     Nst_ObjRef *name;
     Nst_PtrArray argument_names;
     Nst_Node *body;
-} Nst_NodeData_Fd
+} Nst_NodeData_SFnDecl
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_FD`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_S_FN_DECL`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Rt`
+### `Nst_NodeData_SReturn`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Rt {
+typedef struct _Nst_NodeData_SReturn {
     Nst_Node *value;
-} Nst_NodeData_Rt
+} Nst_NodeData_SReturn
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_RT`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_S_RETURN`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Sw`
+### `Nst_NodeData_SSwitch`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Sw {
+typedef struct _Nst_NodeData_SSwitch {
     Nst_Node *expr;
     Nst_PtrArray values;
     Nst_PtrArray bodies;
     Nst_Node *default_body;
-} Nst_NodeData_Sw
+} Nst_NodeData_SSwitch
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_SW`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_S_SWITCH`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Tc`
+### `Nst_NodeData_STryCatch`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Tc {
+typedef struct _Nst_NodeData_STryCatch {
     Nst_Node *try_body;
     Nst_Node *catch_body;
     Nst_ObjRef *error_name;
-} Nst_NodeData_Tc
+} Nst_NodeData_STryCatch
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_TC`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_S_TRY_CATCH`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Ws`
+### `Nst_NodeData_SWrapper`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Ws {
+typedef struct _Nst_NodeData_SWrapper {
     Nst_Node *statement;
-} Nst_NodeData_Ws
+} Nst_NodeData_SWrapper
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_WS`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_S_WRAPPER`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_So`
+### `Nst_NodeData_EStackOp`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_So {
+typedef struct _Nst_NodeData_EStackOp {
     Nst_PtrArray values;
     Nst_TokType op;
-} Nst_NodeData_So
+} Nst_NodeData_EStackOp
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_SO`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_E_STACK_OP`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Ls`
+### `Nst_NodeData_ELocStackOp`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Ls {
+typedef struct _Nst_NodeData_ELocStackOp {
     Nst_PtrArray values;
     Nst_Node *special_value;
     Nst_TokType op;
-} Nst_NodeData_Ls
+} Nst_NodeData_ELocStackOp
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_LS`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_E_LOC_STACK_OP`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Lo`
+### `Nst_NodeData_ELocalOp`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Lo {
+typedef struct _Nst_NodeData_ELocalOp {
     Nst_Node *value;
     Nst_TokType op;
-} Nst_NodeData_Lo
+} Nst_NodeData_ELocalOp
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_LO`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_E_LOCAL_OP`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Sl`
+### `Nst_NodeData_ESeqLiteral`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Sl {
+typedef struct _Nst_NodeData_ESeqLiteral {
     Nst_PtrArray values;
     Nst_SeqNodeType type;
-} Nst_NodeData_Sl
+} Nst_NodeData_ESeqLiteral
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_SL`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_E_SEQ_LITERAL`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Ml`
+### `Nst_NodeData_EMapLiteral`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Ml {
+typedef struct _Nst_NodeData_EMapLiteral {
     Nst_PtrArray keys;
     Nst_PtrArray values;
-} Nst_NodeData_Ml
+} Nst_NodeData_EMapLiteral
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_ML`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_E_MAP_LITERAL`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Vl`
+### `Nst_NodeData_EValue`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Vl {
+typedef struct _Nst_NodeData_EValue {
     Nst_ObjRef *value;
-} Nst_NodeData_Vl
+} Nst_NodeData_EValue
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_VL`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_E_VALUE`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Ac`
+### `Nst_NodeData_EAccess`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Ac {
+typedef struct _Nst_NodeData_EAccess {
     Nst_Obj *value;
-} Nst_NodeData_Ac
+} Nst_NodeData_EAccess
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_AC`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_E_ACCESS`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Ex`
+### `Nst_NodeData_EExtraction`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Ex {
+typedef struct _Nst_NodeData_EExtraction {
     Nst_Node *container;
     Nst_Node *key;
-} Nst_NodeData_Ex
+} Nst_NodeData_EExtraction
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_EX`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_E_EXTRACTION`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_As`
+### `Nst_NodeData_EAssignment`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_As {
+typedef struct _Nst_NodeData_EAssignment {
     Nst_Node *value;
     Nst_Node *name;
-} Nst_NodeData_As
+} Nst_NodeData_EAssignment
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_AS`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_E_ASSIGNMENT`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Ca`
+### `Nst_NodeData_ECompAssign`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Ca {
+typedef struct _Nst_NodeData_ECompAssign {
     Nst_PtrArray values;
     Nst_Node *name;
     Nst_TokType op;
-} Nst_NodeData_Ca
+} Nst_NodeData_ECompAssign
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_CA`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_E_COMP_ASSIGN`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_Ie`
+### `Nst_NodeData_EIf`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_Ie {
+typedef struct _Nst_NodeData_EIf {
     Nst_Node *condition;
     Nst_Node *body_if_true;
     Nst_Node *body_if_false;
-} Nst_NodeData_Ie
+} Nst_NodeData_EIf
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_IE`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_E_IF`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
-### `Nst_NodeData_We`
+### `Nst_NodeData_EWrapper`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_NodeData_We {
+typedef struct _Nst_NodeData_EWrapper {
     Nst_Node *expr;
-} Nst_NodeData_We
+} Nst_NodeData_EWrapper
 ```
 
 **Description:**
 
-The data for a [`Nst_NT_WE`](c_api-nodes.md#nst_nodetype) node.
+The data for a [`Nst_NT_E_WRAPPER`](c_api-nodes.md#nst_nodetype) node.
 
 ---
 
@@ -392,26 +378,26 @@ typedef struct _Nst_Node {
     Nst_Span span;
     Nst_NodeType type;
     union {
-        Nst_NodeData_Cs cs;
-        Nst_NodeData_Wl wl;
-        Nst_NodeData_Fl fl;
-        Nst_NodeData_Fd fd;
-        Nst_NodeData_Rt rt;
-        Nst_NodeData_Sw sw;
-        Nst_NodeData_Tc tc;
-        Nst_NodeData_Ws ws;
-        Nst_NodeData_So so;
-        Nst_NodeData_Ls ls;
-        Nst_NodeData_Lo lo;
-        Nst_NodeData_Sl sl;
-        Nst_NodeData_Ml ml;
-        Nst_NodeData_Vl vl;
-        Nst_NodeData_Ac ac;
-        Nst_NodeData_Ex ex;
-        Nst_NodeData_As as;
-        Nst_NodeData_Ca ca;
-        Nst_NodeData_Ie ie;
-        Nst_NodeData_We we;
+        Nst_NodeData_SList s_list;
+        Nst_NodeData_SWhileLp s_while_lp;
+        Nst_NodeData_SForLp s_for_lp;
+        Nst_NodeData_SFnDecl s_fn_decl;
+        Nst_NodeData_SReturn s_return;
+        Nst_NodeData_SSwitch s_switch;
+        Nst_NodeData_STryCatch s_try_catch;
+        Nst_NodeData_SWrapper s_wrapper;
+        Nst_NodeData_EStackOp e_stack_op;
+        Nst_NodeData_ELocStackOp e_loc_stack_op;
+        Nst_NodeData_ELocalOp e_local_op;
+        Nst_NodeData_ESeqLiteral e_seq_literal;
+        Nst_NodeData_EMapLiteral e_map_literal;
+        Nst_NodeData_EValue e_value;
+        Nst_NodeData_EAccess e_access;
+        Nst_NodeData_EExtraction e_extraction;
+        Nst_NodeData_EAssignment e_assignment;
+        Nst_NodeData_ECompAssign e_comp_assignment;
+        Nst_NodeData_EIf e_if;
+        Nst_NodeData_EWrapper e_wrapper;
     } v;
 } Nst_Node
 ```
@@ -431,12 +417,12 @@ The structure representing a parser node.
 
 ## Functions
 
-### `_Nst_node_cs_init`
+### `_Nst_node_s_list_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_cs_init(Nst_Node *node)
+bool _Nst_node_s_list_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -445,12 +431,12 @@ Initialize a CS node.
 
 ---
 
-### `_Nst_node_cs_destroy`
+### `_Nst_node_s_list_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_cs_destroy(Nst_Node *node)
+void _Nst_node_s_list_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -459,12 +445,12 @@ Destroy a CS node.
 
 ---
 
-### `_Nst_node_wl_init`
+### `_Nst_node_s_while_lp_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_wl_init(Nst_Node *node)
+bool _Nst_node_s_while_lp_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -473,12 +459,12 @@ Initialize a WL node.
 
 ---
 
-### `_Nst_node_wl_destroy`
+### `_Nst_node_s_while_lp_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_wl_destroy(Nst_Node *node)
+void _Nst_node_s_while_lp_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -487,12 +473,12 @@ Destroy a WL node.
 
 ---
 
-### `_Nst_node_fl_init`
+### `_Nst_node_s_for_lp_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_fl_init(Nst_Node *node)
+bool _Nst_node_s_for_lp_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -501,12 +487,12 @@ Initialize a FL node.
 
 ---
 
-### `_Nst_node_fl_destroy`
+### `_Nst_node_s_for_lp_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_fl_destroy(Nst_Node *node)
+void _Nst_node_s_for_lp_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -515,12 +501,12 @@ Destroy a FL node.
 
 ---
 
-### `_Nst_node_fd_init`
+### `_Nst_node_s_fn_decl_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_fd_init(Nst_Node *node)
+bool _Nst_node_s_fn_decl_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -529,12 +515,12 @@ Initialize a FD node.
 
 ---
 
-### `_Nst_node_fd_destroy`
+### `_Nst_node_s_fn_decl_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_fd_destroy(Nst_Node *node)
+void _Nst_node_s_fn_decl_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -543,12 +529,12 @@ Destroy a FD node.
 
 ---
 
-### `_Nst_node_rt_init`
+### `_Nst_node_s_return_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_rt_init(Nst_Node *node)
+bool _Nst_node_s_return_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -557,12 +543,12 @@ Initialize a RT node.
 
 ---
 
-### `_Nst_node_rt_destroy`
+### `_Nst_node_s_return_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_rt_destroy(Nst_Node *node)
+void _Nst_node_s_return_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -571,12 +557,12 @@ Destroy a RT node.
 
 ---
 
-### `_Nst_node_sw_init`
+### `_Nst_node_s_switch_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_sw_init(Nst_Node *node)
+bool _Nst_node_s_switch_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -585,12 +571,12 @@ Initialize a SW node.
 
 ---
 
-### `_Nst_node_sw_destroy`
+### `_Nst_node_s_switch_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_sw_destroy(Nst_Node *node)
+void _Nst_node_s_switch_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -599,12 +585,12 @@ Destroy a SW node.
 
 ---
 
-### `_Nst_node_tc_init`
+### `_Nst_node_s_try_catch_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_tc_init(Nst_Node *node)
+bool _Nst_node_s_try_catch_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -613,12 +599,12 @@ Initialize a TC node.
 
 ---
 
-### `_Nst_node_tc_destroy`
+### `_Nst_node_s_try_catch_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_tc_destroy(Nst_Node *node)
+void _Nst_node_s_try_catch_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -627,12 +613,12 @@ Destroy a TC node.
 
 ---
 
-### `_Nst_node_ws_init`
+### `_Nst_node_s_wrapper_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_ws_init(Nst_Node *node)
+bool _Nst_node_s_wrapper_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -641,12 +627,12 @@ Initialize a WS node.
 
 ---
 
-### `_Nst_node_ws_destroy`
+### `_Nst_node_s_wrapper_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_ws_destroy(Nst_Node *node)
+void _Nst_node_s_wrapper_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -655,12 +641,12 @@ Destroy a WS node.
 
 ---
 
-### `_Nst_node_so_init`
+### `_Nst_node_e_stack_op_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_so_init(Nst_Node *node)
+bool _Nst_node_e_stack_op_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -669,12 +655,12 @@ Initialize a SO node.
 
 ---
 
-### `_Nst_node_so_destroy`
+### `_Nst_node_e_stack_op_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_so_destroy(Nst_Node *node)
+void _Nst_node_e_stack_op_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -683,12 +669,12 @@ Destroy a SO node.
 
 ---
 
-### `_Nst_node_ls_init`
+### `_Nst_node_e_loc_stack_op_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_ls_init(Nst_Node *node)
+bool _Nst_node_e_loc_stack_op_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -697,12 +683,12 @@ Initialize a LS node.
 
 ---
 
-### `_Nst_node_ls_destroy`
+### `_Nst_node_e_loc_stack_op_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_ls_destroy(Nst_Node *node)
+void _Nst_node_e_loc_stack_op_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -711,12 +697,12 @@ Destroy a LS node.
 
 ---
 
-### `_Nst_node_lo_init`
+### `_Nst_node_e_local_op_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_lo_init(Nst_Node *node)
+bool _Nst_node_e_local_op_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -725,12 +711,12 @@ Initialize a LO node.
 
 ---
 
-### `_Nst_node_lo_destroy`
+### `_Nst_node_e_local_op_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_lo_destroy(Nst_Node *node)
+void _Nst_node_e_local_op_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -739,12 +725,12 @@ Destroy a LO node.
 
 ---
 
-### `_Nst_node_sl_init`
+### `_Nst_node_e_seq_literal_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_sl_init(Nst_Node *node)
+bool _Nst_node_e_seq_literal_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -753,12 +739,12 @@ Initialize a SL node.
 
 ---
 
-### `_Nst_node_sl_destroy`
+### `_Nst_node_e_seq_literal_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_sl_destroy(Nst_Node *node)
+void _Nst_node_e_seq_literal_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -767,12 +753,12 @@ Destroy a SL node.
 
 ---
 
-### `_Nst_node_ml_init`
+### `_Nst_node_e_map_literal_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_ml_init(Nst_Node *node)
+bool _Nst_node_e_map_literal_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -781,12 +767,12 @@ Initialize a ML node.
 
 ---
 
-### `_Nst_node_ml_destroy`
+### `_Nst_node_e_map_literal_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_ml_destroy(Nst_Node *node)
+void _Nst_node_e_map_literal_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -795,12 +781,12 @@ Destroy a ML node.
 
 ---
 
-### `_Nst_node_vl_init`
+### `_Nst_node_e_value_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_vl_init(Nst_Node *node)
+bool _Nst_node_e_value_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -809,12 +795,12 @@ Initialize a VL node.
 
 ---
 
-### `_Nst_node_vl_destroy`
+### `_Nst_node_e_value_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_vl_destroy(Nst_Node *node)
+void _Nst_node_e_value_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -823,12 +809,12 @@ Destroy a VL node.
 
 ---
 
-### `_Nst_node_ac_init`
+### `_Nst_node_e_access_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_ac_init(Nst_Node *node)
+bool _Nst_node_e_access_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -837,12 +823,12 @@ Initialize a AC node.
 
 ---
 
-### `_Nst_node_ac_destroy`
+### `_Nst_node_e_access_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_ac_destroy(Nst_Node *node)
+void _Nst_node_e_access_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -851,12 +837,12 @@ Destroy a AC node.
 
 ---
 
-### `_Nst_node_ex_init`
+### `_Nst_node_e_extraction_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_ex_init(Nst_Node *node)
+bool _Nst_node_e_extraction_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -865,12 +851,12 @@ Initialize a EX node.
 
 ---
 
-### `_Nst_node_ex_destroy`
+### `_Nst_node_e_extraction_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_ex_destroy(Nst_Node *node)
+void _Nst_node_e_extraction_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -879,12 +865,12 @@ Destroy a EX node.
 
 ---
 
-### `_Nst_node_as_init`
+### `_Nst_node_e_assignment_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_as_init(Nst_Node *node)
+bool _Nst_node_e_assignment_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -893,12 +879,12 @@ Initialize a AS node.
 
 ---
 
-### `_Nst_node_as_destroy`
+### `_Nst_node_e_assignment_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_as_destroy(Nst_Node *node)
+void _Nst_node_e_assignment_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -907,12 +893,12 @@ Destroy a AS node.
 
 ---
 
-### `_Nst_node_ca_init`
+### `_Nst_node_e_comp_assign_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_ca_init(Nst_Node *node)
+bool _Nst_node_e_comp_assign_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -921,12 +907,12 @@ Initialize a CA node.
 
 ---
 
-### `_Nst_node_ca_destroy`
+### `_Nst_node_e_comp_assign_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_ca_destroy(Nst_Node *node)
+void _Nst_node_e_comp_assign_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -935,12 +921,12 @@ Destroy a CA node.
 
 ---
 
-### `_Nst_node_ie_init`
+### `_Nst_node_e_if_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_ie_init(Nst_Node *node)
+bool _Nst_node_e_if_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -949,12 +935,12 @@ Initialize a IE node.
 
 ---
 
-### `_Nst_node_ie_destroy`
+### `_Nst_node_e_if_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_ie_destroy(Nst_Node *node)
+void _Nst_node_e_if_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -963,12 +949,12 @@ Destroy a IE node.
 
 ---
 
-### `_Nst_node_we_init`
+### `_Nst_node_e_wrapper_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_node_we_init(Nst_Node *node)
+bool _Nst_node_e_wrapper_init(Nst_Node *node)
 ```
 
 **Description:**
@@ -977,12 +963,12 @@ Initialize a WE node.
 
 ---
 
-### `_Nst_node_we_destroy`
+### `_Nst_node_e_wrapper_destroy`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_node_we_destroy(Nst_Node *node)
+void _Nst_node_e_wrapper_destroy(Nst_Node *node)
 ```
 
 **Description:**
@@ -1061,7 +1047,7 @@ Change the type of a node destroying the previous contents but keeping the
 position.
 
 !!!note
-    Changing the node to a [`Nst_NT_NP`](c_api-nodes.md#nst_nodetype) is
+    Changing the node to a [`Nst_NT_S_NOP`](c_api-nodes.md#nst_nodetype) is
     guaranteed to succeed.
 
 **Parameters:**
@@ -1085,32 +1071,32 @@ position.
 typedef enum _Nst_NodeType {
     // Statement nodes
 
-    Nst_NT_CS, // Compound statement
-    Nst_NT_WL, // While or do-while loop
-    Nst_NT_FL, // For or for-as loop
-    Nst_NT_FD, // Function declaration or lambda
-    Nst_NT_RT, // Return statement
-    Nst_NT_CN, // Continue or breakthrough statement
-    Nst_NT_BR, // Break statement
-    Nst_NT_SW, // Switch statement
-    Nst_NT_TC, // Try-catch statement
-    Nst_NT_WS, // Statement wrapper
-    Nst_NT_NP, // No-op statement
+    Nst_NT_S_LIST,
+    Nst_NT_S_WHILE_LP,
+    Nst_NT_S_FOR_LP,
+    Nst_NT_S_FN_DECL,
+    Nst_NT_S_RETURN,
+    Nst_NT_S_CONTINUE,
+    Nst_NT_S_BREAK,
+    Nst_NT_S_SWITCH,
+    Nst_NT_S_TRY_CATCH,
+    Nst_NT_S_WRAPPER,
+    Nst_NT_S_NOP,
 
     // Expression nodes
 
-    Nst_NT_SO, // Stack operation
-    Nst_NT_LS, // Local-stack operation
-    Nst_NT_LO, // Local operation
-    Nst_NT_SL, // Array or Vector (sequence) literal
-    Nst_NT_ML, // Map literal
-    Nst_NT_VL, // Value literal
-    Nst_NT_AC, // Variable access
-    Nst_NT_EX, // Extraction expression
-    Nst_NT_AS, // Assignment expression
-    Nst_NT_CA, // Compound assignment expression
-    Nst_NT_IE, // If expression
-    Nst_NT_WE  // Expression wrapper
+    Nst_NT_E_STACK_OP,
+    Nst_NT_E_LOC_STACK_OP,
+    Nst_NT_E_LOCAL_OP,
+    Nst_NT_E_SEQ_LITERAL,
+    Nst_NT_E_MAP_LITERAL,
+    Nst_NT_E_VALUE,
+    Nst_NT_E_ACCESS,
+    Nst_NT_E_EXTRACTION,
+    Nst_NT_E_ASSIGNMENT,
+    Nst_NT_E_COMP_ASSIGN,
+    Nst_NT_E_IF,
+    Nst_NT_E_WRAPPER
 } Nst_NodeType
 ```
 
@@ -1142,4 +1128,4 @@ typedef enum _Nst_SeqNodeType {
 **Description:**
 
 The types of a [`Nst_Node`](c_api-nodes.md#nst_node) of type
-[`Nst_NT_SL`](c_api-nodes.md#nst_nodetype)
+[`Nst_NT_E_SEQ_LITERAL`](c_api-nodes.md#nst_nodetype)

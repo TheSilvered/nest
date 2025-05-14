@@ -347,6 +347,7 @@
 - removed `Nst_vt_new` and `Nst_vt_from_func` from `var_table.h`
 - renamed `_Nst_vt_get` to `Nst_vt_get` and removed macro alias
 - renamed `_Nst_vt_set` to `Nst_vt_set` and removed macro alias
+- renamed node types to have clearer names
 
 **Bug fixes**
 

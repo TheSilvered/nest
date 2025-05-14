@@ -2,6 +2,8 @@
 #include <string.h>
 #include "nest.h"
 
+#define GET_NODE(pa, i) ((Nst_Node *)Nst_pa_get((pa), (i)))
+
 static bool optimize_node(Nst_Node *node);
 
 static bool optimize_cs(Nst_Node *node);
@@ -28,29 +30,29 @@ static bool optimize_e_wrapper(Nst_Node *node);
 static Nst_Obj *get_value(Nst_Node *node);
 
 static bool (*optimizers[])(Nst_Node *) = {
-    [Nst_NT_CS] = optimize_cs,
-    [Nst_NT_WL] = optimize_while_l,
-    [Nst_NT_FL] = optimize_fl,
-    [Nst_NT_FD] = optimize_func_declr,
-    [Nst_NT_RT] = optimize_rt,
-    [Nst_NT_CN] = NULL,
-    [Nst_NT_BR] = NULL,
-    [Nst_NT_SW] = optimize_switch_s,
-    [Nst_NT_TC] = optimize_try_catch_s,
-    [Nst_NT_WS] = optimize_s_wrapper,
-    [Nst_NT_NP] = NULL,
-    [Nst_NT_SO] = optimize_stack_op,
-    [Nst_NT_LS] = optimize_local_stack_op,
-    [Nst_NT_LO] = optimize_local_op,
-    [Nst_NT_SL] = optimize_seq_lit,
-    [Nst_NT_ML] = optimize_map_lit,
-    [Nst_NT_VL] = NULL,
-    [Nst_NT_AC] = NULL,
-    [Nst_NT_EX] = optimize_extract_e,
-    [Nst_NT_AS] = optimize_assign_e,
-    [Nst_NT_CA] = optimize_comp_assign_e,
-    [Nst_NT_IE] = optimize_if_e,
-    [Nst_NT_WE] = optimize_e_wrapper
+    [Nst_NT_S_LIST] = optimize_cs,
+    [Nst_NT_S_WHILE_LP] = optimize_while_l,
+    [Nst_NT_S_FOR_LP] = optimize_fl,
+    [Nst_NT_S_FN_DECL] = optimize_func_declr,
+    [Nst_NT_S_RETURN] = optimize_rt,
+    [Nst_NT_S_CONTINUE] = NULL,
+    [Nst_NT_S_BREAK] = NULL,
+    [Nst_NT_S_SWITCH] = optimize_switch_s,
+    [Nst_NT_S_TRY_CATCH] = optimize_try_catch_s,
+    [Nst_NT_S_WRAPPER] = optimize_s_wrapper,
+    [Nst_NT_S_NOP] = NULL,
+    [Nst_NT_E_STACK_OP] = optimize_stack_op,
+    [Nst_NT_E_LOC_STACK_OP] = optimize_local_stack_op,
+    [Nst_NT_E_LOCAL_OP] = optimize_local_op,
+    [Nst_NT_E_SEQ_LITERAL] = optimize_seq_lit,
+    [Nst_NT_E_MAP_LITERAL] = optimize_map_lit,
+    [Nst_NT_E_VALUE] = NULL,
+    [Nst_NT_E_ACCESS] = NULL,
+    [Nst_NT_E_EXTRACTION] = optimize_extract_e,
+    [Nst_NT_E_ASSIGNMENT] = optimize_assign_e,
+    [Nst_NT_E_COMP_ASSIGN] = optimize_comp_assign_e,
+    [Nst_NT_E_IF] = optimize_if_e,
+    [Nst_NT_E_WRAPPER] = optimize_e_wrapper
 };
 
 Nst_Node *NstC Nst_optimize_ast(Nst_Node *ast)
@@ -68,10 +70,10 @@ Nst_Node *NstC Nst_optimize_ast(Nst_Node *ast)
 
 static Nst_Obj *get_value(Nst_Node *node)
 {
-    if (node->type != Nst_NT_VL)
+    if (node->type != Nst_NT_E_VALUE)
         return NULL;
     else
-        return node->v.vl.value;
+        return node->v.e_value.value;
 }
 
 static void move_into(Nst_Node *new_node, Nst_Node *old_node)
@@ -92,8 +94,8 @@ static bool optimize_node(Nst_Node *node)
 
 static bool optimize_cs(Nst_Node *node)
 {
-    for (usize i = 0, n = node->v.cs.statements.len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_pa_get(&node->v.cs.statements, i))))
+    for (usize i = 0, n = node->v.s_list.statements.len; i < n; i++) {
+        if (!optimize_node(GET_NODE(&node->v.s_list.statements, i)))
             return false;
     }
     return true;
@@ -101,86 +103,86 @@ static bool optimize_cs(Nst_Node *node)
 
 static bool optimize_while_l(Nst_Node *node)
 {
-    if (!optimize_node(node->v.wl.condition))
+    if (!optimize_node(node->v.s_while_lp.condition))
         return false;
-    if (!optimize_node(node->v.wl.body))
+    if (!optimize_node(node->v.s_while_lp.body))
         return false;
 
-    Nst_Obj *cond_value = get_value(node->v.wl.condition);
+    Nst_Obj *cond_value = get_value(node->v.s_while_lp.condition);
 
     if (cond_value == NULL || Nst_obj_to_bool(cond_value))
         return true;
 
-    if (node->v.wl.is_dowhile) {
-        Nst_Node *body = node->v.wl.body;
-        node->v.wl.body = NULL;
+    if (node->v.s_while_lp.is_dowhile) {
+        Nst_Node *body = node->v.s_while_lp.body;
+        node->v.s_while_lp.body = NULL;
         move_into(body, node);
         return true;
     }
-    Nst_node_change_type(node, Nst_NT_NP);
+    Nst_node_change_type(node, Nst_NT_S_NOP);
     return true;
 }
 
 static bool optimize_fl(Nst_Node *node)
 {
-    if (!optimize_node(node->v.fl.iterator))
+    if (!optimize_node(node->v.s_for_lp.iterator))
         return false;
-    if (!optimize_node(node->v.fl.body))
+    if (!optimize_node(node->v.s_for_lp.body))
         return false;
 
-    if (node->v.fl.assignment != NULL)
+    if (node->v.s_for_lp.assignment != NULL)
         return true;
-    Nst_Obj *repetitions = get_value(node->v.fl.iterator);
+    Nst_Obj *repetitions = get_value(node->v.s_for_lp.iterator);
     if (repetitions == NULL)
         return true;
     if (repetitions->type == Nst_t.Int && Nst_int_i64(repetitions) == 0)
-        Nst_node_change_type(node, Nst_NT_NP);
+        Nst_node_change_type(node, Nst_NT_S_NOP);
     return true;
 }
 
 static bool optimize_func_declr(Nst_Node *node)
 {
-    return optimize_node(node->v.fd.body);
+    return optimize_node(node->v.s_fn_decl.body);
 }
 
 static bool optimize_rt(Nst_Node *node)
 {
-    return optimize_node(node->v.rt.value);
+    return optimize_node(node->v.s_return.value);
 }
 
 static bool optimize_switch_s(Nst_Node *node)
 {
-    if (!optimize_node(node->v.sw.expr))
+    if (!optimize_node(node->v.s_switch.expr))
         return false;
 
     // it cannot be optimized to jump to the correct value if known because of
     // possible fallthrough
-    for (usize i = 0, n = node->v.sw.values.len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_pa_get(&node->v.sw.values, i))))
+    for (usize i = 0, n = node->v.s_switch.values.len; i < n; i++) {
+        if (!optimize_node(GET_NODE(&node->v.s_switch.values, i)))
             return false;
     }
-    for (usize i = 0, n = node->v.sw.bodies.len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_pa_get(&node->v.sw.bodies, i))))
+    for (usize i = 0, n = node->v.s_switch.bodies.len; i < n; i++) {
+        if (!optimize_node(GET_NODE(&node->v.s_switch.bodies, i)))
             return false;
     }
-    return optimize_node(node->v.sw.default_body);
+    return optimize_node(node->v.s_switch.default_body);
 }
 
 static bool optimize_try_catch_s(Nst_Node *node)
 {
-    if (!optimize_node(node->v.tc.try_body))
+    if (!optimize_node(node->v.s_try_catch.try_body))
         return false;
-    if (!optimize_node(node->v.tc.catch_body))
+    if (!optimize_node(node->v.s_try_catch.catch_body))
         return false;
     return true;
 }
 
 static bool optimize_s_wrapper(Nst_Node *node)
 {
-    if (!optimize_node(node->v.ws.statement))
+    if (!optimize_node(node->v.s_wrapper.statement))
         return false;
-    Nst_Node *statement = node->v.ws.statement;
-    node->v.ws.statement = NULL;
+    Nst_Node *statement = node->v.s_wrapper.statement;
+    node->v.s_wrapper.statement = NULL;
     move_into(statement, node);
     return true;
 }
@@ -189,7 +191,7 @@ static bool optimize_stack_values(Nst_PtrArray *values, Nst_TokType op,
                                   Nst_Node *node)
 {
     for (usize i = 0, n = values->len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_pa_get(values, i))))
+        if (!optimize_node(GET_NODE(values, i)))
             return false;
     }
 
@@ -219,22 +221,22 @@ static bool optimize_stack_values(Nst_PtrArray *values, Nst_TokType op,
         return true;
     }
 
-    Nst_Node *first_node = Nst_NODE(Nst_pa_get(values, 0));
+    Nst_Node *first_node = GET_NODE(values, 0);
     Nst_Obj *curr_value = get_value(first_node);
     if (curr_value == NULL)
         return true;
     Nst_inc_ref(curr_value);
 
     while (values->len != 1) {
-        Nst_Obj *new_value = get_value(Nst_NODE(Nst_pa_get(values, 1)));
+        Nst_Obj *new_value = get_value(GET_NODE(values, 1));
         if (new_value == NULL) {
-            Nst_dec_ref(first_node->v.vl.value);
-            first_node->v.vl.value = curr_value;
+            Nst_dec_ref(first_node->v.e_value.value);
+            first_node->v.e_value.value = curr_value;
             return true;
         }
         Nst_pa_remove_shift(values, 0, (Nst_Destructor)Nst_node_destroy);
 
-        first_node = Nst_NODE(Nst_pa_get(values, 0));
+        first_node = GET_NODE(values, 0);
         Nst_Obj *result = op_func(curr_value, new_value);
         Nst_dec_ref(curr_value);
         if (result == NULL) {
@@ -243,19 +245,24 @@ static bool optimize_stack_values(Nst_PtrArray *values, Nst_TokType op,
         }
         curr_value = result;
     }
-    Nst_dec_ref(first_node->v.vl.value);
-    first_node->v.vl.value = curr_value;
+    Nst_dec_ref(first_node->v.e_value.value);
+    first_node->v.e_value.value = curr_value;
     return true;
 }
 
 static bool optimize_stack_op(Nst_Node *node)
 {
-    if (!optimize_stack_values(&node->v.so.values, node->v.so.op, node))
+    if (!optimize_stack_values(
+            &node->v.e_stack_op.values,
+            node->v.e_stack_op.op,
+            node))
+    {
         return false;
+    }
 
-    if (node->v.so.values.len == 1) {
-        Nst_Node *expr = Nst_pa_get(&node->v.so.values, 0);
-        Nst_pa_clear(&node->v.so.values, NULL);
+    if (node->v.e_stack_op.values.len == 1) {
+        Nst_Node *expr = Nst_pa_get(&node->v.e_stack_op.values, 0);
+        Nst_pa_clear(&node->v.e_stack_op.values, NULL);
         move_into(expr, node);
     }
     return true;
@@ -263,24 +270,24 @@ static bool optimize_stack_op(Nst_Node *node)
 
 static bool optimize_local_stack_op(Nst_Node *node)
 {
-    for (usize i = 0, n = node->v.ls.values.len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_pa_get(&node->v.ls.values, i))))
+    for (usize i = 0, n = node->v.e_loc_stack_op.values.len; i < n; i++) {
+        if (!optimize_node(GET_NODE(&node->v.e_loc_stack_op.values, i)))
             return false;
     }
 
-    return optimize_node(node->v.ls.special_value);
+    return optimize_node(node->v.e_loc_stack_op.special_value);
 }
 
 static bool optimize_local_op(Nst_Node *node)
 {
-    if (!optimize_node(node->v.lo.value))
+    if (!optimize_node(node->v.e_local_op.value))
         return false;
 
-    Nst_Obj *value = get_value(node->v.lo.value);
+    Nst_Obj *value = get_value(node->v.e_local_op.value);
     if (value == NULL)
         return true;
     Nst_Obj *(*op_func)(Nst_Obj *) = NULL;
-    switch (node->v.lo.op) {
+    switch (node->v.e_local_op.op) {
     case Nst_TT_LEN:    op_func = Nst_obj_len;    break;
     case Nst_TT_L_NOT:  op_func = Nst_obj_lgnot;  break;
     case Nst_TT_B_NOT:  op_func = Nst_obj_bwnot;  break;
@@ -295,18 +302,18 @@ static bool optimize_local_op(Nst_Node *node)
         Nst_error_add_span(node->span);
         return false;
     }
-    Nst_Node *value_node = node->v.lo.value;
-    node->v.lo.value = NULL;
-    Nst_dec_ref(value_node->v.vl.value);
-    value_node->v.vl.value = result;
+    Nst_Node *value_node = node->v.e_local_op.value;
+    node->v.e_local_op.value = NULL;
+    Nst_dec_ref(value_node->v.e_value.value);
+    value_node->v.e_value.value = result;
     move_into(value_node, node);
     return true;
 }
 
 static bool optimize_seq_lit(Nst_Node *node)
 {
-    for (usize i = 0, n = node->v.sl.values.len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_pa_get(&node->v.sl.values, i))))
+    for (usize i = 0, n = node->v.e_seq_literal.values.len; i < n; i++) {
+        if (!optimize_node(GET_NODE(&node->v.e_seq_literal.values, i)))
             return false;
     }
     return true;
@@ -314,13 +321,13 @@ static bool optimize_seq_lit(Nst_Node *node)
 
 static bool optimize_map_lit(Nst_Node *node)
 {
-    for (usize i = 0, n = node->v.ml.keys.len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_pa_get(&node->v.ml.keys, i))))
+    for (usize i = 0, n = node->v.e_map_literal.keys.len; i < n; i++) {
+        if (!optimize_node(GET_NODE(&node->v.e_map_literal.keys, i)))
             return false;
     }
 
-    for (usize i = 0, n = node->v.ml.values.len; i < n; i++) {
-        if (!optimize_node(Nst_NODE(Nst_pa_get(&node->v.ml.values, i))))
+    for (usize i = 0, n = node->v.e_map_literal.values.len; i < n; i++) {
+        if (!optimize_node(GET_NODE(&node->v.e_map_literal.values, i)))
             return false;
     }
     return true;
@@ -328,48 +335,53 @@ static bool optimize_map_lit(Nst_Node *node)
 
 static bool optimize_extract_e(Nst_Node *node)
 {
-    if (!optimize_node(node->v.ex.key))
+    if (!optimize_node(node->v.e_extraction.key))
         return false;
-    if (!optimize_node(node->v.ex.container))
+    if (!optimize_node(node->v.e_extraction.container))
         return false;
     return true;
 }
 
 static bool optimize_assign_e(Nst_Node *node)
 {
-    if (!optimize_node(node->v.as.value))
+    if (!optimize_node(node->v.e_assignment.value))
         return false;
-    if (!optimize_node(node->v.as.name))
+    if (!optimize_node(node->v.e_assignment.name))
         return false;
     return true;
 }
 
 static bool optimize_comp_assign_e(Nst_Node *node)
 {
-    if (!optimize_node(node->v.ca.name))
+    if (!optimize_node(node->v.e_comp_assignment.name))
         return false;
-    if (!optimize_stack_values(&node->v.ca.values, node->v.ca.op, node))
+    if (!optimize_stack_values(
+            &node->v.e_comp_assignment.values,
+            node->v.e_comp_assignment.op,
+            node))
+    {
         return false;
+    }
     return true;
 }
 
 static bool optimize_if_e(Nst_Node *node)
 {
-    if (!optimize_node(node->v.ie.condition))
+    if (!optimize_node(node->v.e_if.condition))
         return false;
-    if (!optimize_node(node->v.ie.body_if_true))
+    if (!optimize_node(node->v.e_if.body_if_true))
         return false;
-    if (!optimize_node(node->v.ie.body_if_false))
+    if (!optimize_node(node->v.e_if.body_if_false))
         return false;
     return true;
 }
 
 static bool optimize_e_wrapper(Nst_Node *node)
 {
-    if (!optimize_node(node->v.we.expr))
+    if (!optimize_node(node->v.e_wrapper.expr))
         return false;
-    Nst_Node *statement = node->v.we.expr;
-    node->v.we.expr = NULL;
+    Nst_Node *statement = node->v.e_wrapper.expr;
+    node->v.e_wrapper.expr = NULL;
     move_into(statement, node);
     return true;
 }

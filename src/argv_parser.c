@@ -349,15 +349,9 @@ void _Nst_console_mode_init(void)
         goto try_stdin;
     }
 
-    DWORD stdout_new_mode = ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-    DWORD stdout_mode = stdout_prev_mode | stdout_new_mode;
-    if (!SetConsoleMode(stdout_handle, stdout_mode)) {
-        stdout_new_mode = ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-        stdout_mode = stdout_new_mode | stdout_new_mode;
-        if (!SetConsoleMode(stdout_handle, stdout_mode))
-            supports_color = false;
-    }
+    DWORD stdout_mode = stdout_prev_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    if (!SetConsoleMode(stdout_handle, stdout_mode))
+        supports_color = false;
 
     HANDLE stdin_handle;
 try_stdin:
