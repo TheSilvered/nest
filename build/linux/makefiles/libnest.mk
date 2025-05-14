@@ -43,8 +43,8 @@ $(DBG_TARGET): $(SRCS) $(HEADERS)
 
 help:
 	@echo "libnest.mk help:"
-	@echo "  make -f libnest.mk         compile libnest.so for 64 bit platforms"
-	@echo "  make -f libnest.mk x86     compile libnest.so for 32 bit platforms"
-	@echo "  make -f libnest.mk debug   compile libnest.so with debug symbols"
+	@echo "  make -f libnest.mk          compile libnest.so for 64 bit platforms"
+	@echo "  make -f libnest.mk x86      compile libnest.so for 32 bit platforms"
+	@echo "  make -f libnest.mk debug    compile libnest.so with debug symbols"
 	@echo ""
-	@echo "  make -f libnest.mk help    print this message"
+	@echo "  make -f libnest.mk help     print this message"

@@ -76,6 +76,6 @@ help:
 	@echo "  make -f testnest.mk __no_libnest_dbg"
 	@echo "                             compile C tests with debug symbols"
 	@echo ""
-	@echo "  make -f testnest.mk help    print this message"
+	@echo "  make -f testnest.mk help   print this message"
 	@echo ""
 	@echo ""
