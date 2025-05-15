@@ -8,7 +8,7 @@
         {
             dt.SHORT_WEEKDAY_NAMES.@@dt.week_day,
             @dt.day,
-            dt.SHORTH_MONTH_NAMES.@@dt.month,
+            dt.SHORT_MONTH_NAMES.@@dt.month,
             @@dt.year,
             @dt.hour,
             @dt.minute,
