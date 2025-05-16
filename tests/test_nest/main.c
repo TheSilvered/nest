@@ -104,12 +104,22 @@ int main() {
 
     // iter.h
 
+    run_test(test_iter_start_func);
+    run_test(test_iter_next_func);
+    run_test(test_iter_value);
     run_test(test_iter_start);
     run_test(test_iter_get_val);
+    run_test(test_iter_range_new);
+    run_test(test_iter_seq_new);
+    run_test(test_iter_str_new);
+    run_test(test_iter_map_new);
 
     // lib_import.h
 
     run_test(test_extract_args);
+    run_test(test_obj_custom);
+    run_test(test_obj_custom_ex);
+    run_test(test_obj_custom_data);
 
     // llist.h
 
@@ -129,6 +139,8 @@ int main() {
 
     run_test(test_map_new);
     run_test(test_map_copy);
+    run_test(test_map_len);
+    run_test(test_map_cap);
     run_test(test_map_set);
     run_test(test_map_get);
     run_test(test_map_drop);
@@ -149,8 +161,12 @@ int main() {
     // sequence.h
 
     run_test(test_seq_new);
+    run_test(test_seq_from_objs);
     run_test(test_seq_create);
     run_test(test_seq_create_c);
+    run_test(test_seq_len);
+    run_test(test_vector_cap);
+    run_test(test_seq_objs);
     run_test(test_seq_set);
     run_test(test_seq_get);
     run_test(test_seq_copy);
@@ -167,6 +183,10 @@ int main() {
     run_test(test_number_to_f32);
     run_test(test_number_to_f64);
     run_test(test_obj_to_bool);
+
+    // source_loader.h
+
+    run_test(test_source_from_sv);
 
     // str.h
 

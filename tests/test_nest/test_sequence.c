@@ -5,12 +5,32 @@ TestResult test_seq_new(void)
     return TEST_NOT_IMPL;
 }
 
+TestResult test_seq_from_objs(void)
+{
+    return TEST_NOT_IMPL;
+}
+
 TestResult test_seq_create(void)
 {
     return TEST_NOT_IMPL;
 }
 
 TestResult test_seq_create_c(void)
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_seq_len(void)
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_vector_cap(void)
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_seq_objs(void)
 {
     return TEST_NOT_IMPL;
 }

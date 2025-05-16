@@ -176,12 +176,22 @@ TestResult test_obj_hash(void);
 
 // iter.h
 
+TestResult test_iter_start_func(void);
+TestResult test_iter_next_func(void);
+TestResult test_iter_value(void);
 TestResult test_iter_start(void);
 TestResult test_iter_get_val(void);
+TestResult test_iter_range_new(void);
+TestResult test_iter_seq_new(void);
+TestResult test_iter_str_new(void);
+TestResult test_iter_map_new(void);
 
 // lib_import.h
 
 TestResult test_extract_args(void);
+TestResult test_obj_custom(void);
+TestResult test_obj_custom_ex(void);
+TestResult test_obj_custom_data(void);
 
 // llist.h
 
@@ -201,6 +211,8 @@ TestResult test_llist_move_nodes(void);
 
 TestResult test_map_new(void);
 TestResult test_map_copy(void);
+TestResult test_map_len(void);
+TestResult test_map_cap(void);
 TestResult test_map_set(void);
 TestResult test_map_get(void);
 TestResult test_map_drop(void);
@@ -221,8 +233,12 @@ TestResult test_memset(void);
 // sequence.h
 
 TestResult test_seq_new(void);
+TestResult test_seq_from_objs(void);
 TestResult test_seq_create(void);
 TestResult test_seq_create_c(void);
+TestResult test_seq_len(void);
+TestResult test_vector_cap(void);
+TestResult test_seq_objs(void);
 TestResult test_seq_set(void);
 TestResult test_seq_get(void);
 TestResult test_seq_copy(void);
@@ -239,6 +255,10 @@ TestResult test_number_to_i64(void);
 TestResult test_number_to_f32(void);
 TestResult test_number_to_f64(void);
 TestResult test_obj_to_bool(void);
+
+// source_loader.h
+
+TestResult test_source_from_sv(void);
 
 // str.h
 

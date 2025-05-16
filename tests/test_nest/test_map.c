@@ -10,6 +10,16 @@ TestResult test_map_copy(void)
     return TEST_NOT_IMPL;
 }
 
+TestResult test_map_len(void)
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_map_cap(void)
+{
+    return TEST_NOT_IMPL;
+}
+
 TestResult test_map_set(void)
 {
     return TEST_NOT_IMPL;

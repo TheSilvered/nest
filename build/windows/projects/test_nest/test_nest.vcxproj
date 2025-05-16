@@ -160,6 +160,7 @@
     <ClCompile Include="..\..\..\..\tests\test_nest\test_mem.c" />
     <ClCompile Include="..\..\..\..\tests\test_nest\test_sequence.c" />
     <ClCompile Include="..\..\..\..\tests\test_nest\test_simple_types.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_source_loader.c" />
     <ClCompile Include="..\..\..\..\tests\test_nest\test_str.c" />
     <ClCompile Include="..\..\..\..\tests\test_nest\test_str_builder.c" />
     <ClCompile Include="..\..\..\..\tests\test_nest\test_str_view.c" />
