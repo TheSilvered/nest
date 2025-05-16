@@ -21,28 +21,17 @@ extern "C" {
 Nst_ObjRef *NstC _Nst_str_new_no_err(const char *val);
 
 /**
- * Create a new string object with a value taken from a C string of unknown
- * length.
+ * Create a new string object from a C string literal. Uses `strlen` to find
+ * the length.
+ *
+ * @brief Warning: `val` is always assumed to have a lifetime equal or longer
+ * than Nest (i.e. it is destroyed with or after `Nst_quit`).
  *
  * @param val: the value of the string in extUTF-8 encoding
- * @param allocated: whether the value is heap allocated and should be freed
- * with the string
  *
  * @return The new string on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_ObjRef *NstC Nst_str_new_c_raw(const char *val, bool allocated);
-/**
- * Create a new string object from a string literal of known length.
- *
- * @param val: the value of the string in extUTF-8 encoding
- * @param len: the length of `val` in bytes
- * @param allocated: whether the value is heap allocated and should be freed
- * with the string
- *
- * @return The new string on success and `NULL` on failure. The error is set.
- */
-NstEXP Nst_ObjRef *NstC Nst_str_new_c(const char *val, usize len,
-                                      bool allocated);
+NstEXP Nst_ObjRef *NstC Nst_str_new_c(const char *val);
 /**
  * Create a new string object.
  *

@@ -76,40 +76,40 @@ bool _Nst_globals_init(void)
         (Nst_ObjDstr)_Nst_iter_destroy,
         (Nst_ObjTrav)_Nst_iter_traverse);
 
-    Nst_s.t_Type   = Nst_str_new_c("Type",   4, false);
-    Nst_s.t_Int    = Nst_str_new_c("Int",    3, false);
-    Nst_s.t_Real   = Nst_str_new_c("Real",   4, false);
-    Nst_s.t_Bool   = Nst_str_new_c("Bool",   4, false);
-    Nst_s.t_Null   = Nst_str_new_c("Null",   4, false);
-    Nst_s.t_Str    = Nst_str_new_c("Str",    3, false);
-    Nst_s.t_Array  = Nst_str_new_c("Array",  5, false);
-    Nst_s.t_Vector = Nst_str_new_c("Vector", 6, false);
-    Nst_s.t_Map    = Nst_str_new_c("Map",    3, false);
-    Nst_s.t_Func   = Nst_str_new_c("Func",   4, false);
-    Nst_s.t_Iter   = Nst_str_new_c("Iter",   4, false);
-    Nst_s.t_Byte   = Nst_str_new_c("Byte",   4, false);
-    Nst_s.t_IOFile = Nst_str_new_c("IOFile", 6, false);
-    Nst_s.t_IEnd   = Nst_str_new_c("IEnd",   4, false);
+    Nst_s.t_Type   = Nst_str_new((u8 *)"Type",   4, false);
+    Nst_s.t_Int    = Nst_str_new((u8 *)"Int",    3, false);
+    Nst_s.t_Real   = Nst_str_new((u8 *)"Real",   4, false);
+    Nst_s.t_Bool   = Nst_str_new((u8 *)"Bool",   4, false);
+    Nst_s.t_Null   = Nst_str_new((u8 *)"Null",   4, false);
+    Nst_s.t_Str    = Nst_str_new((u8 *)"Str",    3, false);
+    Nst_s.t_Array  = Nst_str_new((u8 *)"Array",  5, false);
+    Nst_s.t_Vector = Nst_str_new((u8 *)"Vector", 6, false);
+    Nst_s.t_Map    = Nst_str_new((u8 *)"Map",    3, false);
+    Nst_s.t_Func   = Nst_str_new((u8 *)"Func",   4, false);
+    Nst_s.t_Iter   = Nst_str_new((u8 *)"Iter",   4, false);
+    Nst_s.t_Byte   = Nst_str_new((u8 *)"Byte",   4, false);
+    Nst_s.t_IOFile = Nst_str_new((u8 *)"IOFile", 6, false);
+    Nst_s.t_IEnd   = Nst_str_new((u8 *)"IEnd",   4, false);
 
-    Nst_s.c_true   = Nst_str_new_c("true",  4, false);
-    Nst_s.c_false  = Nst_str_new_c("false", 5, false);
-    Nst_s.c_null   = Nst_str_new_c("null",  4, false);
-    Nst_s.c_inf    = Nst_str_new_c("inf",   3, false);
-    Nst_s.c_nan    = Nst_str_new_c("nan",   3, false);
-    Nst_s.c_neginf = Nst_str_new_c("-inf",  4, false);
-    Nst_s.c_negnan = Nst_str_new_c("-nan",  4, false);
+    Nst_s.c_true   = Nst_str_new((u8 *)"true",  4, false);
+    Nst_s.c_false  = Nst_str_new((u8 *)"false", 5, false);
+    Nst_s.c_null   = Nst_str_new((u8 *)"null",  4, false);
+    Nst_s.c_inf    = Nst_str_new((u8 *)"inf",   3, false);
+    Nst_s.c_nan    = Nst_str_new((u8 *)"nan",   3, false);
+    Nst_s.c_neginf = Nst_str_new((u8 *)"-inf",  4, false);
+    Nst_s.c_negnan = Nst_str_new((u8 *)"-nan",  4, false);
 
-    Nst_s.e_SyntaxError = Nst_str_new_c("Syntax Error", 12, false);
-    Nst_s.e_ValueError  = Nst_str_new_c("Value Error",  11, false);
-    Nst_s.e_TypeError   = Nst_str_new_c("Type Error",   10, false);
-    Nst_s.e_CallError   = Nst_str_new_c("Call Error",   10, false);
-    Nst_s.e_MathError   = Nst_str_new_c("Math Error",   10, false);
-    Nst_s.e_ImportError = Nst_str_new_c("Import Error", 12, false);
-    Nst_s.e_Interrupt   = Nst_str_new_c("Interrupt",     9, false);
+    Nst_s.e_SyntaxError = Nst_str_new((u8 *)"Syntax Error", 12, false);
+    Nst_s.e_ValueError  = Nst_str_new((u8 *)"Value Error",  11, false);
+    Nst_s.e_TypeError   = Nst_str_new((u8 *)"Type Error",   10, false);
+    Nst_s.e_CallError   = Nst_str_new((u8 *)"Call Error",   10, false);
+    Nst_s.e_MathError   = Nst_str_new((u8 *)"Math Error",   10, false);
+    Nst_s.e_ImportError = Nst_str_new((u8 *)"Import Error", 12, false);
+    Nst_s.e_Interrupt   = Nst_str_new((u8 *)"Interrupt",     9, false);
 
-    Nst_s.o__vars_    = Nst_str_new_c("_vars_",    6, false);
-    Nst_s.o__globals_ = Nst_str_new_c("_globals_", 9, false);
-    Nst_s.o__args_    = Nst_str_new_c("_args_",    6, false);
+    Nst_s.o__vars_    = Nst_str_new((u8 *)"_vars_",    6, false);
+    Nst_s.o__globals_ = Nst_str_new((u8 *)"_globals_", 9, false);
+    Nst_s.o__args_    = Nst_str_new((u8 *)"_args_",    6, false);
 
     Nst_c.Bool_true  = _Nst_obj_alloc(sizeof(Nst_Obj), Nst_t.Bool);
     Nst_c.Bool_false = _Nst_obj_alloc(sizeof(Nst_Obj), Nst_t.Bool);

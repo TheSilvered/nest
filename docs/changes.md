@@ -335,6 +335,8 @@
 - renamed `_Nst_str_repr` to `Nst_str_repr` and removed macro alias
 - renamed `_Nst_str_get` to `Nst_str_get` and removed macro alias
   - now `Nst_str_get` returns the Unicode code point instead of an object, use the new `Nst_str_get_obj` for the old behavior
+- removed `Nst_str_new_c_raw`
+- now `Nst_str_new_c` only takes one argument and the string is always assumed to be static
 - removed `Nst_TOK`, `Nst_tok_new_value`, `Nst_tok_new_noval`, `Nst_tok_new_noend`
 - made `Nst_TypeObj` private, removed `Nst_ContTypeObj`
 - removed `Nst_TypeFlags` and `_Nst_type_destroy`

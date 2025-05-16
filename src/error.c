@@ -465,7 +465,7 @@ void Nst_error_set_import(Nst_ObjRef *msg)
 
 static void set_error_c(Nst_Obj *name, const char *msg)
 {
-    Nst_Obj *msg_obj = Nst_str_new_c_raw(msg, false);
+    Nst_Obj *msg_obj = Nst_str_new_c(msg);
     if (msg_obj == NULL)
         return;
 

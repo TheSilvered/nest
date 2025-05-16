@@ -375,7 +375,7 @@ void _Nst_map_destroy(Nst_Obj *map)
 bool Nst_map_set_str(Nst_Obj *map, const char *key, Nst_Obj *value)
 {
     Nst_assert(map->type == Nst_t.Map);
-    Nst_Obj *key_obj = Nst_str_new_c_raw(key, false);
+    Nst_Obj *key_obj = Nst_str_new_c(key);
     if (key_obj == NULL)
         return false;
     bool res = Nst_map_set(map, key_obj, value);
@@ -387,7 +387,7 @@ Nst_ObjRef *Nst_map_get_str(Nst_Obj *map, const char *key)
 {
     Nst_assert(map->type == Nst_t.Map);
 
-    Nst_Obj *key_ob = Nst_str_new_c_raw(key, false);
+    Nst_Obj *key_ob = Nst_str_new_c(key);
     if (key_ob == NULL)
         return NULL;
     Nst_Obj *value = Nst_map_get(map, key_ob);
@@ -398,7 +398,7 @@ Nst_ObjRef *Nst_map_get_str(Nst_Obj *map, const char *key)
 Nst_ObjRef *Nst_map_drop_str(Nst_Obj *map, const char *key)
 {
     Nst_assert(map->type == Nst_t.Map);
-    Nst_Obj *key_ob = Nst_str_new_c_raw(key, false);
+    Nst_Obj *key_ob = Nst_str_new_c(key);
     if (key_ob == NULL)
         return NULL;
     Nst_Obj *value = Nst_map_drop(map, key_ob);

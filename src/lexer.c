@@ -504,7 +504,6 @@ end:
 static Nst_Tok make_ident(void)
 {
     Nst_Pos start = cursor.pos;
-    char *str;
     char *str_start = cursor.text + cursor.idx;
     usize str_len = 0;
 
@@ -522,7 +521,7 @@ static Nst_Tok make_ident(void)
     }
     go_back();
 
-    str = Nst_malloc_c(str_len + 1, char);
+    char *str = Nst_malloc_c(str_len + 1, char);
     if (str == NULL) {
         ADD_ERR_POS;
         return Nst_tok_invalid();
@@ -532,7 +531,7 @@ static Nst_Tok make_ident(void)
     str[str_len] = '\0';
 
     Nst_Pos end = cursor.pos;
-    Nst_Obj *val_obj = Nst_str_new_c_raw(str, true);
+    Nst_Obj *val_obj = Nst_str_new((u8 *)str, str_len, true);
     if (val_obj == NULL) {
         Nst_free(str);
         ADD_ERR_POS;

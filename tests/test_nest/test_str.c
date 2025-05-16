@@ -1,10 +1,5 @@
 #include "tests.h"
 
-TestResult test_str_new_c_raw(void)
-{
-    return TEST_NOT_IMPL;
-}
-
 TestResult test_str_new_c(void)
 {
     return TEST_NOT_IMPL;
@@ -38,7 +33,7 @@ TestResult test_str_from_sb(void)
 TestResult test_str_copy(void)
 {
     ENTER_TEST;
-    Nst_Obj *str = Nst_str_new_c_raw("h\xc3\xa8llo\xf0\x9f\x98\x8a", false);
+    Nst_Obj *str = Nst_str_new_c("h\xc3\xa8llo\xf0\x9f\x98\x8a");
     crit_fail_if(str == NULL);
     Nst_Obj *copy = Nst_str_copy(str);
     crit_fail_if(str == NULL, str);

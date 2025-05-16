@@ -609,13 +609,9 @@ Nst_Obj *Nst_obj_to_repr_str(Nst_Obj *ob)
 
     if (ob_t == Nst_t.Str)
         return Nst_str_repr(ob);
-    else if (ob_t == Nst_t.Byte) {
-        char *str = Nst_calloc_c(5, char, NULL);
-        CHECK_BUFFER(str);
-
-        sprintf(str, "%ib", (int)Nst_byte_u8(ob));
-        return Nst_str_new_c_raw((const char *)str, true);
-    } else
+    else if (ob_t == Nst_t.Byte)
+        return Nst_sprintf("%ib", (int)Nst_byte_u8(ob));
+    else
         return Nst_obj_cast(ob, Nst_t.Str);
 }
 
@@ -643,11 +639,11 @@ Nst_Obj *_Nst_obj_str_cast_seq(Nst_Obj *seq_obj, Nst_LList *all_objs)
 
     for (Nst_LLNode *n = all_objs->head; n != NULL; n = n->next) {
         if (seq_obj == n->value)
-            return Nst_str_new_c_raw(recursive, false);
+            return Nst_str_new_c(recursive);
     }
 
     if (Nst_seq_len(seq_obj) == 0)
-        return Nst_str_new_c_raw(empty, false);
+        return Nst_str_new_c(empty);
 
     if (!Nst_llist_push(all_objs, seq_obj, false))
         return NULL;
@@ -704,11 +700,11 @@ Nst_Obj *_Nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs)
 {
     for (Nst_LLNode *n = all_objs->head; n != NULL; n = n->next) {
         if (map_obj == n->value)
-            return Nst_str_new_c("{.}", 3, false);
+            return Nst_str_new((u8 *)"{.}", 3, false);
     }
 
     if (Nst_map_len(map_obj) == 0)
-        return Nst_str_new_c("{}", 2, false);
+        return Nst_str_new((u8 *)"{}", 2, false);
 
     if (!Nst_llist_push(all_objs, map_obj, false))
         return NULL;
@@ -1419,7 +1415,7 @@ static inline u8 get_one_char(u8 *ch)
 Nst_Obj *Nst_obj_stdin(Nst_Obj *ob)
 {
     if (Nst_IOF_IS_CLOSED(Nst_io.in))
-        return Nst_str_new_c("", 0, false);
+        return Nst_str_new((u8 *)"", 0, false);
 
     ob = Nst_obj_cast(ob, Nst_t.Str);
     Nst_fwrite(Nst_str_value(ob), Nst_str_len(ob), NULL, Nst_io.out);

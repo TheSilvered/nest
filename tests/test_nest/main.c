@@ -190,7 +190,6 @@ int main() {
 
     // str.h
 
-    run_test(test_str_new_c_raw);
     run_test(test_str_new_c);
     run_test(test_str_new);
     run_test(test_str_new_allocated);

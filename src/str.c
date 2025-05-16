@@ -111,14 +111,9 @@ Nst_ObjRef *_Nst_str_new_no_err(const char *value)
     return NstOBJ(str);
 }
 
-Nst_ObjRef *Nst_str_new_c_raw(const char *val, bool allocated)
+Nst_ObjRef *Nst_str_new_c(const char *val)
 {
-    return Nst_str_new((u8 *)val, strlen(val), allocated);
-}
-
-Nst_ObjRef *Nst_str_new_c(const char *val, usize len, bool allocated)
-{
-    return Nst_str_new((u8 *)val, len, allocated);
+    return Nst_str_new((u8 *)val, strlen(val), false);
 }
 
 Nst_ObjRef *Nst_str_new(u8 *val, usize len, bool allocated)

@@ -51,6 +51,10 @@ NstEXP Nst_SourceText *NstC Nst_source_load(Nst_CLArgs *inout_args);
  * @brief The resulting text is heap allocated and must be destroyed with
  * `Nst_source_text_destroy`.
  *
+ * @brief Warning: do not use this function to load code that is to be executed
+ * by Nest. Use `Nst_source_load` instead, putting the source in the `command`
+ * field of `Nst_CLArgs`.
+ *
  * @param sv: the string view from which the contents are taken to be used in
  * the source text, it is expected to be encoded in UTF-8
  *
@@ -63,6 +67,10 @@ NstEXP Nst_SourceText *NstC Nst_source_from_sv(Nst_StrView sv);
  *
  * @brief The resulting text is heap allocated and must be destroyed with
  * `Nst_source_text_destroy`.
+ *
+ * @brief Warning: do not use this function to load code that is to be executed
+ * by Nest. Use `Nst_source_load` instead, putting the path in the `filename`
+ * field and the encoding in the `encoding` field of `Nst_CLArgs`.
  *
  * @param path: the path to the file
  * @param encoding: the encoding to use when reading the file, if it is set to

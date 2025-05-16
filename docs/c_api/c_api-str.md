@@ -20,48 +20,27 @@ Value of `idx` in case an error occurs when iterating over a string.
 
 ## Functions
 
-### `Nst_str_new_c_raw`
-
-**Synopsis:**
-
-```better-c
-Nst_ObjRef *Nst_str_new_c_raw(const char *val, bool allocated)
-```
-
-**Description:**
-
-Create a new string object with a value taken from a C string of unknown length.
-
-**Parameters:**
-
-- `val`: the value of the string in extUTF-8 encoding
-- `allocated`: whether the value is heap allocated and should be freed with the
-  string
-
-**Returns:**
-
-The new string on success and `NULL` on failure. The error is set.
-
----
-
 ### `Nst_str_new_c`
 
 **Synopsis:**
 
 ```better-c
-Nst_ObjRef *Nst_str_new_c(const char *val, usize len, bool allocated)
+Nst_ObjRef *Nst_str_new_c(const char *val)
 ```
 
 **Description:**
 
-Create a new string object from a string literal of known length.
+Create a new string object from a C string literal. Uses
+[`strlen`](https://man7.org/linux/man-pages/man3/strlen.3.html) to find the
+length.
+
+!!!warning
+    `val` is always assumed to have a lifetime equal or longer than Nest (i.e.
+    it is destroyed with or after [`Nst_quit`](c_api-interpreter.md#nst_quit)).
 
 **Parameters:**
 
 - `val`: the value of the string in extUTF-8 encoding
-- `len`: the length of `val` in bytes
-- `allocated`: whether the value is heap allocated and should be freed with the
-  string
 
 **Returns:**
 

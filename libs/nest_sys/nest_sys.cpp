@@ -42,12 +42,12 @@ static Nst_Obj *platform_obj;
 
 Nst_Declr *lib_init()
 {
-    version_obj = Nst_str_new_c_raw(Nst_VERSION, false);
+    version_obj = Nst_str_new_c(Nst_VERSION);
 
 #ifdef Nst_MSVC
-    platform_obj = Nst_str_new_c("windows", 7, false);
+    platform_obj = Nst_str_new((u8 *)"windows", 7, false);
 #else
-    platform_obj = Nst_str_new_c("linux", 5, false);
+    platform_obj = Nst_str_new((u8 *)"linux", 5, false);
 #endif
 
     return Nst_error_occurred() ? nullptr : obj_list_;
@@ -150,7 +150,7 @@ Nst_Obj *NstC get_env_(usize arg_num, Nst_Obj **args)
     strcpy(env_name, env_name_str);
 #endif
 
-    return Nst_str_new_c_raw(env_name, true);
+    return Nst_str_new((u8 *)env_name, strlen(env_name), true);
 }
 
 Nst_Obj *NstC set_env_(usize arg_num, Nst_Obj **args)
@@ -308,9 +308,9 @@ Nst_Obj *NstC _get_endianness_(usize arg_num, Nst_Obj **args)
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
 #if Nst_BYTEORDER == Nst_BIG_ENDIAN
-    return Nst_str_new_c("big", 3, false);
+    return Nst_str_new((u8 *)"big", 3, false);
 #elif Nst_BYTEORDER == Nst_LITTLE_ENDIAN
-    return Nst_str_new_c("little", 6, false);
+    return Nst_str_new((u8 *)"little", 6, false);
 #endif
 }
 

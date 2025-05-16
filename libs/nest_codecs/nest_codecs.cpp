@@ -90,7 +90,7 @@ Nst_Obj *NstC encoding_info_(usize arg_num, Nst_Obj **args)
 
     Nst_Obj *mult_max_sz = Nst_int_new(cp->mult_max_sz);
     Nst_Obj *mult_min_sz = Nst_int_new(cp->mult_min_sz);
-    Nst_Obj *name = Nst_str_new_c_raw(cp->name, false);
+    Nst_Obj *name = Nst_str_new_c(cp->name);
     Nst_Obj *bom;
 
     if (cp->bom_size == 0)

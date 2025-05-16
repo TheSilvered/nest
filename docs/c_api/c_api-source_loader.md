@@ -78,6 +78,12 @@ view.
 The resulting text is heap allocated and must be destroyed with
 [`Nst_source_text_destroy`](c_api-source_loader.md#nst_source_text_destroy).
 
+!!!warning
+    Do not use this function to load code that is to be executed by Nest. Use
+    [`Nst_source_load`](c_api-source_loader.md#nst_source_load) instead, putting
+    the source in the `command` field of
+    [`Nst_CLArgs`](c_api-argv_parser.md#nst_clargs).
+
 **Parameters:**
 
 - `sv`: the string view from which the contents are taken to be used in the
@@ -104,6 +110,12 @@ Load a [`Nst_SourceText`](c_api-source_loader.md#nst_sourcetext) from a file.
 
 The resulting text is heap allocated and must be destroyed with
 [`Nst_source_text_destroy`](c_api-source_loader.md#nst_source_text_destroy).
+
+!!!warning
+    Do not use this function to load code that is to be executed by Nest. Use
+    [`Nst_source_load`](c_api-source_loader.md#nst_source_load) instead, putting
+    the path in the `filename` field and the encoding in the `encoding` field of
+    [`Nst_CLArgs`](c_api-argv_parser.md#nst_clargs).
 
 **Parameters:**
 

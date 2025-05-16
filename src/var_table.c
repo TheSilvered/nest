@@ -12,9 +12,9 @@ bool Nst_vt_init(Nst_VarTable *vt, Nst_Obj *global_table, Nst_Obj *args,
 
 #ifdef _DEBUG
 #ifdef _Nst_ARCH_x64
-    Nst_Obj *debug_str = Nst_str_new_c_raw("x64", false);
+    Nst_Obj *debug_str = Nst_str_new_c("x64");
 #else
-    Nst_Obj *debug_str = Nst_str_new_c_raw("x86", false);
+    Nst_Obj *debug_str = Nst_str_new_c("x86");
 #endif // !_Nst_ARCH_x64
     Nst_map_set_str(vars, "_debug_", Nst_c.Bool_true);
     Nst_map_set_str(vars, "_debug_arch_", debug_str);

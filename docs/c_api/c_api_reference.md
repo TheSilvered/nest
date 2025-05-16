@@ -586,7 +586,6 @@
 - [`Nst_str_new`](c_api-str.md#nst_str_new)
 - [`Nst_str_new_allocated`](c_api-str.md#nst_str_new_allocated)
 - [`Nst_str_new_c`](c_api-str.md#nst_str_new_c)
-- [`Nst_str_new_c_raw`](c_api-str.md#nst_str_new_c_raw)
 - [`Nst_str_new_len`](c_api-str.md#nst_str_new_len)
 - [`Nst_str_next`](c_api-str.md#nst_str_next)
 - [`Nst_str_next_obj`](c_api-str.md#nst_str_next_obj)

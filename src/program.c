@@ -9,7 +9,7 @@ static Nst_Obj *make_argv(i32 argc, char **argv, char *filename)
         return NULL;
     }
 
-    Nst_Obj *val = Nst_str_new_c_raw(filename, false);
+    Nst_Obj *val = Nst_str_new_c(filename);
     if (val == NULL) {
         Nst_error_clear();
         Nst_dec_ref(args);
@@ -18,7 +18,7 @@ static Nst_Obj *make_argv(i32 argc, char **argv, char *filename)
     Nst_seq_setn(args, 0, val);
 
     for (i32 i = 0; i < argc; i++) {
-        val = Nst_str_new_c_raw(argv[i], false);
+        val = Nst_str_new_c(argv[i]);
         if (val == NULL) {
             Nst_error_clear();
             Nst_dec_ref(args);
@@ -128,7 +128,7 @@ Nst_ExecutionKind Nst_prog_init(Nst_Program *prog, Nst_CLArgs args)
         return Nst_EK_ERROR;
     }
     if (src->path != NULL) {
-        prog->source_path = Nst_str_new_c_raw(src->path, false);
+        prog->source_path = Nst_str_new_c(src->path);
 
         if (prog->source_path == NULL) {
             Nst_prog_destroy(prog);

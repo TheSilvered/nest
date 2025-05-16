@@ -22,9 +22,7 @@ Nst_Obj *make_pos(Nst_Span span)
 {
     Nst_Obj *map = Nst_map_new();
 
-    Nst_Obj *file_str = Nst_str_new_c_raw(
-        (const char *)span.text->path,
-        false);
+    Nst_Obj *file_str = Nst_str_new_c((const char *)span.text->path);
     Nst_Obj *arr_start = Nst_array_create_c(
         "ii",
         span.start_line,

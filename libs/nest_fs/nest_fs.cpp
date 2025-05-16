@@ -110,8 +110,8 @@ static Nst_Obj *throw_system_error(std::error_code ec)
 {
     if (ec.value() == 0) {
         Nst_error_set(
-            Nst_str_new_c_raw("System Error <unknown>", false),
-            Nst_str_new_c_raw("an unknown error occurred", false));
+            Nst_str_new_c("System Error <unknown>"),
+            Nst_str_new_c("an unknown error occurred"));
         return nullptr;
     }
 

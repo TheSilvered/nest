@@ -252,7 +252,7 @@ Nst_Obj *NstC trim_(usize arg_num, Nst_Obj **args)
     }
 
     if (s_start == s_end + 1)
-        return Nst_str_new_c("", 0, false);
+        return Nst_str_new((u8 *)"", 0, false);
 
     while (isspace((u8)*s_end)) {
         --s_end;
@@ -1011,7 +1011,7 @@ Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (Nst_seq_len(seq) == 0)
-        return Nst_str_new_c("", 0, false);
+        return Nst_str_new((u8 *)"", 0, false);
 
     usize str_len;
     u8 *str_val;

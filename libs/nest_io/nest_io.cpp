@@ -864,7 +864,7 @@ Nst_Obj *NstC encoding_(usize arg_num, Nst_Obj **args)
             Nst_error_setc_value("failed to get the encoding of the file");
         return nullptr;
     }
-    return Nst_str_new_c_raw(encoding->name, false);
+    return Nst_str_new_c(encoding->name);
 }
 
 Nst_Obj *NstC println_(usize arg_num, Nst_Obj **args)

@@ -30,7 +30,7 @@ Nst_StrView Nst_sv_new_c(const char *value)
 {
     Nst_StrView sv = {
         .value = (u8 *)value,
-        .len = strlen(value)
+        .len = value == NULL ? 0 : strlen(value)
     };
     return sv;
 }

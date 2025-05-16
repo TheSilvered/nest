@@ -168,7 +168,6 @@ The current state of tests:
   - 🔴 `test_number_to_f64`
   - 🔴 `test_obj_to_bool`
   - 🔴 `test_source_from_sv`
-  - 🔴 `test_str_new_c_raw`
   - 🔴 `test_str_new_c`
   - 🔴 `test_str_new`
   - 🔴 `test_str_new_allocated`
@@ -195,9 +194,9 @@ The current state of tests:
   - 🔴 `test_sb_push_c`
   - 🔴 `test_sb_push_cps`
   - 🔴 `test_sb_push_char`
-  - 🔴 `test_sv_new`
-  - 🔴 `test_sv_new_c`
-  - 🔴 `test_sv_from_str`
+  - 🟢 `test_sv_new`
+  - 🟢 `test_sv_new_c`
+  - 🟢 `test_sv_from_str`
   - 🔴 `test_sv_from_sb`
   - 🔴 `test_sv_next`
   - 🔴 `test_sv_prev`

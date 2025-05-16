@@ -133,15 +133,11 @@ static void free_args_va(va_list args)
     }
 }
 
-bool fail_if_(bool cond, TestResult *result, int line, ...)
+bool fail_if_(bool cond, TestResult *result, int line)
 {
-    va_list args;
-    va_start(args, line);
-
-    if (cond) {
-        free_args_va(args);
+    if (cond)
         fail(result, line);
-    } else
+    else
         Nst_error_clear();
     return cond;
 }

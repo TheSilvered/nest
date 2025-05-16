@@ -38,8 +38,8 @@
 
 #define F_ENDIF(ptr) (void *)((usize)(ptr) * (usize)F_END))
 
-#define fail_if(cond, ...)                                                    \
-    fail_if_((cond), &test_result__, __LINE__, ## __VA_ARGS__, F_END)
+#define fail_if(cond)                                                         \
+    fail_if_((cond), &test_result__, __LINE__)
 
 #define crit_fail_if(cond, ...) do {                                          \
     if (crit_fail_if_(                                                        \
@@ -77,7 +77,7 @@ bool capture_output_begin(void);
 // NUL-terminated or NULL on error.
 const char *capture_output_end(usize *out_length);
 
-bool fail_if_(bool cond, TestResult *result, int line, ...);
+bool fail_if_(bool cond, TestResult *result, int line);
 bool crit_fail_if_(bool cond, TestResult *result, int line, ...);
 // Check if strings are different, if str1 is NULL it returns true.
 bool str_neq(u8 *str1, const char *str2);
@@ -262,7 +262,6 @@ TestResult test_source_from_sv(void);
 
 // str.h
 
-TestResult test_str_new_c_raw(void);
 TestResult test_str_new_c(void);
 TestResult test_str_new(void);
 TestResult test_str_new_allocated(void);

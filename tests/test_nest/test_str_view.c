@@ -4,17 +4,52 @@
 
 TestResult test_sv_new(void)
 {
-    return TEST_NOT_IMPL;
+    ENTER_TEST;
+
+    Nst_StrView sv = Nst_sv_new((u8 *)"Hello!", 6);
+    fail_if(sv.len != 6);
+    fail_if(str_neq(sv.value, "Hello!"));
+
+    sv = Nst_sv_new(NULL, 0);
+    fail_if(sv.len != 0);
+    fail_if(sv.value != NULL);
+
+    EXIT_TEST;
 }
 
 TestResult test_sv_new_c(void)
 {
-    return TEST_NOT_IMPL;
+    ENTER_TEST;
+
+    Nst_StrView sv = Nst_sv_new_c("Hello!\xc3\xa8");
+    fail_if(sv.len != 8);
+    fail_if(str_neq(sv.value, "Hello!\xc3\xa8"));
+
+    sv = Nst_sv_new_c("ab\0c");
+    fail_if(sv.len != 2);
+    fail_if(str_neq(sv.value, "ab"));
+
+    sv = Nst_sv_new_c(NULL);
+    fail_if(sv.len != 0);
+    fail_if(sv.value != NULL);
+
+    EXIT_TEST;
 }
 
 TestResult test_sv_from_str(void)
 {
-    return TEST_NOT_IMPL;
+    ENTER_TEST;
+
+    Nst_Obj *str = Nst_str_new_c("Hello!\xc3\xa8");
+    if (!fail_if(str == NULL)) {
+        Nst_StrView sv = Nst_sv_from_str(str);
+        fail_if(sv.len != 8);
+        fail_if(str_neq(sv.value, "Hello!\xc3\xa8"));
+    }
+
+    Nst_ndec_ref(str);
+
+    EXIT_TEST;
 }
 
 TestResult test_sv_from_sb(void)
