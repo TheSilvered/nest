@@ -10,44 +10,36 @@
 #pragma warning(disable: 4102)
 #endif
 
-#define run_test(test) run_test_(test, #test);
+#define test_run(test) test_run_(test, #test);
 
-#define ENTER_TEST TestResult test_result__ = TEST_SUCCESS
-#define EXIT_TEST test_exit: return test_result__
+#define TEST_ENTER TestResult test_result__ = TEST_SUCCESS
+#define TEST_EXIT test_exit: return test_result__
 
-// To this function are passed the va_args of fail_if and crit_fail_if
-// By default they will free pointers as Nest objects with Nst_dec_ref,
-// Pass F_P to begin freeing pointers with Nst_free
-// Pass F_O to start freeing objects again
-// Pass F_C followed by a function of type void (*)(void *), the pointers
-// will then be passed to that function
-// Any NULL pointer is automatically skipped
-// F_END will end the series even with pointers still in the series, it is
-// added automatically after all aruments when calling fail_if or crit_fail_if
-// F_ENDIF will stop if the given pointer is NULL.
+// Assert that `cond` is true or log a failure
+#define test_assert(cond) test_assert_((cond), &test_result__, __LINE__)
 
-// Pass to fail_if to begin freeing objects (with Nst_dec_ref)
-#define F_O ((void *) 2)
-// Pass to fail_if to begin freeing pointers (with Nst_free)
-#define F_P ((void *) 3)
-// Pass to fail_if to begin freeing custom pointers, the first parameter after
-// this will be the function used
-#define F_C ((void *) 4)
+// Usage: test_with(cond) { if_cond_is_true; }
+#define test_with(cond) if (test_assert_((cond), &test_result__, __LINE__))
 
-#define F_END ((void *) 1)
-
-#define F_ENDIF(ptr) (void *)((usize)(ptr) * (usize)F_END))
-
-#define fail_if(cond)                                                         \
-    fail_if_((cond), &test_result__, __LINE__)
-
-#define crit_fail_if(cond, ...) do {                                          \
-    if (crit_fail_if_(                                                        \
+// Assert that `cond` is true or log a failure and exit the test
+#define test_assert_or_exit(cond, on_failure) do {                            \
+    if (!test_assert_or_exit_(                                                \
             (cond),                                                           \
             &test_result__,                                                   \
-            __LINE__, ## __VA_ARGS__,                                         \
-            F_END))                                                           \
+            __LINE__))                                                        \
     {                                                                         \
+        {on_failure;}                                                         \
+        goto test_exit;                                                       \
+    }} while (0)
+
+// Assert that `cond` is true or log a failure and exit the program
+#define test_assert_or_abort(cond, on_failure) do {                           \
+    if (!test_assert_or_abort_(                                               \
+            (cond),                                                           \
+            &test_result__,                                                   \
+            __LINE__))                                                        \
+    {                                                                         \
+        {on_failure;}                                                         \
         goto test_exit;                                                       \
     }} while (0)
 
@@ -59,28 +51,32 @@ typedef enum _TestResult {
     TEST_SUCCESS,
     TEST_FAILURE,
     TEST_CRITICAL_FAILURE,
+    TEST_CRITICAL_ABORT,
     TEST_NOT_IMPL
 } TestResult;
 
 typedef TestResult (*Test)(void);
 
+// Initialize tests
 void test_init(void);
-void run_test_(Test test, const char *name);
+// Get the number of failed tests
 i32 tests_failed_count(void);
+
+void test_run_(Test test, const char *name);
 
 // Begin capturing the output of stdout and stderr. The return value is false
 // on error.
-bool capture_output_begin(void);
+bool test_capture_begin(void);
 // Finish capturing the output of stdout and stderr, the return value is valid
 // until the next call to `capture_output_begin`
 // out_lenth is set to the length of the buffer, can be NULL. The buffer is
 // NUL-terminated or NULL on error.
-const char *capture_output_end(usize *out_length);
+const char *test_capture_end(usize *out_length);
 
-bool fail_if_(bool cond, TestResult *result, int line);
-bool crit_fail_if_(bool cond, TestResult *result, int line, ...);
+bool test_assert_(bool cond, TestResult *result, int line);
+bool test_assert_or_exit_(bool cond, TestResult *result, int line);
 // Check if strings are different, if str1 is NULL it returns true.
-bool str_neq(u8 *str1, const char *str2);
+bool str_eq(u8 *str1, const char *str2);
 // Object to bool, takes a reference from the object
 bool ref_obj_to_bool(Nst_Obj *obj);
 

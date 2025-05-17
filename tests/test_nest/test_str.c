@@ -32,19 +32,21 @@ TestResult test_str_from_sb(void)
 
 TestResult test_str_copy(void)
 {
-    ENTER_TEST;
-    Nst_Obj *str = Nst_str_new_c("h\xc3\xa8llo\xf0\x9f\x98\x8a");
-    crit_fail_if(str == NULL);
-    Nst_Obj *copy = Nst_str_copy(str);
-    crit_fail_if(str == NULL, str);
+    TEST_ENTER;
 
-    fail_if(Nst_str_len(str) != Nst_str_len(copy));
-    fail_if(Nst_str_char_len(str) != Nst_str_char_len(copy));
-    fail_if(ref_obj_to_bool(Nst_obj_ne(str, copy)));
+    Nst_Obj *str = Nst_str_new_c("h\xc3\xa8llo\xf0\x9f\x98\x8a");
+    test_assert_or_exit(str != NULL, {});
+    Nst_Obj *copy = Nst_str_copy(str);
+    test_assert_or_exit(str != NULL, Nst_dec_ref(str));
+
+    test_assert(Nst_str_len(str) == Nst_str_len(copy));
+    test_assert(Nst_str_char_len(str) == Nst_str_char_len(copy));
+    test_assert(ref_obj_to_bool(Nst_obj_eq(str, copy)));
 
     Nst_dec_ref(str);
     Nst_dec_ref(copy);
-    EXIT_TEST;
+
+    TEST_EXIT;
 }
 
 TestResult test_str_repr(void)

@@ -13,229 +13,229 @@ int main() {
 
     // argv_parser.h
 
-    run_test(test_cl_args_parse);
+    test_run(test_cl_args_parse);
 
 #ifdef Nst_MSVC
-    run_test(test_wargv_to_argv);
+    test_run(test_wargv_to_argv);
 #endif
 
     // dyn_array.h
 
-    run_test(test_da_init);
-    run_test(test_da_init_copy);
-    run_test(test_da_reserve);
-    run_test(test_da_append);
-    run_test(test_da_remove_swap);
-    run_test(test_da_remove_shift);
-    run_test(test_da_get);
-    run_test(test_da_set);
-    run_test(test_da_clear);
-    run_test(test_pa_init);
-    run_test(test_pa_init_copy);
-    run_test(test_pa_reserve);
-    run_test(test_pa_append);
-    run_test(test_pa_remove_swap);
-    run_test(test_pa_remove_shift);
-    run_test(test_pa_get);
-    run_test(test_pa_set);
-    run_test(test_pa_clear);
+    test_run(test_da_init);
+    test_run(test_da_init_copy);
+    test_run(test_da_reserve);
+    test_run(test_da_append);
+    test_run(test_da_remove_swap);
+    test_run(test_da_remove_shift);
+    test_run(test_da_get);
+    test_run(test_da_set);
+    test_run(test_da_clear);
+    test_run(test_pa_init);
+    test_run(test_pa_init_copy);
+    test_run(test_pa_reserve);
+    test_run(test_pa_append);
+    test_run(test_pa_remove_swap);
+    test_run(test_pa_remove_shift);
+    test_run(test_pa_get);
+    test_run(test_pa_set);
+    test_run(test_pa_clear);
 
     // encoding.h
 
-    run_test(test_check_bytes);
-    run_test(test_to_utf32);
-    run_test(test_from_utf32);
-    run_test(test_utf16_to_utf8);
-    run_test(test_encoding_translate);
-    run_test(test_encoding_check);
-    run_test(test_encoding_char_len);
-    run_test(test_encoding_utf8_char_len);
-    run_test(test_char_to_wchar_t);
-    run_test(test_wchar_t_to_char);
-    run_test(test_cp_is_valid);
-    run_test(test_cp_is_non_character);
-    run_test(test_check_bom);
-    run_test(test_encoding_detect);
-    run_test(test_encoding_from_name);
-    run_test(test_encoding_to_single_byte);
+    test_run(test_check_bytes);
+    test_run(test_to_utf32);
+    test_run(test_from_utf32);
+    test_run(test_utf16_to_utf8);
+    test_run(test_encoding_translate);
+    test_run(test_encoding_check);
+    test_run(test_encoding_char_len);
+    test_run(test_encoding_utf8_char_len);
+    test_run(test_char_to_wchar_t);
+    test_run(test_wchar_t_to_char);
+    test_run(test_cp_is_valid);
+    test_run(test_cp_is_non_character);
+    test_run(test_check_bom);
+    test_run(test_encoding_detect);
+    test_run(test_encoding_from_name);
+    test_run(test_encoding_to_single_byte);
 
     // error.h
 
-    run_test(test_span_new);
-    run_test(test_span_from_pos);
-    run_test(test_span_join);
-    run_test(test_span_extend);
-    run_test(test_span_start);
-    run_test(test_span_end);
-    run_test(test_error_set);
-    run_test(test_error_setc);
-    run_test(test_error_setf);
-    run_test(test_error_failed_alloc);
-    run_test(test_error_add_span);
-    run_test(test_error_occurred);
-    run_test(test_error_get);
-    run_test(test_error_clear);
+    test_run(test_span_new);
+    test_run(test_span_from_pos);
+    test_run(test_span_join);
+    test_run(test_span_extend);
+    test_run(test_span_start);
+    test_run(test_span_end);
+    test_run(test_error_set);
+    test_run(test_error_setc);
+    test_run(test_error_setf);
+    test_run(test_error_failed_alloc);
+    test_run(test_error_add_span);
+    test_run(test_error_occurred);
+    test_run(test_error_get);
+    test_run(test_error_clear);
 
     // file.h
 
-    run_test(test_FILE_read);
-    run_test(test_FILE_write);
-    run_test(test_FILE_flush);
-    run_test(test_FILE_tell);
-    run_test(test_FILE_seek);
-    run_test(test_FILE_close);
-    run_test(test_io_result_details);
-    run_test(test_fopen_unicode);
+    test_run(test_FILE_read);
+    test_run(test_FILE_write);
+    test_run(test_FILE_flush);
+    test_run(test_FILE_tell);
+    test_run(test_FILE_seek);
+    test_run(test_FILE_close);
+    test_run(test_io_result_details);
+    test_run(test_fopen_unicode);
 
     // format.h
 
-    run_test(test_sprintf);
-    run_test(test_fmt);
-    run_test(test_fmt_objs);
-    run_test(test_repr);
+    test_run(test_sprintf);
+    test_run(test_fmt);
+    test_run(test_fmt_objs);
+    test_run(test_repr);
 
     // function.h
 
-    run_test(test_func_set_vt);
+    test_run(test_func_set_vt);
 
     // hash.h
 
-    run_test(test_obj_hash);
+    test_run(test_obj_hash);
 
     // iter.h
 
-    run_test(test_iter_start_func);
-    run_test(test_iter_next_func);
-    run_test(test_iter_value);
-    run_test(test_iter_start);
-    run_test(test_iter_get_val);
-    run_test(test_iter_range_new);
-    run_test(test_iter_seq_new);
-    run_test(test_iter_str_new);
-    run_test(test_iter_map_new);
+    test_run(test_iter_start_func);
+    test_run(test_iter_next_func);
+    test_run(test_iter_value);
+    test_run(test_iter_start);
+    test_run(test_iter_get_val);
+    test_run(test_iter_range_new);
+    test_run(test_iter_seq_new);
+    test_run(test_iter_str_new);
+    test_run(test_iter_map_new);
 
     // lib_import.h
 
-    run_test(test_extract_args);
-    run_test(test_obj_custom);
-    run_test(test_obj_custom_ex);
-    run_test(test_obj_custom_data);
+    test_run(test_extract_args);
+    test_run(test_obj_custom);
+    test_run(test_obj_custom_ex);
+    test_run(test_obj_custom_data);
 
     // llist.h
 
-    run_test(test_llist_push);
-    run_test(test_llist_append);
-    run_test(test_llist_insert);
-    run_test(test_llist_pop);
-    run_test(test_llist_peek_front);
-    run_test(test_llist_peek_back);
-    run_test(test_llist_push_llnode);
-    run_test(test_llist_append_llnode);
-    run_test(test_llist_pop_llnode);
-    run_test(test_llist_empty);
-    run_test(test_llist_move_nodes);
+    test_run(test_llist_push);
+    test_run(test_llist_append);
+    test_run(test_llist_insert);
+    test_run(test_llist_pop);
+    test_run(test_llist_peek_front);
+    test_run(test_llist_peek_back);
+    test_run(test_llist_push_llnode);
+    test_run(test_llist_append_llnode);
+    test_run(test_llist_pop_llnode);
+    test_run(test_llist_empty);
+    test_run(test_llist_move_nodes);
 
     // map.h
 
-    run_test(test_map_new);
-    run_test(test_map_copy);
-    run_test(test_map_len);
-    run_test(test_map_cap);
-    run_test(test_map_set);
-    run_test(test_map_get);
-    run_test(test_map_drop);
-    run_test(test_map_set_str);
-    run_test(test_map_get_str);
-    run_test(test_map_drop_str);
-    run_test(test_map_next);
-    run_test(test_map_prev);
+    test_run(test_map_new);
+    test_run(test_map_copy);
+    test_run(test_map_len);
+    test_run(test_map_cap);
+    test_run(test_map_set);
+    test_run(test_map_get);
+    test_run(test_map_drop);
+    test_run(test_map_set_str);
+    test_run(test_map_get_str);
+    test_run(test_map_drop_str);
+    test_run(test_map_next);
+    test_run(test_map_prev);
 
     // mem.h
 
-    run_test(test_malloc);
-    run_test(test_calloc);
-    run_test(test_realloc);
-    run_test(test_crealloc);
-    run_test(test_memset);
+    test_run(test_malloc);
+    test_run(test_calloc);
+    test_run(test_realloc);
+    test_run(test_crealloc);
+    test_run(test_memset);
 
     // sequence.h
 
-    run_test(test_seq_new);
-    run_test(test_seq_from_objs);
-    run_test(test_seq_create);
-    run_test(test_seq_create_c);
-    run_test(test_seq_len);
-    run_test(test_vector_cap);
-    run_test(test_seq_objs);
-    run_test(test_seq_set);
-    run_test(test_seq_get);
-    run_test(test_seq_copy);
-    run_test(test_vector_append);
-    run_test(test_vector_remove);
-    run_test(test_vector_pop);
+    test_run(test_seq_new);
+    test_run(test_seq_from_objs);
+    test_run(test_seq_create);
+    test_run(test_seq_create_c);
+    test_run(test_seq_len);
+    test_run(test_vector_cap);
+    test_run(test_seq_objs);
+    test_run(test_seq_set);
+    test_run(test_seq_get);
+    test_run(test_seq_copy);
+    test_run(test_vector_append);
+    test_run(test_vector_remove);
+    test_run(test_vector_pop);
 
     // simple_types.h
 
-    run_test(test_number_to_u8);
-    run_test(test_number_to_int);
-    run_test(test_number_to_i32);
-    run_test(test_number_to_i64);
-    run_test(test_number_to_f32);
-    run_test(test_number_to_f64);
-    run_test(test_obj_to_bool);
+    test_run(test_number_to_u8);
+    test_run(test_number_to_int);
+    test_run(test_number_to_i32);
+    test_run(test_number_to_i64);
+    test_run(test_number_to_f32);
+    test_run(test_number_to_f64);
+    test_run(test_obj_to_bool);
 
     // source_loader.h
 
-    run_test(test_source_from_sv);
+    test_run(test_source_from_sv);
 
     // str.h
 
-    run_test(test_str_new_c);
-    run_test(test_str_new);
-    run_test(test_str_new_allocated);
-    run_test(test_str_new_len);
-    run_test(test_str_from_sv);
-    run_test(test_str_from_sb);
-    run_test(test_str_copy);
-    run_test(test_str_repr);
-    run_test(test_str_get_obj);
-    run_test(test_str_get);
-    run_test(test_str_next);
-    run_test(test_str_next_obj);
-    run_test(test_str_next_utf32);
-    run_test(test_str_next_utf8);
-    run_test(test_str_parse_int);
-    run_test(test_str_parse_byte);
-    run_test(test_str_parse_real);
-    run_test(test_str_compare);
+    test_run(test_str_new_c);
+    test_run(test_str_new);
+    test_run(test_str_new_allocated);
+    test_run(test_str_new_len);
+    test_run(test_str_from_sv);
+    test_run(test_str_from_sb);
+    test_run(test_str_copy);
+    test_run(test_str_repr);
+    test_run(test_str_get_obj);
+    test_run(test_str_get);
+    test_run(test_str_next);
+    test_run(test_str_next_obj);
+    test_run(test_str_next_utf32);
+    test_run(test_str_next_utf8);
+    test_run(test_str_parse_int);
+    test_run(test_str_parse_byte);
+    test_run(test_str_parse_real);
+    test_run(test_str_compare);
 
     // str_builder.h
 
-    run_test(test_sb_init);
-    run_test(test_sb_reserve);
-    run_test(test_sb_push);
-    run_test(test_sb_push_sv);
-    run_test(test_sb_push_str);
-    run_test(test_sb_push_c);
-    run_test(test_sb_push_cps);
-    run_test(test_sb_push_char);
+    test_run(test_sb_init);
+    test_run(test_sb_reserve);
+    test_run(test_sb_push);
+    test_run(test_sb_push_sv);
+    test_run(test_sb_push_str);
+    test_run(test_sb_push_c);
+    test_run(test_sb_push_cps);
+    test_run(test_sb_push_char);
 
     // str_view.h
 
-    run_test(test_sv_new);
-    run_test(test_sv_new_c);
-    run_test(test_sv_from_str);
-    run_test(test_sv_from_sb);
-    run_test(test_sv_next);
-    run_test(test_sv_prev);
-    run_test(test_sv_parse_int);
-    run_test(test_sv_parse_byte);
-    run_test(test_sv_parse_real);
-    run_test(test_sv_compare);
-    run_test(test_sv_lfind);
-    run_test(test_sv_rfind);
-    run_test(test_sv_ltok);
-    run_test(test_sv_rtok);
+    test_run(test_sv_new);
+    test_run(test_sv_new_c);
+    test_run(test_sv_from_str);
+    test_run(test_sv_from_sb);
+    test_run(test_sv_next);
+    test_run(test_sv_prev);
+    test_run(test_sv_parse_int);
+    test_run(test_sv_parse_byte);
+    test_run(test_sv_parse_real);
+    test_run(test_sv_compare);
+    test_run(test_sv_lfind);
+    test_run(test_sv_rfind);
+    test_run(test_sv_ltok);
+    test_run(test_sv_rtok);
 
     Nst_printf("\nTests failed: %" PRIi32 "\n", tests_failed_count());
 

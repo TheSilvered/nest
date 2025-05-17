@@ -35,7 +35,7 @@ void test_init(void)
     tests_failed = 0;
 }
 
-void run_test_(Test test, const char *test_name)
+void test_run_(Test test, const char *test_name)
 {
     Nst_printf("Running %s:", test_name);
 
@@ -67,10 +67,18 @@ void run_test_(Test test, const char *test_name)
         break;
     case TEST_CRITICAL_FAILURE:
         Nst_printf(
-            "\n  %sfailed on %" PRIi32 " checks.%s\nExiting.\n",
+            "\n  %sfailed on %" PRIi32 " checks, "
+            "not all checks were completed.%s\n",
+            YELLOW, cases_failed, RESET);
+        tests_failed += 1;
+        break;
+    case TEST_CRITICAL_ABORT:
+        Nst_printf(
+            "\n  %sfailed on %" PRIi32 " checks, "
+            "test program aborted.%s\n",
             YELLOW, cases_failed, RESET);
         Nst_quit();
-        exit(1);
+        abort();
     }
 }
 
@@ -83,82 +91,48 @@ static void fail(TestResult *result, int line)
 {
     Nst_printf("\n%s  failure on line %i", RED, line);
     if (Nst_error_occurred()) {
-        Nst_printf(" with  error%s\n    ", RESET);
-        Nst_error_print();
-        Nst_error_clear();
-    } else {
-        Nst_printf("%s", RESET);
-    }
-    *result = TEST_FAILURE;
-    cases_failed++;
-}
-
-static void crit_fail(TestResult *result, int line)
-{
-    Nst_printf("\n%s  critical failure on line %i%s", RED, line, RESET);
-    if (Nst_error_occurred()) {
         Nst_printf(" with error%s\n    ", RESET);
         Nst_error_print();
         Nst_error_clear();
     } else {
         Nst_printf("%s", RESET);
     }
-    *result = TEST_CRITICAL_FAILURE;
     cases_failed++;
 }
 
-static void free_args_va(va_list args)
+bool test_assert_(bool cond, TestResult *result, int line)
 {
-    bool free_ptrs = false;
-    void (*custom_func)(void *) = NULL;
-    for (void *ptr = va_arg(args, void *);
-         ptr != F_END;
-         ptr = va_arg(args, void *))
-    {
-        if (ptr == F_O) {
-            free_ptrs = false;
-            custom_func = NULL;
-        } else if (ptr == F_P) {
-            free_ptrs = true;
-            custom_func = NULL;
-        } else if (ptr == F_C) {
-            free_ptrs = true;
-            custom_func = (void (*)(void *))va_arg(args, void *);
-        } else if (!free_ptrs)
-            Nst_ndec_ref(ptr);
-        else if (custom_func && ptr)
-            custom_func(ptr);
-        else if (ptr)
-            Nst_free(ptr);
-    }
-}
-
-bool fail_if_(bool cond, TestResult *result, int line)
-{
-    if (cond)
+    if (!cond) {
         fail(result, line);
-    else
+        *result = TEST_FAILURE;
+    } else
         Nst_error_clear();
     return cond;
 }
 
-bool crit_fail_if_(bool cond, TestResult *result, int line, ...)
+bool test_assert_or_exit_(bool cond, TestResult *result, int line)
 {
-    va_list args;
-    va_start(args, line);
-
-    if (cond) {
-        free_args_va(args);
-        crit_fail(result, line);
+    if (!cond) {
+        fail(result, line);
+        *result = TEST_CRITICAL_FAILURE;
     }
     return cond;
 }
 
-bool str_neq(u8 *str1, const char *str2)
+bool test_assert_or_abort_(bool cond, TestResult *result, int line)
+{
+    if (!cond) {
+        fail(result, line);
+        *result = TEST_CRITICAL_ABORT;
+    }
+    return cond;
+}
+
+bool str_eq(u8 *str1, const char *str2)
 {
     if (str1 == NULL)
-        return true;
-    return strcmp((const char *)(str1), str2) != 0;
+        return false;
+    return strcmp((const char *)(str1), str2) == 0;
 }
 
 bool ref_obj_to_bool(Nst_Obj *obj)
@@ -183,13 +157,13 @@ static void reset_capture_file(void)
     capturing = false;
 }
 
-bool capture_output_begin(void)
+bool test_capture_begin(void)
 {
     if (capturing) {
         reset_capture_file();
         Nst_fprintf(
             Nst_stdio()->err,
-            "capture_output_begin failed, already capturing\n");
+            "test_capture_begin failed, already capturing\n");
         return false;
     }
 
@@ -197,7 +171,7 @@ bool capture_output_begin(void)
     if (raw_capture_file == NULL) {
         Nst_fprintf(
             Nst_stdio()->err,
-            "capture_output_begin failed to create temp file\n");
+            "test_capture_begin failed to create temp file\n");
         return false;
     }
     capture_file = Nst_iof_new(raw_capture_file, true, true, true, NULL);
@@ -205,7 +179,7 @@ bool capture_output_begin(void)
         fclose(raw_capture_file);
         Nst_fprintf(
             Nst_stdio()->err,
-            "capture_output_begin failed to create temp file\n");
+            "test_capture_begin failed to create temp file\n");
         return false;
     }
 
@@ -223,12 +197,12 @@ bool capture_output_begin(void)
     return true;
 }
 
-const char *capture_output_end(usize *out_length)
+const char *test_capture_end(usize *out_length)
 {
     if (!capturing) {
         Nst_fprintf(
             Nst_stdio()->err,
-            "capture_output_end failed, capturing not started\n");
+            "test_capture_end failed, capturing not started\n");
         if (out_length != NULL)
             *out_length = 0;
         return NULL;
@@ -238,7 +212,7 @@ const char *capture_output_end(usize *out_length)
         reset_capture_file();
         Nst_fprintf(
             Nst_stdio()->err,
-            "capture_output_end failed to seek file\n");
+            "test_capture_end failed to seek file\n");
         if (out_length != NULL)
             *out_length = 0;
         return NULL;
@@ -253,7 +227,7 @@ const char *capture_output_end(usize *out_length)
         reset_capture_file();
         Nst_fprintf(
             Nst_stdio()->err,
-            "capture_output_end failed to read file\n");
+            "test_capture_end failed to read file\n");
         if (out_length != NULL)
             *out_length = 0;
         return NULL;
