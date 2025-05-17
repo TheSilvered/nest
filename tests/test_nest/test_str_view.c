@@ -45,16 +45,26 @@ TestResult test_sv_from_str(void)
         Nst_StrView sv = Nst_sv_from_str(str);
         fail_if(sv.len != 8);
         fail_if(str_neq(sv.value, "Hello!\xc3\xa8"));
+        Nst_dec_ref(str);
     }
-
-    Nst_ndec_ref(str);
 
     EXIT_TEST;
 }
 
 TestResult test_sv_from_sb(void)
 {
-    return TEST_NOT_IMPL;
+    ENTER_TEST;
+
+    Nst_StrBuilder sb = { 0 };
+    if (!fail_if(!Nst_sb_init(&sb, 10))) {
+        Nst_sb_push_c(&sb, "Hello!");
+        Nst_StrView sv = Nst_sv_from_sb(&sb);
+        fail_if(sv.len != 6);
+        fail_if(sv.value != sb.value);
+        Nst_sb_destroy(&sb);
+    }
+
+    EXIT_TEST;
 }
 
 TestResult test_sv_next(void)
