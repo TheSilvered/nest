@@ -41,7 +41,7 @@ The current state of tests:
   - 🟡 `stdsutil.nest`
   - 🟡 `stdsys.nest`
   - 🟢 `stdtime.nest`
-- 🔴 C tests (34/167)
+- 🔴 C tests (37/167)
   - 🟢 `test_cl_args_parse`
   - 🟢 `test_wargv_to_argv`
   - 🟢 `test_da_init`
