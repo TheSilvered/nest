@@ -69,12 +69,50 @@ TestResult test_sv_from_sb(void)
 
 TestResult test_sv_next(void)
 {
-    return TEST_NOT_IMPL;
+    TEST_ENTER;
+
+    Nst_StrView sv = Nst_sv_new_c("aè😊あ");
+    u32 ch;
+    isize i = Nst_sv_next(sv, -1, &ch);
+    test_assert(ch == 'a');
+    test_assert(i >= 0);
+    i = Nst_sv_next(sv, i, &ch);
+    test_assert(ch == 0xe8);
+    test_assert(i >= 0);
+    i = Nst_sv_next(sv, i, &ch);
+    test_assert(ch == 0x1F60A);
+    test_assert(i >= 0);
+    i = Nst_sv_next(sv, i, &ch);
+    test_assert(ch == 0x3042);
+    test_assert(i >= 0);
+    i = Nst_sv_next(sv, i, &ch);
+    test_assert(i < 0);
+
+    TEST_EXIT;
 }
 
 TestResult test_sv_prev(void)
 {
-    return TEST_NOT_IMPL;
+    TEST_ENTER;
+
+    Nst_StrView sv = Nst_sv_new_c("aè😊あ");
+    u32 ch;
+    isize i = Nst_sv_prev(sv, -1, &ch);
+    test_assert(ch == 0x3042);
+    test_assert(i >= 0);
+    i = Nst_sv_prev(sv, i, &ch);
+    test_assert(ch == 0x1F60A);
+    test_assert(i >= 0);
+    i = Nst_sv_prev(sv, i, &ch);
+    test_assert(ch == 0xe8);
+    test_assert(i >= 0);
+    i = Nst_sv_prev(sv, i, &ch);
+    test_assert(ch == 'a');
+    test_assert(i >= 0);
+    i = Nst_sv_prev(sv, i, &ch);
+    test_assert(i < 0);
+
+    TEST_EXIT;
 }
 
 TestResult test_sv_parse_int(void)
