@@ -86,11 +86,10 @@ NstEXP isize NstC Nst_sv_prev(Nst_StrView sv, isize idx, u32 *out_ch);
  * `Nst_sv_parse_real`.
  */
 NstEXP typedef enum _Nst_SvNumFlags {
-    Nst_SVFLAG_CAN_OVERFLOW =  1,
-    Nst_SVFLAG_FULL_MATCH   =  2,
-    Nst_SVFLAG_CHAR_BYTE    =  4,
-    Nst_SVFLAG_DISABLE_SEP  =  8,
-    Nst_SVFLAG_STRICT_REAL  = 16
+    Nst_SVFLAG_CAN_OVERFLOW = 1,
+    Nst_SVFLAG_FULL_MATCH   = 2,
+    Nst_SVFLAG_CHAR_BYTE    = 4,
+    Nst_SVFLAG_STRICT_REAL  = 8
 } Nst_SvNumFlags;
 
 /**
@@ -104,15 +103,14 @@ NstEXP typedef enum _Nst_SvNumFlags {
  *! `Nst_SVFLAG_FULL_MATCH`: requires the whole string to be matched as the
  * number leaving no characters behind, whitespace after the number is
  * trimmed;
- *! `Nst_SVFLAG_DISABLE_SEP`: if set does not allow `_` to be used as a
- * separator.
  *
  * @brief The integer is composed of the following parts:
  *! an optional sign (`+` or `-`)
- *! an optional `0b` or `0B` prefix if `base` is `0` or `2`
- *! an optional `0o` or `0O` prefix if `base` is `0` or `8`
- *! an optional `0x` or `0X` prefix if `base` is `0` or `16`
- *! a run of digits, optionally separated by underscores (`_`)
+ *! an optional `0b` or `0B` prefix if `base` is `0` or `2`;
+ *! an optional `0o` or `0O` prefix if `base` is `0` or `8`;
+ *! an optional `0x` or `0X` prefix if `base` is `0` or `16`;
+ *! a run of digits, optionally separated by `sep`, there must be at least one
+ * digit between two separators.
  *
  * @brief The function parses as many digits as it can. If the base is `0` it
  * is determined with the prefix: (`0b` or `0B` for binary, `0o` or `0O` for
@@ -125,6 +123,7 @@ NstEXP typedef enum _Nst_SvNumFlags {
  * @param sv: the string view to parse
  * @param base: the integer base
  * @param flags: parsing flags
+ * @param sep: an digit separator, if set to 0 no separator is allowed
  * @param out_num: pointer set to the parsed number, can be NULL
  * @param out_rest: pointer set to the remaining part of `sv`, can be NULL; any
  * whitespace after the number is always trimmed
@@ -132,7 +131,7 @@ NstEXP typedef enum _Nst_SvNumFlags {
  * @return `true` on success and `false` on failure. On failure `out_num` is
  * set to `0` if not NULL and `out_rest` is equal to `sv`.
  */
-NstEXP bool NstC Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags,
+NstEXP bool NstC Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, u32 sep,
                                   i64 *out_num, Nst_StrView *out_rest);
 /**
  * Parse an unsigned byte from `sv`. Any leading whitespace is ignored.
@@ -145,15 +144,13 @@ NstEXP bool NstC Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags,
  *! `Nst_SVFLAG_FULL_MATCH`: requires the whole string to be matched as the
  * number leaving no characters behind, whitespace after the number is
  * trimmed;
- *! `Nst_SVFLAG_DISABLE_SEP`: if set does not allow `_` to be used as a
- * separator;
  *! `Nst_SVFLAG_CHAR_BYTE`: allows single ASCII characters to be parsed as
  * bytes.
  *
  * @brief The byte is composed of the following parts:
  *! an optional sign (`+` or `-`), if there is a minus sign and overflow is not
- * allowed only `-0` is a valid byte.
- *! an optional `0b` or `0B` prefix if `base` is `0` or `2`
+ * allowed only `'-0'` is a valid byte.
+ *! an optional `0b` or `0B` prefix if `base` is `0` or `2`;
  *! an optional `0o` or `0O` prefix if `base` is `0` or `8`
  *! an optional `0x`, `0X`, `0h` or `0H` prefix if `base` is `0` or `16`
  *! a run of digits, optionally separated by underscores (`_`)
@@ -179,7 +176,7 @@ NstEXP bool NstC Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags,
  * @return `true` on success and `false` on failure. On failure `out_num` is
  * set to `0` if not NULL and `out_rest` is equal to `sv`.
  */
-NstEXP bool NstC Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags,
+NstEXP bool NstC Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
                                    u8 *out_num, Nst_StrView *out_rest);
 /**
  * Parse a double precision floating point number from `sv`. Any leading
@@ -218,8 +215,8 @@ NstEXP bool NstC Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags,
  * @return `true` on success and `false` on failure. On failure `out_num` is
  * set to `0` if not NULL and `out_rest` is equal to `sv`.
  */
-NstEXP bool NstC Nst_sv_parse_real(Nst_StrView sv, u32 flags, f64 *out_num,
-                                   Nst_StrView *out_rest);
+NstEXP bool NstC Nst_sv_parse_real(Nst_StrView sv, u32 flags, u32 sep,
+                                   f64 *out_num, Nst_StrView *out_rest);
 
 /**
  * Compare two `Nst_StrView`'s.

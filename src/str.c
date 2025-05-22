@@ -318,7 +318,7 @@ Nst_ObjRef *Nst_str_parse_int(Nst_Obj *str, i32 base)
     i64 value;
     bool result = Nst_sv_parse_int(
         Nst_sv_from_str(str), (u8)base,
-        Nst_SVFLAG_FULL_MATCH,
+        Nst_SVFLAG_FULL_MATCH, '_',
         &value,
         NULL);
     if (!result)
@@ -333,7 +333,7 @@ Nst_ObjRef *Nst_str_parse_byte(Nst_Obj *str)
     bool result = Nst_sv_parse_byte(
         Nst_sv_from_str(str), 0,
         Nst_SVFLAG_FULL_MATCH | Nst_SVFLAG_CHAR_BYTE | Nst_SVFLAG_CAN_OVERFLOW,
-        &value,
+        '_', &value,
         NULL);
     if (!result)
         return NULL;
@@ -346,7 +346,7 @@ Nst_ObjRef *Nst_str_parse_real(Nst_Obj *str)
     f64 value;
     bool result = Nst_sv_parse_real(
         Nst_sv_from_str(str),
-        Nst_SVFLAG_STRICT_REAL | Nst_SVFLAG_FULL_MATCH,
+        Nst_SVFLAG_STRICT_REAL | Nst_SVFLAG_FULL_MATCH, '_',
         &value,
         NULL);
     if (!result)

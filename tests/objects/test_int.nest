@@ -6,113 +6,113 @@
 ?::0 Int @test.assert_eq
 ?::1234567890 Int @test.assert_eq
 ?::0001 Int @test.assert_eq
-?::12_3__456_7890 Int @test.assert_eq
+?::12_3_456_7890 Int @test.assert_eq
 ?::+0 Int @test.assert_eq
 ?::+1234567890 Int @test.assert_eq
 ?::+0001 Int @test.assert_eq
-?::+12_3__456_7890 Int @test.assert_eq
+?::+12_3_456_7890 Int @test.assert_eq
 ?::-0 Int @test.assert_eq
 ?::-1234567890 Int @test.assert_eq
 ?::-0001 Int @test.assert_eq
-?::-12_3__456_7890 Int @test.assert_eq
+?::-12_3_456_7890 Int @test.assert_eq
   -- Binary (lowercase b)
 ?::0b0 Int @test.assert_eq
 ?::0b101101 Int @test.assert_eq
 ?::0b0001 Int @test.assert_eq
-?::0b0_0__01 Int @test.assert_eq
+?::0b0_0_01 Int @test.assert_eq
 ?::+0b0 Int @test.assert_eq
 ?::+0b101101 Int @test.assert_eq
 ?::+0b0001 Int @test.assert_eq
-?::+0b0_0__01 Int @test.assert_eq
+?::+0b0_0_01 Int @test.assert_eq
 ?::-0b0 Int @test.assert_eq
 ?::-0b101101 Int @test.assert_eq
 ?::-0b0001 Int @test.assert_eq
-?::-0b0_0__01 Int @test.assert_eq
+?::-0b0_0_01 Int @test.assert_eq
   -- Binary (uppercase b)
 ?::0B0 Int @test.assert_eq
 ?::0B101101 Int @test.assert_eq
 ?::0B0001 Int @test.assert_eq
-?::0B0_0__01 Int @test.assert_eq
+?::0B0_0_01 Int @test.assert_eq
 ?::+0B0 Int @test.assert_eq
 ?::+0B101101 Int @test.assert_eq
 ?::+0B0001 Int @test.assert_eq
-?::+0B0_0__01 Int @test.assert_eq
+?::+0B0_0_01 Int @test.assert_eq
 ?::-0B0 Int @test.assert_eq
 ?::-0B101101 Int @test.assert_eq
 ?::-0B0001 Int @test.assert_eq
-?::-0B0_0__01 Int @test.assert_eq
+?::-0B0_0_01 Int @test.assert_eq
   -- Octal (lowercase o)
 ?::0o0 Int @test.assert_eq
 ?::0o12345670 Int @test.assert_eq
 ?::0o000123 Int @test.assert_eq
-?::0o12__3_45_670 Int @test.assert_eq
+?::0o12_3_45_670 Int @test.assert_eq
 ?::+0o0 Int @test.assert_eq
 ?::+0o12345670 Int @test.assert_eq
 ?::+0o000123 Int @test.assert_eq
-?::+0o12__3_45_670 Int @test.assert_eq
+?::+0o12_3_45_670 Int @test.assert_eq
 ?::-0o0 Int @test.assert_eq
 ?::-0o12345670 Int @test.assert_eq
 ?::-0o000123 Int @test.assert_eq
-?::-0o12__3_45_670 Int @test.assert_eq
+?::-0o12_3_45_670 Int @test.assert_eq
   -- Octal (uppercase o)
 ?::0O0 Int @test.assert_eq
 ?::0O12345670 Int @test.assert_eq
 ?::0O000123 Int @test.assert_eq
-?::0O12__3_45_670 Int @test.assert_eq
+?::0O12_3_45_670 Int @test.assert_eq
 ?::+0O0 Int @test.assert_eq
 ?::+0O12345670 Int @test.assert_eq
 ?::+0O000123 Int @test.assert_eq
-?::+0O12__3_45_670 Int @test.assert_eq
+?::+0O12_3_45_670 Int @test.assert_eq
 ?::-0O0 Int @test.assert_eq
 ?::-0O12345670 Int @test.assert_eq
 ?::-0O000123 Int @test.assert_eq
-?::-0O12__3_45_670 Int @test.assert_eq
+?::-0O12_3_45_670 Int @test.assert_eq
   -- Hexadecimal (lowercase x and digits)
 ?::0x0 Int @test.assert_eq
 ?::0x1234567890abcdef Int @test.assert_eq
 ?::0x00000abc Int @test.assert_eq
-?::0x00_000__a_bc Int @test.assert_eq
+?::0x00_000_a_bc Int @test.assert_eq
 ?::+0x0 Int @test.assert_eq
 ?::+0x1234567890abcdef Int @test.assert_eq
 ?::+0x00000abc Int @test.assert_eq
-?::+0x00_000__a_bc Int @test.assert_eq
+?::+0x00_000_a_bc Int @test.assert_eq
 ?::-0x0 Int @test.assert_eq
 ?::-0x1234567890abcdef Int @test.assert_eq
 ?::-0x00000abc Int @test.assert_eq
-?::-0x00_000__a_bc Int @test.assert_eq
+?::-0x00_000_a_bc Int @test.assert_eq
   -- Hexadecimal (uppercase x and lowercase digits)
 ?::0X0 Int @test.assert_eq
 ?::0X1234567890abcdef Int @test.assert_eq
 ?::0X00000abc Int @test.assert_eq
-?::0X00_000__a_bc Int @test.assert_eq
+?::0X00_000_a_bc Int @test.assert_eq
 ?::+0X0 Int @test.assert_eq
 ?::+0X1234567890abcdef Int @test.assert_eq
 ?::+0X00000abc Int @test.assert_eq
-?::+0X00_000__a_bc Int @test.assert_eq
+?::+0X00_000_a_bc Int @test.assert_eq
 ?::-0X0 Int @test.assert_eq
 ?::-0X1234567890abcdef Int @test.assert_eq
 ?::-0X00000abc Int @test.assert_eq
-?::-0X00_000__a_bc Int @test.assert_eq
+?::-0X00_000_a_bc Int @test.assert_eq
   -- Hexadecimal (lowercase x and uppercase digits)
 ?::0x1234567890ABCDEF Int @test.assert_eq
 ?::0x00000ABC Int @test.assert_eq
-?::0x00_000__A_BC Int @test.assert_eq
+?::0x00_000_A_BC Int @test.assert_eq
 ?::+0x1234567890ABCDEF Int @test.assert_eq
 ?::+0x00000ABC Int @test.assert_eq
-?::+0x00_000__A_BC Int @test.assert_eq
+?::+0x00_000_A_BC Int @test.assert_eq
 ?::-0x1234567890ABCDEF Int @test.assert_eq
 ?::-0x00000ABC Int @test.assert_eq
-?::-0x00_000__A_BC Int @test.assert_eq
+?::-0x00_000_A_BC Int @test.assert_eq
   -- Hexadecimal (uppercase x and digits)
 ?::0X1234567890ABCDEF Int @test.assert_eq
 ?::0X00000ABC Int @test.assert_eq
-?::0X00_000__A_BC Int @test.assert_eq
+?::0X00_000_A_BC Int @test.assert_eq
 ?::+0X1234567890ABCDEF Int @test.assert_eq
 ?::+0X00000ABC Int @test.assert_eq
-?::+0X00_000__A_BC Int @test.assert_eq
+?::+0X00_000_A_BC Int @test.assert_eq
 ?::-0X1234567890ABCDEF Int @test.assert_eq
 ?::-0X00000ABC Int @test.assert_eq
-?::-0X00_000__A_BC Int @test.assert_eq
+?::-0X00_000_A_BC Int @test.assert_eq
 
   -- Test integer limits
 ?::9223372036854775807 Int @test.assert_eq
@@ -138,7 +138,7 @@
 0 0.0 == @test.assert_true
 9223372036854775807 9223372036854775807 == @test.assert_true
 9223372036854775807 -9223372036854775808 == @test.assert_false
-
+-- 
 -- Test '>'
 1 1 > @test.assert_false
 1 1b > @test.assert_false

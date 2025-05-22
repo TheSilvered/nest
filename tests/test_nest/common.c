@@ -87,7 +87,7 @@ i32 tests_failed_count(void)
     return tests_failed;
 }
 
-static void fail(TestResult *result, int line)
+static void fail(int line)
 {
     Nst_printf("\n%s  failure on line %i", RED, line);
     if (Nst_error_occurred()) {
@@ -103,7 +103,7 @@ static void fail(TestResult *result, int line)
 bool test_assert_(bool cond, TestResult *result, int line)
 {
     if (!cond) {
-        fail(result, line);
+        fail(line);
         *result = TEST_FAILURE;
     } else
         Nst_error_clear();
@@ -113,7 +113,7 @@ bool test_assert_(bool cond, TestResult *result, int line)
 bool test_assert_or_exit_(bool cond, TestResult *result, int line)
 {
     if (!cond) {
-        fail(result, line);
+        fail(line);
         *result = TEST_CRITICAL_FAILURE;
     }
     return cond;
@@ -122,7 +122,7 @@ bool test_assert_or_exit_(bool cond, TestResult *result, int line)
 bool test_assert_or_abort_(bool cond, TestResult *result, int line)
 {
     if (!cond) {
-        fail(result, line);
+        fail(line);
         *result = TEST_CRITICAL_ABORT;
     }
     return cond;

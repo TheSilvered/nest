@@ -138,24 +138,24 @@ static isize skip_whitespace(Nst_StrView sv, isize offset, u32 *out_final_ch)
     return offset;
 }
 
-bool Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, i64 *out_num,
-                      Nst_StrView *out_rest)
+bool Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, u32 sep,
+                      i64 *out_num, Nst_StrView *out_rest)
 {
     u32 ch;
     i32 sign = 1;
-    i64 num = 0;
-    i64 cut_off = 0;
-    i64 cut_lim = 0;
 
+    // Validate base
     if ((base < 2 || base > 36) && base != 0) {
         Nst_error_setc_value("the base must be between 2 and 36");
         goto error;
     }
 
+    // Skip initial whitespace
     isize offset = skip_whitespace(sv, -1, &ch);
     if (offset < 0)
         RETURN_INT_ERR;
 
+    // Parse a possible sign
     if (ch == '-' || ch == '+') {
         sign = ch == '-' ? -1 : 1;
         offset = Nst_sv_next(sv, offset, &ch);
@@ -163,11 +163,13 @@ bool Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, i64 *out_num,
     if (offset < 0)
         RETURN_INT_ERR;
 
+    // Always check for a base prefix, ignore it if the bases don't match
+    isize prefix_offset = -1;
     if (ch == '0') {
-        isize prev_offset = offset;
+        prefix_offset = offset;
         offset = Nst_sv_next(sv, offset, &ch);
         if (offset < 0) {
-            offset = prev_offset;
+            offset = prefix_offset;
             ch = '0';
         }
         switch (ch) {
@@ -177,7 +179,7 @@ bool Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, i64 *out_num,
                 base = 2;
                 offset = Nst_sv_next(sv, offset, &ch);
             } else {
-                offset = prev_offset;
+                offset = prefix_offset;
                 ch = '0';
             }
             break;
@@ -187,7 +189,7 @@ bool Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, i64 *out_num,
                 base = 8;
                 offset = Nst_sv_next(sv, offset, &ch);
             } else {
-                offset = prev_offset;
+                offset = prefix_offset;
                 ch = '0';
             }
             break;
@@ -197,28 +199,28 @@ bool Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, i64 *out_num,
                 base = 16;
                 offset = Nst_sv_next(sv, offset, &ch);
             } else {
-                offset = prev_offset;
+                offset = prefix_offset;
                 ch = '0';
             }
             break;
         default:
-            offset = prev_offset;
+            offset = prefix_offset;
             ch = '0';
             break;
         }
-        if (offset < 0) {
-            offset = prev_offset;
-            ch = '0';
-            base = 10;
-        }
     }
+    // If no prefix is found default to base 10
     if (base == 0)
         base = 10;
 
     bool has_digits = false;
-    cut_off = sign == -1 ? -9223372036854775807 - 1 : 9223372036854775807;
-    cut_lim = sign * (cut_off % base);
+    usize digits_since_sep = 0;
+
+    i64 num = 0;
+    i64 cut_off = sign == -1 ? -9223372036854775807 - 1 : 9223372036854775807;
+    i64 cut_lim = sign * (cut_off % base);
     cut_off /= sign * base;
+
     while (offset >= 0) {
         i32 ch_val;
         if (ch >= '0' && ch <= '9')
@@ -227,8 +229,9 @@ bool Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, i64 *out_num,
             ch_val = ch - 'a' + 10;
         else if (ch >= 'A' && ch <= 'Z')
             ch_val = ch - 'A' + 10;
-        else if (ch == '_' && !(flags & Nst_SVFLAG_DISABLE_SEP)) {
+        else if (sep != 0 && ch == sep && digits_since_sep != 0) {
             offset = Nst_sv_next(sv, offset, &ch);
+            digits_since_sep = 0;
             continue;
         } else
             break;
@@ -242,14 +245,26 @@ bool Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, i64 *out_num,
                 goto error;
             }
         }
+        digits_since_sep++;
         has_digits = true;
         num *= base;
         num += ch_val;
         offset = Nst_sv_next(sv, offset, &ch);
     }
-    if (!has_digits)
-        RETURN_INT_ERR;
+    if (!has_digits) {
+        // If there was a prefix but no digits take the zero from the prefix
+        // But if the prefix defined the base the literal is not valid:
+        // '0x' (base 16) = 0, '0x' (base 0) = Error
+        if (prefix_offset == -1)
+            RETURN_INT_ERR;
+        // Go back to the 0 of the prefix to check for FULL_MATCH
+        offset = Nst_sv_next(sv, prefix_offset, NULL);
+    } else if (digits_since_sep == 0 && sep != 0)
+        // If the number ends with a separator keep it in `rest`
+        offset = Nst_sv_prev(sv, offset, &ch);
 
+    // Skip any additional whitespace (prevents trailig whitespace from making
+    // a FULL_MATCH invalid)
     if (offset >= 0)
         offset = skip_whitespace(sv, offset, NULL);
 
@@ -273,8 +288,8 @@ error:
     return false;
 }
 
-bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u8 *out_num,
-                       Nst_StrView *out_rest)
+bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
+                       u8 *out_num, Nst_StrView *out_rest)
 {
     if (flags & Nst_SVFLAG_CHAR_BYTE
         && Nst_check_ext_utf8_bytes(sv.value, sv.len) == (isize)sv.len)
@@ -384,7 +399,7 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u8 *out_num,
             ch_val = ch - 'a' + 10;
         else if (ch >= 'A' && ch <= 'Z')
             ch_val = ch - 'A' + 10;
-        else if (ch == '_' && !(flags & Nst_SVFLAG_DISABLE_SEP)) {
+        else if (ch == sep && sep != 0) {
             offset = Nst_sv_next(sv, offset, &ch);
             continue;
         } else
@@ -445,13 +460,13 @@ error:
     return false;
 }
 
-bool Nst_sv_parse_real(Nst_StrView sv, u32 flags, f64 *out_num,
+bool Nst_sv_parse_real(Nst_StrView sv, u32 flags, u32 sep, f64 *out_num,
                        Nst_StrView *out_rest)
 {
     u32 ch;
     u8 *buf;
     f64 res;
-    bool contains_underscores = false;
+    bool contains_sep = false;
 
     isize offset_without_exp = -1;
     isize offset = skip_whitespace(sv, 0, &ch);
@@ -469,8 +484,8 @@ bool Nst_sv_parse_real(Nst_StrView sv, u32 flags, f64 *out_num,
     while (offset >= 0) {
         if (ch >= '0' && ch <= '9')
             has_digit = true;
-        else if (ch == '_' && !(flags & Nst_SVFLAG_DISABLE_SEP))
-            contains_underscores = true;
+        else if (ch == sep && sep != 0)
+            contains_sep = true;
         else
             break;
         offset = Nst_sv_next(sv, offset, &ch);
@@ -496,8 +511,8 @@ bool Nst_sv_parse_real(Nst_StrView sv, u32 flags, f64 *out_num,
     while (offset >= 0) {
         if (ch >= '0' && ch <= '9')
             has_digit = true;
-        else if (ch == '_' && !(flags & Nst_SVFLAG_DISABLE_SEP))
-            contains_underscores = true;
+        else if (ch == sep && sep != 0)
+            contains_sep = true;
         else
             break;
         offset = Nst_sv_next(sv, offset, &ch);
@@ -525,8 +540,8 @@ exp:
         while (true) {
             if (ch >= '0' && ch <= '9')
                 has_digit = true;
-            else if (ch == '_' && !(flags & Nst_SVFLAG_DISABLE_SEP))
-                contains_underscores = true;
+            else if (ch == sep && sep != 0)
+                contains_sep = true;
             else
                 break;
             offset = Nst_sv_next(sv, offset, &ch);
@@ -544,7 +559,7 @@ exp:
     if (flags & Nst_SVFLAG_FULL_MATCH && offset >= 0)
         RETURN_REAL_ERR;
 
-    if (contains_underscores) {
+    if (contains_sep) {
         if (offset < 0)
             offset = sv.len;
         buf = Nst_malloc_c(offset, u8);
@@ -552,7 +567,7 @@ exp:
             return false;
         u8 *p = buf;
         for (usize i = 0; i < (usize)offset; i++) {
-            if (sv.value[i] != '_')
+            if (sep == 0 || sv.value[i] != sep)
                 *p++ = sv.value[i];
         }
         *p = '\0';
@@ -560,7 +575,7 @@ exp:
         buf = sv.value;
 
     res = Nst_strtod((char *)buf, NULL);
-    if (contains_underscores)
+    if (contains_sep)
         Nst_free(buf);
 
     if (out_num != NULL)

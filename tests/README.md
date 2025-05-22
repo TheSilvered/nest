@@ -200,7 +200,7 @@ The current state of tests:
   - 🟢 `test_sv_from_sb`
   - 🔴 `test_sv_next`
   - 🔴 `test_sv_prev`
-  - 🟡 `test_sv_parse_int`
+  - 🟢 `test_sv_parse_int`
   - 🔴 `test_sv_parse_byte`
   - 🔴 `test_sv_parse_real`
   - 🔴 `test_sv_compare`

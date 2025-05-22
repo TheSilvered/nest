@@ -469,7 +469,7 @@ end:
         f64 value;
         parse_res = Nst_sv_parse_real(
             Nst_sv_new(ltrl, ltrl_size + 1),
-            Nst_SVFLAG_STRICT_REAL | Nst_SVFLAG_FULL_MATCH,
+            Nst_SVFLAG_STRICT_REAL | Nst_SVFLAG_FULL_MATCH, '_',
             &value, NULL);
         if (parse_res)
             res = Nst_real_new(value);
@@ -479,7 +479,7 @@ end:
             Nst_sv_new(ltrl, ltrl_size + 1), 0,
             Nst_SVFLAG_CHAR_BYTE
             | Nst_SVFLAG_FULL_MATCH
-            | Nst_SVFLAG_CAN_OVERFLOW,
+            | Nst_SVFLAG_CAN_OVERFLOW, '_',
             &value, NULL);
         if (parse_res)
             res = Nst_byte_new(value);
@@ -487,7 +487,7 @@ end:
         i64 value;
         parse_res = Nst_sv_parse_int(
             Nst_sv_new(ltrl, ltrl_size + 1),
-            0, Nst_SVFLAG_FULL_MATCH,
+            0, Nst_SVFLAG_FULL_MATCH, '_',
             &value, NULL);
         if (parse_res)
             res = Nst_int_new(value);

@@ -22,6 +22,7 @@
 - now `su.repr` escapes non-printable characters
 - now `su.fmt` escapes non printable characters when using `r` or `R`
 - renamed `iter_get_val` to `iter_next` in `stditutil.nest`
+- now numbers separators cannot be consecutive (`1__0` is no longer a valid integer)
 
 **Bug fixes**
 
