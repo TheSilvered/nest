@@ -263,9 +263,8 @@ bool Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, u32 sep,
         // If the number ends with a separator keep it in `rest`
         offset = Nst_sv_prev(sv, offset, &ch);
 
-    // Skip any additional whitespace (prevents trailig whitespace from making
-    // a FULL_MATCH invalid)
-    if (offset >= 0)
+    // Skip any additional whitespace to allow trailig whitespace in FULL_MATCH
+    if (flags & Nst_SVFLAG_FULL_MATCH && offset >= 0)
         offset = skip_whitespace(sv, offset, NULL);
 
     if (flags & Nst_SVFLAG_FULL_MATCH && offset >= 0)

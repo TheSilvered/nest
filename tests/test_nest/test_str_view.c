@@ -140,7 +140,8 @@ TestResult test_sv_parse_int(void)
     }
     test_with(Nst_sv_parse_int(SV("  0\t"), 0, 0, 0, &num, &rest)) {
         test_assert(num == 0);
-        test_assert(rest.len == 0);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "\t"));
     }
     test_with(Nst_sv_parse_int(SV("+0"), 0, 0, 0, &num, &rest)) {
         test_assert(num == 0);
@@ -152,7 +153,8 @@ TestResult test_sv_parse_int(void)
     }
     test_with(Nst_sv_parse_int(SV("  -0 \t"), 0, 0, 0, &num, &rest)) {
         test_assert(num == 0);
-        test_assert(rest.len == 0);
+        test_assert(rest.len == 2);
+        test_assert(str_eq(rest.value, " \t"));
     }
     test_with(Nst_sv_parse_int(SV("0smth"), 0, 0, 0, &num, &rest)) {
         test_assert(num == 0);
@@ -161,8 +163,8 @@ TestResult test_sv_parse_int(void)
     }
     test_with(Nst_sv_parse_int(SV("\v +0  smth"), 0, 0, 0, &num, &rest)) {
         test_assert(num == 0);
-        test_assert(rest.len == 4);
-        test_assert(str_eq(rest.value, "smth"));
+        test_assert(rest.len == 6);
+        test_assert(str_eq(rest.value, "  smth"));
     }
 
     // Possible prefixes
@@ -267,8 +269,8 @@ TestResult test_sv_parse_int(void)
     // Remaining part (no full match required)
     test_with(Nst_sv_parse_int(SV("14 other"), 0, 0, 0, &num, &rest)) {
         test_assert(num == 14);
-        test_assert(rest.len == 5);
-        test_assert(str_eq(rest.value, "other"));
+        test_assert(rest.len == 6);
+        test_assert(str_eq(rest.value, " other"));
     }
 
     // Invalid bases
