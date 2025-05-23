@@ -473,9 +473,9 @@ TestResult test_sv_parse_int(void)
     test_assert(Nst_sv_parse_int(SV("35"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
     test_assert(Nst_sv_parse_int(SV(" 001  "), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
     test_assert(Nst_sv_parse_int(SV("  0035 "), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_assert(!Nst_sv_parse_int(SV("14 other"), 0, Nst_SVFLAG_FULL_MATCH, 0, &num, &rest));
-    test_assert(!Nst_sv_parse_int(SV("0b"), 2, Nst_SVFLAG_FULL_MATCH, 0, &num, &rest));
-    test_assert(Nst_sv_parse_int(SV("0b111"), 2, Nst_SVFLAG_FULL_MATCH, 0, &num, &rest));
+    test_assert(!Nst_sv_parse_int(SV("14 other"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_int(SV("0b"), 2, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_int(SV("0b111"), 2, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
 
     TEST_EXIT;
 }
@@ -535,23 +535,21 @@ TestResult test_sv_parse_byte(void)
     // Possible prefixes
     test_with(Nst_sv_parse_byte(SV("0b"), 0, 0, 0, &num, &rest)) {
         test_assert(num == 0);
-        test_assert(rest.len == 1);
-        test_assert(str_eq(rest.value, "b"));
+        test_assert(rest.len == 0);
     }
     test_with(Nst_sv_parse_byte(SV(" \t+0b  "), 0, 0, 0, &num, &rest)) {
         test_assert(num == 0);
-        test_assert(rest.len == 3);
-        test_assert(str_eq(rest.value, "b  "));
+        test_assert(rest.len == 2);
+        test_assert(str_eq(rest.value, "  "));
     }
     test_with(Nst_sv_parse_byte(SV("0B"), 0, 0, 0, &num, &rest)) {
         test_assert(num == 0);
-        test_assert(rest.len == 1);
-        test_assert(str_eq(rest.value, "B"));
+        test_assert(rest.len == 0);
     }
     test_with(Nst_sv_parse_byte(SV(" \t -0B\v"), 0, 0, 0, &num, &rest)) {
         test_assert(num == 0);
-        test_assert(rest.len == 2);
-        test_assert(str_eq(rest.value, "B\v"));
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "\v"));
     }
     test_with(Nst_sv_parse_byte(SV("0o  "), 0, 0, 0, &num, &rest)) {
         test_assert(num == 0);
@@ -639,13 +637,11 @@ TestResult test_sv_parse_byte(void)
     }
     test_with(Nst_sv_parse_byte(SV("0b"), 2, 0, 0, &num, &rest)) {
         test_assert(num == 0);
-        test_assert(rest.len == 1);
-        test_assert(str_eq(rest.value, "b"));
+        test_assert(rest.len == 0);
     }
     test_with(Nst_sv_parse_byte(SV("0B"), 2, 0, 0, &num, &rest)) {
         test_assert(num == 0);
-        test_assert(rest.len == 1);
-        test_assert(str_eq(rest.value, "B"));
+        test_assert(rest.len == 0);
     }
     test_with(Nst_sv_parse_byte(SV("0b111"), 2, 0, 0, &num, &rest)) {
         test_assert(num == 7);
@@ -810,10 +806,6 @@ TestResult test_sv_parse_byte(void)
     test_assert(Nst_sv_parse_byte(SV("  -0 \t"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
     test_assert(!Nst_sv_parse_byte(SV("0smth"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
     test_assert(!Nst_sv_parse_byte(SV("\v +0  smth"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_assert(!Nst_sv_parse_byte(SV("0b"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_assert(!Nst_sv_parse_byte(SV(" \t+0b  "), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_assert(!Nst_sv_parse_byte(SV("0B"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_assert(!Nst_sv_parse_byte(SV(" \t -0B\v"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
     test_assert(!Nst_sv_parse_byte(SV("0o"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
     test_assert(!Nst_sv_parse_byte(SV("0O"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
     test_assert(!Nst_sv_parse_byte(SV("0x"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
@@ -823,9 +815,23 @@ TestResult test_sv_parse_byte(void)
     test_assert(Nst_sv_parse_byte(SV("35"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
     test_assert(Nst_sv_parse_byte(SV(" 001  "), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
     test_assert(Nst_sv_parse_byte(SV("  0035 "), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_assert(!Nst_sv_parse_byte(SV("14 other"), 0, Nst_SVFLAG_FULL_MATCH, 0, &num, &rest));
-    test_assert(!Nst_sv_parse_byte(SV("0b"), 2, Nst_SVFLAG_FULL_MATCH, 0, &num, &rest));
-    test_assert(Nst_sv_parse_byte(SV("0b111"), 2, Nst_SVFLAG_FULL_MATCH, 0, &num, &rest));
+    test_assert(!Nst_sv_parse_byte(SV("14 other"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("0b111"), 2, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+
+    // Required suffix
+    test_assert(Nst_sv_parse_byte(SV("0"), 0, Nst_SVFLAG_CHAR_BYTE, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("j"), 0, Nst_SVFLAG_CHAR_BYTE, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("0b"), 0, Nst_SVFLAG_CHAR_BYTE, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("10"), 0, Nst_SVFLAG_CHAR_BYTE, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("10b"), 0, Nst_SVFLAG_CHAR_BYTE, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("0ob"), 0, Nst_SVFLAG_CHAR_BYTE, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("0o7b"), 0, Nst_SVFLAG_CHAR_BYTE, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("0o7b"), 0, Nst_SVFLAG_CHAR_BYTE, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("0h"), 0, Nst_SVFLAG_CHAR_BYTE, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("0h0"), 0, Nst_SVFLAG_CHAR_BYTE, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("0x0"), 0, Nst_SVFLAG_CHAR_BYTE, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("0x"), 0, Nst_SVFLAG_CHAR_BYTE, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("0"), 13, Nst_SVFLAG_CHAR_BYTE, 0, NULL, NULL));
 
     TEST_EXIT;
 }

@@ -311,6 +311,7 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
 
     u32 ch = 0;
     i32 sign = 1;
+    bool has_affix = false; // `0h` prefix or `b` suffix
 
     isize offset = skip_whitespace(sv, 0, &ch);
     if (offset < 0)
@@ -359,6 +360,7 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
             if (base == 16 || base == 0) {
                 base = 16;
                 offset = Nst_sv_next(sv, offset, &ch);
+                has_affix = true;
             } else {
                 offset = prefix_offset;
                 ch = '0';
@@ -382,6 +384,9 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
             break;
         }
     }
+    // `0h` is required for CHAR_BYTE
+    if (base == 16 && !has_affix && (flags & Nst_SVFLAG_CHAR_BYTE))
+        RETURN_BYTE_ERR;
     // If no prefix is found default to base 10
     if (base == 0)
         base = 10;
@@ -425,26 +430,29 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
     }
     if (!has_digits) {
         // If there was a prefix but no digits take the zero from the prefix
-        if (prefix_offset == -1)
+        // When the base is 16 and CHAR_BYTE is set the prefix cannot be taken
+        // because it is required
+        if (prefix_offset == -1
+            || (base == 16 && (flags & Nst_SVFLAG_CHAR_BYTE)))
+        {
             RETURN_BYTE_ERR;
+        }
         // Go back to the 0 of the prefix to check for FULL_MATCH
-        offset = Nst_sv_next(sv, prefix_offset, NULL);
+        offset = Nst_sv_next(sv, prefix_offset, &ch);
     } else if (!digits_since_sep && sep != 0)
         // If the number ends with a separator keep it in `rest`
         offset = Nst_sv_prev(sv, offset, &ch);
 
-    bool has_suffix = false;
-    // Prefix 0h for hex has already been checked
     // Only check for the suffix in bases where `b` is not a digit
     if (base >= 12)
-        has_suffix = true;
+        has_affix = true;
     else if (ch == 'b' || ch == 'B') {
-        has_suffix = true;
+        has_affix = true;
         offset = Nst_sv_next(sv, offset, &ch);
     }
 
     // Suffix is required for CHAR_BYTE (because of single digit bytes)
-    if (flags & Nst_SVFLAG_CHAR_BYTE && !has_suffix)
+    if (flags & Nst_SVFLAG_CHAR_BYTE && !has_affix)
         RETURN_BYTE_ERR;
 
     // Skip any additional whitespace to allow trailig whitespace in FULL_MATCH

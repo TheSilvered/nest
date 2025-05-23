@@ -138,7 +138,7 @@
 0 0.0 == @test.assert_true
 9223372036854775807 9223372036854775807 == @test.assert_true
 9223372036854775807 -9223372036854775808 == @test.assert_false
--- 
+--
 -- Test '>'
 1 1 > @test.assert_false
 1 1b > @test.assert_false

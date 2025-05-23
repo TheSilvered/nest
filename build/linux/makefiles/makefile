@@ -134,7 +134,7 @@ test-c-debug:
 	@export LD_LIBRARY_PATH=. \
 		&& echo $(DBG_DIR) && \
 		cd $(DBG_DIR) \
-		&& DEBUGGER=$(DEBUGGER) ./test_nest
+		&& $(DEBUGGER) ./test_nest
 
 clear:
 	@$(SILENT_MAKE) clean
