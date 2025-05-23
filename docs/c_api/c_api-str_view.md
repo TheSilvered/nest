@@ -253,7 +253,8 @@ The following flags are accepted and modify the behaviour of the function:
   whole string to be matched as the number leaving no characters behind,
   whitespace after the number is trimmed;
 - [`Nst_SVFLAG_CHAR_BYTE`](c_api-str_view.md#nst_svnumflags): allows single
-  ASCII characters to be parsed as bytes.
+  ASCII characters to be parsed as bytes, requires the `b` prefix where possible
+  or the `0h` prefix in hexadecimal notation.
 
 The byte is composed of the following parts:
 

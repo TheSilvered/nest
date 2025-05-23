@@ -482,7 +482,352 @@ TestResult test_sv_parse_int(void)
 
 TestResult test_sv_parse_byte(void)
 {
-    return TEST_NOT_IMPL;
+    TEST_ENTER;
+
+    u8 num;
+    Nst_StrView rest;
+
+    // Only whitespace
+    test_assert(!Nst_sv_parse_byte(SV(""), 0, 0, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("   "), 0, 0, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV(" \t\v"), 0, 0, 0, NULL, NULL));
+
+    // Only the sign
+    test_assert(!Nst_sv_parse_byte(SV("+"), 0, 0, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("-"), 0, 0, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV(" +"), 0, 0, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV(" -"), 0, 0, 0, NULL, NULL));
+
+    // Only a 0
+    test_with(Nst_sv_parse_byte(SV("0"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_byte(SV("  0\t"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "\t"));
+    }
+    test_with(Nst_sv_parse_byte(SV("+0"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_byte(SV("-0"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_byte(SV("  -0 \t"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 2);
+        test_assert(str_eq(rest.value, " \t"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0smth"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 4);
+        test_assert(str_eq(rest.value, "smth"));
+    }
+    test_with(Nst_sv_parse_byte(SV("\v +0  smth"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 6);
+        test_assert(str_eq(rest.value, "  smth"));
+    }
+
+    // Possible prefixes
+    test_with(Nst_sv_parse_byte(SV("0b"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "b"));
+    }
+    test_with(Nst_sv_parse_byte(SV(" \t+0b  "), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 3);
+        test_assert(str_eq(rest.value, "b  "));
+    }
+    test_with(Nst_sv_parse_byte(SV("0B"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "B"));
+    }
+    test_with(Nst_sv_parse_byte(SV(" \t -0B\v"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 2);
+        test_assert(str_eq(rest.value, "B\v"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0o  "), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 3);
+        test_assert(str_eq(rest.value, "o  "));
+    }
+    test_with(Nst_sv_parse_byte(SV("0O"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "O"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0x"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "x"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0X"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "X"));
+    }
+
+    // Regular numbers
+    test_with(Nst_sv_parse_byte(SV("1"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 1);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_byte(SV("35"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 35);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_byte(SV("001"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 1);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_byte(SV("0035"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 35);
+        test_assert(rest.len == 0);
+    }
+
+    // With a sign
+    test_with(Nst_sv_parse_byte(SV("+1"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 1);
+        test_assert(rest.len == 0);
+    }
+    test_assert(!Nst_sv_parse_byte(SV("-1"), 0, 0, 0, NULL, NULL));
+    test_with(Nst_sv_parse_byte(SV("+35"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 35);
+        test_assert(rest.len == 0);
+    }
+    test_assert(!Nst_sv_parse_byte(SV("-35"), 0, 0, 0, NULL, NULL));
+
+    // Check limits (overflow not allowed)
+    test_with(Nst_sv_parse_byte(SV("255"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 255);
+        test_assert(rest.len == 0);
+    }
+    test_assert(!Nst_sv_parse_byte(SV("256"), 0, 0, 0, &num, &rest));
+
+    test_with(Nst_sv_parse_byte(SV("+255"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 255);
+        test_assert(rest.len == 0);
+    }
+
+    // Remaining part (no full match required)
+    test_with(Nst_sv_parse_byte(SV("14 other"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 14);
+        test_assert(rest.len == 6);
+        test_assert(str_eq(rest.value, " other"));
+    }
+
+    // Invalid bases
+    test_assert(!Nst_sv_parse_byte(SV("0"), 1, 0, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("0"), 37, 0, 0, NULL, NULL));
+
+    // Binary
+    test_with(Nst_sv_parse_byte(SV("10"), 2, 0, 0, &num, &rest)) {
+        test_assert(num == 2);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_byte(SV("11012"), 2, 0, 0, &num, &rest)) {
+        test_assert(num == 13);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "2"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0b"), 2, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "b"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0B"), 2, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "B"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0b111"), 2, 0, 0, &num, &rest)) {
+        test_assert(num == 7);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_byte(SV("0B123"), 2, 0, 0, &num, &rest)) {
+        test_assert(num == 1);
+        test_assert(rest.len == 2);
+        test_assert(str_eq(rest.value, "23"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0b111"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 7);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_byte(SV("0B123"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 1);
+        test_assert(rest.len == 2);
+        test_assert(str_eq(rest.value, "23"));
+    }
+
+    // Octal
+    test_with(Nst_sv_parse_byte(SV("10"), 8, 0, 0, &num, &rest)) {
+        test_assert(num == 8);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_byte(SV("789"), 8, 0, 0, &num, &rest)) {
+        test_assert(num == 7);
+        test_assert(rest.len == 2);
+        test_assert(str_eq(rest.value, "89"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0o"), 8, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "o"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0O"), 8, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "O"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0o178"), 8, 0, 0, &num, &rest)) {
+        test_assert(num == 15);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "8"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0O123"), 8, 0, 0, &num, &rest)) {
+        test_assert(num == 83);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_byte(SV("0o178"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 15);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "8"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0O123"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 83);
+        test_assert(rest.len == 0);
+    }
+
+    // Hexadecimal
+    test_with(Nst_sv_parse_byte(SV("10"), 16, 0, 0, &num, &rest)) {
+        test_assert(num == 16);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_byte(SV("abj"), 16, 0, 0, &num, &rest)) {
+        test_assert(num == 171);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "j"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0x"), 16, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "x"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0X"), 16, 0, 0, &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "X"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0xefg"), 16, 0, 0, &num, &rest)) {
+        test_assert(num == 239);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "g"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0X12"), 16, 0, 0, &num, &rest)) {
+        test_assert(num == 18);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_byte(SV("0xefg"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 239);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "g"));
+    }
+    test_with(Nst_sv_parse_byte(SV("0X12"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 18);
+        test_assert(rest.len == 0);
+    }
+
+    // Other bases
+    test_with(Nst_sv_parse_byte(SV("10Z"), 30, 0, 0, &num, &rest)) {
+        test_assert(num == 30);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "Z"));
+    }
+    test_with(Nst_sv_parse_byte(SV("3i"), 20, 0, 0, &num, &rest)) {
+        test_assert(num == 78);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_byte(SV("1z"), 36, 0, 0, &num, &rest)) {
+        test_assert(num == 71);
+        test_assert(rest.len == 0);
+    }
+
+    // Disabled separator
+    test_with(Nst_sv_parse_byte(SV("12_345"), 0, 0, 0, &num, &rest)) {
+        test_assert(num == 12);
+        test_assert(rest.len == 4);
+        test_assert(str_eq(rest.value, "_345"));
+    }
+
+    // Normal separator
+    test_with(Nst_sv_parse_byte(SV("1_23"), 0, 0, '_', &num, &rest)) {
+        test_assert(num == 123);
+        test_assert(rest.len == 0);
+    }
+
+    test_with(Nst_sv_parse_byte(SV("1_2_3"), 0, 0, '_', &num, &rest)) {
+        test_assert(num == 123);
+        test_assert(rest.len == 0);
+    }
+
+    test_with(Nst_sv_parse_byte(SV("1_2_3__4_5"), 0, 0, '_', &num, &rest)) {
+        test_assert(num == 123);
+        test_assert(rest.len == 5);
+        test_assert(str_eq(rest.value, "__4_5"));
+    }
+
+    // Unicode separator (U+1F60A = 😊)
+    test_with(Nst_sv_parse_byte(SV("1😊2😊3"), 0, 0, 0x1F60A, &num, &rest)) {
+        test_assert(num == 123);
+        test_assert(rest.len == 0);
+    }
+
+    // Trailing separator
+    test_with(Nst_sv_parse_byte(SV("1_23_"), 0, 0, '_', &num, &rest)) {
+        test_assert(num == 123);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "_"));
+    }
+
+    // Separator after prefix
+    test_with(Nst_sv_parse_byte(SV("0x_10"), 0, 0, '_', &num, &rest)) {
+        test_assert(num == 0);
+        test_assert(rest.len == 4);
+        test_assert(str_eq(rest.value, "x_10"));
+    }
+
+    // Full match
+    test_assert(Nst_sv_parse_byte(SV("  0\t"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("+0"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("-0"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("  -0 \t"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("0smth"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("\v +0  smth"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("0b"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV(" \t+0b  "), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("0B"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV(" \t -0B\v"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("0o"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("0O"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("0x"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("0X"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("1"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("1  "), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("35"), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV(" 001  "), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_byte(SV("  0035 "), 0, Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_byte(SV("14 other"), 0, Nst_SVFLAG_FULL_MATCH, 0, &num, &rest));
+    test_assert(!Nst_sv_parse_byte(SV("0b"), 2, Nst_SVFLAG_FULL_MATCH, 0, &num, &rest));
+    test_assert(Nst_sv_parse_byte(SV("0b111"), 2, Nst_SVFLAG_FULL_MATCH, 0, &num, &rest));
+
+    TEST_EXIT;
 }
 
 TestResult test_sv_parse_real(void)

@@ -214,7 +214,7 @@ bool Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, u32 sep,
         base = 10;
 
     bool has_digits = false;
-    usize digits_since_sep = 0;
+    bool digits_since_sep = false;
 
     i64 num = 0;
     i64 cut_off = sign == -1 ? -9223372036854775807 - 1 : 9223372036854775807;
@@ -229,9 +229,9 @@ bool Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, u32 sep,
             ch_val = ch - 'a' + 10;
         else if (ch >= 'A' && ch <= 'Z')
             ch_val = ch - 'A' + 10;
-        else if (sep != 0 && ch == sep && digits_since_sep != 0) {
+        else if (sep != 0 && ch == sep && digits_since_sep) {
             offset = Nst_sv_next(sv, offset, &ch);
-            digits_since_sep = 0;
+            digits_since_sep = false;
             continue;
         } else
             break;
@@ -245,7 +245,7 @@ bool Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, u32 sep,
                 goto error;
             }
         }
-        digits_since_sep++;
+        digits_since_sep = true;
         has_digits = true;
         num *= base;
         num += ch_val;
@@ -253,13 +253,11 @@ bool Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, u32 sep,
     }
     if (!has_digits) {
         // If there was a prefix but no digits take the zero from the prefix
-        // But if the prefix defined the base the literal is not valid:
-        // '0x' (base 16) = 0, '0x' (base 0) = Error
         if (prefix_offset == -1)
             RETURN_INT_ERR;
         // Go back to the 0 of the prefix to check for FULL_MATCH
         offset = Nst_sv_next(sv, prefix_offset, NULL);
-    } else if (digits_since_sep == 0 && sep != 0)
+    } else if (!digits_since_sep && sep != 0)
         // If the number ends with a separator keep it in `rest`
         offset = Nst_sv_prev(sv, offset, &ch);
 
@@ -290,13 +288,20 @@ error:
 bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
                        u8 *out_num, Nst_StrView *out_rest)
 {
-    if (flags & Nst_SVFLAG_CHAR_BYTE
+    // Validate base
+    if ((base < 2 || base > 36) && base != 0) {
+        Nst_error_setc_value("the base must be between 2 and 36");
+        goto error;
+    }
+
+    // Parse single char if requested
+    if ((flags & Nst_SVFLAG_CHAR_BYTE)
         && Nst_check_ext_utf8_bytes(sv.value, sv.len) == (isize)sv.len)
     {
         u32 utf32_ch = Nst_ext_utf8_to_utf32(sv.value);
-        if (utf32_ch <= 0xff) {
+        if (utf32_ch <= 0xff || (flags & Nst_SVFLAG_CAN_OVERFLOW)) {
             if (out_num != NULL)
-                *out_num = (u8)utf32_ch;
+                *out_num = (u8)(utf32_ch & 0xff);
             if (out_rest != NULL)
                 *out_rest = Nst_sv_new(NULL, 0);
             return true;
@@ -304,32 +309,28 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
             RETURN_BYTE_ERR;
     }
 
-    if ((base < 2 || base > 36) && base != 0) {
-        Nst_error_setc_value("the base must be between 2 and 36");
-        goto error;
-    }
-
     u32 ch = 0;
-    i32 num = 0;
     i32 sign = 1;
 
     isize offset = skip_whitespace(sv, 0, &ch);
     if (offset < 0)
         RETURN_BYTE_ERR;
 
-    if (ch == '-') {
-        sign = -1;
+    // Parse a possible sign
+    if (ch == '-' || ch == '+') {
+        sign = ch == '-' ? -1 : 1;
         offset = Nst_sv_next(sv, offset, &ch);
-    } else if (ch == '+')
-        offset = Nst_sv_next(sv, offset, &ch);
+    }
     if (offset < 0)
         RETURN_BYTE_ERR;
 
+    // Always check for a base prefix, ignore it if the bases don't match
+    isize prefix_offset = -1;
     if (ch == '0') {
-        isize prev_offset = offset;
+        prefix_offset = offset;
         offset = Nst_sv_next(sv, offset, &ch);
         if (offset < 0) {
-            offset = prev_offset;
+            offset = prefix_offset;
             ch = '0';
         }
         switch (ch) {
@@ -339,7 +340,7 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
                 base = 2;
                 offset = Nst_sv_next(sv, offset, &ch);
             } else {
-                offset = prev_offset;
+                offset = prefix_offset;
                 ch = '0';
             }
             break;
@@ -349,7 +350,7 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
                 base = 8;
                 offset = Nst_sv_next(sv, offset, &ch);
             } else {
-                offset = prev_offset;
+                offset = prefix_offset;
                 ch = '0';
             }
             break;
@@ -359,7 +360,7 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
                 base = 16;
                 offset = Nst_sv_next(sv, offset, &ch);
             } else {
-                offset = prev_offset;
+                offset = prefix_offset;
                 ch = '0';
             }
             break;
@@ -371,25 +372,24 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
                 base = 16;
                 offset = Nst_sv_next(sv, offset, &ch);
             } else {
-                offset = prev_offset;
+                offset = prefix_offset;
                 ch = '0';
             }
             break;
         default:
-            offset = prev_offset;
+            offset = prefix_offset;
             ch = '0';
             break;
         }
-        if (offset < 0) {
-            offset = prev_offset;
-            ch = '0';
-            base = 10;
-        }
     }
+    // If no prefix is found default to base 10
     if (base == 0)
         base = 10;
 
     bool has_digits = false;
+    bool digits_since_sep = false;
+    i32 num = 0;
+
     while (offset >= 0) {
         i32 ch_val;
         if (ch >= '0' && ch <= '9')
@@ -398,8 +398,9 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
             ch_val = ch - 'a' + 10;
         else if (ch >= 'A' && ch <= 'Z')
             ch_val = ch - 'A' + 10;
-        else if (ch == sep && sep != 0) {
+        else if (sep != 0 && ch == sep && digits_since_sep) {
             offset = Nst_sv_next(sv, offset, &ch);
+            digits_since_sep = false;
             continue;
         } else
             break;
@@ -409,7 +410,6 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
 
         num *= base;
         num += ch_val;
-        has_digits = true;
 
         if (!(flags & Nst_SVFLAG_CAN_OVERFLOW)) {
             if (num > 255 || num * sign < 0) {
@@ -419,23 +419,36 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
         } else
             num &= 0xff;
 
+        has_digits = true;
+        digits_since_sep = true;
         offset = Nst_sv_next(sv, offset, &ch);
     }
+    if (!has_digits) {
+        // If there was a prefix but no digits take the zero from the prefix
+        if (prefix_offset == -1)
+            RETURN_BYTE_ERR;
+        // Go back to the 0 of the prefix to check for FULL_MATCH
+        offset = Nst_sv_next(sv, prefix_offset, NULL);
+    } else if (!digits_since_sep && sep != 0)
+        // If the number ends with a separator keep it in `rest`
+        offset = Nst_sv_prev(sv, offset, &ch);
 
     bool has_suffix = false;
-    if (!has_digits && base == 2) // if the literal is 0b without other digits
-        has_suffix = true;
-    else if (base >= 12)
+    // Prefix 0h for hex has already been checked
+    // Only check for the suffix in bases where `b` is not a digit
+    if (base >= 12)
         has_suffix = true;
     else if (ch == 'b' || ch == 'B') {
         has_suffix = true;
         offset = Nst_sv_next(sv, offset, &ch);
     }
 
+    // Suffix is required for CHAR_BYTE (because of single digit bytes)
     if (flags & Nst_SVFLAG_CHAR_BYTE && !has_suffix)
         RETURN_BYTE_ERR;
 
-    if (offset >= 0)
+    // Skip any additional whitespace to allow trailig whitespace in FULL_MATCH
+    if (flags & Nst_SVFLAG_FULL_MATCH && offset >= 0)
         offset = skip_whitespace(sv, offset, NULL);
 
     if (flags & Nst_SVFLAG_FULL_MATCH && offset >= 0)
@@ -448,7 +461,6 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
             offset = sv.len;
         *out_rest = Nst_sv_new(sv.value + offset, sv.len - offset);
     }
-
     return true;
 
 error:

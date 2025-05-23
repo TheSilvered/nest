@@ -41,7 +41,7 @@ The current state of tests:
   - 🟡 `stdsutil.nest`
   - 🟡 `stdsys.nest`
   - 🟢 `stdtime.nest`
-- 🔴 C tests (38/167)
+- 🔴 C tests (41/166)
   - 🟢 `test_cl_args_parse`
   - 🟢 `test_wargv_to_argv`
   - 🟢 `test_da_init`
@@ -198,10 +198,10 @@ The current state of tests:
   - 🟢 `test_sv_new_c`
   - 🟢 `test_sv_from_str`
   - 🟢 `test_sv_from_sb`
-  - 🔴 `test_sv_next`
-  - 🔴 `test_sv_prev`
+  - 🟢 `test_sv_next`
+  - 🟢 `test_sv_prev`
   - 🟢 `test_sv_parse_int`
-  - 🔴 `test_sv_parse_byte`
+  - 🟢 `test_sv_parse_byte`
   - 🔴 `test_sv_parse_real`
   - 🔴 `test_sv_compare`
   - 🔴 `test_sv_lfind`

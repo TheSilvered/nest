@@ -145,7 +145,8 @@ NstEXP bool NstC Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, u32 sep,
  * number leaving no characters behind, whitespace after the number is
  * trimmed;
  *! `Nst_SVFLAG_CHAR_BYTE`: allows single ASCII characters to be parsed as
- * bytes.
+ * bytes, requires the `b` prefix where possible or the `0h` prefix in
+ * hexadecimal notation.
  *
  * @brief The byte is composed of the following parts:
  *! an optional sign (`+` or `-`), if there is a minus sign and overflow is not
