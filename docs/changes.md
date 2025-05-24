@@ -16,6 +16,7 @@
 
 - added a new syntax for raw strings with backticks
 - added `is_ascii`, `is_decimal` and `is_numeric` to `stdsutil.nest`
+- added `consume_int` to `stdsutil.nest`
 
 **Changes**
 
@@ -23,6 +24,7 @@
 - now `su.fmt` escapes non printable characters when using `r` or `R`
 - renamed `iter_get_val` to `iter_next` in `stditutil.nest`
 - now numbers separators cannot be consecutive (`1__0` is no longer a valid integer)
+- improved `parse_int` function in `stdsutil.nest`
 
 **Bug fixes**
 

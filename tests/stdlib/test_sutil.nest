@@ -363,41 +363,26 @@ su.PRINTABLE @su.is_printable @test.assert_true
 9223372036854775807 @su.hex '7fffffffffffffff' @test.assert_eq
 -1 @su.hex 'ffffffffffffffff' @test.assert_eq
 
-'1234' @su.parse_int 1234 @test.assert_eq
-'   1234' @su.parse_int 1234 @test.assert_eq
-'1234   ' @su.parse_int 1234 @test.assert_eq
-'   1234   ' @su.parse_int 1234 @test.assert_eq
-'+1234' @su.parse_int 1234 @test.assert_eq
-'-1234' @su.parse_int -1234 @test.assert_eq
-'-1234' @su.parse_int -1234 @test.assert_eq
-'0b1010' @su.parse_int 10 @test.assert_eq
-'0B1010' @su.parse_int 10 @test.assert_eq
-'-0b1010' @su.parse_int -10 @test.assert_eq
-'-0B1010' @su.parse_int -10 @test.assert_eq
-'1010' 2 @su.parse_int 10 @test.assert_eq
-'0b1010' 2 @su.parse_int 10 @test.assert_eq
-'0B1010' 2 @su.parse_int 10 @test.assert_eq
-'0o12' @su.parse_int 10 @test.assert_eq
-'0O12' @su.parse_int 10 @test.assert_eq
-'-0o12' @su.parse_int -10 @test.assert_eq
-'-0O12' @su.parse_int -10 @test.assert_eq
-'12' 8 @su.parse_int 10 @test.assert_eq
-'0o12' 8 @su.parse_int 10 @test.assert_eq
-'0O12' 8 @su.parse_int 10 @test.assert_eq
-'0xc3' @su.parse_int 195 @test.assert_eq
-'0Xc3' @su.parse_int 195 @test.assert_eq
-'-0xc3' @su.parse_int -195 @test.assert_eq
-'-0Xc3' @su.parse_int -195 @test.assert_eq
-'c3' 16 @su.parse_int 195 @test.assert_eq
-'0xc3' 16 @su.parse_int 195 @test.assert_eq
-'0Xc3' 16 @su.parse_int 195 @test.assert_eq
-'C3' 16 @su.parse_int 195 @test.assert_eq
-'0xC3' 16 @su.parse_int 195 @test.assert_eq
-'9223372036854775807' @su.parse_int 9223372036854775807 @test.assert_eq
-'-9223372036854775808' @su.parse_int -9223372036854775808 @test.assert_eq
-su.parse_int {'hello'} @test.assert_raises_error
-su.parse_int {'123a'} @test.assert_raises_error
-su.parse_int {'9223372036854775808'} @test.assert_raises_error
+-- The behavior of `Nst_sv_parse_int` is tested in the C tests
+-- Just test if the arguments are passed correctly
+
+'123' @su.parse_int 123 @test.assert_eq
+'  123  ' @su.parse_int 123 @test.assert_eq
+su.parse_int {'1', 0xff0000} @test.assert_raises_error
+su.parse_int {'1', -1} @test.assert_raises_error
+su.parse_int {'1', 0, 'ab'} @test.assert_raises_error
+'1234' 0 '' @su.parse_int 1234 @test.assert_eq
+'12_34' 0 '_' @su.parse_int 1234 @test.assert_eq
+'12😊34' 0 '😊' @su.parse_int 1234 @test.assert_eq
+
+'123 456' @su.consume_int {123, ' 456'} @test.assert_eq
+'  123  ' @su.consume_int {123, '  '} @test.assert_eq
+su.consume_int {'1', 0xff0000} @test.assert_raises_error
+su.consume_int {'1', -1} @test.assert_raises_error
+su.consume_int {'1', 0, 'ab'} @test.assert_raises_error
+'1234hello' 0 '' @su.consume_int {1234, 'hello'} @test.assert_eq
+'12_34' 0 '_' @su.consume_int {1234, ''} @test.assert_eq
+'12😊34😊😊' 0 '😊' @su.consume_int {1234, '😊😊'} @test.assert_eq
 
 'hello' 'he' @su.lremove 'llo' @test.assert_eq
 'hello' 'hello' @su.lremove '' @test.assert_eq

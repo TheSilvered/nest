@@ -39,7 +39,8 @@ static Nst_Declr obj_list_[] = {
     Nst_FUNCDECLR(bin_, 1),
     Nst_FUNCDECLR(oct_, 1),
     Nst_FUNCDECLR(hex_, 2),
-    Nst_FUNCDECLR(parse_int_, 2),
+    Nst_FUNCDECLR(parse_int_, 3),
+    Nst_FUNCDECLR(consume_int_, 3),
     Nst_FUNCDECLR(lremove_, 2),
     Nst_FUNCDECLR(rremove_, 2),
     Nst_FUNCDECLR(fmt_, 2),
@@ -1360,16 +1361,87 @@ Nst_Obj *NstC hex_(usize arg_num, Nst_Obj **args)
     return Nst_str_new_allocated(str, str_len);
 }
 
+static bool get_sep(Nst_Obj *sep_obj, u32 *out_sep)
+{
+    if (sep_obj == Nst_null() || Nst_str_char_len(sep_obj) == 0) {
+        *out_sep = 0;
+        return true;
+    }
+    if (Nst_str_char_len(sep_obj) != 1) {
+        Nst_error_setc_value("separator must be one character long");
+        return false;
+    }
+    *out_sep = Nst_utf8_to_utf32(Nst_str_value(sep_obj));
+    return true;
+}
+
+static u8 get_base(Nst_Obj *base_obj)
+{
+    if (base_obj == Nst_null())
+        return 0;
+    i64 base_value = Nst_int_i64(base_obj);
+    return base_value < 0 || base_value > 255 ? 255 : 0;
+}
+
 Nst_Obj *NstC parse_int_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *str;
     Nst_Obj *base_obj;
-    if (!Nst_extract_args("s ?i", arg_num, args, &str, &base_obj))
+    Nst_Obj *sep_obj;
+    if (!Nst_extract_args("s ?i ?s", arg_num, args, &str, &base_obj, &sep_obj))
         return nullptr;
 
-    i64 base = Nst_DEF_VAL(base_obj, Nst_int_i64(base_obj), 0);
+    u32 sep;
+    if (!get_sep(sep_obj, &sep))
+        return nullptr;
 
-    return Nst_str_parse_int(str, i32(base));
+    u8 base = get_base(base_obj);
+
+    i64 num = 0;
+    bool result = Nst_sv_parse_int(
+        Nst_sv_from_str(str),
+        base,
+        Nst_SVFLAG_FULL_MATCH,
+        sep,
+        &num, NULL);
+
+    if (!result)
+        return nullptr;
+
+    return Nst_int_new(num);
+}
+
+Nst_Obj *NstC consume_int_(usize arg_num, Nst_Obj **args)
+{
+    Nst_Obj *str;
+    Nst_Obj *base_obj;
+    Nst_Obj *sep_obj;
+    if (!Nst_extract_args("s ?i ?s", arg_num, args, &str, &base_obj, &sep_obj))
+        return nullptr;
+
+    u32 sep;
+    if (!get_sep(sep_obj, &sep))
+        return nullptr;
+
+    u8 base = get_base(base_obj);
+
+    i64 num = 0;
+    Nst_StrView rest;
+    bool result = Nst_sv_parse_int(
+        Nst_sv_from_str(str),
+        base,
+        0,
+        sep,
+        &num, &rest);
+
+    if (!result)
+        return nullptr;
+
+    Nst_Obj *arr = Nst_array_create_c("IS", num, rest);
+    if (arr == NULL)
+        return nullptr;
+
+    return arr;
 }
 
 Nst_Obj *NstC lremove_(usize arg_num, Nst_Obj **args)

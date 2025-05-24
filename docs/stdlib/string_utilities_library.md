@@ -564,6 +564,59 @@ The centered string.
 
 ---
 
+### `@consume_int`
+
+**Synopsis:**
+
+```nest
+[string: Str, base: Int?, sep: Str?] @consume_int -> Array[Int, Str]
+```
+
+**Description:**
+
+Parses an integer from the start of `string` and returns the remaining part. If
+the string does not begin with a number the function fails. Any leading
+whitespace is ignored.
+
+`base` is the numeric base to use to parse the number, valid values are `0` and
+`2` to `36` inclusive. The digits are the digits `0-9` for bases up to 10 and
+letters `a-z` (case insensitive) for bases up to 36. If base is `0` it defaults
+to `10` unless specified otherwise by a prefix.
+
+A number is composed of the following parts:
+
+- an optional sign (`+` or `-`)
+- optionally, one of these prefixes:
+    - `0b` or `0B` if the base is `0` or `2`
+    - `0o` or `0O` if the base is `0` or `8`
+    - `0x` or `0X` if the base is `0` or `16`
+- one or more digits
+
+`sep` is an optional one-character digit separator. It can appear between two
+digits of the number. If set to `null` or it is an empty string no separator
+is allowed.
+
+**Returns:**
+
+An `Array` containing the parsed integer at index `0` and the remaining part of
+the string at index `1`.
+
+**Example:**
+
+```nest
+|#| 'stdsutil.nest' = su
+
+'123 apples' @su.consume_int --> {123, ' apples'}
+'-30€' @su.consume_int --> {-30, '€'}
+'0x10  ' @su.consume_int --> {16, '  '}
+'0b101' @su.consume_int --> {5, ''}
+'0b' @su.consume_int --> {0, 'b'}
+'101' 2 @su.consume_int --> {5, ''}
+'123_456 789' 0 '_' @su.consume_int --> {123456, ' 789'}
+```
+
+---
+
 ### `@decode`
 
 **Synopsis:**
@@ -1062,29 +1115,31 @@ treated like an unsigned integer.
 **Synopsis:**
 
 ```nest
-[string: Str, base: Int?] @parse_int -> Int
+[string: Str, base: Int?, sep: Str?] @parse_int -> Int
 ```
 
 **Description:**
 
-This function parses an integer from `string`. `base` specifies the base with
-which to parse the number and can be any value between `2` and `36` inclusive
-or `0`.
+Parses an integer from `string`. If the string is not a valid number the
+function fails. Any leading or trailing whitespace is ignored.
 
-When using a base higher than `10` letters are used and the function is
-case-insensitive.
+`base` is the numeric base to use to parse the number, valid values are `0` and
+`2` to `36` inclusive. The digits are the digits `0-9` for bases up to 10 and
+letters `a-z` (case insensitive) for bases up to 36. If base is `0` it defaults
+to `10` unless specified otherwise by a prefix.
 
-If `base` is set to `0` it is inferred by the number: with the prefix `0b` or
-`0B` the digits after are parsed in base `2`; with the prefix `0o` or `0O` the
-base is `8` and with the prefix `0x` or `0X` the base is `16`. When explicitly
-setting `base` to `2`, `8` or `16` the corresponding prefixes are ignored if
-present.
+A number is composed of the following parts:
 
-By default
-`base` is set to zero.
+- an optional sign (`+` or `-`)
+- optionally, one of these prefixes:
+    - `0b` or `0B` if the base is `0` or `2`
+    - `0o` or `0O` if the base is `0` or `8`
+    - `0x` or `0X` if the base is `0` or `16`
+- one or more digits
 
-Additionally this function ignores any whitespace before and after the number
-and ignores any underscores (`_`) between the digits.
+`sep` is an optional one-character digit separator. It can appear between two
+digits of the number. If set to `null` or it is an empty string no separator
+is allowed.
 
 **Returns:**
 
@@ -1095,8 +1150,12 @@ The parsed integer.
 ```nest
 |#| 'stdsutil.nest' = su
 
-'0xff' @su.parse_int --> 255
-'0xff' 36 @su.parse_int --> 43323
+'123' @su.parse_int --> 123
+'-123' @su.parse_int --> -123
+'0x10' @su.parse_int --> 16
+'0b101' @su.parse_int --> 5
+'101' 2 @su.parse_int --> 5
+'123_456_789' 0 '_' @su.parse_int --> 123456789
 ```
 
 ---

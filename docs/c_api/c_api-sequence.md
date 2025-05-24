@@ -13,6 +13,8 @@ TheSilvered
 - `f`, `F`: `Real` from a double
 - `b`: `Bool` from a boolean (promoted to an int)
 - `B`: `Byte` from a 8-bit integer
+- `s`: `Str` from a NUL-terminated string
+- `S`: `Str` from a `Nst_StrView`
 - `o`: an already existing object to take one reference from
 - `O`: an already existing object to add one reference to
 - `n`: `null`, the vararg can be any pointer as its value is ignored but `NULL`

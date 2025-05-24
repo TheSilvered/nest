@@ -229,6 +229,23 @@ static Nst_SeqObj *seq_create_c(Nst_SeqObj *seq, const char *fmt, va_list args)
             objs[i] = obj;
             break;
         }
+        case 's': {
+            const char *str = va_arg(args, const char *);
+            // Force the contents to be copied
+            Nst_Obj *obj = Nst_str_from_sv(Nst_sv_new_c(str));
+            if (obj == NULL)
+                goto failed;
+            objs[i] = obj;
+            break;
+        }
+        case 'S': {
+            Nst_StrView sv = va_arg(args, Nst_StrView);
+            Nst_Obj *obj = Nst_str_from_sv(sv);
+            if (obj == NULL)
+                goto failed;
+            objs[i] = obj;
+            break;
+        }
         case 'o': {
             Nst_Obj *obj = va_arg(args, Nst_Obj *);
             objs[i] = obj;

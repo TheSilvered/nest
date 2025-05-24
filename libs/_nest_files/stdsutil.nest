@@ -4,6 +4,7 @@
 
 __su.bin_          = bin
 __su.cjust_        = cjust
+__su.consume_int_  = consume_int
 __su.decode_       = decode
 __su.encode_       = encode
 __su.ends_with_    = ends_with
