@@ -247,7 +247,7 @@
         trimmed_line '*/' @su.ends_with ? [
             trimmed_line '*/' != ?
                 'closing line cannot contain text in blocks' parser @error
-            => curr_text data_map curr_tag @_append_curr_text
+            => curr_text data_map curr_tag parser @_append_curr_text
         ]
         trimmed_line 1 @sequ.slice = trimmed_line
 
@@ -264,7 +264,7 @@
         ]
 
         trimmed_line '' == ? [
-            curr_text data_map curr_tag @_append_curr_text
+            curr_text data_map curr_tag parser @_append_curr_text
             '' = curr_text
             ..
         ]
@@ -275,7 +275,7 @@
         trimmed_line '@' @su.starts_with ? [
             parser trimmed_line data_map @_get_tag \
                 = {curr_tag, new_text}
-            curr_text data_map curr_tag @_append_curr_text
+            curr_text data_map curr_tag parser @_append_curr_text
             new_text = curr_text
             curr_text ':' @su.ends_with = can_be_list
             ..
@@ -299,11 +299,17 @@
     ]
 ]
 
-#_append_curr_text curr_text data_map curr_tag [
+-- Append the contents of a tag
+#_append_curr_text curr_text data_map curr_tag parser [
     curr_tag null == !(data_map curr_tag <.>) && ?
         =>
-    curr_text '' != ?
-        data_map.(curr_tag) curr_text +
+    curr_text '' == ?
+        => data_map
+    (curr_tag 'param' ==) !(curr_text ':' <.>) && ? [
+        "':' not found in @param tag" parser @error
+        => data_map
+    ]
+    data_map.(curr_tag) curr_text +
     => data_map
 ]
 

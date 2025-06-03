@@ -25,6 +25,7 @@
 - renamed `iter_get_val` to `iter_next` in `stditutil.nest`
 - now numbers separators cannot be consecutive (`1__0` is no longer a valid integer)
 - improved `parse_int` function in `stdsutil.nest`
+- now the `Str` to `Real` cast accepts a broader syntax for numbers (e.g. now `1` is valid)
 
 **Bug fixes**
 
