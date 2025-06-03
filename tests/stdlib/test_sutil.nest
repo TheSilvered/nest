@@ -363,8 +363,8 @@ su.PRINTABLE @su.is_printable @test.assert_true
 9223372036854775807 @su.hex '7fffffffffffffff' @test.assert_eq
 -1 @su.hex 'ffffffffffffffff' @test.assert_eq
 
--- The behavior of `Nst_sv_parse_int` is tested in the C tests
--- Just test if the arguments are passed correctly
+-- The behavior of `Nst_sv_parse_int` and of `Nst_sv_parse_real` is tested in
+-- the C tests, just test if the arguments are passed correctly
 
 '123' @su.parse_int 123 @test.assert_eq
 '  123  ' @su.parse_int 123 @test.assert_eq
@@ -383,6 +383,18 @@ su.consume_int {'1', 0, 'ab'} @test.assert_raises_error
 '1234hello' 0 '' @su.consume_int {1234, 'hello'} @test.assert_eq
 '12_34' 0 '_' @su.consume_int {1234, ''} @test.assert_eq
 '12😊34😊😊' 0 '😊' @su.consume_int {1234, '😊😊'} @test.assert_eq
+
+'1' @su.parse_real 1.0 @test.assert_eq
+' 1.2  ' @su.parse_real 1.2 @test.assert_eq
+'1.2' '' @su.parse_real 1.2 @test.assert_eq
+'1_2.3' '_' @su.parse_real 12.3 @test.assert_eq
+'1😊2.3' '😊' @su.parse_real 12.3 @test.assert_eq
+
+'1 2 3' @su.consume_real {1.0, ' 2 3'} @test.assert_eq
+' 1.2  ' @su.consume_real {1.2, '  '} @test.assert_eq
+'1.2e+x' '' @su.consume_real {1.2, 'e+x'} @test.assert_eq
+'1_2.3' '_' @su.consume_real {12.3, ''} @test.assert_eq
+'1😊2😊' '😊' @su.consume_real {12.0, '😊'} @test.assert_eq
 
 'hello' 'he' @su.lremove 'llo' @test.assert_eq
 'hello' 'hello' @su.lremove '' @test.assert_eq

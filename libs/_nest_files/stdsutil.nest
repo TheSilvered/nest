@@ -5,6 +5,7 @@
 __su.bin_          = bin
 __su.cjust_        = cjust
 __su.consume_int_  = consume_int
+__su.consume_real_ = consume_real
 __su.decode_       = decode
 __su.encode_       = encode
 __su.ends_with_    = ends_with
@@ -30,6 +31,7 @@ __su.lsplit_       = lsplit
 __su.ltrim_        = ltrim
 __su.oct_          = oct
 __su.parse_int_    = parse_int
+__su.parse_real_   = parse_real
 __su.replace_      = replace
 __su.repr_         = repr
 __su.rfind_        = rfind

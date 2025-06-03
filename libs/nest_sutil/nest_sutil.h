@@ -46,6 +46,8 @@ Nst_Obj *NstC oct_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC hex_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC parse_int_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC consume_int_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC parse_real_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC consume_real_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC lremove_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC rremove_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC fmt_(usize arg_num, Nst_Obj **args);

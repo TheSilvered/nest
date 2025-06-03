@@ -593,7 +593,7 @@ A number is composed of the following parts:
 - one or more digits
 
 `sep` is an optional one-character digit separator. It can appear between two
-digits of the number. If set to `null` or it is an empty string no separator
+digits of the number. If set to `null` or if it is an empty string no separator
 is allowed.
 
 **Returns:**
@@ -614,6 +614,44 @@ the string at index `1`.
 '101' 2 @su.consume_int --> {5, ''}
 '123_456 789' 0 '_' @su.consume_int --> {123456, ' 789'}
 ```
+
+---
+
+### `@consume_real`
+
+**Synopsis:**
+
+```nest
+[string: Str, sep: Str?] @consume_real -> Array[Real, Str]
+```
+
+**Description:**
+
+Parses a real number from the start of `string` and returns the remaining part.
+If the string does not begin with a number the function fails. Any leading
+whitespace is ignored.
+
+A number is composed of the following parts:
+
+- an optional sign (`+` or `-`)
+- optionally one or more decimal digits that may be separated by `sep`
+- an optional dot (`.`)
+- another optional sequence of digits
+- an optional exponent which consists of
+    - the letter `e` or `E`
+    - an optional sign (`+` or `-`)
+    - one or more digits, optionally separated by `sep`
+
+Note that one digit, either before or after the dot, is always reqired.
+
+`sep` is an optional one-character digit separator. It can appear between two
+digits of the number. If set to `null` or if it is an empty string no separator
+is allowed.
+
+**Returns:**
+
+An `Array` containing the parsed number at index `0` and the remaining part of
+the string at index `1`.
 
 ---
 
@@ -1138,7 +1176,7 @@ A number is composed of the following parts:
 - one or more digits
 
 `sep` is an optional one-character digit separator. It can appear between two
-digits of the number. If set to `null` or it is an empty string no separator
+digits of the number. If set to `null` or if it is an empty string no separator
 is allowed.
 
 **Returns:**
@@ -1157,6 +1195,42 @@ The parsed integer.
 '101' 2 @su.parse_int --> 5
 '123_456_789' 0 '_' @su.parse_int --> 123456789
 ```
+
+---
+
+### `@parse_real`
+
+**Synopsis:**
+
+```nest
+[string: Str, sep: Str?] @parse_real -> Real
+```
+
+**Description:**
+
+Parses a real number from `string`. If the string is not a valid number the
+function fails. Any leading or trailing whitespace is ignored.
+
+A number is composed of the following parts:
+
+- an optional sign (`+` or `-`)
+- optionally one or more decimal digits that may be separated by `sep`
+- an optional dot (`.`)
+- another optional sequence of digits
+- an optional exponent which consists of
+    - the letter `e` or `E`
+    - an optional sign (`+` or `-`)
+    - one or more digits, optionally separated by `sep`
+
+Note that one digit, either before or after the dot, is always reqired.
+
+`sep` is an optional one-character digit separator. It can appear between two
+digits of the number. If set to `null` or if it is an empty string no separator
+is allowed.
+
+**Returns:**
+
+The parsed number.
 
 ---
 

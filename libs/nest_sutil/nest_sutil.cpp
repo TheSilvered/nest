@@ -41,6 +41,8 @@ static Nst_Declr obj_list_[] = {
     Nst_FUNCDECLR(hex_, 2),
     Nst_FUNCDECLR(parse_int_, 3),
     Nst_FUNCDECLR(consume_int_, 3),
+    Nst_FUNCDECLR(parse_real_, 2),
+    Nst_FUNCDECLR(consume_real_, 2),
     Nst_FUNCDECLR(lremove_, 2),
     Nst_FUNCDECLR(rremove_, 2),
     Nst_FUNCDECLR(fmt_, 2),
@@ -1438,6 +1440,53 @@ Nst_Obj *NstC consume_int_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     Nst_Obj *arr = Nst_array_create_c("IS", num, rest);
+    if (arr == NULL)
+        return nullptr;
+
+    return arr;
+}
+
+Nst_Obj *NstC parse_real_(usize arg_num, Nst_Obj **args)
+{
+    Nst_Obj *str;
+    Nst_Obj *sep_obj;
+    if (!Nst_extract_args("s ?s", arg_num, args, &str, &sep_obj))
+        return nullptr;
+
+    u32 sep;
+    if (!get_sep(sep_obj, &sep))
+        return nullptr;
+
+    f64 num = 0;
+    bool result = Nst_sv_parse_real(
+        Nst_sv_from_str(str),
+        Nst_SVFLAG_FULL_MATCH,
+        sep,
+        &num, NULL);
+
+    if (!result)
+        return nullptr;
+
+    return Nst_real_new(num);
+}
+
+Nst_Obj *NstC consume_real_(usize arg_num, Nst_Obj **args)
+{
+    Nst_Obj *str;
+    Nst_Obj *sep_obj;
+    if (!Nst_extract_args("s ?s", arg_num, args, &str, &sep_obj))
+        return nullptr;
+
+    u32 sep;
+    if (!get_sep(sep_obj, &sep))
+        return nullptr;
+
+    f64 num = 0;
+    Nst_StrView rest;
+    if (!Nst_sv_parse_real(Nst_sv_from_str(str), 0, sep, &num, &rest))
+        return nullptr;
+
+    Nst_Obj *arr = Nst_array_create_c("fS", num, rest);
     if (arr == NULL)
         return nullptr;
 

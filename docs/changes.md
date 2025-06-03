@@ -16,7 +16,7 @@
 
 - added a new syntax for raw strings with backticks
 - added `is_ascii`, `is_decimal` and `is_numeric` to `stdsutil.nest`
-- added `consume_int` to `stdsutil.nest`
+- added `consume_int`, `parse_real` and `consume_real` to `stdsutil.nest`
 
 **Changes**
 
