@@ -299,7 +299,6 @@
 - renamed `_Nst_ndec_ref` to `Nst_ndec_ref` and removed macro alias
 - removed `Nst_NullObj`
 - removed `_Nst_obj_free` and `_Nst_obj_destroy`
--
 - renamed `_Nst_obj_*` operations in `obj_ops.h` to `Nst_obj_*` and removed macro aliases
 - renamed `_Nst_repr_str_cast` to `Nst_obj_to_repr_str`
 - removed `_Nst_obj_str_cast_seq` and `_Nst_obj_str_cast_map`
