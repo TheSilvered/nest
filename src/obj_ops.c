@@ -929,8 +929,17 @@ static Nst_Obj *obj_to_real(Nst_Obj *ob)
         return Nst_real_new((f64)Nst_int_i64(ob));
     else if (ob_t == Nst_t.Byte)
         return Nst_real_new((f64)Nst_byte_u8(ob));
-    else if (ob_t == Nst_t.Str)
-        return Nst_str_parse_real(ob);
+    else if (ob_t == Nst_t.Str) {
+        f64 num;
+        bool result = Nst_sv_parse_real(
+            Nst_sv_from_str(ob),
+            Nst_SVFLAG_FULL_MATCH,
+            '_',
+            &num, NULL);
+        if (!result)
+            return NULL;
+        return Nst_real_new(num);
+    }
     RETURN_CAST_TYPE_ERROR(Nst_t.Real);
 }
 
