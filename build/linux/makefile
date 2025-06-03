@@ -163,7 +163,7 @@ all-debug:
 
 install:
 	@$(SILENT_MAKE) all
-	@cd .. && ./update_files.sh
+	@sh ./update_files.sh py
 	@sudo mkdir -p $(INSTALL_LIB_PREFIX)/nest/
 	@sudo mkdir -p $(INSTALL_EXE_PREFIX)/
 	@sudo cp -r $(STDLIB_DIR)/* $(INSTALL_LIB_PREFIX)/nest
