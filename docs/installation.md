@@ -46,36 +46,26 @@ To uninstall Nest on Windows you can do so from the control panel.
 
 ## Linux
 
-### Archive
-
-To Install Nest from the precompiled binaries archive download the `.tar.gz`
-file with the desired architecture and extract it in the current directory with:
-
-```text
-$ tar -xzf nest-[VERSION]-[ARCHITECTURE]-linux.tar.gz
-```
-
-Now run `./linux_install_[ARCHITECTURE].sh` to copy the binaries to
-`/usr/libs/nest` and to `/usr/bin` and install the necessary libraries.
-
 ### Compile from source on Linux
 
-To compile Nest from source on Linux first clone the repository and enter in the
-directory. From here run `sudo bash configure.sh` to install the necessary
-libraries.
+Compiling on linux requires `gcc` or `clang` as the C/C++ compiler.
 
-!!!note
-    If you are not using `apt` or `dnf` this file will not work.
+To compile on linux go to `build/linux`, from here you can perform one of the
+following commands:
 
-Once you have installed the libraries you can enter `nest/build/linux/makefiles/`
-and run `make help` to see what to compile. In general you will want to run
-`make install` or `make install-x86`.
+```sh
+make install  # compile and install nest and the standard library
+make uninstall  # remove a previous installation of nest
+make all  # only compile nest and the standard library
+make help  # to see all other make options
+```
 
-### Uninstalling on linux
+If you are using clang use the following commands to compile Nest:
 
-To uninstall Nest on Linux, copy
-[`nest/build/linux/uninstall.sh`](https://github.com/TheSilvered/nest/blob/main/build/linux/uninstall.sh)
-and execute it.
+```sh
+make install CC=clang
+make all CC=clang
+```
 
 ## Plugins
 
