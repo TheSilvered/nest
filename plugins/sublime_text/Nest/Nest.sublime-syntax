@@ -8,20 +8,20 @@ file_extensions:
 
 variables:
   # number regex
-  dec_digits: '\d[\d_]*'
+  dec_digits: '\d(_\d|\d)*'
   dec_ltrl: '{{dec_digits}}[bB]?'
   real_ltrl: '{{dec_digits}}\.{{dec_digits}}([eE][+-]?{{dec_digits}})?'
   real_illegal: '{{dec_digits}}\.{{dec_digits}}[eE][+-]?[^-+0-9]'
 
-  oct_digits: '[0-7][0-7_]*'
+  oct_digits: '[0-7](_[0-7]|[0-7])*'
   oct_ltrl: '0[oO]{{oct_digits}}([bB]|(?!\d))'
   oct_illegal: '0[oO]({{oct_digits}}[89]|[^0-7]|[89])'
 
-  bin_digits: '[01][01_]*'
+  bin_digits: '[01](_[01]|[01])*'
   bin_ltrl: '0[bB]{{bin_digits}}([bB]|(?!\d))'
   bin_illegal: '0[bB]({{bin_digits}}[2-9]|[2-9])'
 
-  hex_digits: '[0-9a-fA-F][0-9a-fA-F_]*'
+  hex_digits: '[\da-fA-F](_[\da-fA-F]|[\da-fA-F])*'
   hex_ltrl: '0[xXhH]{{hex_digits}}(?![g-zG-Z])'
   hex_illegal: '0[xXhH]({{hex_digits}}[g-zG-Z]|[^0-9a-fA-F]|[g-zG-Z])'
 
