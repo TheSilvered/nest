@@ -1,7 +1,7 @@
 /**
  * @file file.h
  *
- * @brief `Nst_IOFileObj` interface
+ * @brief `IOFile` object interface
  *
  * @author TheSilvered
  */
@@ -17,20 +17,17 @@
 #include <windows.h>
 #endif // !Nst_MSVC
 
-/* Casts ptr to a `Nst_IOFileObj *`. */
-#define IOFILE(ptr) ((Nst_IOFileObj *)(ptr))
-
-/* Checks if `f` is closed. */
+/* Check if `f` is closed. */
 #define Nst_IOF_IS_CLOSED(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_IS_CLOSED)
-/* Checks if `f` was opened in binary mode. */
+/* Check if `f` was opened in binary mode. */
 #define Nst_IOF_IS_BIN(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_IS_BIN)
-/* Checks if `f` is a TTY. */
+/* Check if `f` is a TTY. */
 #define Nst_IOF_IS_TTY(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_IS_TTY)
-/* Checks if `f` can be written. */
+/* Check if `f` can be written. */
 #define Nst_IOF_CAN_WRITE(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_CAN_WRITE)
-/* Checks if `f` can be read. */
+/* Check if `f` can be read. */
 #define Nst_IOF_CAN_READ(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_CAN_READ)
-/* Checks if `f` can be seeked. */
+/* Check if `f` can be sought. */
 #define Nst_IOF_CAN_SEEK(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_CAN_SEEK)
 
 #ifdef __cplusplus
@@ -71,8 +68,6 @@ NstEXP typedef enum _Nst_SeekWhence {
     Nst_SEEK_END = 2
 } Nst_SeekWhence;
 
-struct _Nst_IOFileObj;
-
 /**
  * The type that represents a read function of a Nest file object.
  *
@@ -81,7 +76,7 @@ struct _Nst_IOFileObj;
  * position indicator.
  *
  * @param buf: the buffer where the read text is written. If `buf_size` is
- * `0` this parameter should be interpreted as `i8 **` and a malloc'd buffer
+ * `0` this parameter should be interpreted as `u8 **` and a malloc'd buffer
  * of the right size shall be put in it. When the file is opened in normal
  * mode the contents of the buffer must be in `extUTF8` encoding and must
  * terminate with a NUL character.
@@ -93,7 +88,7 @@ struct _Nst_IOFileObj;
  * `Nst_IO_EOF_REACHED`
  * @param buf_len: this is an out parameter set to the length in bytes of the
  * data written in `buf` ignoring the NUL character, it may be `NULL` to not
- * recieve the information
+ * receive the information
  * read when the file is opened in normal mode and to the number of bytes read
  * when opened in binary mode
  * @param f: the file to read
@@ -113,23 +108,23 @@ struct _Nst_IOFileObj;
  *! `Nst_IO_CLOSED` if the file is closed.
  *! `Nst_IO_ERROR` for any other error that might occur.
  */
-NstEXP typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size,
+NstEXP typedef Nst_IOResult (*Nst_IOFile_read_f)(u8 *buf, usize buf_size,
                                                  usize count, usize *buf_len,
-                                                 struct _Nst_IOFileObj *f);
+                                                 Nst_Obj *f);
 /**
  * The type that represents a write function of a Nest file object.
  *
  * @brief This function shall write the contents of buf to a file starting from
- * the file position indicator and overwriting any previous content. If count is
- * not `NULL` it is filled with the number of characters written (or the number
- * of bytes if the file is in binary mode). `buf` shall contain UTF-8 text that
- * allows invalid characters under U+10FFFF.
+ * the file position indicator and overwriting any previous content. If count
+ * is not `NULL` it is filled with the number of characters written (or the
+ * number of bytes if the file is in binary mode). `buf` shall contain UTF-8
+ * text that allows invalid characters under U+10FFFF.
  *
  * @param buf: the content to write to the file
  * @param buf_len: the length in bytes of `buf`
  * @param count: an out parameter set to the number of characters written when
  * the file is opened in normal mode or to the number of bytes written when
- * it is in binary mode, it may be `NULL` to not recieve the information,a
+ * it is in binary mode, it may be `NULL` to not receive the information,a
  * valid value can be expected only when the function returns `Nst_IO_SUCCESS`
  * @param f: the file to write to
  *
@@ -146,9 +141,8 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size,
  *! `Nst_IO_CLOSED` if the file is closed.
  *! `Nst_IO_ERROR` for any other error that might occur.
  */
-NstEXP typedef Nst_IOResult (*Nst_IOFile_write_f)(i8 *buf, usize buf_len,
-                                                  usize *count,
-                                                  struct _Nst_IOFileObj *f);
+NstEXP typedef Nst_IOResult (*Nst_IOFile_write_f)(u8 *buf, usize buf_len,
+                                                  usize *count, Nst_Obj *f);
 /**
  * The type that represents a flush function of a Nest file object.
  *
@@ -164,7 +158,7 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_write_f)(i8 *buf, usize buf_len,
  *! `Nst_IO_ALLOC_FAILED` if a memory allocation fails.
  *! `Nst_IO_ERROR` for any other error.
  */
-NstEXP typedef Nst_IOResult (*Nst_IOFile_flush_f)(struct _Nst_IOFileObj *f);
+NstEXP typedef Nst_IOResult (*Nst_IOFile_flush_f)(Nst_Obj *f);
 /**
  * The type that represents a tell function of a Nest file object.
  *
@@ -172,7 +166,7 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_flush_f)(struct _Nst_IOFileObj *f);
  * the start of the file of the file-position indicator.
  *
  * @param f: the file to get the position from
- * @param pos: the pointer filled with the retrived position, a valid value can
+ * @param pos: the pointer filled with the retrieved position, a valid value can
  * be expected only when the function returns `Nst_IO_SUCCESS`
  *
  * @return This function shall return one of the following `Nst_IOResult`
@@ -182,14 +176,13 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_flush_f)(struct _Nst_IOFileObj *f);
  *! `Nst_IO_SUCCESS` if the function exits successfully.
  *! `Nst_IO_ERROR` for any other error.
  */
-NstEXP typedef Nst_IOResult (*Nst_IOFile_tell_f)(struct _Nst_IOFileObj *f,
-                                                 usize *pos);
+NstEXP typedef Nst_IOResult (*Nst_IOFile_tell_f)(Nst_Obj *f, usize *pos);
 /**
  * The type that represents a seek function of a Nest file object.
  *
- * @brief This function shall move the file-position indicator. `Nst_SEEK_SET` is the start of the file,
- * `Nst_SEEK_CUR` is the current position of the file-position indicator and
- * `Nst_SEEK_END` is the end of the file.
+ * @brief This function shall move the file-position indicator. `Nst_SEEK_SET`
+ * is the start of the file, `Nst_SEEK_CUR` is the current position of the
+ * file-position indicator and `Nst_SEEK_END` is the end of the file.
  *
  * @param origin: where to calculate the offset from, `Nst_SEEK_SET` is the
  * start of the file, `Nst_SEEK_CUR` is the current position of the indicator
@@ -205,8 +198,7 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_tell_f)(struct _Nst_IOFileObj *f,
  *! `Nst_IO_ERROR` for any other error.
  */
 NstEXP typedef Nst_IOResult (*Nst_IOFile_seek_f)(Nst_SeekWhence origin,
-                                                 isize offset,
-                                                 struct _Nst_IOFileObj *f);
+                                                 isize offset, Nst_Obj *f);
 /**
  * The type that represents a close function of a Nest file object.
  *
@@ -221,11 +213,11 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_seek_f)(Nst_SeekWhence origin,
  *! `Nst_IO_SUCCESS` if the function exits successfully.
  *! `Nst_IO_ERROR` for any other error.
  */
-NstEXP typedef Nst_IOResult (*Nst_IOFile_close_f)(struct _Nst_IOFileObj *f);
+NstEXP typedef Nst_IOResult (*Nst_IOFile_close_f)(Nst_Obj *f);
 
 /**
- * @brief A structure representing the functions necessary to operate a Nest
- * file object.
+ * A structure representing the functions necessary to operate a Nest file
+ * object.
  */
 NstEXP typedef struct _Nst_IOFuncSet {
     Nst_IOFile_read_f read;
@@ -240,10 +232,7 @@ NstEXP typedef struct _Nst_IOFuncSet {
 
 #define _Nst_WIN_STDIN_BUF_SIZE 2048
 
-/**
- * @brief WINDOWS ONLY A structure representing the standard input file on
- * Windows.
- */
+/* WINDOWS ONLY A structure representing the standard input file on Windows. */
 NstEXP typedef struct _Nst_StdIn {
     HANDLE hd;
     wchar_t buf[_Nst_WIN_STDIN_BUF_SIZE];
@@ -256,23 +245,6 @@ extern Nst_StdIn Nst_stdin;
 
 #endif // !Nst_MSVC
 
-/**
- * A structure representing a Nest IO file object.
- *
- * @param fp: the pointer to the file, it may not be a `FILE *`
- * @param fd: the file descriptor, `-1` if not supported
- * @param encoding: the encoding the file was opened in, `NULL` when opened in
- * binary mode
- * @param func_set: the functions used to operate the file
- */
-NstEXP typedef struct _Nst_IOFileObj {
-    Nst_OBJ_HEAD;
-    int fd;
-    void *fp;
-    Nst_CP *encoding;
-    Nst_IOFuncSet func_set;
-} Nst_IOFileObj;
-
 /* The flags of a IO file. */
 NstEXP typedef enum _Nst_IOFileFlag {
     Nst_FLAG_IOFILE_IS_CLOSED = Nst_FLAG(1),
@@ -284,7 +256,7 @@ NstEXP typedef enum _Nst_IOFileFlag {
 } Nst_IOFileFlag;
 
 /**
- * Creates a new `Nst_IOFileObj` from a C file pointer.
+ * Create a new `IOFile` object from a C file pointer.
  *
  * @param value: the value of the new object
  * @param bin: if the file is in binary mode
@@ -294,10 +266,10 @@ NstEXP typedef enum _Nst_IOFileFlag {
  *
  * @return The new object on success or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_iof_new(FILE *value, bool bin, bool read,
-                                 bool write, Nst_CP *encoding);
+NstEXP Nst_ObjRef *NstC Nst_iof_new(FILE *value, bool bin, bool read,
+                                    bool write, Nst_Encoding *encoding);
 /**
- * Creates a new `Nst_IOFileObj` that is not a C file pointer.
+ * Create a new `IOFile` object that is not a C file pointer.
  *
  * @param value: the value of the new object
  * @param bin: if the file is in binary mode
@@ -310,47 +282,66 @@ NstEXP Nst_Obj *NstC Nst_iof_new(FILE *value, bool bin, bool read,
  *
  * @return The new object on success or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_iof_new_fake(void *value, bool bin, bool read,
-                                      bool write, bool seek, Nst_CP *encoding,
-                                      Nst_IOFuncSet func_set);
-
-/* Destructor of a `Nst_IOFileObj`. */
-NstEXP void NstC _Nst_iofile_destroy(Nst_IOFileObj *obj);
-
-/* Calls the read function of the file, see `Nst_IOFile_read_f`. */
-NstEXP Nst_IOResult NstC Nst_fread(i8 *buf, usize buf_size, usize count,
-                                   usize *buf_len, Nst_IOFileObj *f);
-/* Calls the write function of the file, see `Nst_IOFile_write_f`. */
-NstEXP Nst_IOResult NstC Nst_fwrite(i8 *buf, usize buf_len, usize *count,
-                                    Nst_IOFileObj *f);
-/* Calls the flush function of the file, see `Nst_IOFile_flush_f`. */
-NstEXP Nst_IOResult NstC Nst_fflush(Nst_IOFileObj *f);
-/* Calls the tell function of the file, see `Nst_IOFile_tell_f`. */
-NstEXP Nst_IOResult NstC Nst_ftell(Nst_IOFileObj *f, usize *pos);
-/* Calls the seek function of the file, see `Nst_IOFile_seek_f`. */
-NstEXP Nst_IOResult NstC Nst_fseek(Nst_SeekWhence origin, isize offset,
-                                   Nst_IOFileObj *f);
-/* Calls the close function of the file, see `Nst_IOFile_close_f`. */
-NstEXP Nst_IOResult NstC Nst_fclose(Nst_IOFileObj *f);
-
-/* Read function for standard C file descriptors. */
-NstEXP Nst_IOResult NstC Nst_FILE_read(i8 *buf, usize buf_size, usize count,
-                                        usize *buf_len, Nst_IOFileObj *f);
-/* Write function for standard C file descriptors. */
-NstEXP Nst_IOResult NstC Nst_FILE_write(i8 *buf, usize buf_len, usize *count,
-                                         Nst_IOFileObj *f);
-/* Flush function for standard C file descriptors. */
-NstEXP Nst_IOResult NstC Nst_FILE_flush(Nst_IOFileObj *f);
-/* Tell function for standard C file descriptors. */
-NstEXP Nst_IOResult NstC Nst_FILE_tell(Nst_IOFileObj *f, usize *pos);
-
-NstEXP Nst_IOResult NstC Nst_FILE_seek(Nst_SeekWhence origin, isize offset,
-                                        Nst_IOFileObj *f);
-/* Close function for standard C file descriptors. */
-NstEXP Nst_IOResult NstC Nst_FILE_close(Nst_IOFileObj *f);
+NstEXP Nst_ObjRef *NstC Nst_iof_new_fake(void *value, bool bin, bool read,
+                                         bool write, bool seek,
+                                         Nst_Encoding *encoding,
+                                         Nst_IOFuncSet func_set);
 
 /**
- * Gets the details of the `Nst_IOResult` returned by the functions.
+ * @return The `Nst_IOFuncSet` of a file.
+ */
+NstEXP Nst_IOFuncSet *NstC Nst_iof_func_set(Nst_Obj *f);
+/**
+ * @return The file descriptor of a file. If it's negative the file is not a
+ * real file on disk.
+ */
+NstEXP int NstC Nst_iof_fd(Nst_Obj *f);
+/**
+ * @return A pointer to the internal data of a file. If the descriptor returned
+ * by `Nst_iof_fd` is positive this is of type `FILE *`.
+ */
+NstEXP void *NstC Nst_iof_fp(Nst_Obj *f);
+/**
+ * @return The encoding of a file.
+ */
+NstEXP Nst_Encoding *NstC Nst_iof_encoding(Nst_Obj *f);
+
+void _Nst_iofile_destroy(Nst_Obj *obj);
+
+/* Call the read function of the file, see `Nst_IOFile_read_f`. */
+NstEXP Nst_IOResult NstC Nst_fread(u8 *buf, usize buf_size, usize count,
+                                   usize *buf_len, Nst_Obj *f);
+/* Call the write function of the file, see `Nst_IOFile_write_f`. */
+NstEXP Nst_IOResult NstC Nst_fwrite(u8 *buf, usize buf_len, usize *count,
+                                    Nst_Obj *f);
+/* Call the flush function of the file, see `Nst_IOFile_flush_f`. */
+NstEXP Nst_IOResult NstC Nst_fflush(Nst_Obj *f);
+/* Call the tell function of the file, see `Nst_IOFile_tell_f`. */
+NstEXP Nst_IOResult NstC Nst_ftell(Nst_Obj *f, usize *pos);
+/* Call the seek function of the file, see `Nst_IOFile_seek_f`. */
+NstEXP Nst_IOResult NstC Nst_fseek(Nst_SeekWhence origin, isize offset,
+                                   Nst_Obj *f);
+/* Call the close function of the file, see `Nst_IOFile_close_f`. */
+NstEXP Nst_IOResult NstC Nst_fclose(Nst_Obj *f);
+
+/* Read function for standard C file descriptors. */
+NstEXP Nst_IOResult NstC Nst_FILE_read(u8 *buf, usize buf_size, usize count,
+                                       usize *buf_len, Nst_Obj *f);
+/* Write function for standard C file descriptors. */
+NstEXP Nst_IOResult NstC Nst_FILE_write(u8 *buf, usize buf_len, usize *count,
+                                        Nst_Obj *f);
+/* Flush function for standard C file descriptors. */
+NstEXP Nst_IOResult NstC Nst_FILE_flush(Nst_Obj *f);
+/* Tell function for standard C file descriptors. */
+NstEXP Nst_IOResult NstC Nst_FILE_tell(Nst_Obj *f, usize *pos);
+
+NstEXP Nst_IOResult NstC Nst_FILE_seek(Nst_SeekWhence origin, isize offset,
+                                       Nst_Obj *f);
+/* Close function for standard C file descriptors. */
+NstEXP Nst_IOResult NstC Nst_FILE_close(Nst_Obj *f);
+
+/**
+ * Get the details of the `Nst_IOResult` returned by the functions.
  *
  * @brief This function can only be called when the returned `Nst_IOResult` is
  * either `Nst_IO_INVALID_ENCODING` or `Nst_IO_INVALID_DECODING`. If the result
@@ -370,13 +361,13 @@ NstEXP Nst_IOResult NstC Nst_FILE_close(Nst_IOFileObj *f);
  */
 NstEXP void NstC Nst_io_result_get_details(u32 *ill_encoded_ch,
                                            usize *position,
-                                           const i8 **encoding_name);
-/* Sets the values returned with `Nst_io_result_get_details`. */
+                                           const char **encoding_name);
+/* Set the values returned with `Nst_io_result_get_details`. */
 NstEXP void NstC Nst_io_result_set_details(u32 ill_encoded_ch,
                                            usize position,
-                                           const i8 *encoding_name);
+                                           const char *encoding_name);
 /**
- * Opens a file given a path that can contain unicode characters in UTF-8.
+ * Open a file given a path that can contain unicode characters in UTF-8.
  *
  * @param path: the path to the file
  * @param mode: the mode to open the file with
@@ -384,7 +375,7 @@ NstEXP void NstC Nst_io_result_set_details(u32 ill_encoded_ch,
  * @return The file pointer on success and `NULL` on failure. The error is set
  * only if a `Memory Error` occurs.
  */
-NstEXP FILE *NstC Nst_fopen_unicode(i8 *path, const i8 *mode);
+NstEXP FILE *NstC Nst_fopen_unicode(const char *path, const char *mode);
 
 #ifdef __cplusplus
 }

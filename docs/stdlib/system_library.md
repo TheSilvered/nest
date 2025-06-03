@@ -230,7 +230,7 @@ Whether the console supports ANSI escape sequences.
 
 ### `VERSION`
 
-The current version of Nest as a string such as `'0.15.0 x64'`.
+The current version of Nest as a string such as `'0.16.0 x64'`.
 
 ---
 

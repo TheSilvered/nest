@@ -1,0 +1,589 @@
+|#| 'std.nest' = std
+std.io = io
+std.su = su
+std.sequ = sequ
+std.itu = itu
+
+'../ucd16' = UCD_DIR
+'../src/unicode_db.c' = DB_PATH
+
+0x001 = MASK_UPPERCASE
+0x002 = MASK_LOWERCASE
+0x004 = MASK_CASED
+0x008 = MASK_ALPHABETIC
+0x010 = MASK_DECIMAL
+0x020 = MASK_DIGIT
+0x040 = MASK_NUMERIC
+0x080 = MASK_XID_START
+0x100 = MASK_XID_CONTINUE
+0x200 = MASK_PRINTABLE
+
+'UCD_DIR: \(@std.sys.get_cwd)/\(UCD_DIR)' @io.println
+'UCD_DIR: \(@std.sys.get_cwd)/\(DB_PATH)\n' @io.println
+
+#data_lines_func f final_semicolon [
+    f @io.read '\n' @su.lsplit = content
+    ... content := line [
+        !line (line @su.trim '#' @su.starts_with) || ? ..
+        (line '#' @su.lsplit).0 ';' @su.lsplit su.trim true @sequ.map = values
+        (final_semicolon ? values null -1 @sequ.slice : values) @std.co.yield
+    ]
+]
+data_lines_func @std.co.create = data_lines
+
+#CodePoint value [
+    ?::value Str == ? value @su.trim 16 @su.parse_int = value
+    !(0 value 0x10FFFF <=) ?
+        'Value Error' !! '\(value @su.hex) is not a valid codepoint'
+    => value
+]
+
+#UnicodeDataEntry
+    code
+    name
+    general_category
+    numeric_type
+    numeric_value
+    simple_lowercase_mapping
+    simple_uppercase_mapping
+    simple_titlecase_mapping
+=> {
+    'code': code,
+    'name': name,
+    'general_category': general_category,
+    'numeric_type': numeric_type,
+    'numeric_value': numeric_value,
+    'simple_lowercase_mapping': simple_lowercase_mapping,
+    'simple_uppercase_mapping': simple_uppercase_mapping,
+    'simple_titlecase_mapping': simple_titlecase_mapping
+}
+
+#parse_fraction str [
+    |> str.0 [
+        ? '-' [
+            -1 = sign
+            str 1 @sequ.slice = str
+        ]
+        ? '+' [
+            str 1 @sequ.slice = str
+            ..
+        ]
+        ? [
+            1 = sign
+        ]
+    ]
+    str '/' <.> ? [
+        str '/' @su.lsplit = {num, den}
+        (Real::num) (Real::den) / = value
+    ] : [
+        Real::str = value
+    ]
+    => value sign *
+]
+
+#make_unicode_data f [
+    {} = chars
+    ... data_lines {f, false} @std.co.generator := {
+        code, name, general_category,
+        _, _, _,
+        num6, num7, num8,
+        _, _, _,
+        upper, lower, title
+    } [
+        code @CodePoint = code
+        name '<' <.> !name || ? null = name
+        (lower ? lower @CodePoint : code)  = lower
+        (upper ? upper @CodePoint : code)  = upper
+        (title ? title @CodePoint : upper) = title
+        null = numeric_type
+        null = numeric_value
+        num6 ? [
+            'Decimal' = numeric_type
+            Int::num6 = numeric_value
+        ] : num7 ? [
+            'Digit' = numeric_type
+            Int::num7 = numeric_value
+        ] : num8 ? [
+            'Numeric' = numeric_type
+            num8 @parse_fraction = numeric_value
+        ]
+        (
+            code
+            name
+            general_category
+            numeric_type
+            numeric_value
+            lower
+            upper
+            title
+            @UnicodeDataEntry
+        ) = chars.(code)
+    ]
+    => chars
+]
+
+#make_core_properties f [
+    {} = chars
+
+    ... data_lines {f, false} @std.co.generator := prop [
+        prop.0 = rng
+        prop 1 @sequ.slice = prop
+        rng '.' <.> ? [
+            rng '..' @su.lsplit = {start, end}
+            start 16 @su.parse_int = start
+            end 16 @su.parse_int = end
+            start -> (end 1 +) = rng
+        ] : [
+            rng 16 @su.parse_int = code
+            code -> (code 1 +) = rng
+        ]
+
+        ... rng := ch [
+            ch @CodePoint = ch
+            $prop 1 != ? ..
+            |> prop.0 [
+                ? 'Lowercase'    [ MASK_LOWERCASE    = prop_value ]
+                ? 'Uppercase'    [ MASK_UPPERCASE    = prop_value ]
+                ? 'Cased'        [ MASK_CASED        = prop_value ]
+                ? 'Alphabetic'   [ MASK_ALPHABETIC   = prop_value ]
+                ? 'XID_Start'    [ MASK_XID_START    = prop_value ]
+                ? 'XID_Continue' [ MASK_XID_CONTINUE = prop_value ]
+                ? [ 0 = prop_value ]
+            ]
+            !prop_value ? ..
+            chars ch <.> ? prop_value |= chars.(ch)
+                         : prop_value = chars.(ch)
+        ]
+    ]
+
+    => chars
+]
+
+#SpecialCasingEntry code lower upper title
+=> { 'code': code, 'lower': lower, 'upper': upper, 'title': title }
+
+#make_special_casing f [
+    {} = chars
+    ... data_lines {f, true} @std.co.generator := line [
+        -- Ignore conditional casings
+        $line 4 > ? ..
+        {line.0, line.1, line.2, line.3} = {code, lower, upper, title}
+        code @CodePoint = code
+        (
+            code
+            (lower @su.lsplit CodePoint true @sequ.map)
+            (upper @su.lsplit CodePoint true @sequ.map)
+            (title @su.lsplit CodePoint true @sequ.map)
+            @SpecialCasingEntry
+        ) = chars.(code)
+    ]
+    => chars
+]
+
+#make_whitespace_chars f [
+    <{}> = chars
+    ... data_lines {f, false} @std.co.generator := {rng, prop} [
+        rng '.' <.> ? [
+            rng '..' @su.lsplit = {start, end}
+            start 16 @su.parse_int = start
+            end 16 @su.parse_int = end
+            start -> (end 1 +) = rng
+        ] : [
+            rng 16 @su.parse_int = code
+            code -> (code 1 +) = rng
+        ]
+        prop 'White_Space' == ?
+            chars rng @sequ.extend
+    ]
+    => chars
+]
+
+#Character
+    data
+    core_properties
+    special_casing
+    special_casing_list
+[
+    {} = this
+    data.code = this.code
+    (core_properties null == ? 0 : core_properties) = this.properties
+
+    |> data.numeric_type [
+        ? 'Decimal' [ MASK_DECIMAL MASK_DIGIT MASK_NUMERIC |= this.properties ]
+        ? 'Digit'   [ MASK_DIGIT MASK_NUMERIC |= this.properties ]
+        ? 'Numeric' [ MASK_NUMERIC |= this.properties ]
+    ]
+
+    ('LNPS' data.general_category.0 <.>) (data.general_category 'Zs' ==) || ?
+        MASK_PRINTABLE |= this.properties
+
+    special_casing null != ? [
+        special_casing.lower = this.lower
+        special_casing.upper = this.upper
+        special_casing.title = this.title
+    ] : [
+        {data.simple_lowercase_mapping} = this.lower
+        {data.simple_uppercase_mapping} = this.upper
+        {data.simple_titlecase_mapping} = this.title
+    ]
+    this this.lower special_casing_list @add_special_casing = lower
+    this this.upper special_casing_list @add_special_casing = upper
+    this this.title special_casing_list @add_special_casing = title
+    {lower, upper, title, this.properties} = this.general_props
+    => this
+]
+
+#add_special_casing this casing special_casing_list [
+    $casing 1 == ?
+        => casing.0 this.code -
+    $casing 255 > ?
+        'Value Error' !! 'special casing expands more than 255 characters'
+    $special_casing_list = idx
+    special_casing_list ($casing 0xFF & 24 << casing.0 |) +
+    special_casing_list (casing 1 @sequ.slice) @sequ.extend
+    idx 0xFF_FFFF + 0xFFFF_FFFF > ?
+        'Value Error' !! 'too many special casings'
+    => idx 0xFF_FFFF +
+]
+
+#UnicodeDBWriter path include_guard_name mode encoding [
+    mode null == ? 'w' = mode
+    encoding null == ? std.cc.ASCII = encoding
+    path mode encoding @io.open = file
+    (include_guard_name ? include_guard_name @su.upper : null) = guard
+    guard ?
+        file '#ifndef \(guard)\n#define \(guard)\n' @io.write
+    => {'file': file, 'guard': guard}
+]
+
+#UnicodeDBWriter_writeln this line [
+    this.file line @io.write
+    this.file '\n' @io.write
+]
+
+#UnicodeDBWriter_write this text [
+    this.file text @io.write
+]
+
+#UnicodeDBWriter_write_struct this name fields [
+    this.file 'typedef struct \(name) {\n' @io.write
+    ... fields := field [
+        this.file '    \(field);\n' @io.write
+    ]
+    this.file '} \(name);\n\n' @io.write
+]
+
+#UnicodeDBWriter_write_array1d this type name data format max_line_len [
+    format null == ? '' = format
+    max_line_len null == ? 80 = max_line_len
+
+    $data 0 == ? 'Value Error' !! 'empty data'
+
+    this.file '\(type) \(name)[\($data)] = {\n' @io.write
+    '   ' = line
+    ... data := num [
+        '{\(format)}' {num} @su.fmt = num_str
+        $line $num_str 2 + max_line_len > ? [
+            this.file line @io.write
+            this.file '\n' @io.write
+            '    \(num_str),' = line
+        ] :
+            ' \(num_str),' ><= line
+    ]
+    line '   ' != ? [
+        this.file line @io.write
+        this.file '\n' @io.write
+    ]
+    this.file '};\n\n' @io.write
+]
+
+#UnicodeDBWriter_write_array2d this type name data format max_line_len [
+    format null == ? '' = format
+    max_line_len null == ? 80 = max_line_len
+
+    $data 0 == ? 'Value Error' !! 'empty data'
+
+    this.file '\(type) \(name)[\($data)][\($data.0)] = {\n' @io.write
+    ... data := sub_array [
+        this.file '    {\n' @io.write
+        '       ' = line
+        ... sub_array := num [
+            '{\(format)}' {num} @su.fmt = num_str
+            $line $num_str 2 + max_line_len > ? [
+                this.file line @io.write
+                this.file '\n' @io.write
+                '        \(num_str),' = line
+            ] :
+                ' \(num_str),' ><= line
+        ]
+        line '   ' != ? [
+            this.file line @io.write
+            this.file '\n' @io.write
+        ]
+        this.file '    },' @io.write
+    ]
+    this.file '\n};\n\n' @io.write
+]
+
+#UnicodeDBWriter_write_code this code [
+    code '\r\n' '\n' @su.replace '\r' '\n' @su.replace '\n' @su.lsplit = lines
+    ?.. !lines.0 [
+        lines 1 @sequ.slice = lines
+    ]
+    $lines.0 $(lines.0 @su.ltrim) - = ignore_indent
+    ... lines := line [
+        this.file (line ignore_indent @sequ.slice) @io.write
+        this.file '\n' @io.write
+    ]
+]
+
+#UnicodeDBWriter_close this [
+    this.guard ? this.file '\n#endif // !\(this.guard)\n' @io.write
+    this.file @io.close
+]
+
+#check_best_shift unicode_data prop_index_byte_size min_shift max_shift [
+    min_shift null == ? 4 = min_shift
+    max_shift null == ? 10 = max_shift
+    min_shift max_shift > ? 'Value Error' !! 'invalid shift range'
+
+    'Finding best SHIFT in range [\(min_shift), \(max_shift)]' @io.println
+    min_shift = best_shift
+    0 = best_block_size
+    ... 0 -> (max_shift min_shift - 1 +) := i [
+        {} = blocks
+        min_shift i + = shift
+        ... unicode_data @itu.keys := ch [
+            null = blocks.(ch shift >>)
+        ]
+        ($blocks @byte_size (0x10FFFF shift >> 1 +) *) (2 shift ^ prop_index_byte_size $blocks *) + = tot_size
+        i 0 == ? tot_size = best_block_size
+        : tot_size best_block_size < ? [
+            tot_size = best_block_size
+            shift = best_shift
+        ]
+        '    SHIFT: \(shift), blocks: \($blocks), total size: \(tot_size)' @io.println
+    ]
+    'Best shift: SHIFT=\(best_shift)\n' @io.println
+    => best_shift
+]
+
+#byte_size n [
+    n 255 <= ? => 1
+    n 65535 <= ? => 2
+    => 4
+]
+
+#type_from_size n [
+    |> n [
+        ? 1 [=> 'u8']
+        ? 2 [=> 'u16']
+        ? [=> 'u32']
+    ]
+]
+
+
+#generate_file
+    blocks
+    block_table
+    shift
+    shift_mask
+    special_casing_list
+    props
+    whitespace_chars
+[
+    special_casing_list ##x[=> x 24 >>] @sequ.map @std.math.max = max_expansion_len
+
+    '#define Nst_UCD_MAX_CASE_EXPANSION {}' {max_expansion_len} @su.fmt @io.println
+
+    <{}> = unicode_ch_blocks_data
+    ... blocks @itu.values := block [
+        <{}> = block_data
+        ... 0 -> (shift_mask 1 +) := i [
+            block i <.> ? block_data block.(i) +
+                        : block_data 0 +
+        ]
+        unicode_ch_blocks_data block_data +
+    ]
+
+    <{}> = unicode_ch_blocks_idx_data
+    ... 0 -> (0x10FFFF shift >> 1 +) := ch [
+        block_table ch <.> ?
+            unicode_ch_blocks_idx_data block_table.(ch) +
+        :
+            unicode_ch_blocks_idx_data ($blocks 1 +) +
+    ]
+
+    DB_PATH @UnicodeDBWriter = db_f
+    db_f "
+    // File generated by tools/generate_unicode_db.nest
+
+    #include \"unicode_db.h\"
+
+    #define SHIFT \(shift)
+    #define MAX_BLOCK_IDX \(0x10FFFF shift >>)
+    " @UnicodeDBWriter_write_code
+
+    (
+        db_f
+        'static const Nst_UnicodeChInfo'
+        'unicode_ch_info'
+        (props ##x[=> '{ \(x.0), \(x.1), \(x.2), \(x.3) }'] @sequ.map)
+        @UnicodeDBWriter_write_array1d
+    )
+
+    (
+        db_f
+        'static const u32'
+        'unicode_case_expansion'
+        special_casing_list
+        @UnicodeDBWriter_write_array1d
+    )
+
+    $props @byte_size @type_from_size = unicode_ch_blocks_type
+    $blocks 1 + @byte_size @type_from_size = unicode_ch_blocks_idx_type
+
+    (
+        db_f
+        'static const \(unicode_ch_blocks_type)'
+        'unicode_ch_blocks'
+        unicode_ch_blocks_data
+        '3'
+        @UnicodeDBWriter_write_array2d
+    )
+
+    (
+        db_f
+        'static const \(unicode_ch_blocks_idx_type)'
+        'unicode_ch_blocks_idx'
+        unicode_ch_blocks_idx_data
+        '3'
+        @UnicodeDBWriter_write_array1d
+    )
+
+    db_f "
+    Nst_UnicodeChInfo Nst_unicode_get_ch_info(u32 codepoint) {
+        if (codepoint >> SHIFT > MAX_BLOCK_IDX) {
+            return unicode_ch_info[0];
+        }
+        \(unicode_ch_blocks_idx_type) block_idx
+            = unicode_ch_blocks_idx[codepoint >> SHIFT];
+        \(unicode_ch_blocks_type) ch_info_idx
+            = unicode_ch_blocks[block_idx][codepoint & ((1 << SHIFT) - 1)];
+        return unicode_ch_info[ch_info_idx];
+    }
+
+    usize Nst_unicode_expand_case(u32 codepoint, i32 casing, u32 *out_codepoints) {
+        if (casing <= 0x10FFFF) {
+            if (out_codepoints != NULL)
+                *out_codepoints = codepoint + casing;
+            return 1;
+        }
+        u32 first_cp = unicode_case_expansion[casing - 0xFFFFFF];
+        usize size = first_cp >> 24;
+
+        if (out_codepoints == NULL)
+            return size;
+
+        *out_codepoints++ = first_cp & 0xFFFFFF;
+        for (usize i = 1; i < size; i++) {
+            *out_codepoints++ = unicode_case_expansion[casing - 0xFFFFFF + i];
+        }
+        return size;
+    }
+
+    bool Nst_unicode_is_whitespace(u32 codepoint) {
+        switch (codepoint) {
+\(whitespace_chars ##x[=> '        case {}:' {x} @su.fmt] @sequ.map '\n' @su.join)
+            return true;
+        }
+        return false;
+    }
+
+    bool Nst_unicode_is_titlecase(Nst_UnicodeChInfo info) {
+        if (!(info.flags & Nst_UCD_MASK_CASED)
+            || info.flags & Nst_UCD_MASK_LOWERCASE)
+        {
+            return false;
+        }
+        // If the uppercase and titlecase variats are the same and the
+        // character is uppercase then it is also titlecase
+        if (info.flags & Nst_UCD_MASK_UPPERCASE && info.title == 0)
+            return true;
+        return info.flags & Nst_UCD_MASK_UPPERCASE == 0;
+    }
+    " @UnicodeDBWriter_write_code
+
+    db_f @UnicodeDBWriter_close
+]
+
+#main [
+    '\(UCD_DIR)/UnicodeData.txt' @io.open = f
+    f @make_unicode_data = unicode_data
+    f @io.close
+    '\(UCD_DIR)/SpecialCasing.txt' @io.open = f
+    f @make_special_casing = special_casing
+    f @io.close
+    '\(UCD_DIR)/DerivedCoreProperties.txt' @io.open = f
+    f @make_core_properties = derived_core_properties
+    f @io.close
+    '\(UCD_DIR)/PropList.txt' @io.open = f
+    f @make_whitespace_chars = whitespace_chars
+    f @io.close
+
+    <{}> = chars
+    <{}> = special_casing_list
+    {} = props
+
+    ... unicode_data @itu.values := data [
+        (
+            data
+            derived_core_properties.(data.code)
+            special_casing.(data.code)
+            special_casing_list
+            @Character
+        ) = ch
+        chars ch +
+        null = props.(ch.general_props @su.join)
+    ]
+
+    Vector::(props @itu.keys) = props
+    props 0 '0 0 0 0' @sequ.insert_at
+    Map::(props null null true @itu.enumerate) = props_table
+    -- The values inside props remain vectors of strings but they are never
+    -- actually used as numbers
+    props ##x[=> x @su.lsplit] @sequ.map = props
+
+    unicode_data ($props @byte_size) @check_best_shift = shift
+    1 shift << 1 - = shift_mask
+
+    {} = blocks
+    {} = block_table
+    0 = idx
+
+    ... chars := ch [
+        ch.code shift >> = block_key
+        !(blocks block_key <.>) ? [
+            {} = block
+            block = blocks.(block_key)
+            idx = block_table.(block_key)
+            1 += idx
+        ] : [
+            blocks.(block_key) = block
+        ]
+        props_table.(ch.general_props @su.join) = block.(ch.code shift_mask &)
+    ]
+
+    (
+        blocks
+        block_table
+        shift
+        shift_mask
+        special_casing_list
+        props
+        whitespace_chars
+        @generate_file
+    )
+]
+
+@main

@@ -16,15 +16,13 @@ extern "C" {
 #endif // !__cplusplus
 
 /**
- * Parses a list of tokens into an abstract syntax tree.
- *
- * @brief The list of tokens is destroyed when calling this function.
+ * Parse a list of tokens into an abstract syntax tree.
  *
  * @param tokens: the tokens to be parsed
  *
  * @return The AST or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Node *NstC Nst_parse(Nst_LList *tokens);
+NstEXP Nst_Node *NstC Nst_parse(Nst_DynArray *tokens);
 
 #ifdef __cplusplus
 }

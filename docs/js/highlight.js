@@ -5,8 +5,8 @@ el.appendChild(node);
 
 hljs.registerLanguage("nest", hljs => {
   const kw = {
-    $pattern: /[?..;><#!:=>]+|\w+/,
-    keyword: ["?..", "..?", "...", "..", ";", "??", "?!", "?", ":", "=>"],
+    $pattern: /[?..;><#!:=>|]+|\w+/,
+    keyword: ["?..", "..?", "...", "..", ";", "??", "?!", "?", ":", "=>", "|>", ":="],
     built_in: ["_vars_", "_globals_", "_args_", "_debug_", "_debug_arch_", ">>>", "<<<", "!!", "::"],
     literal: ["true", "false", "null"],
     type: ["Int", "Real", "Byte", "Bool", "Map", "Array", "Vector", "Iter", "Func", "Null", "IOFile", "Str", "Type"]
@@ -26,6 +26,11 @@ hljs.registerLanguage("nest", hljs => {
     end: "'",
     illegal: '\\n',
     contains: [string_escape]
+  };
+  const raw_string = {
+    scope: "string",
+    begin: "`",
+    end: "[^`]`"
   };
   const line_comment = {
     scope: "comment",
@@ -101,6 +106,7 @@ hljs.registerLanguage("nest", hljs => {
       multiline_comment,
       double_quote_string,
       single_quote_string,
+      raw_string,
       fix_kw1,
       fix_kw2,
       fix_kw3,

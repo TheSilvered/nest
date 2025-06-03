@@ -1,6 +1,6 @@
 # `file.h`
 
-[`Nst_IOFileObj`](c_api-file.md#nst_iofileobj) interface.
+`IOFile` object interface.
 
 ## Authors
 
@@ -9,20 +9,6 @@ TheSilvered
 ---
 
 ## Macros
-
-### `IOFILE`
-
-**Synopsis:**
-
-```better-c
-#define IOFILE(ptr)
-```
-
-**Description:**
-
-Casts ptr to a [`Nst_IOFileObj *`](c_api-file.md#nst_iofileobj).
-
----
 
 ### `Nst_IOF_IS_CLOSED`
 
@@ -34,7 +20,7 @@ Casts ptr to a [`Nst_IOFileObj *`](c_api-file.md#nst_iofileobj).
 
 **Description:**
 
-Checks if `f` is closed.
+Check if `f` is closed.
 
 ---
 
@@ -48,7 +34,7 @@ Checks if `f` is closed.
 
 **Description:**
 
-Checks if `f` was opened in binary mode.
+Check if `f` was opened in binary mode.
 
 ---
 
@@ -62,7 +48,7 @@ Checks if `f` was opened in binary mode.
 
 **Description:**
 
-Checks if `f` is a TTY.
+Check if `f` is a TTY.
 
 ---
 
@@ -76,7 +62,7 @@ Checks if `f` is a TTY.
 
 **Description:**
 
-Checks if `f` can be written.
+Check if `f` can be written.
 
 ---
 
@@ -90,7 +76,7 @@ Checks if `f` can be written.
 
 **Description:**
 
-Checks if `f` can be read.
+Check if `f` can be read.
 
 ---
 
@@ -104,7 +90,7 @@ Checks if `f` can be read.
 
 **Description:**
 
-Checks if `f` can be seeked.
+Check if `f` can be sought.
 
 ---
 
@@ -151,34 +137,6 @@ typedef struct _Nst_StdIn {
 
 ---
 
-### `Nst_IOFileObj`
-
-**Synopsis:**
-
-```better-c
-typedef struct _Nst_IOFileObj {
-    Nst_OBJ_HEAD;
-    int fd;
-    void *fp;
-    Nst_CP *encoding;
-    Nst_IOFuncSet func_set;
-} Nst_IOFileObj
-```
-
-**Description:**
-
-A structure representing a Nest IO file object.
-
-**Fields:**
-
-- `fp`: the pointer to the file, it may not be a `FILE *`
-- `fd`: the file descriptor, `-1` if not supported
-- `encoding`: the encoding the file was opened in, `NULL` when opened in binary
-  mode
-- `func_set`: the functions used to operate the file
-
----
-
 ## Type aliases
 
 ### `Nst_IOFile_read_f`
@@ -186,8 +144,8 @@ A structure representing a Nest IO file object.
 **Synopsis:**
 
 ```better-c
-typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size, usize count,
-                                          usize *buf_len, Nst_IOFileObj *f)
+typedef Nst_IOResult (*Nst_IOFile_read_f)(u8 *buf, usize buf_size, usize count,
+                                          usize *buf_len, Nst_Obj *f)
 ```
 
 **Description:**
@@ -200,7 +158,7 @@ This function shall read from the given file object `count` characters (or
 **Parameters:**
 
 - `buf`: the buffer where the read text is written. If `buf_size` is `0` this
-  parameter should be interpreted as [`i8 **`](c_api_index.md#type-definitions)
+  parameter should be interpreted as [`u8 **`](c_api_index.md#type-definitions)
   and a malloc'd buffer of the right size shall be put in it. When the file is
   opened in normal mode the contents of the buffer must be in `extUTF8` encoding
   and must terminate with a NUL character.
@@ -212,7 +170,7 @@ This function shall read from the given file object `count` characters (or
   [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) or
   [`Nst_IO_EOF_REACHED`](c_api-file.md#nst_ioresult)
 - `buf_len`: this is an out parameter set to the length in bytes of the data
-  written in `buf` ignoring the NUL character, it may be `NULL` to not recieve
+  written in `buf` ignoring the NUL character, it may be `NULL` to not receive
   the information read when the file is opened in normal mode and to the number
   of bytes read when opened in binary mode
 - `f`: the file to read
@@ -248,8 +206,8 @@ This function shall return one of the following
 **Synopsis:**
 
 ```better-c
-typedef Nst_IOResult (*Nst_IOFile_write_f)(i8 *buf, usize buf_len,
-                                           usize *count, Nst_IOFileObj *f)
+typedef Nst_IOResult (*Nst_IOFile_write_f)(u8 *buf, usize buf_len,
+                                           usize *count, Nst_Obj *f)
 ```
 
 **Description:**
@@ -268,7 +226,7 @@ characters under U+10FFFF.
 - `buf_len`: the length in bytes of `buf`
 - `count`: an out parameter set to the number of characters written when the
   file is opened in normal mode or to the number of bytes written when it is in
-  binary mode, it may be `NULL` to not recieve the information,a valid value can
+  binary mode, it may be `NULL` to not receive the information,a valid value can
   be expected only when the function returns
   [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult)
 - `f`: the file to write to
@@ -300,7 +258,7 @@ This function shall return one of the following
 **Synopsis:**
 
 ```better-c
-typedef Nst_IOResult (*Nst_IOFile_flush_f)(Nst_IOFileObj *f)
+typedef Nst_IOResult (*Nst_IOFile_flush_f)(Nst_Obj *f)
 ```
 
 **Description:**
@@ -334,7 +292,7 @@ This function shall return one of the following
 **Synopsis:**
 
 ```better-c
-typedef Nst_IOResult (*Nst_IOFile_tell_f)(Nst_IOFileObj *f, usize *pos)
+typedef Nst_IOResult (*Nst_IOFile_tell_f)(Nst_Obj *f, usize *pos)
 ```
 
 **Description:**
@@ -347,7 +305,7 @@ of the file-position indicator.
 **Parameters:**
 
 - `f`: the file to get the position from
-- `pos`: the pointer filled with the retrived position, a valid value can be
+- `pos`: the pointer filled with the retrieved position, a valid value can be
   expected only when the function returns
   [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult)
 
@@ -371,7 +329,7 @@ This function shall return one of the following
 
 ```better-c
 typedef Nst_IOResult (*Nst_IOFile_seek_f)(Nst_SeekWhence origin, isize offset,
-                                          Nst_IOFileObj *f)
+                                          Nst_Obj *f)
 ```
 
 **Description:**
@@ -413,7 +371,7 @@ This function shall return one of the following
 **Synopsis:**
 
 ```better-c
-typedef Nst_IOResult (*Nst_IOFile_close_f)(Nst_IOFileObj *f)
+typedef Nst_IOResult (*Nst_IOFile_close_f)(Nst_Obj *f)
 ```
 
 **Description:**
@@ -446,14 +404,13 @@ This function shall return one of the following
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
-                     Nst_CP *encoding)
+Nst_ObjRef *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
+                        Nst_Encoding *encoding)
 ```
 
 **Description:**
 
-Creates a new [`Nst_IOFileObj`](c_api-file.md#nst_iofileobj) from a C file
-pointer.
+Create a new `IOFile` object from a C file pointer.
 
 **Parameters:**
 
@@ -474,14 +431,14 @@ The new object on success or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iof_new_fake(void *value, bool bin, bool read, bool write,
-                          bool seek, Nst_CP *encoding, Nst_IOFuncSet func_set)
+Nst_ObjRef *Nst_iof_new_fake(void *value, bool bin, bool read, bool write,
+                             bool seek, Nst_Encoding *encoding,
+                             Nst_IOFuncSet func_set)
 ```
 
 **Description:**
 
-Creates a new [`Nst_IOFileObj`](c_api-file.md#nst_iofileobj) that is not a C
-file pointer.
+Create a new `IOFile` object that is not a C file pointer.
 
 **Parameters:**
 
@@ -499,17 +456,61 @@ The new object on success or `NULL` on failure. The error is set.
 
 ---
 
-### `_Nst_iofile_destroy`
+### `Nst_iof_func_set`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_iofile_destroy(Nst_IOFileObj *obj)
+Nst_IOFuncSet *Nst_iof_func_set(Nst_Obj *f)
 ```
 
-**Description:**
+**Returns:**
 
-Destructor of a [`Nst_IOFileObj`](c_api-file.md#nst_iofileobj).
+The [`Nst_IOFuncSet`](c_api-file.md#nst_iofuncset) of a file.
+
+---
+
+### `Nst_iof_fd`
+
+**Synopsis:**
+
+```better-c
+int Nst_iof_fd(Nst_Obj *f)
+```
+
+**Returns:**
+
+The file descriptor of a file. If it's negative the file is not a real file on
+disk.
+
+---
+
+### `Nst_iof_fp`
+
+**Synopsis:**
+
+```better-c
+void *Nst_iof_fp(Nst_Obj *f)
+```
+
+**Returns:**
+
+A pointer to the internal data of a file. If the descriptor returned by
+[`Nst_iof_fd`](c_api-file.md#nst_iof_fd) is positive this is of type `FILE *`.
+
+---
+
+### `Nst_iof_encoding`
+
+**Synopsis:**
+
+```better-c
+Nst_Encoding *Nst_iof_encoding(Nst_Obj *f)
+```
+
+**Returns:**
+
+The encoding of a file.
 
 ---
 
@@ -518,13 +519,13 @@ Destructor of a [`Nst_IOFileObj`](c_api-file.md#nst_iofileobj).
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_fread(i8 *buf, usize buf_size, usize count, usize *buf_len,
-                       Nst_IOFileObj *f)
+Nst_IOResult Nst_fread(u8 *buf, usize buf_size, usize count, usize *buf_len,
+                       Nst_Obj *f)
 ```
 
 **Description:**
 
-Calls the read function of the file, see
+Call the read function of the file, see
 [`Nst_IOFile_read_f`](c_api-file.md#nst_iofile_read_f).
 
 ---
@@ -534,12 +535,12 @@ Calls the read function of the file, see
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_fwrite(i8 *buf, usize buf_len, usize *count, Nst_IOFileObj *f)
+Nst_IOResult Nst_fwrite(u8 *buf, usize buf_len, usize *count, Nst_Obj *f)
 ```
 
 **Description:**
 
-Calls the write function of the file, see
+Call the write function of the file, see
 [`Nst_IOFile_write_f`](c_api-file.md#nst_iofile_write_f).
 
 ---
@@ -549,12 +550,12 @@ Calls the write function of the file, see
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_fflush(Nst_IOFileObj *f)
+Nst_IOResult Nst_fflush(Nst_Obj *f)
 ```
 
 **Description:**
 
-Calls the flush function of the file, see
+Call the flush function of the file, see
 [`Nst_IOFile_flush_f`](c_api-file.md#nst_iofile_flush_f).
 
 ---
@@ -564,12 +565,12 @@ Calls the flush function of the file, see
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_ftell(Nst_IOFileObj *f, usize *pos)
+Nst_IOResult Nst_ftell(Nst_Obj *f, usize *pos)
 ```
 
 **Description:**
 
-Calls the tell function of the file, see
+Call the tell function of the file, see
 [`Nst_IOFile_tell_f`](c_api-file.md#nst_iofile_tell_f).
 
 ---
@@ -579,12 +580,12 @@ Calls the tell function of the file, see
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_fseek(Nst_SeekWhence origin, isize offset, Nst_IOFileObj *f)
+Nst_IOResult Nst_fseek(Nst_SeekWhence origin, isize offset, Nst_Obj *f)
 ```
 
 **Description:**
 
-Calls the seek function of the file, see
+Call the seek function of the file, see
 [`Nst_IOFile_seek_f`](c_api-file.md#nst_iofile_seek_f).
 
 ---
@@ -594,12 +595,12 @@ Calls the seek function of the file, see
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_fclose(Nst_IOFileObj *f)
+Nst_IOResult Nst_fclose(Nst_Obj *f)
 ```
 
 **Description:**
 
-Calls the close function of the file, see
+Call the close function of the file, see
 [`Nst_IOFile_close_f`](c_api-file.md#nst_iofile_close_f).
 
 ---
@@ -609,8 +610,8 @@ Calls the close function of the file, see
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
-                           usize *buf_len, Nst_IOFileObj *f)
+Nst_IOResult Nst_FILE_read(u8 *buf, usize buf_size, usize count,
+                           usize *buf_len, Nst_Obj *f)
 ```
 
 **Description:**
@@ -624,8 +625,7 @@ Read function for standard C file descriptors.
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_FILE_write(i8 *buf, usize buf_len, usize *count,
-                            Nst_IOFileObj *f)
+Nst_IOResult Nst_FILE_write(u8 *buf, usize buf_len, usize *count, Nst_Obj *f)
 ```
 
 **Description:**
@@ -639,7 +639,7 @@ Write function for standard C file descriptors.
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_FILE_flush(Nst_IOFileObj *f)
+Nst_IOResult Nst_FILE_flush(Nst_Obj *f)
 ```
 
 **Description:**
@@ -653,7 +653,7 @@ Flush function for standard C file descriptors.
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_FILE_tell(Nst_IOFileObj *f, usize *pos)
+Nst_IOResult Nst_FILE_tell(Nst_Obj *f, usize *pos)
 ```
 
 **Description:**
@@ -667,7 +667,7 @@ Tell function for standard C file descriptors.
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_FILE_close(Nst_IOFileObj *f)
+Nst_IOResult Nst_FILE_close(Nst_Obj *f)
 ```
 
 **Description:**
@@ -682,12 +682,12 @@ Close function for standard C file descriptors.
 
 ```better-c
 void Nst_io_result_get_details(u32 *ill_encoded_ch, usize *position,
-                               const i8 **encoding_name)
+                               const char **encoding_name)
 ```
 
 **Description:**
 
-Gets the details of the [`Nst_IOResult`](c_api-file.md#nst_ioresult) returned by
+Get the details of the [`Nst_IOResult`](c_api-file.md#nst_ioresult) returned by
 the functions.
 
 This function can only be called when the returned
@@ -718,12 +718,12 @@ that failed to decode the byte for
 
 ```better-c
 void Nst_io_result_set_details(u32 ill_encoded_ch, usize position,
-                               const i8 *encoding_name)
+                               const char *encoding_name)
 ```
 
 **Description:**
 
-Sets the values returned with
+Set the values returned with
 [`Nst_io_result_get_details`](c_api-file.md#nst_io_result_get_details).
 
 ---
@@ -733,12 +733,12 @@ Sets the values returned with
 **Synopsis:**
 
 ```better-c
-FILE *Nst_fopen_unicode(i8 *path, const i8 *mode)
+FILE *Nst_fopen_unicode(const char *path, const char *mode)
 ```
 
 **Description:**
 
-Opens a file given a path that can contain unicode characters in UTF-8.
+Open a file given a path that can contain unicode characters in UTF-8.
 
 **Parameters:**
 

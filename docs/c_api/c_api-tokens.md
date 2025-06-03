@@ -8,22 +8,6 @@ TheSilvered
 
 ---
 
-## Macros
-
-### `Nst_TOK`
-
-**Synopsis:**
-
-```better-c
-#define Nst_TOK(expr)
-```
-
-**Description:**
-
-Casts expr to [`Nst_Tok *`](c_api-tokens.md#nst_tok).
-
----
-
 ## Structs
 
 ### `Nst_Tok`
@@ -32,10 +16,9 @@ Casts expr to [`Nst_Tok *`](c_api-tokens.md#nst_tok).
 
 ```better-c
 typedef struct _Nst_Tok {
-    Nst_Pos start;
-    Nst_Pos end;
-    struct _Nst_TokType type;
-    Nst_Obj *value;
+    Nst_Span span;
+    Nst_TokType type;
+    Nst_ObjRef *value;
 } Nst_Tok
 ```
 
@@ -54,91 +37,70 @@ A structure representing a Nest lexer token.
 
 ## Functions
 
-### `Nst_tok_new_value`
+### `Nst_tok_new`
 
 **Synopsis:**
 
 ```better-c
-Nst_Tok *Nst_tok_new_value(Nst_Pos start, Nst_Pos end, Nst_TokType type,
-                           Nst_Obj *value)
+Nst_Tok Nst_tok_new(Nst_Span span, i32 type, Nst_Obj *val)
 ```
 
 **Description:**
 
-Creates a new token on the heap with a value.
+Create a new token.
 
 **Parameters:**
 
-- `start`: the start position of the token
-- `end`: the end position of the token
+- `span`: the span of the token
 - `type`: the type of the token
-- `value`: the value of the token
+- `val`: the value of the token, can be `NULL`
 
 **Returns:**
 
-The new token on success and `NULL` on failure. The error is set.
+The new token.
 
 ---
 
-### `Nst_tok_new_noval`
+### `Nst_tok_invalid`
 
 **Synopsis:**
 
 ```better-c
-Nst_Tok *Nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type)
+Nst_Tok Nst_tok_invalid(void)
 ```
 
 **Description:**
 
-Creates a new token on the heap that has no value.
-
-**Parameters:**
-
-- `start`: the start position of the token
-- `end`: the end position of the token
-- `type`: the type of the token
-
-**Returns:**
-
-The new token on success and `NULL` on failure. The error is set.
+Create a new token with the type set to
+[`Nst_TT_INVALID`](c_api-tokens.md#nst_toktype).
 
 ---
 
-### `Nst_tok_new_noend`
+### `Nst_tok_destroy`
 
 **Synopsis:**
 
 ```better-c
-Nst_Tok *Nst_tok_new_noend(Nst_Pos start, Nst_TokType type)
+void Nst_tok_destroy(Nst_Tok *token)
 ```
 
 **Description:**
 
-Creates a new token on the heap that has no value and that uses the same start
-and end positions.
-
-**Parameters:**
-
-- `start`: the start position of the token
-- `type`: the type of the token
-
-**Returns:**
-
-The new token on success and `NULL` on failure. The error is set.
+Destroy the contents of a [`Nst_Tok`](c_api-tokens.md#nst_tok).
 
 ---
 
-### `Nst_tok_from_str`
+### `Nst_tok_type_from_str`
 
 **Synopsis:**
 
 ```better-c
-Nst_TokType Nst_tok_from_str(i8 *str)
+Nst_TokType Nst_tok_type_from_str(u8 *str)
 ```
 
 **Description:**
 
-Gets the token type from a string of punctuation characters.
+Get the token type from a string of punctuation characters.
 
 str is expected to be at least one character long.
 
@@ -163,7 +125,7 @@ void Nst_print_tok(Nst_Tok *token)
 
 **Description:**
 
-Prints a token to the Nest standard output.
+Print a token to the Nest standard output.
 
 ---
 
@@ -172,12 +134,12 @@ Prints a token to the Nest standard output.
 **Synopsis:**
 
 ```better-c
-const i8 *Nst_tok_type_to_str(Nst_TokType type)
+const char *Nst_tok_type_to_str(Nst_TokType type)
 ```
 
 **Description:**
 
-Returns the type of the token as a string.
+Convert a [`Nst_TokType`](c_api-tokens.md#nst_toktype) to a string.
 
 ---
 

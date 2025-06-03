@@ -13,29 +13,11 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: '20'
-    - name: Configure
-      run: sudo bash ./configure.sh x64
-    - name: Compile
-      working-directory: ./build/linux/makefiles
-      run: make all
-    - name: Install Nest
+    - name: Compile and Install
+      working-directory: ./build/linux
+      run: make install
+    - name: Run Tests
+      working-directory: ./build/linux
       run: |
-        mkdir -p ./build/linux/linux_libs
-        cp -r ./libs/_nest_files/* ./build/linux/linux_libs
-        for i in ./build/linux/linux_libs/*.nest; do
-          python3 ./build/update_nest_file.py "${i}"
-        done
-        sudo mkdir -p /usr/lib/nest/
-        sudo cp -r ./build/linux/linux_libs/* /usr/lib/nest
-        sudo cp ./build/linux/linux_release/x64/*.cnest /usr/lib/nest
-        sudo cp ./build/linux/linux_release/x64/nest /usr/bin
-        sudo cp ./build/linux/linux_release/x64/libnest.so /usr/lib
-        sudo ldconfig
-    - name: Run Nest Tests
-      working-directory: ./tests
-      run: |
-        nest run_tests.nest
-        cat test_output.txt
-    - name: Run C Tests
-      working-directory: ./build/linux/makefiles
-      run: make test-c
+        make test-release
+        cat ../../tests/test_output.txt

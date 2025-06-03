@@ -18,6 +18,7 @@ markdown_extensions:
 nav:
   - Introduction: index.md
   - Installation: installation.md
+  - A quick tour: tour.md
   - General syntax: syntax.md
   - Tutorials:
     - tutorials/c-lib-tutorial.md
@@ -43,6 +44,7 @@ nav:
     - argv_parser.h: c_api/c_api-argv_parser.md
     - compiler.h: c_api/c_api-compiler.md
     - dtoa.h: c_api/c_api-dtoa.md
+    - dyn_array.h: c_api/c_api-dyn_array.md
     - encoding.h: c_api/c_api-encoding.md
     - error.h: c_api/c_api-error.md
     - file.h: c_api/c_api-file.md
@@ -70,9 +72,12 @@ nav:
     - sequence.h: c_api/c_api-sequence.md
     - simple_types.h: c_api/c_api-simple_types.md
     - str.h: c_api/c_api-str.md
+    - str_builder.h: c_api/c_api-str_builder.md
+    - str_view.h: c_api/c_api-str_view.md
     - tokens.h: c_api/c_api-tokens.md
     - type.h: c_api/c_api-type.md
     - typedefs.h: c_api/c_api-typedefs.md
+    - unicode_db.h: c_api/c_api-unicode_db.md
     - var_table.h: c_api/c_api-var_table.md
   - Version History: changes.md
 extra_javascript:

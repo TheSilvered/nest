@@ -56,11 +56,8 @@ NstEXP typedef struct _Nst_LList {
     usize len;
 } Nst_LList;
 
-/* The type of a list destructor. */
-NstEXP typedef void (*Nst_LListDestructor)(void *);
-
 /**
- * Adds a value to the front of the list.
+ * Add a value to the front of the list.
  *
  * @param llist: the list to add the value to
  * @param value: the value to add
@@ -72,7 +69,7 @@ NstEXP typedef void (*Nst_LListDestructor)(void *);
  */
 NstEXP bool NstC Nst_llist_push(Nst_LList *llist, void *value, bool allocated);
 /**
- * Adds a value to the back of the list.
+ * Add a value to the back of the list.
  *
  * @param llist: the list to add the value to
  * @param value: the value to add
@@ -85,7 +82,7 @@ NstEXP bool NstC Nst_llist_push(Nst_LList *llist, void *value, bool allocated);
 NstEXP bool NstC Nst_llist_append(Nst_LList *llist, void *value,
                                   bool allocated);
 /**
- * Adds a value after a given node.
+ * Add a value after a given node.
  *
  * @brief node can be `NULL`, in which case the function behaves like
  * `Nst_llist_push`.
@@ -103,43 +100,37 @@ NstEXP bool NstC Nst_llist_append(Nst_LList *llist, void *value,
 NstEXP bool NstC Nst_llist_insert(Nst_LList *llist, void *value,
                                   bool allocated, Nst_LLNode *node);
 /**
- * @brief Removes and returns the front value of a list. If the list is empty
- * `NULL` is returned, no error is set.
+ * Remove and returns the front value of a list. If the list is empty `NULL` is
+ * returned, no error is set.
  */
 NstEXP void *NstC Nst_llist_pop(Nst_LList *llist);
 /**
- * @brief Returns the front value of a list. If the list is empty `NULL` is
- * returned, no error is set.
+ * @return The front value of a list. If the list is empty `NULL` is* returned,
+ * no error is set.
  */
 NstEXP void *NstC Nst_llist_peek_front(Nst_LList *llist);
 /**
- * @brief Returns the back value of a list. If the list is empty `NULL` is
- * returned, no error is set.
+ * @return The back value of a list. If the list is empty `NULL` is returned,
+ * no error is set.
  */
 NstEXP void *NstC Nst_llist_peek_back(Nst_LList *llist);
-/* Adds a node to the front of a list. */
+/* Add a node to the front of a list. */
 NstEXP void NstC Nst_llist_push_llnode(Nst_LList *llist, Nst_LLNode *node);
-/* Adds a node to the back of a list. */
+/* Add a node to the back of a list. */
 NstEXP void NstC Nst_llist_append_llnode(Nst_LList *llist, Nst_LLNode *node);
 /**
- * @brief Removes the front node of a list and returns it. If the list is empty
- * `NULL` is returned, no error is set.
+ * Remove the front node of a list and returns it. If the list is empty `NULL`
+ * is returned, no error is set.
  */
 NstEXP Nst_LLNode *NstC Nst_llist_pop_llnode(Nst_LList *llist);
 
-/**
- * Creates and initializes a new list on the heap
- *
- * @return The new list or `NULL` on failure. The error is set.
- */
-NstEXP Nst_LList *NstC Nst_llist_new(void);
-/* Initializes a llist. */
+/* Initialize an `Nst_LList`. */
 NstEXP void NstC Nst_llist_init(Nst_LList *llist);
 
 /**
- * Creates a new node on the heap.
+ * Create a new node on the heap.
  *
- * @brief To free the node use `Nst_free`. The value is *not* handeled
+ * @brief To free the node use `Nst_free`. The value is *not* handled
  * automatically and must be freed manually.
  *
  * @return The new node or `NULL` on failure. The error is set.
@@ -147,18 +138,7 @@ NstEXP void NstC Nst_llist_init(Nst_LList *llist);
 NstEXP Nst_LLNode *NstC Nst_llnode_new(void *value, bool allocated);
 
 /**
- * Destroys a heap-allocated list.
- *
- * @brief If the value of a node is marked as allocated it will be passed to
- * item_destructor otherwise it is left untouched.
- *
- * @param llist: the list to destroy
- * @param item_destructor: the destructor to use on allocated values
- */
-NstEXP void NstC Nst_llist_destroy(Nst_LList *llist,
-                                   void (*item_destructor)(void *));
-/**
- * Destroys all the nodes inside a list.
+ * Destroy all the nodes inside a list.
  *
  * @brief If the value of a node is marked as allocated it will be passed to
  * item_destructor otherwise it is left untouched.
@@ -167,9 +147,9 @@ NstEXP void NstC Nst_llist_destroy(Nst_LList *llist,
  * @param item_destructor: the destructor to use on allocated values
  */
 NstEXP void NstC Nst_llist_empty(Nst_LList *llist,
-                                 void (*item_destructor)(void *));
+                                 Nst_Destructor item_destructor);
 /**
- * Moves all the nodes from a list to the end of another.
+ * Move all the nodes from a list to the end of another.
  *
  * @brief If to has already some values the new ones are added at the end.
  *

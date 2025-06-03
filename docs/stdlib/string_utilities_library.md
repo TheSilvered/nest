@@ -20,7 +20,7 @@ To write a curly brace `{`, write `{{`, and to write `}`, write `}}` instead.
 
 ### Format types
 
-The `fmt` function has a special behaviour for `Int`s, `Real`s, `Byte`s and
+The `fmt` function has a special behavior for `Int`s, `Real`s, `Byte`s and
 `Bool`s; any other type is first converted to a string and then treated as one
 when applying the flags.
 
@@ -61,7 +61,7 @@ representation mode to be used though mode `g` is the default.
 
 In general representation the number is represented with `precision`
 significant digits and will alternate between the `f` or `F` mode and the `e`
-or `E` modes depending on its magnetude.
+or `E` modes depending on its magnitude.
 
 The `f` or `F` mode is used when `-4 <= exp < precision` where `exp` is the
 exponent in standard notation of the number. When the exponent falls outside
@@ -162,7 +162,7 @@ unsigned integer instead of a signed one.
 
 #### The `0` flag
 
-This flag will have a different behaviour depending on the type.
+This flag will have a different behavior depending on the type.
 
 For `Int`s it will add zeroes between the number and the sign until the number
 of digits matches the precision. When using this flag the thousand separator is
@@ -213,7 +213,7 @@ characters.
 '{r}' {'hello😊\n'} @su.fmt --> "'hello😊\\n'"
 ```
 
-The `R` flag will instad only escape special characters (including the
+The `R` flag will instead only escape special characters (including the
 backslash `\` but not quotes) and leaving everything else untouched.
 
 ```nest
@@ -381,7 +381,7 @@ flag is used to specify what character to use instead of the space.
 
 When the `c` flag is used this field specifies the exact width of the resulting
 string, shorter strings will still be padded but strings that are too long will
-be cut to size reguardless of the value, this means that digits and signs can
+be cut to size regardless of the value, this means that digits and signs can
 be cut off numbers.
 
 The width can be specified directly with a number after the flags or by writing
@@ -464,7 +464,7 @@ A negative precision is ignored.
 This field applies to the types that support the `'` flag and changes the
 amount of digits between separators from the default.
 
-The default values for the separator width is as followes:
+The default values for the separator width is as follows:
 
 - `8` for numbers in binary
 - `3` for numbers in octal or decimal (including `Real`s)
@@ -492,8 +492,8 @@ will only ever be as bit as necessary.
 
 The alignment can be one of three values:
 
-- `<`: left align (default behaviour for most types)
-- `>`: right align (default behaviour for `Byte`s, `Int`s and `Real`s)
+- `<`: left align (default behavior for most types)
+- `>`: right align (default behavior for `Byte`s, `Int`s and `Real`s)
 - `^`: center align
 
 A left alignment will cause the value to be placed on the left and the padding
@@ -561,6 +561,97 @@ The centered string.
 'hello' 7 @su.cjust --> ' hello '
 'hello' 8 '.' @su.cjust --> '.hello..'
 ```
+
+---
+
+### `@consume_int`
+
+**Synopsis:**
+
+```nest
+[string: Str, base: Int?, sep: Str?] @consume_int -> Array[Int, Str]
+```
+
+**Description:**
+
+Parses an integer from the start of `string` and returns the remaining part. If
+the string does not begin with a number the function fails. Any leading
+whitespace is ignored.
+
+`base` is the numeric base to use to parse the number, valid values are `0` and
+`2` to `36` inclusive. The digits are the digits `0-9` for bases up to 10 and
+letters `a-z` (case insensitive) for bases up to 36. If base is `0` it defaults
+to `10` unless specified otherwise by a prefix.
+
+A number is composed of the following parts:
+
+- an optional sign (`+` or `-`)
+- optionally, one of these prefixes:
+    - `0b` or `0B` if the base is `0` or `2`
+    - `0o` or `0O` if the base is `0` or `8`
+    - `0x` or `0X` if the base is `0` or `16`
+- one or more digits
+
+`sep` is an optional one-character digit separator. It can appear between two
+digits of the number. If set to `null` or if it is an empty string no separator
+is allowed.
+
+**Returns:**
+
+An `Array` containing the parsed integer at index `0` and the remaining part of
+the string at index `1`.
+
+**Example:**
+
+```nest
+|#| 'stdsutil.nest' = su
+
+'123 apples' @su.consume_int --> {123, ' apples'}
+'-30€' @su.consume_int --> {-30, '€'}
+'0x10  ' @su.consume_int --> {16, '  '}
+'0b101' @su.consume_int --> {5, ''}
+'0b' @su.consume_int --> {0, 'b'}
+'101' 2 @su.consume_int --> {5, ''}
+'123_456 789' 0 '_' @su.consume_int --> {123456, ' 789'}
+```
+
+---
+
+### `@consume_real`
+
+**Synopsis:**
+
+```nest
+[string: Str, sep: Str?] @consume_real -> Array[Real, Str]
+```
+
+**Description:**
+
+Parses a real number from the start of `string` and returns the remaining part.
+If the string does not begin with a number the function fails. Any leading
+whitespace is ignored.
+
+A number is composed of the following parts:
+
+- an optional sign (`+` or `-`)
+- optionally one or more decimal digits that may be separated by `sep`
+- an optional dot (`.`)
+- another optional sequence of digits
+- an optional exponent which consists of
+    - the letter `e` or `E`
+    - an optional sign (`+` or `-`)
+    - one or more digits, optionally separated by `sep`
+
+Note that one digit, either before or after the dot, is always reqired.
+
+`sep` is an optional one-character digit separator. It can appear between two
+digits of the number. If set to `null` or if it is an empty string no separator
+is allowed.
+
+**Returns:**
+
+An `Array` containing the parsed number at index `0` and the remaining part of
+the string at index `1`.
 
 ---
 
@@ -638,6 +729,8 @@ The array containing the encoded bytes.
 
 ---
 
+### `@fmt`
+
 **Synopsis:**
 
 ```nest
@@ -679,6 +772,21 @@ is considered `false`.
 
 ---
 
+### `@is_ascii`
+
+**Synopsis:**
+
+```nest
+[string: Str] @is_ascii -> Bool
+```
+
+**Returns:**
+
+`true` if all the characters in `string` are in the ASCII charset and `false`
+otherwise. ASCII is any Unicode codepoint below `U+0080`.
+
+---
+
 ### `@is_alnum`
 
 **Synopsis:**
@@ -690,7 +798,9 @@ is considered `false`.
 **Returns:**
 
 `true` if all the characters in `string` are numbers or letters and `false`
-otherwise.
+otherwise. A number is any character that has its `Numeric_Type` Unicode
+property as `Numeric`, `Decimal` or `Digit` and a letter is any character that
+has the `Alphabetic` property.
 
 ---
 
@@ -705,7 +815,8 @@ otherwise.
 **Returns:**
 
 `true` if all the characters in `string` are letters (both uppercase and
-lowercase) and `false` otherwise.
+lowercase) and `false` otherwise. More precisely, a letter is any character
+that has the `Alphabetic` property.
 
 ---
 
@@ -723,6 +834,26 @@ Whether all the characters in `string` are also contained in `charset`.
 
 ---
 
+### `@is_decimal`
+
+**Synopsis:**
+
+```nest
+[string: Str] @is_decimal -> Bool
+```
+
+**Returns:**
+
+`true` if all the characters in `string` are decimal digits and `false`
+otherwise. Dots (`.`) and signs (`+` and `-`) are not considered digits.
+Decimal digits are any characters that are digits in a positional base-ten
+system. These include ASCII digits `0-9` as well as eastern arabic numerals
+(٠, ١, ٢, ٣, ٤, ٥, ٦, ٧, ٨, ٩) and others. More precisely it is
+considered a digit any character with the `Numeric_Type=Decimal` Unicode
+property.
+
+---
+
 ### `@is_digit`
 
 **Synopsis:**
@@ -733,8 +864,11 @@ Whether all the characters in `string` are also contained in `charset`.
 
 **Returns:**
 
-`true` if all the characters in `string` are numbers and `false` otherwise.
-Dots (`.`) and signs (`+` and `-`) are not considered digits.
+`true` if all the characters in `string` are decimal digits and `false`
+otherwise. This function differs from `is_decimal` in that it considers digits
+also other characters such as superscripts. More precisely it is considered a
+digit any character with the `Numeric_Type=Decimal` or `Numeric_Type=Digit`
+Unicode property.
 
 ---
 
@@ -753,6 +887,26 @@ non-alphabetical character is ignored.
 
 ---
 
+### `@is_numeric`
+
+**Synopsis:**
+
+```nest
+[string: Str] @is_numeric -> Bool
+```
+
+**Returns:**
+
+`true` if all the characters in `string` are numeric and `false` otherwise.
+This function differs from `is_digit` in that it considers numeric characters
+that are not used as digits or that are not used in a base-ten system such as
+fractions (½, ¾, ...) and Chinese numerals (一, 二, 三, ...)
+also other characters such as superscripts. More precisely it is considered a
+digit any character with the `Numeric_Type=Decimal`, `Numeric_Type=Digit` or
+`Numeric_Type=Numeric` Unicode property.
+
+---
+
 ### `@is_printable`
 
 **Synopsis:**
@@ -764,7 +918,8 @@ non-alphabetical character is ignored.
 **Returns:**
 
 Whether all the characters in `string` are printable. For example `\n`, a line
-feed, is not but `a`, the character, is.
+feed, is not but `a`, the character, is. A printable character is defined as
+any character in the L, N, P, S or Zs category.
 
 ---
 
@@ -998,29 +1153,31 @@ treated like an unsigned integer.
 **Synopsis:**
 
 ```nest
-[string: Str, base: Int?] @parse_int -> Int
+[string: Str, base: Int?, sep: Str?] @parse_int -> Int
 ```
 
 **Description:**
 
-This function parses an integer from `string`. `base` specifies the base with
-which to parse the number and can be any value between `2` and `36` inclusive
-or `0`.
+Parses an integer from `string`. If the string is not a valid number the
+function fails. Any leading or trailing whitespace is ignored.
 
-When using a base higher than `10` letters are used and the function is
-case-insensitive.
+`base` is the numeric base to use to parse the number, valid values are `0` and
+`2` to `36` inclusive. The digits are the digits `0-9` for bases up to 10 and
+letters `a-z` (case insensitive) for bases up to 36. If base is `0` it defaults
+to `10` unless specified otherwise by a prefix.
 
-If `base` is set to `0` it is inferred by the number: with the prefix `0b` or
-`0B` the digits after are parsed in base `2`; with the prefix `0o` or `0O` the
-base is `8` and with the prefix `0x` or `0X` the base is `16`. When explicitly
-setting `base` to `2`, `8` or `16` the corresponding prefixes are ignored if
-present.
+A number is composed of the following parts:
 
-By default
-`base` is set to zero.
+- an optional sign (`+` or `-`)
+- optionally, one of these prefixes:
+    - `0b` or `0B` if the base is `0` or `2`
+    - `0o` or `0O` if the base is `0` or `8`
+    - `0x` or `0X` if the base is `0` or `16`
+- one or more digits
 
-Additionally this function ignores any whitespace before and after the number
-and ignores any underscores (`_`) between the digits.
+`sep` is an optional one-character digit separator. It can appear between two
+digits of the number. If set to `null` or if it is an empty string no separator
+is allowed.
 
 **Returns:**
 
@@ -1031,9 +1188,49 @@ The parsed integer.
 ```nest
 |#| 'stdsutil.nest' = su
 
-'0xff' @su.parse_int --> 255
-'0xff' 36 @su.parse_int --> 43323
+'123' @su.parse_int --> 123
+'-123' @su.parse_int --> -123
+'0x10' @su.parse_int --> 16
+'0b101' @su.parse_int --> 5
+'101' 2 @su.parse_int --> 5
+'123_456_789' 0 '_' @su.parse_int --> 123456789
 ```
+
+---
+
+### `@parse_real`
+
+**Synopsis:**
+
+```nest
+[string: Str, sep: Str?] @parse_real -> Real
+```
+
+**Description:**
+
+Parses a real number from `string`. If the string is not a valid number the
+function fails. Any leading or trailing whitespace is ignored.
+
+A number is composed of the following parts:
+
+- an optional sign (`+` or `-`)
+- optionally one or more decimal digits that may be separated by `sep`
+- an optional dot (`.`)
+- another optional sequence of digits
+- an optional exponent which consists of
+    - the letter `e` or `E`
+    - an optional sign (`+` or `-`)
+    - one or more digits, optionally separated by `sep`
+
+Note that one digit, either before or after the dot, is always reqired.
+
+`sep` is an optional one-character digit separator. It can appear between two
+digits of the number. If set to `null` or if it is an empty string no separator
+is allowed.
+
+**Returns:**
+
+The parsed number.
 
 ---
 
@@ -1042,14 +1239,14 @@ The parsed integer.
 **Synopsis:**
 
 ```nest
-[string: Str, old_substring: Str, new_substing: Str] @replace -> Str
+[string: Str, old_substring: Str, new_substring: Str] @replace -> Str
 ```
 
 **Description:**
 
 Replaces all the occurrences of `old_substring` in `string` with
-`new_substing`. `old_substring` and `new_substing` can be of different length.
-If `new_substing` is an empty string, nothing is replaced.
+`new_substring`. `old_substring` and `new_substring` can be of different length.
+If `new_substring` is an empty string, nothing is replaced.
 
 **Returns:**
 

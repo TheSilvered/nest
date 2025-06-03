@@ -42,35 +42,6 @@ The minimum size of the old generation needed to collect it.
 
 ---
 
-### `GGC_OBJ`
-
-**Synopsis:**
-
-```better-c
-#define GGC_OBJ(obj)
-```
-
-**Description:**
-
-Casts `obj` to [`Nst_GGCObj *`](c_api-ggc.md#nst_ggcobj).
-
----
-
-### `Nst_ggc_obj_reachable`
-
-**Synopsis:**
-
-```better-c
-#define Nst_ggc_obj_reachable(obj)
-```
-
-**Description:**
-
-Alias for [`_Nst_ggc_obj_reachable`](c_api-ggc.md#_nst_ggc_obj_reachable) that
-casts `obj` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
 ### `Nst_GGC_HEAD`
 
 **Description:**
@@ -93,7 +64,7 @@ any other fields.
 **Description:**
 
 Initializes the fields of a [`Nst_GGCObj`](c_api-ggc.md#nst_ggcobj). Should be
-called before initializing other fields of the object.
+called after having initialized all the other fields of the object.
 
 ---
 
@@ -130,7 +101,7 @@ typedef struct _Nst_GGCList {
 
 **Description:**
 
-The structure representing a garbage collector generation.
+The structure representing a generation of the garbage collector.
 
 **Fields:**
 
@@ -140,51 +111,7 @@ The structure representing a garbage collector generation.
 
 ---
 
-### `Nst_GarbageCollector`
-
-**Synopsis:**
-
-```better-c
-typedef struct _Nst_GarbageCollector {
-    Nst_GGCList gen1;
-    Nst_GGCList gen2;
-    Nst_GGCList gen3;
-    Nst_GGCList old_gen;
-    i64 old_gen_pending;
-} Nst_GarbageCollector
-```
-
-**Description:**
-
-The structure representing the garbage collector.
-
-**Fields:**
-
-- `gen1`: the first generation
-- `gen2`: the second generation
-- `gen3`: the third generation
-- `old_gen`: the old generation
-- `old_gen_pending`: the number of objects in the old generation that have been
-  added since its last collection
-- `allow_tracking`: whether the tracking of new objects is allowed
-
----
-
 ## Functions
-
-### `Nst_ggc_collect_gen`
-
-**Synopsis:**
-
-```better-c
-void Nst_ggc_collect_gen(Nst_GGCList *gen)
-```
-
-**Description:**
-
-Collects the object of a generation
-
----
 
 ### `Nst_ggc_collect`
 
@@ -214,46 +141,17 @@ Adds an object to the tracked objects by the garbage collector.
 
 ---
 
-### `_Nst_ggc_delete_objs`
+### `Nst_ggc_obj_reachable`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_ggc_delete_objs(void)
+void Nst_ggc_obj_reachable(Nst_Obj *obj)
 ```
 
 **Description:**
 
-Deletes all objects still present in the garbage collector.
-
----
-
-### `_Nst_ggc_init`
-
-**Synopsis:**
-
-```better-c
-void _Nst_ggc_init(void)
-```
-
-**Description:**
-
-Initializes the garbage collector of
-[`Nst_state`](c_api-interpreter.md#nst_state_get).
-
----
-
-### `_Nst_ggc_obj_reachable`
-
-**Synopsis:**
-
-```better-c
-void _Nst_ggc_obj_reachable(Nst_Obj *obj)
-```
-
-**Description:**
-
-Sets an [`Nst_Obj`](c_api-obj.md#nst_obj) as reachable for the garbage
+Sets an [`Nst_Obj`](c_api-typedefs.md#nst_obj) as reachable for the garbage
 collector.
 
 ---

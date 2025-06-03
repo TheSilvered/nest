@@ -1,6 +1,6 @@
 # `str.h`
 
-Nst_StrObj interface.
+Nest `Str` object interface.
 
 ## Authors
 
@@ -10,107 +10,6 @@ TheSilvered
 
 ## Macros
 
-### `STR`
-
-**Synopsis:**
-
-```better-c
-#define STR(ptr)
-```
-
-**Description:**
-
-Casts `ptr` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
-
----
-
-### `TYPE_NAME`
-
-**Synopsis:**
-
-```better-c
-#define TYPE_NAME(obj)
-```
-
-**Description:**
-
-Gets the name of the type of an object as a C string.
-
----
-
-### `Nst_TYPE_STR`
-
-**Synopsis:**
-
-```better-c
-#define Nst_TYPE_STR(type)
-```
-
-**Description:**
-
-Gets the name of the type as a Nest string.
-
----
-
-### `Nst_STR_IS_ALLOC`
-
-**Synopsis:**
-
-```better-c
-#define Nst_STR_IS_ALLOC(str)
-```
-
-**Description:**
-
-Checks if the value of a string is allocated.
-
----
-
-### `Nst_str_copy`
-
-**Synopsis:**
-
-```better-c
-#define Nst_str_copy(src)
-```
-
-**Description:**
-
-Alias of [`_Nst_str_copy`](c_api-str.md#_nst_str_copy) that casts `src` to
-[`Nst_StrObj *`](c_api-str.md#nst_strobj).
-
----
-
-### `Nst_str_repr`
-
-**Synopsis:**
-
-```better-c
-#define Nst_str_repr(src)
-```
-
-**Description:**
-
-Alias of [`_Nst_str_repr`](c_api-str.md#_nst_str_repr) that casts `src` to
-[`Nst_StrObj *`](c_api-str.md#nst_strobj).
-
----
-
-### `Nst_str_get`
-
-**Synopsis:**
-
-```better-c
-#define Nst_str_get(str, idx)
-```
-
-**Description:**
-
-Alias of [`_Nst_str_get`](c_api-str.md#_nst_str_get) that casts `str` to
-[`Nst_StrObj *`](c_api-str.md#nst_strobj).
-
----
-
 ### `Nst_STR_LOOP_ERROR`
 
 **Description:**
@@ -119,81 +18,29 @@ Value of `idx` in case an error occurs when iterating over a string.
 
 ---
 
-## Structs
-
-### `Nst_StrObj`
-
-**Synopsis:**
-
-```better-c
-typedef struct _Nst_StrObj {
-    Nst_OBJ_HEAD;
-    usize len;
-    usize char_len;
-    i8 *value;
-    u8 *indexable_str;
-} Nst_StrObj
-```
-
-**Description:**
-
-Structure representing a Nest string.
-
-**Fields:**
-
-- `len`: the length in bytes of `value`
-- `char_len`: the length in characters of `value`
-- `value`: the value of the string
-- `indexable_str`: the string in UTF-16 or UTF-32 depending on the characters it
-  contains
-
----
-
 ## Functions
-
-### `Nst_str_new_c_raw`
-
-**Synopsis:**
-
-```better-c
-Nst_Obj *Nst_str_new_c_raw(const i8 *val, bool allocated)
-```
-
-**Description:**
-
-Creates a new string object with a value taken from a C string of unknown
-length.
-
-**Parameters:**
-
-- `val`: the value of the string in extUTF-8 encoding
-- `allocated`: whether the value is heap allocated and should be freed with the
-  string
-
-**Returns:**
-
-The new string on success and `NULL` on failure. The error is set.
-
----
 
 ### `Nst_str_new_c`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_new_c(const i8 *val, usize len, bool allocated)
+Nst_ObjRef *Nst_str_new_c(const char *val)
 ```
 
 **Description:**
 
-Creates a new string object from a string literal of known length.
+Create a new string object from a C string literal. Uses
+[`strlen`](https://man7.org/linux/man-pages/man3/strlen.3.html) to find the
+length.
+
+!!!warning
+    `val` is always assumed to have a lifetime equal or longer than Nest (i.e.
+    it is destroyed with or after [`Nst_quit`](c_api-interpreter.md#nst_quit)).
 
 **Parameters:**
 
 - `val`: the value of the string in extUTF-8 encoding
-- `len`: the length of `val` in bytes
-- `allocated`: whether the value is heap allocated and should be freed with the
-  string
 
 **Returns:**
 
@@ -206,12 +53,12 @@ The new string on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_new(i8 *val, usize len, bool allocated)
+Nst_ObjRef *Nst_str_new(u8 *val, usize len, bool allocated)
 ```
 
 **Description:**
 
-Creates a new string object.
+Create a new string object.
 
 **Parameters:**
 
@@ -231,12 +78,12 @@ The new string on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_new_allocated(i8 *val, usize len)
+Nst_ObjRef *Nst_str_new_allocated(u8 *val, usize len)
 ```
 
 **Description:**
 
-Creates a new string object from a heap-allocated value.
+Create a new string object from a heap-allocated value.
 
 `val` is freed if the string fails to be created.
 
@@ -256,12 +103,12 @@ The new string on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_new_len(i8 *val, usize len, usize char_len, bool allocated)
+Nst_ObjRef *Nst_str_new_len(u8 *val, usize len, usize char_len, bool allocated)
 ```
 
 **Description:**
 
-Creates a new string object with known length.
+Create a new string object with known length.
 
 **Parameters:**
 
@@ -276,49 +123,17 @@ The new string on success and `NULL` on failure. The error is set.
 
 ---
 
-### `Nst_str_temp`
+### `Nst_str_copy`
 
 **Synopsis:**
 
 ```better-c
-Nst_StrObj Nst_str_temp(i8 *val, usize len)
+Nst_ObjRef *Nst_str_copy(Nst_Obj *src)
 ```
 
 **Description:**
 
-Creates a new temporary read-only string object.
-
-This object is not allocated on the heap and cannot be returned by a function,
-its intended use is only on functions where a string object is needed but you
-have the string in another form. Nothing is allocated and it must not be
-destroyed in any way. If the string is indexed, `val` is assumed to contain only
-7-bit ASCII characters. If it may not contain only those characters, create a
-string with [`Nst_str_new`](c_api-str.md#nst_str_new) or other similar
-functions.
-
-**Parameters:**
-
-- `val`: the value of the string
-- `len`: the length of the string
-
-**Returns:**
-
-A [`Nst_StrObj`](c_api-str.md#nst_strobj) struct, **NOT POINTER**. This function
-never fails.
-
----
-
-### `_Nst_str_copy`
-
-**Synopsis:**
-
-```better-c
-Nst_Obj *_Nst_str_copy(Nst_StrObj *src)
-```
-
-**Description:**
-
-Creates a new string copying the contents of an already existing one.
+Create a new string copying the contents of an already existing one.
 
 `src` remains untouched even if the function fails.
 
@@ -332,17 +147,17 @@ The copied string on success and `NULL` on failure. The error is set.
 
 ---
 
-### `_Nst_str_repr`
+### `Nst_str_repr`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_str_repr(Nst_StrObj *src)
+Nst_ObjRef *Nst_str_repr(Nst_Obj *src)
 ```
 
 **Description:**
 
-Creates a new string by making a string representation of an existing one that
+Create a new string by making a string representation of an existing one that
 replaces any special characters such as newlines and tabs with their code
 representation.
 
@@ -358,17 +173,17 @@ The copied string on success and `NULL` on failure. The error is set.
 
 ---
 
-### `_Nst_str_get`
+### `Nst_str_get_obj`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_str_get(Nst_StrObj *str, i64 idx)
+Nst_ObjRef *Nst_str_get_obj(Nst_Obj *str, i64 idx)
 ```
 
 **Description:**
 
-Creates a new one-character string with a character of an existing string.
+Create a new one-character string with a character of an existing string.
 
 If `idx` negative it is subtracted to the length to get the actual index.
 
@@ -384,17 +199,38 @@ fails if the index falls outside the string.
 
 ---
 
+### `Nst_str_get`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_str_get(Nst_Obj *str, i64 idx)
+```
+
+**Description:**
+
+Get the character at index `idx` of the string.
+
+If `idx` negative it is subtracted to the length to get the actual index.
+
+**Returns:**
+
+The character on success and `-1` on failure. The error is set. The function
+fails if the index falls outside the string.
+
+---
+
 ### `Nst_str_next`
 
 **Synopsis:**
 
 ```better-c
-isize Nst_str_next(Nst_StrObj *str, isize idx)
+isize Nst_str_next(Nst_Obj *str, isize idx)
 ```
 
 **Description:**
 
-Iterates over the characters of a string.
+Iterate over the characters of a string.
 
 In order to start pass `-1` as `idx`, this will start from the first character.
 
@@ -416,12 +252,12 @@ errors can occur.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_next_obj(Nst_StrObj *str, isize *idx)
+Nst_ObjRef *Nst_str_next_obj(Nst_Obj *str, isize *idx)
 ```
 
 **Description:**
 
-Iterates over the characters of a string.
+Iterate over the characters of a string.
 
 In order to start set `idx` to `-1`, this will start from the first character.
 
@@ -432,9 +268,9 @@ In order to start set `idx` to `-1`, this will start from the first character.
 
 **Returns:**
 
-A [`Nst_StrObj`](c_api-str.md#nst_strobj) that contains the character being
-iterated. It returns `NULL` when there are no more characters to iterate over or
-when an error occurs. In case an error occurs `idx` is set to
+A `Str` object that contains the character being iterated. It returns `NULL`
+when there are no more characters to iterate over or when an error occurs. In
+case an error occurs `idx` is set to
 [`Nst_STR_LOOP_ERROR`](c_api-str.md#nst_str_loop_error).
 
 ---
@@ -444,12 +280,12 @@ when an error occurs. In case an error occurs `idx` is set to
 **Synopsis:**
 
 ```better-c
-i32 Nst_str_next_utf32(Nst_StrObj *str, isize *idx)
+i32 Nst_str_next_utf32(Nst_Obj *str, isize *idx)
 ```
 
 **Description:**
 
-Iterates over the characters of a string.
+Iterate over the characters of a string.
 
 In order to start set `idx` to `-1`, this will start from the first character.
 
@@ -471,12 +307,12 @@ characters to iterate over or when an error occurs. In case an error occurs
 **Synopsis:**
 
 ```better-c
-i32 Nst_str_next_utf8(Nst_StrObj *str, isize *idx, i8 *ch_buf)
+i32 Nst_str_next_utf8(Nst_Obj *str, isize *idx, u8 *ch_buf)
 ```
 
 **Description:**
 
-Iterates over the characters of a string.
+Iterate over the characters of a string.
 
 In order to start set `idx` to `-1`, this will start from the first character.
 
@@ -484,8 +320,8 @@ In order to start set `idx` to `-1`, this will start from the first character.
 
 - `str`: the string to iterate
 - `idx`: the address to the current index of the iteration
-- `ch_buf`: a buffer of length 4 where the bytes of the charcter are copied, any
-  extra bytes are set to `0`
+- `ch_buf`: a buffer of length 4 where the bytes of the character are copied,
+  any extra bytes are set to `0`
 
 **Returns:**
 
@@ -500,12 +336,13 @@ characters to iterate over or when an error occurs. In case an error occurs
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_parse_int(Nst_StrObj *str, i32 base)
+Nst_ObjRef *Nst_str_parse_int(Nst_Obj *str, i32 base)
 ```
 
 **Description:**
 
-Parses a [`Nst_IntObj`](c_api-simple_types.md#nst_intobj) from a string.
+Parse an `Int` object from a string. Use
+[`Nst_sv_parse_int`](c_api-str_view.md#nst_sv_parse_int) for better control.
 
 `base` can be any number between `2` and `36`, where above `10` letters start to
 be used and the function is case-insensitive. If the base is `0` the function
@@ -530,12 +367,13 @@ The new int object or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_parse_byte(Nst_StrObj *str)
+Nst_ObjRef *Nst_str_parse_byte(Nst_Obj *str)
 ```
 
 **Description:**
 
-Parses a Nst_ByteObj from a string.
+Parse a `Byte` object from a string. Use
+[`Nst_sv_parse_byte`](c_api-str_view.md#nst_sv_parse_byte) for better control.
 
 If an invalid literal is found, the function fails rather than returning zero.
 Valid literals follow Nest's byte syntax, because of this 10 is considered
@@ -556,12 +394,13 @@ The new byte object or NULL on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_parse_real(Nst_StrObj *str)
+Nst_ObjRef *Nst_str_parse_real(Nst_Obj *str)
 ```
 
 **Description:**
 
-Parses a [`Nst_RealObj`](c_api-simple_types.md#nst_realobj) from a string.
+Parse a `Real` object from a string. Use
+[`Nst_sv_parse_real`](c_api-str_view.md#nst_sv_parse_real) for better control.
 
 If an invalid literal is found, the function fails rather than returning zero.
 Valid literals follow Nest's real syntax, because of this `3.` or `.5` are
@@ -582,14 +421,13 @@ The new real object or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-i32 Nst_str_compare(Nst_StrObj *str1, Nst_StrObj *str2)
+i32 Nst_str_compare(Nst_Obj *str1, Nst_Obj *str2)
 ```
 
 **Description:**
 
-Compares two Nest strings, similarly to
-[`strcmp`](https://man7.org/linux/man-pages/man3/strcmp.3.html) but takes into
-account possible `NUL` bytes inside the compared string.
+Compare two Nest strings, similarly to
+[`strcmp`](https://man7.org/linux/man-pages/man3/strcmp.3.html).
 
 **Parameters:**
 
@@ -603,76 +441,45 @@ and a value `> 0` if `str1` is greater than `str2`.
 
 ---
 
-### `_Nst_str_destroy`
+### `Nst_str_value`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_str_destroy(Nst_StrObj *str)
+u8 *Nst_str_value(Nst_Obj *str)
 ```
-
-**Description:**
-
-String object destructor.
-
----
-
-### `Nst_str_find`
-
-**Synopsis:**
-
-```better-c
-i8 *Nst_str_find(i8 *s1, usize l1, i8 *s2, usize l2)
-```
-
-**Description:**
-
-Finds the first occurrence of a substring inside a string.
-
-If the pointer returned is not `NULL` it is guaranteed to be between `s1 <= p <
-s1 + l1`, where `p` is the pointer.
-
-**Parameters:**
-
-- `s1`: the main string
-- `l1`: the length of `s1` in bytes
-- `s2`: the substring to find inside the main string
-- `l2`: the length of `s2` in bytes
 
 **Returns:**
 
-The pointer to the start of `s1` or `NULL` if the string could not be found. No
-error is set.
+The value of a Nest `Str` object.
 
 ---
 
-### `Nst_str_rfind`
+### `Nst_str_len`
 
 **Synopsis:**
 
 ```better-c
-i8 *Nst_str_rfind(i8 *s1, usize l1, i8 *s2, usize l2)
+usize Nst_str_len(Nst_Obj *str)
 ```
-
-**Description:**
-
-Finds the first occurrence of a substring inside a string starting from the
-right.
-
-If the pointer returned is not `NULL` it is guaranteed to be between `s1 <= p <
-s1 + l1`, where `p` is the pointer.
-
-**Parameters:**
-
-- `s1`: the main string
-- `l1`: the length of `s1`
-- `s2`: the substring to find inside the main string
-- `l2`: the length of `s2`
 
 **Returns:**
 
-The pointer to the start of `s1` or `NULL` if the string could not be found. No
-error is set.
+The length in bytes of the value of a Nest `Str` object.
+
+---
+
+### `Nst_str_char_len`
+
+**Synopsis:**
+
+```better-c
+usize Nst_str_char_len(Nst_Obj *str)
+```
+
+**Returns:**
+
+The number of characters in a Nest `Str` object.
 
 ---
 
@@ -694,4 +501,4 @@ typedef enum _Nst_StrFlags {
 
 **Description:**
 
-[`Nst_StrObj`](c_api-str.md#nst_strobj)-specific flags.
+Flags for `Str` objects.

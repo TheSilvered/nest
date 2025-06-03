@@ -16,13 +16,13 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-i8 *Nst_dtoa(f64 value, int mode, int n_digits, int *decimal_point, int *sign,
-             i8 **str_end)
+char *Nst_dtoa(f64 value, int mode, int n_digits, int *decimal_point,
+               int *sign, char **str_end)
 ```
 
 **Description:**
 
-Converts a double to an ASCII string.
+Convert a `double` to an ASCII string.
 
 Modes:
 
@@ -67,12 +67,12 @@ must be freed with [`Nst_freedtoa`](c_api-dtoa.md#nst_freedtoa).
 **Synopsis:**
 
 ```better-c
-void Nst_freedtoa(i8 *str)
+void Nst_freedtoa(char *str)
 ```
 
 **Description:**
 
-Frees a string returned by [`Nst_dtoa`](c_api-dtoa.md#nst_dtoa).
+Free a string returned by [`Nst_dtoa`](c_api-dtoa.md#nst_dtoa).
 
 ---
 
@@ -81,12 +81,12 @@ Frees a string returned by [`Nst_dtoa`](c_api-dtoa.md#nst_dtoa).
 **Synopsis:**
 
 ```better-c
-f64 Nst_strtod(const i8 *str, i8 **str_end)
+f64 Nst_strtod(const char *str, char **str_end)
 ```
 
 **Description:**
 
-Converts a string to a double.
+Convert a string to a double.
 
 This function works like
 [`strtod`](https://man7.org/linux/man-pages/man3/strtod.3p.html) in the C

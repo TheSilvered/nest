@@ -24,12 +24,12 @@ allowed:
 - `s` for `char *` (string)
 - `B` for `u8` (takes a `uint` but expects values in the range `[0, 255]`)
 - `i` for `int` or `uint` (`unsigned int`)
-- `l` for `i32` (`long`) or `u32` (`unsigned long`)
-- `L` for `i64` (`long long`) or `u64` (`unsigned long long`)
-- `z` for `isize` (`size_t`) or `usize` (`ptrdiff_t`)
-- `b` for `bool` (takes an int but writes `true` or `false` instead of `1` and
-  `0`)
-- `f` for `f32` (`float`) or `f64` (`double`)
+- `l` for `i32` or `u32`
+- `L` for `i64` or `u64`
+- `z` for `isize` or `usize`
+- `b` for `bool` (takes an `int` but writes `true` or `false` instead of `1`
+  and `0`)
+- `f` for `f32` or `f64`
 - `c` for `char`
 - `p` for `void *`
 
@@ -70,7 +70,7 @@ representation mode to be used though mode `g` is the default.
 
 In general representation the number is represented with `precision`
 significant digits and will alternate between the `f` or `F` mode and the `e`
-or `E` modes depending on its magnetude.
+or `E` modes depending on its magnitude.
 
 The `f` or `F` mode is used when `-4 <= exp < precision` where `exp` is the
 exponent in standard notation of the number. When the exponent falls outside
@@ -177,7 +177,7 @@ Nst_fmt("{p:X}", 0, NULL, (void *)0x325c4e4); // results in "0X325c4e4"
 
 This flag is supported by `i`, `l`, `L` and `z` and indicates to use the
 unsigned variant of the types. For `i` this flag will read a `uint` instead of
-an `int`, for `l` it will read a `u32` instad of a `i32` and so on.
+an `int`, for `l` it will read a `u32` instead of a `i32` and so on.
 
 #### The `0` flag
 
@@ -243,7 +243,7 @@ characters.
 Nst_fmt("{s:r}", 0, NULL, "hello😊\n"); // results in "'hello😊\\n'"
 ```
 
-The `R` flag will instad only escape special characters (including the
+The `R` flag will instead only escape special characters (including the
 backslash `\` but not quotes) and leaving everything else untouched.
 
 ```better-c
@@ -418,7 +418,7 @@ flag is used to specify what character to use instead of the space.
 
 When the `c` flag is used this field specifies the exact width of the resulting
 string, shorter strings will still be padded but strings that are too long will
-be cut to size reguardless of the value, this means that digits and signs can
+be cut to size regardless of the value, this means that digits and signs can
 be cut off numbers.
 
 The width can be specified directly with a number after the flags or by writing
@@ -502,7 +502,7 @@ A negative precision is ignored.
 This field applies to the types that support the `'` flag and changes the
 amount of digits between separators from the default.
 
-The default values for the separator width is as followes:
+The default values for the separator width is as follows:
 
 - `8` for numbers in binary
 - `3` for numbers in octal or decimal (including all floats)
@@ -553,16 +553,16 @@ and the right.
 **Synopsis:**
 
 ```better-c
-isize Nst_print(const i8 *buf)
+isize Nst_print(const char *buf)
 ```
 
 **Description:**
 
-Prints a string to the Nest standard output.
+Print a string to the Nest standard output.
 
 !!!warning
-    Do not use this function to print [`Nst_StrObj`](c_api-str.md#nst_strobj)
-    objects, use [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
+    Do not use this function to print `Str` objects, use
+    [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
 
 **Parameters:**
 
@@ -580,16 +580,16 @@ set.
 **Synopsis:**
 
 ```better-c
-isize Nst_fprint(Nst_IOFileObj *f, const i8 *buf)
+isize Nst_fprint(Nst_Obj *f, const char *buf)
 ```
 
 **Description:**
 
-Prints a string to a Nest file object.
+Print a string to a Nest file object.
 
 !!!warning
-    Do not use this function to print [`Nst_StrObj`](c_api-str.md#nst_strobj)
-    objects, use [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
+    Do not use this function to print `Str` objects, use
+    [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
 
 **Parameters:**
 
@@ -608,16 +608,16 @@ set.
 **Synopsis:**
 
 ```better-c
-isize Nst_println(const i8 *buf)
+isize Nst_println(const char *buf)
 ```
 
 **Description:**
 
-Prints a string to the Nest standard output appending a newline character.
+Print a string to the Nest standard output appending a newline character.
 
 !!!warning
-    Do not use this function to print [`Nst_StrObj`](c_api-str.md#nst_strobj)
-    objects, use [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
+    Do not use this function to print `Str` objects, use
+    [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
 
 On all platforms only a newline (U+000A) is appended, NOT a carriage return.
 
@@ -637,18 +637,18 @@ closed `-1` is returned. No error is set.
 **Synopsis:**
 
 ```better-c
-isize Nst_fprintln(Nst_IOFileObj *f, const i8 *buf)
+isize Nst_fprintln(Nst_Obj *f, const char *buf)
 ```
 
 **Description:**
 
-Prints a string to a Nest file object appending a newline character.
+Print a string to a Nest file object appending a newline character.
 
 On all platforms only a newline (U+000A) is appended, NOT a carriage return.
 
 !!!warning
-    Do not use this function to print [`Nst_StrObj`](c_api-str.md#nst_strobj)
-    objects, use [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
+    Do not use this function to print `Str` objects, use
+    [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
 
 **Parameters:**
 
@@ -667,13 +667,13 @@ closed `-1` is returned. No error is set.
 **Synopsis:**
 
 ```better-c
-isize Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
+isize Nst_printf(const char *fmt, ...)
 ```
 
 **Description:**
 
-Prints a formatted string to the Nest standard output. The format specifier
-works like that of C's
+Print a formatted string to the Nest standard output. The format specifier works
+like that of C's
 [`printf`](https://man7.org/linux/man-pages/man3/printf.3.html).
 
 **Parameters:**
@@ -698,12 +698,12 @@ error is set. The negative value returned depends on the type of the error:
 **Synopsis:**
 
 ```better-c
-isize Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
+isize Nst_fprintf(Nst_Obj *f, const char *fmt, ...)
 ```
 
 **Description:**
 
-Prints a formatted string to a Nest file object. The format specifier works like
+Print a formatted string to a Nest file object. The format specifier works like
 that of C's [`printf`](https://man7.org/linux/man-pages/man3/printf.3.html).
 
 **Parameters:**
@@ -729,7 +729,7 @@ error is set. The negative value returned depends on the type of the error:
 **Synopsis:**
 
 ```better-c
-isize Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
+isize Nst_vfprintf(Nst_Obj *f, const char *fmt, va_list args)
 ```
 
 **Description:**
@@ -743,12 +743,12 @@ isize Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
+Nst_ObjRef *Nst_sprintf(const char *fmt, ...)
 ```
 
 **Description:**
 
-Creates a Nest string object from a format placeholder. The format specifier
+Create a Nest string object from a format placeholder. The format specifier
 works like that of C's
 [`printf`](https://man7.org/linux/man-pages/man3/printf.3.html).
 
@@ -770,7 +770,7 @@ The function returns the newly created string object.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
+Nst_ObjRef *Nst_vsprintf(const char *fmt, va_list args)
 ```
 
 **Description:**
@@ -784,12 +784,12 @@ Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
 **Synopsis:**
 
 ```better-c
-i8 *Nst_fmt(const i8 *fmt, usize fmt_len, usize *out_len, ...)
+u8 *Nst_fmt(const char *fmt, usize fmt_len, usize *out_len, ...)
 ```
 
 **Description:**
 
-Creates a heap-allocated string formatted with a more customizable format
+Create a heap-allocated string formatted with a more customizable format
 placeholder.
 
 Check the [full format rules](c_api-format.md#nst_fmt-format-rules) for this
@@ -800,7 +800,7 @@ function.
 - `fmt`: the format placeholder
 - `fmt_len`: the length of `fmt`, if set to `0` is it determined using
   [`strlen`](https://man7.org/linux/man-pages/man3/strlen.3.html)
-- `out_len`: pointer to a value filled with the final lenght of the formatted
+- `out_len`: pointer to a value filled with the final length of the formatted
   string, it can be `NULL`
 - `...`: the values to format
 
@@ -816,7 +816,7 @@ function fails and `out_len` is not `NULL` it is set to `0`.
 **Synopsis:**
 
 ```better-c
-i8 *Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len, va_list args)
+u8 *Nst_vfmt(const char *fmt, usize fmt_len, usize *out_len, va_list args)
 ```
 
 **Description:**
@@ -830,18 +830,25 @@ i8 *Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len, va_list args)
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_fmt_objs(Nst_StrObj *fmt, Nst_SeqObj *values)
+Nst_ObjRef *Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj **values, usize value_count)
 ```
 
 **Description:**
 
-Similar to [`Nst_fmt`](c_api-format.md#nst_fmt), creates a string object
-formatted with the values given.
+Create a string object formatted using Nest objects.
+
+The format is similar to the
+[full format rules](c_api-format.md#nst_fmt-format-rules) of
+[`Nst_fmt`](c_api-format.md#nst_fmt) except that the type of the value to format
+is taken from the object and the general syntax for a format placeholder becomes
+`{[Flags][Width][.Precision][,SeparatorWidth][Alignment]}` (the `Type` and the
+`:` have been removed).
 
 **Parameters:**
 
 - `fmt`: the format placeholder
-- `values`: the values to format
+- `values`: the objects to use when formatting
+- `value_count`: the number of objects given
 
 **Returns:**
 
@@ -854,7 +861,7 @@ A new object of type `Str` or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-i8 *Nst_repr(i8 *str, usize str_len, usize *out_len, bool shallow, bool ascii)
+u8 *Nst_repr(u8 *str, usize str_len, usize *out_len, bool shallow, bool ascii)
 ```
 
 **Description:**
@@ -868,7 +875,7 @@ flags in [`Nst_fmt`](c_api-format.md#nst_fmt).
 - `str_len`: the length in bytes of the string, if set to zero it will be
   calculated with
   [`strlen`](https://man7.org/linux/man-pages/man3/strlen.3.html)
-- `out_len`: pointer to be set with the lengh of the output string, if set to
+- `out_len`: pointer to be set with the length of the output string, if set to
   `NULL` it will be ignored
 - `shallow`: if set to true it will only escape special characters, like the `R`
   and `A` flags

@@ -1,6 +1,5 @@
 #include <errno.h>
-#include "mem.h"
-#include "llist.h"
+#include "nest.h"
 
 Nst_LLNode *Nst_llnode_new(void *value, bool allocated)
 {
@@ -82,16 +81,6 @@ void *Nst_llist_pop(Nst_LList *llist)
     return value;
 }
 
-Nst_LList *Nst_llist_new(void)
-{
-    Nst_LList *llist = Nst_malloc_c(1, Nst_LList);
-    if (llist == NULL)
-        return NULL;
-
-    Nst_llist_init(llist);
-    return llist;
-}
-
 void Nst_llist_init(Nst_LList *llist)
 {
     llist->len = 0;
@@ -113,15 +102,7 @@ void *Nst_llist_peek_back(Nst_LList *llist)
     return llist->tail->value;
 }
 
-void Nst_llist_destroy(Nst_LList *llist, void (*item_destructor)(void*))
-{
-    if (llist == NULL)
-        return;
-    Nst_llist_empty(llist, item_destructor);
-    Nst_free(llist);
-}
-
-void Nst_llist_empty(Nst_LList *llist, void (*item_destructor)(void *))
+void Nst_llist_empty(Nst_LList *llist, Nst_Destructor item_destructor)
 {
     if (llist == NULL)
         return;

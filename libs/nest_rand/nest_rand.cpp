@@ -46,7 +46,7 @@ Nst_Obj *NstC rand_int_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (min > max) {
-        Nst_set_value_error_c("'min' is greater than 'max'");
+        Nst_error_setc_value("'min' is greater than 'max'");
         return nullptr;
     }
 
@@ -68,14 +68,14 @@ Nst_Obj *NstC choice_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("S", arg_num, args, &seq))
         return nullptr;
 
-    Nst_Obj *val = Nst_seq_get(SEQ(seq), rand_num() % SEQ(seq)->len);
+    Nst_Obj *val = Nst_seq_get(seq, rand_num() % Nst_seq_len(seq));
     Nst_dec_ref(seq);
     return val;
 }
 
 Nst_Obj *NstC shuffle_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *seq;
+    Nst_Obj *seq;
     bool new_seq;
 
     if (!Nst_extract_args("A:o y", arg_num, args, &seq, &new_seq))
@@ -83,11 +83,11 @@ Nst_Obj *NstC shuffle_(usize arg_num, Nst_Obj **args)
 
     if (new_seq) {
         Nst_dec_ref(seq);
-        seq = SEQ(Nst_seq_copy(seq));
+        seq = Nst_seq_copy(seq);
     }
 
-    usize seq_len = seq->len;
-    Nst_Obj **objs = seq->objs;
+    usize seq_len = Nst_seq_len(seq);
+    Nst_Obj **objs = Nst_seq_objs(seq);
 
     for (usize i = 0; i + 1 < seq_len; i++) {
         usize idx = usize(rand_range(i, seq_len));
@@ -96,7 +96,7 @@ Nst_Obj *NstC shuffle_(usize arg_num, Nst_Obj **args)
         objs[idx] = obj;
     }
 
-    return OBJ(seq);
+    return seq;
 }
 
 Nst_Obj *NstC seed_(usize arg_num, Nst_Obj **args)
@@ -105,5 +105,5 @@ Nst_Obj *NstC seed_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("i", arg_num, args, &seed))
         return nullptr;
     rand_num.seed(u64(seed));
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }

@@ -18,92 +18,17 @@ Maximum size for an object pool.
 
 ---
 
-### `OBJ`
+### `NstOBJ`
 
 **Synopsis:**
 
 ```better-c
-#define OBJ(obj)
+#define NstOBJ(obj)
 ```
 
 **Description:**
 
-Casts `obj` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
-### `Nst_inc_ref`
-
-**Synopsis:**
-
-```better-c
-#define Nst_inc_ref(obj)
-```
-
-**Description:**
-
-Alias for [`_Nst_inc_ref`](c_api-obj.md#_nst_inc_ref) that casts `obj` to
-[`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
-### `Nst_ninc_ref`
-
-**Synopsis:**
-
-```better-c
-#define Nst_ninc_ref(obj)
-```
-
-**Description:**
-
-Calls [`Nst_inc_ref`](c_api-obj.md#nst_inc_ref) if `obj` is not a `NULL`
-pointer.
-
----
-
-### `Nst_dec_ref`
-
-**Synopsis:**
-
-```better-c
-#define Nst_dec_ref(obj)
-```
-
-**Description:**
-
-Alias for [`_Nst_dec_ref`](c_api-obj.md#_nst_dec_ref) that casts `obj` to
-[`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
-### `Nst_ndec_ref`
-
-**Synopsis:**
-
-```better-c
-#define Nst_ndec_ref(obj)
-```
-
-**Description:**
-
-Calls [`Nst_dec_ref`](c_api-obj.md#nst_dec_ref) if the object is not a `NULL`
-pointer.
-
----
-
-### `Nst_obj_destroy`
-
-**Synopsis:**
-
-```better-c
-#define Nst_obj_destroy(obj)
-```
-
-**Description:**
-
-Alias for [`_Nst_obj_destroy`](c_api-obj.md#_nst_obj_destroy) that casts obj to
-[`Nst_Obj *`](c_api-obj.md#nst_obj).
+Cast `obj` to [`Nst_Obj *`](c_api-typedefs.md#nst_obj).
 
 ---
 
@@ -161,7 +86,7 @@ Sets `flag` of `obj` to `false`.
 
 **Description:**
 
-Checks if `flag` is set.
+Check if `flag` is set.
 
 ---
 
@@ -175,7 +100,7 @@ Checks if `flag` is set.
 
 **Description:**
 
-Creates a flag from an id. `n` can be between 1 and 28 included.
+Create a flag from an id. `n` can be between 1 and 28 included.
 
 ---
 
@@ -189,7 +114,7 @@ Creates a flag from an id. `n` can be between 1 and 28 included.
 
 **Description:**
 
-Clears all flags from an object, except for the reserved ones.
+Clear all flags from an object, except for the reserved ones.
 
 ---
 
@@ -205,39 +130,6 @@ reserved for the garbage collector.
 
 ---
 
-## Structs
-
-### `Nst_Obj`
-
-**Synopsis:**
-
-```better-c
-typedef struct _Nst_Obj {
-    Nst_OBJ_HEAD;
-} Nst_Obj
-```
-
-**Description:**
-
-The structure representing a basic Nest object.
-
-**Fields:**
-
-- `ref_count`: the reference count of the object
-- `type`: the type of the object
-- `p_next`: the next object in the type's pool
-- `hash`: the hash of the object, `-1` if it has not yet been hashed or is not
-  hashable
-- `flags`: the flags of the object
-- `init_line`: **THIS FIELD ONLY EXISTS WHEN `Nst_TRACK_OBJ_INIT_POS` IS
-  DEFINED** the line of the instruction that initialized the object
-- `init_col`: **THIS FIELD ONLY EXISTS WHEN `Nst_TRACK_OBJ_INIT_POS` IS
-  DEFINED** the column of the instruction that initialized the object
-- `init_path`: **THIS FIELD ONLY EXISTS WHEN `Nst_TRACK_OBJ_INIT_POS` IS
-  DEFINED** the path to the file where the object was initialized
-
----
-
 ## Type aliases
 
 ### `Nst_ObjDstr`
@@ -245,7 +137,7 @@ The structure representing a basic Nest object.
 **Synopsis:**
 
 ```better-c
-typedef void (*Nst_ObjDstr)(void *)
+typedef void (*Nst_ObjDstr)(Nst_Obj *)
 ```
 
 **Description:**
@@ -264,7 +156,7 @@ the object being deleted has with other objects.
 **Synopsis:**
 
 ```better-c
-typedef void (*Nst_ObjTrav)(void *)
+typedef void (*Nst_ObjTrav)(Nst_Obj *)
 ```
 
 **Description:**
@@ -278,21 +170,6 @@ objects, should be left untouched.
 
 ---
 
-### `Nst_NullObj`
-
-**Synopsis:**
-
-```better-c
-typedef Nst_Obj Nst_NullObj
-```
-
-**Description:**
-
-A [`Nst_NullObj`](c_api-obj.md#nst_nullobj) is just a
-[`Nst_Obj`](c_api-obj.md#nst_obj) as it does not have any special fields.
-
----
-
 ## Functions
 
 ### `_Nst_obj_alloc`
@@ -300,7 +177,7 @@ A [`Nst_NullObj`](c_api-obj.md#nst_nullobj) is just a
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_obj_alloc(usize size, Nst_TypeObj *type)
+Nst_ObjRef *_Nst_obj_alloc(usize size, Nst_Obj *type)
 ```
 
 **Description:**
@@ -320,68 +197,75 @@ The newly allocate object or `NULL` on failure. The error is set.
 
 ---
 
-### `_Nst_obj_destroy`
+### `Nst_obj_traverse`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_obj_destroy(Nst_Obj *obj)
+void Nst_obj_traverse(Nst_Obj *obj)
 ```
 
 **Description:**
 
-Calls an object's destructor.
-
-This function should not be called on most occasions, use
-[`Nst_dec_ref`](c_api-obj.md#nst_dec_ref) instead.
+Traverse an object for the GGC. If the object's type does not have a traverse
+function, this function does nothing.
 
 ---
 
-### `_Nst_obj_free`
+### `Nst_inc_ref`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_obj_free(Nst_Obj *obj)
+Nst_ObjRef *Nst_inc_ref(Nst_Obj *obj)
 ```
 
 **Description:**
 
-Frees the memory of the object or adds it to the object pool. The reference to
-the object's type is removed.
-
-**Parameters:**
-
-- `obj`: the pointer to the object to free
+Increase the reference count of an object. Returns `obj`.
 
 ---
 
-### `_Nst_inc_ref`
+### `Nst_ninc_ref`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_inc_ref(Nst_Obj *obj)
+Nst_ObjRef *Nst_ninc_ref(Nst_Obj *obj)
 ```
 
 **Description:**
 
-Increases the reference count of an object.
+Call [`Nst_inc_ref`](c_api-obj.md#nst_inc_ref) if `obj` is not a `NULL` pointer.
+Returns `obj`.
 
 ---
 
-### `_Nst_dec_ref`
+### `Nst_dec_ref`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_dec_ref(Nst_Obj *obj)
+void Nst_dec_ref(Nst_ObjRef *obj)
 ```
 
 **Description:**
 
-Decreases the reference count of an object and calls
-[`_Nst_obj_destroy`](c_api-obj.md#_nst_obj_destroy) if it reaches zero.
+Decrease the reference count of an object.
+
+---
+
+### `Nst_ndec_ref`
+
+**Synopsis:**
+
+```better-c
+void Nst_ndec_ref(Nst_ObjRef *obj)
+```
+
+**Description:**
+
+Call [`Nst_dec_ref`](c_api-obj.md#nst_dec_ref) if `obj` is not a `NULL` pointer.
 
 ---
 

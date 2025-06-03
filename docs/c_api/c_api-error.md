@@ -10,292 +10,21 @@ TheSilvered
 
 ## Macros
 
-### `_Nst_EM_WRONG_ARG_NUM_FMT`
+### `_Nst_WRONG_ARG_NUM`
 
 **Synopsis:**
 
 ```better-c
-#define _Nst_EM_WRONG_ARG_NUM_FMT(func_arg_num, arg_num)
+#define _Nst_WRONG_ARG_NUM(func_arg_num, arg_num)
 ```
 
 **Description:**
 
-Correctly formats the `_Nst_EM_WRONG_ARG_NUM` error message.
-
----
-
-### `Nst_set_error`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_error(name, msg)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_error`](c_api-error.md#_nst_set_error) that casts `name`
-and `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
-
----
-
-### `Nst_set_syntax_error`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_syntax_error(msg)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_syntax_error`](c_api-error.md#_nst_set_syntax_error) that
-casts `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
-
----
-
-### `Nst_set_memory_error`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_memory_error(msg)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_memory_error`](c_api-error.md#_nst_set_memory_error) that
-casts `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
-
----
-
-### `Nst_set_type_error`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_type_error(msg)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_type_error`](c_api-error.md#_nst_set_type_error) that casts
-`msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
-
----
-
-### `Nst_set_value_error`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_value_error(msg)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_value_error`](c_api-error.md#_nst_set_value_error) that
-casts `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
-
----
-
-### `Nst_set_math_error`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_math_error(msg)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_math_error`](c_api-error.md#_nst_set_math_error) that casts
-`msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
-
----
-
-### `Nst_set_call_error`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_call_error(msg)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_call_error`](c_api-error.md#_nst_set_call_error) that casts
-`msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
-
----
-
-### `Nst_set_import_error`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_import_error(msg)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_import_error`](c_api-error.md#_nst_set_import_error) that
-casts `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
-
----
-
-### `Nst_set_errorf`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_errorf(name, fmt, ...)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_error`](c_api-error.md#_nst_set_error) that casts `name` to
-[`Nst_StrObj *`](c_api-str.md#nst_strobj) and builds a formatted string with
-`fmt`.
-
----
-
-### `Nst_set_syntax_errorf`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_syntax_errorf(fmt, ...)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_syntax_error`](c_api-error.md#_nst_set_syntax_error) that
-builds a formatted string with `fmt`.
-
----
-
-### `Nst_set_memory_errorf`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_memory_errorf(fmt, ...)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_memory_error`](c_api-error.md#_nst_set_memory_error) that
-builds a formatted string with `fmt`.
-
----
-
-### `Nst_set_type_errorf`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_type_errorf(fmt, ...)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_type_error`](c_api-error.md#_nst_set_type_error) that
-builds a formatted string with `fmt`.
-
----
-
-### `Nst_set_value_errorf`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_value_errorf(fmt, ...)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_value_error`](c_api-error.md#_nst_set_value_error) that
-builds a formatted string with `fmt`.
-
----
-
-### `Nst_set_math_errorf`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_math_errorf(fmt, ...)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_math_error`](c_api-error.md#_nst_set_math_error) that
-builds a formatted string with `fmt`.
-
----
-
-### `Nst_set_call_errorf`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_call_errorf(fmt, ...)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_call_error`](c_api-error.md#_nst_set_call_error) that
-builds a formatted string with `fmt`.
-
----
-
-### `Nst_set_import_errorf`
-
-**Synopsis:**
-
-```better-c
-#define Nst_set_import_errorf(fmt, ...)
-```
-
-**Description:**
-
-Alias for [`_Nst_set_import_error`](c_api-error.md#_nst_set_import_error) that
-builds a formatted string with `fmt`.
+Correctly formats the error message for using the wrong number of arguments.
 
 ---
 
 ## Structs
-
-### `Nst_SourceText`
-
-**Synopsis:**
-
-```better-c
-typedef struct _Nst_SourceText {
-    bool allocated;
-    i8 *text;
-    i8 *path;
-    i8 **lines;
-    usize text_len;
-    usize lines_len;
-} Nst_SourceText
-```
-
-**Description:**
-
-The structure where the source text of a Nest file is kept.
-
-**Fields:**
-
-- `allocated`: whether `text`, `path` and `lines` are heap allocated
-- `text`: the UTF-8 text of the file
-- `path`: the path of the file
-- `lines`: the beginning of each line of the file
-- `len`: the length in bytes of `text`
-- `lines_len`: the number of lines in the file
-
----
 
 ### `Nst_Pos`
 
@@ -321,16 +50,44 @@ The structure representing a position inside a source file.
 
 ---
 
+### `Nst_Span`
+
+**Synopsis:**
+
+```better-c
+typedef struct _Nst_Span {
+    i32 start_line;
+    i32 start_col;
+    i32 end_line;
+    i32 end_col;
+    Nst_SourceText *text;
+} Nst_Span
+```
+
+**Description:**
+
+The structure representing a text span inside a source file.
+
+**Fields:**
+
+- `start_line`: the starting line, the first is line 0
+- `start_col`: the starting column, the first is column 0
+- `end_line`: the ending line, included in the span
+- `end_col`: the ending column, included in the span
+- `text`: the text this position refers to
+
+---
+
 ### `Nst_Traceback`
 
 **Synopsis:**
 
 ```better-c
-typedef volatile struct _Nst_Traceback {
+typedef struct _Nst_Traceback {
     bool error_occurred;
-    Nst_StrObj *error_name;
-    Nst_StrObj *error_msg;
-    Nst_LList *positions;
+    Nst_ObjRef *error_name;
+    Nst_ObjRef *error_msg;
+    Nst_DynArray positions;
 } Nst_Traceback
 ```
 
@@ -349,342 +106,509 @@ The structure containing the full traceback of the error.
 
 ## Functions
 
-### `Nst_set_color`
+### `Nst_error_set_color`
 
 **Synopsis:**
 
 ```better-c
-void Nst_set_color(bool color)
+void Nst_error_set_color(bool color)
 ```
 
 **Description:**
 
-Sets how the error message is printed (with or without ANSI escapes).
+Set how the error message is printed (with or without ANSI color escapes).
 
 ---
 
-### `Nst_copy_pos`
+### `Nst_pos_empty`
 
 **Synopsis:**
 
 ```better-c
-Nst_Pos Nst_copy_pos(Nst_Pos pos)
+Nst_Pos Nst_pos_empty(void)
 ```
 
 **Description:**
 
-Forces a copy of the position.
+Create an empty position with no valid text.
 
 ---
 
-### `Nst_no_pos`
+### `Nst_span_new`
 
 **Synopsis:**
 
 ```better-c
-Nst_Pos Nst_no_pos(void)
+Nst_Span Nst_span_new(Nst_Pos start, Nst_Pos end)
 ```
 
 **Description:**
 
-Creates an empty position, with no valid text.
+Make a new span from a start and an end position.
 
 ---
 
-### `Nst_print_traceback`
+### `Nst_span_from_pos`
 
 **Synopsis:**
 
 ```better-c
-void Nst_print_traceback(Nst_Traceback *tb)
+Nst_Span Nst_span_from_pos(Nst_Pos pos)
 ```
 
 **Description:**
 
-Prints a formatted [`Nst_Traceback`](c_api-error.md#nst_traceback).
+Make a new span with the same start and end positions.
 
 ---
 
-### `Nst_source_text_init`
+### `Nst_span_empty`
 
 **Synopsis:**
 
 ```better-c
-void Nst_source_text_init(Nst_SourceText *src)
+Nst_Span Nst_span_empty(void)
 ```
 
 **Description:**
 
-Initializes the fields of a [`Nst_SourceText`](c_api-error.md#nst_sourcetext)
-struct.
+Create an empty span with no valid text.
 
 ---
 
-### `Nst_source_text_destroy`
+### `Nst_span_join`
 
 **Synopsis:**
 
 ```better-c
-void Nst_source_text_destroy(Nst_SourceText *text)
+Nst_Span Nst_span_join(Nst_Span span1, Nst_Span span2)
 ```
 
 **Description:**
 
-Frees a heap allocated text source, `text` can be `NULL`. No error is set.
+Make a span that includes both `span1` and `span2`.
 
 ---
 
-### `_Nst_set_error`
+### `Nst_span_expand`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_set_error(Nst_StrObj *name, Nst_StrObj *msg)
+Nst_Span Nst_span_expand(Nst_Span span, Nst_Pos pos)
 ```
 
 **Description:**
 
-Sets the global operation error with the given name and message.
-
-It takes a reference of both name and message.
+Expand a span to include the given position.
 
 ---
 
-### `_Nst_set_syntax_error`
+### `Nst_span_start`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_set_syntax_error(Nst_StrObj *msg)
+Nst_Pos Nst_span_start(Nst_Span span)
+```
+
+**Returns:**
+
+The start position of a span.
+
+---
+
+### `Nst_span_end`
+
+**Synopsis:**
+
+```better-c
+Nst_Pos Nst_span_end(Nst_Span span)
+```
+
+**Returns:**
+
+The end position of a span.
+
+---
+
+### `Nst_error_print`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_print(void)
 ```
 
 **Description:**
 
-Sets the global operation error with the given message and "Syntax Error" as the
+Print the error traceback.
+
+---
+
+### `Nst_error_set`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_set(Nst_ObjRef *name, Nst_ObjRef *msg)
+```
+
+**Description:**
+
+Set the error with the given name and message.
+
+It takes one reference from both `name` and `msg`.
+
+---
+
+### `Nst_error_set_syntax`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_set_syntax(Nst_ObjRef *msg)
+```
+
+**Description:**
+
+Set the error with the given message and "Syntax Error" as the name.
+
+It takes one reference from `msg`.
+
+---
+
+### `Nst_error_set_memory`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_set_memory(Nst_ObjRef *msg)
+```
+
+**Description:**
+
+Set the error with the given message and "Memory Error" as the name.
+
+It takes one reference from `msg`.
+
+---
+
+### `Nst_error_set_type`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_set_type(Nst_ObjRef *msg)
+```
+
+**Description:**
+
+Set the error with the given message and "Type Error" as the name.
+
+It takes one reference from `msg`.
+
+---
+
+### `Nst_error_set_value`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_set_value(Nst_ObjRef *msg)
+```
+
+**Description:**
+
+Set the error with the given message and "Value Error" as the name.
+
+It takes one reference from `msg`.
+
+---
+
+### `Nst_error_set_math`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_set_math(Nst_ObjRef *msg)
+```
+
+**Description:**
+
+Set the error with the given message and "Math Error" as the name.
+
+It takes one reference from `msg`.
+
+---
+
+### `Nst_error_set_call`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_set_call(Nst_ObjRef *msg)
+```
+
+**Description:**
+
+Set the error with the given message and "Call Error" as the name.
+
+It takes one reference from `msg`.
+
+---
+
+### `Nst_error_set_import`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_set_import(Nst_ObjRef *msg)
+```
+
+**Description:**
+
+Set the error with the given message and "Import Error" as the name.
+
+It takes one reference from `msg`.
+
+---
+
+### `Nst_error_setc_syntax`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setc_syntax(const char *msg)
+```
+
+**Description:**
+
+Set the error creating a `String` object from `msg` and using "Syntax Error" as
+the name.
+
+---
+
+### `Nst_error_setc_memory`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setc_memory(const char *msg)
+```
+
+**Description:**
+
+Set the error creating a `String` object from `msg` and using "Memory Error" as
+the name.
+
+---
+
+### `Nst_error_setc_type`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setc_type(const char *msg)
+```
+
+**Description:**
+
+Set the error creating a `String` object from `msg` and using "Type Error" as
+the name.
+
+---
+
+### `Nst_error_setc_value`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setc_value(const char *msg)
+```
+
+**Description:**
+
+Set the error creating a `String` object from `msg` and using "Value Error" as
+the name.
+
+---
+
+### `Nst_error_setc_math`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setc_math(const char *msg)
+```
+
+**Description:**
+
+Set the error creating a `String` object from `msg` and using "Math Error" as
+the name.
+
+---
+
+### `Nst_error_setc_call`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setc_call(const char *msg)
+```
+
+**Description:**
+
+Set the error creating a `String` object from `msg` and using "Call Error" as
+the name.
+
+---
+
+### `Nst_error_setc_import`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setc_import(const char *msg)
+```
+
+**Description:**
+
+Set the error creating a `String` object from `msg` and using "Import Error" as
+the name.
+
+---
+
+### `Nst_error_setf_syntax`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setf_syntax(const char *fmt, ...)
+```
+
+**Description:**
+
+Set the error creating a formatted `String` object and using "Syntax Error" as
+the name.
+
+---
+
+### `Nst_error_setf_memory`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setf_memory(const char *fmt, ...)
+```
+
+**Description:**
+
+Set the error creating a formatted `String` object and using "Memory Error" as
+the name.
+
+---
+
+### `Nst_error_setf_type`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setf_type(const char *fmt, ...)
+```
+
+**Description:**
+
+Set the error creating a formatted `String` object and using "Type Error" as the
 name.
 
-It takes a reference of the message.
-
 ---
 
-### `_Nst_set_memory_error`
+### `Nst_error_setf_value`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_set_memory_error(Nst_StrObj *msg)
+void Nst_error_setf_value(const char *fmt, ...)
 ```
 
 **Description:**
 
-Sets the global operation error with the given message and "Memory Error" as the
+Set the error creating a formatted `String` object and using "Value Error" as
+the name.
+
+---
+
+### `Nst_error_setf_math`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setf_math(const char *fmt, ...)
+```
+
+**Description:**
+
+Set the error creating a formatted `String` object and using "Math Error" as the
 name.
 
-It takes a reference of the message.
-
 ---
 
-### `_Nst_set_type_error`
+### `Nst_error_setf_call`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_set_type_error(Nst_StrObj *msg)
+void Nst_error_setf_call(const char *fmt, ...)
 ```
 
 **Description:**
 
-Sets the global operation error with the given message and "Type Error" as the
+Set the error creating a formatted `String` object and using "Call Error" as the
 name.
 
-It takes a reference of the message.
-
 ---
 
-### `_Nst_set_value_error`
+### `Nst_error_setf_import`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_set_value_error(Nst_StrObj *msg)
+void Nst_error_setf_import(const char *fmt, ...)
 ```
 
 **Description:**
 
-Sets the global operation error with the given message and "Value Error" as the
-name.
-
-It takes a reference of the message.
+Set the error creating a formatted `String` object and using "Import Error" as
+the name.
 
 ---
 
-### `_Nst_set_math_error`
+### `Nst_error_failed_alloc`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_set_math_error(Nst_StrObj *msg)
+void Nst_error_failed_alloc(void)
 ```
 
 **Description:**
 
-Sets the global operation error with the given message and "Math Error" as the
-name.
-
-It takes a reference of the message.
+Set the global operation error with a memory error of failed allocation.
 
 ---
 
-### `_Nst_set_call_error`
+### `Nst_error_add_span`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_set_call_error(Nst_StrObj *msg)
+void Nst_error_add_span(Nst_Span span)
 ```
 
 **Description:**
 
-Sets the global operation error with the given message and "Call Error" as the
-name.
-
-It takes a reference of the message.
-
----
-
-### `_Nst_set_import_error`
-
-**Synopsis:**
-
-```better-c
-void _Nst_set_import_error(Nst_StrObj *msg)
-```
-
-**Description:**
-
-Sets the global operation error with the given message and "Import Error" as the
-name.
-
-It takes a reference of the message.
-
----
-
-### `Nst_set_syntax_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_syntax_error_c(const i8 *msg)
-```
-
-**Description:**
-
-Sets the global operation error creating a string object from the given message
-and using "Syntax Error" as the name.
-
----
-
-### `Nst_set_memory_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_memory_error_c(const i8 *msg)
-```
-
-**Description:**
-
-Sets the global operation error creating a string object from the given message
-and using "Memory Error" as the name.
-
----
-
-### `Nst_set_type_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_type_error_c(const i8 *msg)
-```
-
-**Description:**
-
-Sets the global operation error creating a string object from the given message
-and using "Type Error" as the name.
-
----
-
-### `Nst_set_value_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_value_error_c(const i8 *msg)
-```
-
-**Description:**
-
-Sets the global operation error creating a string object from the given message
-and using "Value Error" as the name.
-
----
-
-### `Nst_set_math_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_math_error_c(const i8 *msg)
-```
-
-**Description:**
-
-Sets the global operation error creating a string object from the given message
-and using "Math Error" as the name.
-
----
-
-### `Nst_set_call_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_call_error_c(const i8 *msg)
-```
-
-**Description:**
-
-Sets the global operation error creating a string object from the given message
-and using "Call Error" as the name.
-
----
-
-### `Nst_set_import_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_import_error_c(const i8 *msg)
-```
-
-**Description:**
-
-Sets the global operation error creating a string object from the given message
-and using "Import Error" as the name.
-
----
-
-### `Nst_failed_allocation`
-
-**Synopsis:**
-
-```better-c
-void Nst_failed_allocation(void)
-```
-
-**Description:**
-
-Sets the global operation error with a memory error of failed allocation.
+Add a pair of positions to the error.
 
 ---
 
@@ -693,14 +617,12 @@ Sets the global operation error with a memory error of failed allocation.
 **Synopsis:**
 
 ```better-c
-Nst_ErrorKind Nst_error_occurred(void)
+bool Nst_error_occurred(void)
 ```
 
 **Returns:**
 
-Whether an error has occurred in the current execution. Check
-[`Nst_ErrorKind`](c_api-error.md#nst_errorkind) to understand better the return
-value.
+Whether an error has occurred.
 
 ---
 
@@ -714,8 +636,7 @@ Nst_Traceback *Nst_error_get(void)
 
 **Returns:**
 
-The traceback of the current execution or that of the interpreter if no
-execution state is set.
+The traceback.
 
 ---
 
@@ -729,363 +650,4 @@ void Nst_error_clear(void)
 
 **Description:**
 
-Clears the traceback of both the current execution and of the interpreter. If no
-error has occurred nothing is done.
-
----
-
-### `Nst_traceback_init`
-
-**Synopsis:**
-
-```better-c
-bool Nst_traceback_init(Nst_Traceback *tb)
-```
-
-**Description:**
-
-Initializes the traceback of the current
-[`Nst_state`](c_api-interpreter.md#nst_state_get).
-
----
-
-### `Nst_traceback_destroy`
-
-**Synopsis:**
-
-```better-c
-void Nst_traceback_destroy(Nst_Traceback *tb)
-```
-
-**Description:**
-
-Frees the traceback of the current
-[`Nst_state`](c_api-interpreter.md#nst_state_get).
-
----
-
-### `Nst_error_add_positions`
-
-**Synopsis:**
-
-```better-c
-void Nst_error_add_positions(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end)
-```
-
-**Description:**
-
-Adds a pair of positions to an error.
-
----
-
-### `Nst_set_internal_error`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_error(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
-                            Nst_StrObj *name, Nst_StrObj *msg)
-```
-
-**Description:**
-
-Sets a [`Nst_Traceback`](c_api-error.md#nst_traceback) with the given fields.
-
-`name` will increment the reference count but `msg` will not.
-
-**Parameters:**
-
-- `error`: the error to fill
-- `start`: the start position
-- `end`: the end position
-- `msg`: the message of the error
-
----
-
-### `Nst_set_internal_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_error_c(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
-                              Nst_StrObj *name, const i8 *msg)
-```
-
-**Description:**
-
-Sets a [`Nst_Traceback`](c_api-error.md#nst_traceback) with the given fields and
-creating the message from a C string.
-
-`name` will increment the reference count.
-
-**Parameters:**
-
-- `error`: the error to fill
-- `start`: the start position
-- `end`: the end position
-- `msg`: the message of the error
-
----
-
-### `Nst_set_internal_syntax_error`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_syntax_error(Nst_Traceback *tb, Nst_Pos start,
-                                   Nst_Pos end, Nst_StrObj *msg)
-```
-
-**Description:**
-
-Similar to [`Nst_set_internal_error`](c_api-error.md#nst_set_internal_error) and
-uses "Syntax Error" as the name.
-
----
-
-### `Nst_set_internal_memory_error`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_memory_error(Nst_Traceback *tb, Nst_Pos start,
-                                   Nst_Pos end, Nst_StrObj *msg)
-```
-
-**Description:**
-
-Similar to [`Nst_set_internal_error`](c_api-error.md#nst_set_internal_error) and
-uses "Memory Error" as the name.
-
----
-
-### `Nst_set_internal_type_error`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_type_error(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
-                                 Nst_StrObj *msg)
-```
-
-**Description:**
-
-Similar to [`Nst_set_internal_error`](c_api-error.md#nst_set_internal_error) and
-uses "Type Error" as the name.
-
----
-
-### `Nst_set_internal_value_error`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_value_error(Nst_Traceback *tb, Nst_Pos start,
-                                  Nst_Pos end, Nst_StrObj *msg)
-```
-
-**Description:**
-
-Similar to [`Nst_set_internal_error`](c_api-error.md#nst_set_internal_error) and
-uses "Value Error" as the name.
-
----
-
-### `Nst_set_internal_math_error`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_math_error(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
-                                 Nst_StrObj *msg)
-```
-
-**Description:**
-
-Similar to [`Nst_set_internal_error`](c_api-error.md#nst_set_internal_error) and
-uses "Math Error" as the name.
-
----
-
-### `Nst_set_internal_call_error`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_call_error(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
-                                 Nst_StrObj *msg)
-```
-
-**Description:**
-
-Similar to [`Nst_set_internal_error`](c_api-error.md#nst_set_internal_error) and
-uses "Call Error" as the name.
-
----
-
-### `Nst_set_internal_import_error`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_import_error(Nst_Traceback *tb, Nst_Pos start,
-                                   Nst_Pos end, Nst_StrObj *msg)
-```
-
-**Description:**
-
-Similar to [`Nst_set_internal_error`](c_api-error.md#nst_set_internal_error) and
-uses "Import Error" as the name.
-
----
-
-### `Nst_set_internal_syntax_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_syntax_error_c(Nst_Traceback *tb, Nst_Pos start,
-                                     Nst_Pos end, const i8 *msg)
-```
-
-**Description:**
-
-Similar to [`Nst_set_internal_error_c`](c_api-error.md#nst_set_internal_error_c)
-and uses "Syntax Error" as the name.
-
----
-
-### `Nst_set_internal_memory_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_memory_error_c(Nst_Traceback *tb, Nst_Pos start,
-                                     Nst_Pos end, const i8 *msg)
-```
-
-**Description:**
-
-Similar to [`Nst_set_internal_error_c`](c_api-error.md#nst_set_internal_error_c)
-and uses "Memory Error" as the name.
-
----
-
-### `Nst_set_internal_type_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_type_error_c(Nst_Traceback *tb, Nst_Pos start,
-                                   Nst_Pos end, const i8 *msg)
-```
-
-**Description:**
-
-Similar to [`Nst_set_internal_error_c`](c_api-error.md#nst_set_internal_error_c)
-and uses "Type Error" as the name.
-
----
-
-### `Nst_set_internal_value_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_value_error_c(Nst_Traceback *tb, Nst_Pos start,
-                                    Nst_Pos end, const i8 *msg)
-```
-
-**Description:**
-
-Similar to [`Nst_set_internal_error_c`](c_api-error.md#nst_set_internal_error_c)
-and uses "Value Error" as the name.
-
----
-
-### `Nst_set_internal_math_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_math_error_c(Nst_Traceback *tb, Nst_Pos start,
-                                   Nst_Pos end, const i8 *msg)
-```
-
-**Description:**
-
-Similar to [`Nst_set_internal_error_c`](c_api-error.md#nst_set_internal_error_c)
-and uses "Math Error" as the name.
-
----
-
-### `Nst_set_internal_call_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_call_error_c(Nst_Traceback *tb, Nst_Pos start,
-                                   Nst_Pos end, const i8 *msg)
-```
-
-**Description:**
-
-Similar to [`Nst_set_internal_error_c`](c_api-error.md#nst_set_internal_error_c)
-and uses "Call Error" as the name.
-
----
-
-### `Nst_set_internal_import_error_c`
-
-**Synopsis:**
-
-```better-c
-void Nst_set_internal_import_error_c(Nst_Traceback *tb, Nst_Pos start,
-                                     Nst_Pos end, const i8 *msg)
-```
-
-**Description:**
-
-Similar to [`Nst_set_internal_error_c`](c_api-error.md#nst_set_internal_error_c)
-and uses "Import Error" as the name.
-
----
-
-### `Nst_internal_failed_allocation`
-
-**Synopsis:**
-
-```better-c
-void Nst_internal_failed_allocation(Nst_Traceback *tb, Nst_Pos start,
-                                    Nst_Pos end)
-```
-
-**Description:**
-
-Sets a memory error for a failed allocation.
-
----
-
-## Enums
-
-### `Nst_ErrorKind`
-
-**Synopsis:**
-
-```better-c
-typedef enum _Nst_ErrorKind {
-    Nst_EK_NONE = 0,
-    Nst_EK_LOCAL,
-    Nst_EK_GLOBAL
-} Nst_ErrorKind
-```
-
-**Description:**
-
-The kinds of errors that can occur during execution.
-
-**Variants:**
-
-- `Nst_EK_NONE`: no error occurred
-- `Nst_EK_LOCAL`: an error has occurred in the current execution state
-- `Nst_EK_GLOBAL`: an error has occurred while no execution state was set
+Clear the traceback. If no error has occurred nothing is done.

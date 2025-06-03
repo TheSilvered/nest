@@ -27,51 +27,68 @@ extern "C" {
  * starting with `o_` are others.
  */
 NstEXP typedef struct _Nst_StrConsts {
+    // Built-in type names
+
+    Nst_ObjRef *t_Type;
+    Nst_ObjRef *t_Int;
+    Nst_ObjRef *t_Real;
+    Nst_ObjRef *t_Bool;
+    Nst_ObjRef *t_Null;
+    Nst_ObjRef *t_Str;
+    Nst_ObjRef *t_Array;
+    Nst_ObjRef *t_Vector;
+    Nst_ObjRef *t_Map;
+    Nst_ObjRef *t_Func;
+    Nst_ObjRef *t_Iter;
+    Nst_ObjRef *t_Byte;
+    Nst_ObjRef *t_IOFile;
+    Nst_ObjRef *t_IEnd;
+
     // Constant strings
 
-    Nst_StrObj *c_true;
-    Nst_StrObj *c_false;
-    Nst_StrObj *c_null;
-    Nst_StrObj *c_inf;
-    Nst_StrObj *c_nan;
-    Nst_StrObj *c_neginf;
-    Nst_StrObj *c_negnan;
+    Nst_ObjRef *c_true;
+    Nst_ObjRef *c_false;
+    Nst_ObjRef *c_null;
+    Nst_ObjRef *c_inf;
+    Nst_ObjRef *c_nan;
+    Nst_ObjRef *c_neginf;
+    Nst_ObjRef *c_negnan;
 
     // Standard error names
 
-    Nst_StrObj *e_SyntaxError;
-    Nst_StrObj *e_MemoryError;
-    Nst_StrObj *e_ValueError;
-    Nst_StrObj *e_TypeError;
-    Nst_StrObj *e_CallError;
-    Nst_StrObj *e_MathError;
-    Nst_StrObj *e_ImportError;
-    Nst_StrObj *e_Interrupt;
+    Nst_ObjRef *e_SyntaxError;
+    Nst_ObjRef *e_MemoryError;
+    Nst_ObjRef *e_ValueError;
+    Nst_ObjRef *e_TypeError;
+    Nst_ObjRef *e_CallError;
+    Nst_ObjRef *e_MathError;
+    Nst_ObjRef *e_ImportError;
+    Nst_ObjRef *e_Interrupt;
 
     // Other
 
-    Nst_StrObj *o__vars_;
-    Nst_StrObj *o__globals_;
-    Nst_StrObj *o__args_;
-    Nst_StrObj *o_failed_alloc;
+    Nst_ObjRef *o__vars_;
+    Nst_ObjRef *o__globals_;
+    Nst_ObjRef *o__args_;
+    Nst_ObjRef *o_failed_alloc;
 } Nst_StrConsts;
 
 /* Type constants. */
 NstEXP typedef struct _Nst_TypeObjs {
-    Nst_TypeObj *Type;
-    Nst_TypeObj *Int;
-    Nst_TypeObj *Real;
-    Nst_TypeObj *Bool;
-    Nst_TypeObj *Null;
-    Nst_TypeObj *Str;
-    Nst_TypeObj *Array;
-    Nst_TypeObj *Vector;
-    Nst_TypeObj *Map;
-    Nst_TypeObj *Func;
-    Nst_TypeObj *Iter;
-    Nst_TypeObj *Byte;
-    Nst_TypeObj *IOFile;
-    Nst_TypeObj *IEnd;
+    Nst_ObjRef *Type;
+    Nst_ObjRef *Int;
+    Nst_ObjRef *Real;
+    Nst_ObjRef *Bool;
+    Nst_ObjRef *Null;
+    Nst_ObjRef *Str;
+    Nst_ObjRef *Array;
+    Nst_ObjRef *Vector;
+    Nst_ObjRef *Map;
+    Nst_ObjRef *Func;
+    Nst_ObjRef *Iter;
+    Nst_ObjRef *Byte;
+    Nst_ObjRef *IOFile;
+    Nst_ObjRef *IEnd;
 } Nst_TypeObjs;
 
 /**
@@ -80,21 +97,21 @@ NstEXP typedef struct _Nst_TypeObjs {
  * @brief Each constants is preceded by the name of its type.
  */
 NstEXP typedef struct _Nst_Consts {
-    Nst_Obj *Bool_true;
-    Nst_Obj *Bool_false;
-    Nst_Obj *Null_null;
-    Nst_Obj *IEnd_iend;
-    Nst_Obj *Int_0;
-    Nst_Obj *Int_1;
-    Nst_Obj *Int_neg1;
-    Nst_Obj *Real_0;
-    Nst_Obj *Real_1;
-    Nst_Obj *Real_nan;
-    Nst_Obj *Real_negnan;
-    Nst_Obj *Real_inf;
-    Nst_Obj *Real_neginf;
-    Nst_Obj *Byte_0;
-    Nst_Obj *Byte_1;
+    Nst_ObjRef *Bool_true;
+    Nst_ObjRef *Bool_false;
+    Nst_ObjRef *Null_null;
+    Nst_ObjRef *IEnd_iend;
+    Nst_ObjRef *Int_0;
+    Nst_ObjRef *Int_1;
+    Nst_ObjRef *Int_neg1;
+    Nst_ObjRef *Real_0;
+    Nst_ObjRef *Real_1;
+    Nst_ObjRef *Real_nan;
+    Nst_ObjRef *Real_negnan;
+    Nst_ObjRef *Real_inf;
+    Nst_ObjRef *Real_neginf;
+    Nst_ObjRef *Byte_0;
+    Nst_ObjRef *Byte_1;
 } Nst_Consts;
 
 /**
@@ -103,69 +120,87 @@ NstEXP typedef struct _Nst_Consts {
  * @brief Note: these are not constant and can change at run-time.
  */
 NstEXP typedef struct _Nst_StdStreams {
-    Nst_IOFileObj *in;
-    Nst_IOFileObj *out;
-    Nst_IOFileObj *err;
+    Nst_ObjRef *in;
+    Nst_ObjRef *out;
+    Nst_ObjRef *err;
 } Nst_StdStreams;
 
-/* The functions of the built-in iterators. */
-NstEXP typedef struct _Nst_IterFunctions {
-    Nst_FuncObj *range_start;
-    Nst_FuncObj *range_get_val;
+typedef struct _Nst_IterFunctions {
+    Nst_ObjRef *range_start;
+    Nst_ObjRef *range_next;
 
-    Nst_FuncObj *seq_start;
-    Nst_FuncObj *seq_get_val;
+    Nst_ObjRef *seq_start;
+    Nst_ObjRef *seq_next;
 
-    Nst_FuncObj *str_start;
-    Nst_FuncObj *str_get_val;
+    Nst_ObjRef *str_start;
+    Nst_ObjRef *str_next;
 
-    Nst_FuncObj *map_start;
-    Nst_FuncObj *map_get_val;
+    Nst_ObjRef *map_start;
+    Nst_ObjRef *map_next;
 } Nst_IterFunctions;
 
 /**
- * Initializes all the global constants and IO streams.
+ * Initialize all the global constants and IO streams.
  *
  * @return `true` on success and `false` on failure. No error is set.
  */
 NstEXP bool NstC _Nst_globals_init(void);
-/* Deletes all the global constants and IO streams. */
+/* Delete all the global constants and IO streams. */
 NstEXP void NstC _Nst_globals_quit(void);
 
-/* Returns the true object constant. */
+
+
+/**
+ * @return The `true` object constant.
+ */
 NstEXP Nst_Obj *NstC Nst_true(void);
-/* Returns a new reference to the true object constant. */
-NstEXP Nst_Obj *NstC Nst_true_ref(void);
+/**
+ * @return A new reference to the `true` object constant.
+ */
+NstEXP Nst_ObjRef *NstC Nst_true_ref(void);
 
-/* Returns the false object constant. */
+/**
+ * @return The `false` object constant.
+ */
 NstEXP Nst_Obj *NstC Nst_false(void);
-/* Returns a new reference to the false object constant. */
-NstEXP Nst_Obj *NstC Nst_false_ref(void);
+/**
+ * @return A new reference to the `false` object constant.
+ */
+NstEXP Nst_ObjRef *NstC Nst_false_ref(void);
 
-/* Returns the null object constant. */
+/**
+ * @return The `null` object constant.
+ */
 NstEXP Nst_Obj *NstC Nst_null(void);
-/* Returns a new reference to the null object constant. */
-NstEXP Nst_Obj *NstC Nst_null_ref(void);
+/**
+ * @return A new reference to the `null` object constant.
+ */
+NstEXP Nst_ObjRef *NstC Nst_null_ref(void);
 
-/* Returns the iend object constant. */
+/**
+ * @return The `iend` object constant.
+ */
 NstEXP Nst_Obj *NstC Nst_iend(void);
-/* Returns a new reference to the iend object constant. */
-NstEXP Nst_Obj *NstC Nst_iend_ref(void);
+/**
+ * @return A new reference to the `iend` object constant.
+ */
+NstEXP Nst_ObjRef *NstC Nst_iend_ref(void);
 
-/* [docs:link Nst_type()->Bool Nst_type] */
-
-/* Returns a `Nst_TypeObjs` struct containing all the types. */
+/**
+ * @return A `Nst_TypeObjs` struct containing all the types.
+ */
 NstEXP const Nst_TypeObjs *NstC Nst_type(void);
-/* Returns a `Nst_StrConsts` struct containing all the string constants. */
+/**
+ * @return A `Nst_StrConsts` struct containing all the string constants.
+ */
 NstEXP const Nst_StrConsts *NstC Nst_str(void);
-/* Returns a `Nst_Consts` struct containing all the object constants. */
+/**
+ * @return A `Nst_Consts` struct containing all the object constants.
+ */
 NstEXP const Nst_Consts *NstC Nst_const(void);
 /**
- * @brief Returns a `Nst_IterFunctions` struct containing all the function
- * constants.
+ * @return A `Nst_StdStreams` struct containing all the standard IO streams.
  */
-NstEXP const Nst_IterFunctions *NstC Nst_iter_func(void);
-/* Returns a `Nst_StdStreams` struct containing all the standard IO streams. */
 NstEXP Nst_StdStreams *NstC Nst_stdio(void);
 
 extern Nst_TypeObjs Nst_t;

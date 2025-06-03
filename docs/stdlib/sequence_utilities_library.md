@@ -416,7 +416,7 @@ strings are immutable and cannot be modified in-place.
 
 !!!note
     Strings are reversed in terms of characters, not in terms of bytes: the
-    bytes that compose multibyte characters are not reversed.
+    bytes that compose multi-byte characters are not reversed.
 
 **Returns:**
 

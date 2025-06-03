@@ -4,52 +4,26 @@ ItutilFunctions itutil_functions;
 
 bool init_itutil_functions()
 {
-    itutil_functions.count_start =
-        FUNC(Nst_func_new_c(1, count_start));
-    itutil_functions.count_get_val =
-        FUNC(Nst_func_new_c(1, count_get_val));
-    itutil_functions.cycle_str_start =
-        FUNC(Nst_func_new_c(1, cycle_str_start));
-    itutil_functions.cycle_str_get_val =
-        FUNC(Nst_func_new_c(1, cycle_str_get_val));
-    itutil_functions.cycle_seq_start =
-        FUNC(Nst_func_new_c(1, cycle_seq_start));
-    itutil_functions.cycle_seq_get_val =
-        FUNC(Nst_func_new_c(1, cycle_seq_get_val));
-    itutil_functions.cycle_iter_start =
-        FUNC(Nst_func_new_c(1, cycle_iter_start));
-    itutil_functions.cycle_iter_get_val =
-        FUNC(Nst_func_new_c(1, cycle_iter_get_val));
-    itutil_functions.repeat_start =
-        FUNC(Nst_func_new_c(1, repeat_start));
-    itutil_functions.repeat_get_val =
-        FUNC(Nst_func_new_c(1, repeat_get_val));
-    itutil_functions.chain_start =
-        FUNC(Nst_func_new_c(1, chain_start));
-    itutil_functions.chain_get_val =
-        FUNC(Nst_func_new_c(1, chain_get_val));
-    itutil_functions.zip_start =
-        FUNC(Nst_func_new_c(1, zip_start));
-    itutil_functions.zip_get_val =
-        FUNC(Nst_func_new_c(1, zip_get_val));
-    itutil_functions.zipn_start =
-        FUNC(Nst_func_new_c(1, zipn_start));
-    itutil_functions.zipn_get_val =
-        FUNC(Nst_func_new_c(1, zipn_get_val));
-    itutil_functions.enumerate_start =
-        FUNC(Nst_func_new_c(1, enumerate_start));
-    itutil_functions.enumerate_get_val =
-        FUNC(Nst_func_new_c(1, enumerate_get_val));
-    itutil_functions.keys_get_val =
-        FUNC(Nst_func_new_c(1, keys_get_val));
-    itutil_functions.values_get_val =
-        FUNC(Nst_func_new_c(1, values_get_val));
-    itutil_functions.batch_start =
-        FUNC(Nst_func_new_c(1, batch_start));
-    itutil_functions.batch_get_val =
-        FUNC(Nst_func_new_c(1, batch_get_val));
-    itutil_functions.batch_padded_get_val =
-        FUNC(Nst_func_new_c(1, batch_padded_get_val));
+    itutil_functions.count_start = Nst_func_new_c(1, count_start);
+    itutil_functions.count_next = Nst_func_new_c(1, count_next);
+    itutil_functions.cycle_start = Nst_func_new_c(1, cycle_start);
+    itutil_functions.cycle_str_next = Nst_func_new_c(1, cycle_str_next);
+    itutil_functions.cycle_seq_next = Nst_func_new_c(1, cycle_seq_next);
+    itutil_functions.cycle_iter_start = Nst_func_new_c(1, cycle_iter_start);
+    itutil_functions.cycle_iter_next = Nst_func_new_c(1, cycle_iter_next);
+    itutil_functions.repeat_start = Nst_func_new_c(1, repeat_start);
+    itutil_functions.repeat_next = Nst_func_new_c(1, repeat_next);
+    itutil_functions.chain_start = Nst_func_new_c(1, chain_start);
+    itutil_functions.chain_next = Nst_func_new_c(1, chain_next);
+    itutil_functions.zip_start = Nst_func_new_c(1, zip_start);
+    itutil_functions.zip_next = Nst_func_new_c(1, zip_next);
+    itutil_functions.enumerate_start = Nst_func_new_c(1, enumerate_start);
+    itutil_functions.enumerate_next = Nst_func_new_c(1, enumerate_next);
+    itutil_functions.map_iter_start = Nst_func_new_c(1, map_iter_start);
+    itutil_functions.keys_next = Nst_func_new_c(1, keys_next);
+    itutil_functions.values_next = Nst_func_new_c(1, values_next);
+    itutil_functions.batch_start = Nst_func_new_c(1, batch_start);
+    itutil_functions.batch_next = Nst_func_new_c(1, batch_next);
 
     if (Nst_error_occurred()) {
         free_itutil_functions();
@@ -61,83 +35,121 @@ bool init_itutil_functions()
 void free_itutil_functions()
 {
     Nst_ndec_ref(itutil_functions.count_start);
-    Nst_ndec_ref(itutil_functions.count_get_val);
-    Nst_ndec_ref(itutil_functions.cycle_str_start);
-    Nst_ndec_ref(itutil_functions.cycle_str_get_val);
-    Nst_ndec_ref(itutil_functions.cycle_seq_start);
-    Nst_ndec_ref(itutil_functions.cycle_seq_get_val);
+    Nst_ndec_ref(itutil_functions.count_next);
+    Nst_ndec_ref(itutil_functions.cycle_start);
+    Nst_ndec_ref(itutil_functions.cycle_str_next);
+    Nst_ndec_ref(itutil_functions.cycle_seq_next);
     Nst_ndec_ref(itutil_functions.cycle_iter_start);
-    Nst_ndec_ref(itutil_functions.cycle_iter_get_val);
+    Nst_ndec_ref(itutil_functions.cycle_iter_next);
     Nst_ndec_ref(itutil_functions.repeat_start);
-    Nst_ndec_ref(itutil_functions.repeat_get_val);
+    Nst_ndec_ref(itutil_functions.repeat_next);
     Nst_ndec_ref(itutil_functions.chain_start);
-    Nst_ndec_ref(itutil_functions.chain_get_val);
+    Nst_ndec_ref(itutil_functions.chain_next);
     Nst_ndec_ref(itutil_functions.zip_start);
-    Nst_ndec_ref(itutil_functions.zip_get_val);
-    Nst_ndec_ref(itutil_functions.zipn_start);
-    Nst_ndec_ref(itutil_functions.zipn_get_val);
+    Nst_ndec_ref(itutil_functions.zip_next);
     Nst_ndec_ref(itutil_functions.enumerate_start);
-    Nst_ndec_ref(itutil_functions.enumerate_get_val);
-    Nst_ndec_ref(itutil_functions.keys_get_val);
-    Nst_ndec_ref(itutil_functions.values_get_val);
+    Nst_ndec_ref(itutil_functions.enumerate_next);
+    Nst_ndec_ref(itutil_functions.map_iter_start);
+    Nst_ndec_ref(itutil_functions.keys_next);
+    Nst_ndec_ref(itutil_functions.values_next);
     Nst_ndec_ref(itutil_functions.batch_start);
-    Nst_ndec_ref(itutil_functions.batch_get_val);
-    Nst_ndec_ref(itutil_functions.batch_padded_get_val);
+    Nst_ndec_ref(itutil_functions.batch_next);
+}
+
+void destroy_cycle_data(Nst_Obj *obj)
+{
+    CycleData *data = (CycleData *)Nst_obj_custom_data(obj);
+    Nst_dec_ref(data->iterable);
+}
+
+void destroy_repeat_data(Nst_Obj *obj)
+{
+    RepeatData *data = (RepeatData *)Nst_obj_custom_data(obj);
+    Nst_dec_ref(data->item);
+}
+
+void destroy_chain_data(Nst_Obj *obj)
+{
+    ChainData *data = (ChainData *)Nst_obj_custom_data(obj);
+    Nst_dec_ref(data->main_iter);
+    Nst_ndec_ref(data->current_iter);
+}
+
+void destroy_zip_data(Nst_Obj *obj)
+{
+    ZipData *data = (ZipData *)Nst_obj_custom_data(obj);
+    Nst_Obj **iterators = data->iterators;
+    for (usize i = 0, n = data->count; i < n; i++)
+        Nst_dec_ref(iterators[i]);
+}
+
+void destroy_enumerate_data(Nst_Obj *obj)
+{
+    EnumerateData *data = (EnumerateData *)Nst_obj_custom_data(obj);
+    Nst_dec_ref(data->iterator);
+}
+
+void destroy_map_iter_data(Nst_Obj *obj)
+{
+    MapIterData *data = (MapIterData *)Nst_obj_custom_data(obj);
+    Nst_dec_ref(data->map);
+}
+
+void destroy_batch_data(Nst_Obj *obj)
+{
+    BatchData *data = (BatchData *)Nst_obj_custom_data(obj);
+    Nst_dec_ref(data->iterator);
+    Nst_ndec_ref(data->padding_obj);
 }
 
 // --------------------------------- Count --------------------------------- //
 Nst_Obj *NstC count_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) = AS_INT(objs[1]);
-    Nst_RETURN_NULL;
+    CountData *data = (CountData *)Nst_obj_custom_data(args[0]);
+    data->idx = data->start;
+    return Nst_null_ref();
 }
 
-Nst_Obj *NstC count_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC count_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_Obj *ob = Nst_int_new(AS_INT(objs[0]));
-    AS_INT(objs[0]) += AS_INT(objs[2]);
+    CountData *data = (CountData *)Nst_obj_custom_data(args[0]);
+    Nst_Obj *ob = Nst_int_new(data->idx);
+    data->idx += data->step;
     return ob;
 }
 
-// ------------------------------ Cycle String ----------------------------- //
-Nst_Obj *NstC cycle_str_start(usize arg_num, Nst_Obj **args)
+// ----------------------------- Cycle Iterable ---------------------------- //
+Nst_Obj *NstC cycle_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) = 0;
-    Nst_RETURN_NULL;
+    CycleData *data = (CycleData *)Nst_obj_custom_data(args[0]);
+    data->idx = 0;
+    return Nst_null_ref();
 }
 
-Nst_Obj *NstC cycle_str_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC cycle_str_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_Obj *ob = Nst_str_get(objs[1], AS_INT(objs[0]));
-    AS_INT(objs[0]) += 1;
-    AS_INT(objs[0]) %= STR(objs[1])->char_len;
+    CycleData *data = (CycleData *)Nst_obj_custom_data(args[0]);
+    Nst_Obj *ob = Nst_str_get_obj(data->iterable, data->idx);
+    data->idx += 1;
+    data->idx %= Nst_str_char_len(data->iterable);
     return ob;
 }
 
-// ----------------------------- Cycle Sequence ---------------------------- //
-Nst_Obj *NstC cycle_seq_start(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC cycle_seq_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) = 0;
-    Nst_RETURN_NULL;
-}
-
-Nst_Obj *NstC cycle_seq_get_val(usize arg_num, Nst_Obj **args)
-{
-    Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_Obj *ob = Nst_seq_get(objs[1], AS_INT(objs[0]));
-    AS_INT(objs[0]) += 1;
-    AS_INT(objs[0]) %= SEQ(objs[1])->len;
+    CycleData *data = (CycleData *)Nst_obj_custom_data(args[0]);
+    Nst_Obj *ob = Nst_seq_get(data->iterable, data->idx);
+    data->idx += 1;
+    data->idx %= Nst_seq_len(data->iterable);
+    if (ob == Nst_iend()) {
+        Nst_dec_ref(ob);
+        return Nst_null_ref();
+    }
     return ob;
 }
 
@@ -147,13 +159,13 @@ Nst_Obj *NstC cycle_iter_start(usize arg_num, Nst_Obj **args)
     Nst_UNUSED(arg_num);
     if (!Nst_iter_start(args[0]))
         return nullptr;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
-Nst_Obj *NstC cycle_iter_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC cycle_iter_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj *obj = Nst_iter_get_val(args[0]);
+    Nst_Obj *obj = Nst_iter_next(args[0]);
     if (obj != Nst_iend())
         return obj;
     Nst_dec_ref(obj);
@@ -161,34 +173,40 @@ Nst_Obj *NstC cycle_iter_get_val(usize arg_num, Nst_Obj **args)
     if (!Nst_iter_start(args[0]))
         return nullptr;
 
-    obj = Nst_iter_get_val(args[0]);
-    if (obj != Nst_iend())
-        return obj;
-    Nst_dec_ref(obj);
-    Nst_RETURN_NULL;
+    obj = Nst_iter_next(args[0]);
+    if (obj == Nst_iend()) {
+        Nst_dec_ref(obj);
+        return Nst_null_ref();
+    }
+    return obj;
 }
 
 // --------------------------------- Repeat -------------------------------- //
 Nst_Obj *NstC repeat_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) = 0;
-    Nst_RETURN_NULL;
+    RepeatData *data = (RepeatData *)Nst_obj_custom_data(args[0]);
+    data->count = 0;
+    if (data->item == Nst_iend()) {
+        Nst_dec_ref(data->item);
+        data->item = Nst_null_ref();
+    }
+    return Nst_null_ref();
 }
 
-Nst_Obj *NstC repeat_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC repeat_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
+    RepeatData *data = (RepeatData *)Nst_obj_custom_data(args[0]);
+    i64 max_count = data->max_count;
 
-    i64 max_count = AS_INT(objs[2]);
-    if (max_count >= 0 && AS_INT(objs[0]) >= max_count)
-        Nst_RETURN_IEND;
+    if (max_count < 0)
+        return Nst_inc_ref(data->item);
 
-    if (max_count >= 0)
-        AS_INT(objs[0]) += 1;
-    return Nst_inc_ref(objs[1]);
+    if (data->count >= max_count)
+        return Nst_iend_ref();
+    data->count += 1;
+    return Nst_inc_ref(data->item);
 }
 
 // --------------------------------- Chain --------------------------------- //
@@ -196,31 +214,34 @@ Nst_Obj *NstC repeat_get_val(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC chain_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_IterObj *main_iter = ITER(objs[0]);
+    ChainData *data = (ChainData *)Nst_obj_custom_data(args[0]);
+    Nst_Obj *main_iter = data->main_iter;
 
     if (!Nst_iter_start(main_iter))
         return nullptr;
-    Nst_dec_ref(objs[1]);
-    objs[1] = Nst_null_ref();
+    Nst_ndec_ref(data->current_iter);
+    data->current_iter = nullptr;
 
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
-Nst_Obj *NstC chain_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC chain_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_Obj *main_iter = objs[0];
-    Nst_Obj *current_iter = Nst_inc_ref(objs[1]);
-    Nst_Obj *val = OBJ(current_iter) == Nst_null()
+    ChainData *data = (ChainData *)Nst_obj_custom_data(args[0]);
+    Nst_Obj *main_iter = data->main_iter;
+    Nst_Obj *val = data->current_iter == nullptr
         ? Nst_iend_ref()
-        : Nst_iter_get_val(current_iter);
+        : Nst_iter_next(data->current_iter);
 
+    // If `val` is nullptr as a result of an error, the loop does not enter or
+    // finishes and nullptr is returned at the end of the function
     while (val == Nst_iend()) {
         Nst_dec_ref(val);
-        Nst_dec_ref(current_iter);
-        Nst_Obj *next_iterable = Nst_iter_get_val(main_iter);
+        // current_iter either does not exist or has finished so get a new
+        // iterable from main_iter
+        Nst_Obj *next_iterable = Nst_iter_next(main_iter);
+        // the main iterator has finished, end the chain iterator
         if (next_iterable == Nst_iend())
             return next_iterable;
         else if (next_iterable == nullptr)
@@ -231,145 +252,127 @@ Nst_Obj *NstC chain_get_val(usize arg_num, Nst_Obj **args)
         if (next_iter == nullptr)
             return nullptr;
 
-        current_iter = next_iter;
-        if (!Nst_iter_start(current_iter))
+        Nst_ndec_ref(data->current_iter);
+        data->current_iter = next_iter;
+        if (!Nst_iter_start(data->current_iter))
             return nullptr;
 
-        val = Nst_iter_get_val(current_iter);
+        val = Nst_iter_next(data->current_iter);
+        // if val is nullptr the loop finishes and nullptr is returned, no need
+        // to check
     }
 
-    Nst_seq_set(args[0], 1, current_iter);
-    Nst_dec_ref(current_iter);
     return val;
 }
 
 // ---------------------------------- Zip ---------------------------------- //
+
 Nst_Obj *NstC zip_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    if (!Nst_iter_start(objs[0]) || !Nst_iter_start(objs[1]))
-        return nullptr;
-    Nst_RETURN_NULL;
-}
-
-Nst_Obj *NstC zip_get_val(usize arg_num, Nst_Obj **args)
-{
-    Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-
-    Nst_Obj *ob1 = Nst_iter_get_val(objs[0]);
-    if (ob1 == nullptr || ob1 == Nst_iend())
-        return ob1;
-
-    Nst_Obj *ob2 = Nst_iter_get_val(objs[1]);
-    if (ob2 == nullptr || ob2 == Nst_iend()) {
-        Nst_dec_ref(ob1);
-        return ob2;
-    }
-
-    return Nst_array_create(2, ob1, ob2);
-}
-
-// ---------------------------- Zip n sequences ---------------------------- //
-
-Nst_Obj *NstC zipn_start(usize arg_num, Nst_Obj **args)
-{
-    Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    for (usize i = 0, n = (usize)AS_INT(objs[0]); i < n; i++) {
-        if (!Nst_iter_start(objs[i + 1]))
+    ZipData *data = (ZipData *)Nst_obj_custom_data(args[0]);
+    Nst_Obj **iterators = data->iterators;
+    for (usize i = 0, n = data->count; i < n; i++) {
+        if (!Nst_iter_start(iterators[i]))
             return nullptr;
     }
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
-Nst_Obj *NstC zipn_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC zip_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
+    ZipData *data = (ZipData *)Nst_obj_custom_data(args[0]);
 
-    Nst_SeqObj *arr = SEQ(Nst_array_new((usize)AS_INT(objs[0])));
-    for (usize i = 0, n = (usize)AS_INT(objs[0]); i < n; i++) {
-        Nst_Obj *res = Nst_iter_get_val(objs[i + 1]);
+    usize arr_len = data->count;
+    Nst_Obj **iterators = data->iterators;
+    Nst_Obj *arr = Nst_array_new(arr_len);
+    for (usize i = 0; i < arr_len; i++) {
+        Nst_Obj *res = Nst_iter_next(iterators[i]);
         if (res == nullptr || res == Nst_iend()) {
-            arr->len = i;
             Nst_dec_ref(arr);
             return res;
         }
-        arr->objs[i] = res;
+        Nst_seq_setnf(arr, i, res);
     }
 
-    return OBJ(arr);
+    return arr;
 }
 
 // ------------------------------- Enumerate ------------------------------- //
 Nst_Obj *NstC enumerate_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) = AS_INT(objs[2]);
-    if (!Nst_iter_start(objs[1]))
+    EnumerateData *data = (EnumerateData *)Nst_obj_custom_data(args[0]);
+    data->idx = data->start;
+    if (!Nst_iter_start(data->iterator))
         return nullptr;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
-Nst_Obj *NstC enumerate_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC enumerate_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    i64 idx = AS_INT(objs[0]);
-    Nst_IterObj *iter = ITER(objs[1]);
+    EnumerateData *data = (EnumerateData *)Nst_obj_custom_data(args[0]);
 
-    Nst_Obj *res = Nst_iter_get_val(iter);
+    Nst_Obj *res = Nst_iter_next(data->iterator);
     if (res == nullptr || res == Nst_iend())
         return res;
 
-    Nst_SeqObj *arr = SEQ(Nst_array_new(2));
-    if (objs[4] == Nst_true()) {
-        arr->objs[0] = res;
-        arr->objs[1] = Nst_int_new(idx);
-    } else {
-        arr->objs[0] = Nst_int_new(idx);
-        arr->objs[1] = res;
-    }
+    Nst_Obj *arr;
+    if (data->invert_order)
+        arr = Nst_array_create_c("oI", res, data->idx);
+    else
+        arr = Nst_array_create_c("Io", data->idx, res);
 
-    AS_INT(objs[0]) += AS_INT(objs[3]);
-    return OBJ(arr);
+    if (arr == nullptr)
+        return nullptr;
+
+    data->idx += data->step;
+    return arr;
 }
 
-// ----------------------------- Keys & values ----------------------------- //
+// ----------------------------- Map iterators ----------------------------- //
 
-Nst_Obj *NstC keys_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC map_iter_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    i64 idx = AS_INT(objs[0]);
-
-    if (idx == -1)
-        Nst_RETURN_IEND;
-
-    Nst_MapNode node = MAP(objs[1])->nodes[idx];
-    AS_INT(objs[0]) = Nst_map_get_next_idx((i32)idx, MAP(objs[1]));
-    if (node.key == Nst_iend())
-        Nst_RETURN_NULL;
-    return Nst_inc_ref(node.key);
+    MapIterData *data = (MapIterData *)Nst_obj_custom_data(args[0]);
+    data->idx = -1;
+    return Nst_null_ref();
 }
 
-Nst_Obj *NstC values_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC keys_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    i64 idx = AS_INT(objs[0]);
+    MapIterData *data = (MapIterData *)Nst_obj_custom_data(args[0]);
 
-    if (idx == -1)
-        Nst_RETURN_IEND;
+    Nst_Obj *key;
+    data->idx = Nst_map_next(data->idx, data->map, &key, nullptr);
 
-    Nst_MapNode node = MAP(objs[1])->nodes[idx];
-    AS_INT(objs[0]) = Nst_map_get_next_idx((i32)idx, MAP(objs[1]));
-    if (node.value == Nst_iend())
-        Nst_RETURN_NULL;
-    return Nst_inc_ref(node.value);
+    if (data->idx == -1)
+        return Nst_iend_ref();
+
+    if (key == Nst_iend())
+        return Nst_null_ref();
+
+    return Nst_inc_ref(key);
+}
+
+Nst_Obj *NstC values_next(usize arg_num, Nst_Obj **args)
+{
+    Nst_UNUSED(arg_num);
+    MapIterData *data = (MapIterData *)Nst_obj_custom_data(args[0]);
+
+    Nst_Obj *value;
+    data->idx = Nst_map_next(data->idx, data->map, nullptr, &value);
+
+    if (data->idx == -1)
+        return Nst_iend_ref();
+
+    if (value == Nst_iend())
+        return Nst_null_ref();
+    return Nst_inc_ref(value);
 }
 
 // --------------------------------- Batch --------------------------------- //
@@ -377,91 +380,56 @@ Nst_Obj *NstC values_get_val(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC batch_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    if (!Nst_iter_start(objs[0]))
+    BatchData *data = (BatchData *)Nst_obj_custom_data(args[0]);
+    if (!Nst_iter_start(data->iterator))
         return nullptr;
-    Nst_dec_ref(objs[2]);
-    objs[2] = Nst_false_ref();
-    Nst_RETURN_NULL;
+    data->iter_ended = false;
+    return Nst_null_ref();
 }
 
-Nst_Obj *NstC batch_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC batch_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
+    BatchData *data = (BatchData *)Nst_obj_custom_data(args[0]);
 
-    if (objs[2] == Nst_true())
-        Nst_RETURN_IEND;
+    if (data->iter_ended)
+        return Nst_iend_ref();
 
-    Nst_IterObj *iter = ITER(objs[0]);
-    i64 batch_size = AS_INT(objs[1]);
+    Nst_Obj *iter = data->iterator;
+    usize batch_size = data->batch_size;
 
-    Nst_SeqObj *batch = SEQ(Nst_array_new((usize)batch_size));
+    Nst_Obj *batch = Nst_array_new(batch_size);
     if (batch == nullptr)
         return nullptr;
 
-    for (i64 i = 0; i < batch_size; i++) {
-        Nst_Obj *obj = Nst_iter_get_val(iter);
-        if (obj == nullptr) {
-            batch->len = usize(i);
-            Nst_dec_ref(batch);
-            return nullptr;
-        } else if (obj == Nst_iend()) {
-            Nst_dec_ref(objs[2]);
-            objs[2] = Nst_true_ref();
-            batch->len = usize(i);
-            Nst_dec_ref(obj);
-            if (i == 0) {
-                Nst_dec_ref(batch);
-                Nst_RETURN_IEND;
-            }
-            return OBJ(batch);
-        }
-        batch->objs[i] = obj;
-    }
-    return OBJ(batch);
-}
-
-Nst_Obj *NstC batch_padded_get_val(usize arg_num, Nst_Obj **args)
-{
-    Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-
-    if (objs[2] == Nst_true())
-        Nst_RETURN_IEND;
-
-    Nst_IterObj *iter = ITER(objs[0]);
-    i64 batch_size = AS_INT(objs[1]);
-    Nst_Obj *padding = objs[3];
-
-    Nst_SeqObj *batch = SEQ(Nst_array_new((usize)batch_size));
-    if (batch == nullptr)
-        return nullptr;
-
-    i64 i = 0;
+    usize i = 0;
     for (; i < batch_size; i++) {
-        Nst_Obj *obj = Nst_iter_get_val(iter);
+        Nst_Obj *obj = Nst_iter_next(iter);
         if (obj == nullptr) {
-            batch->len = usize(i);
             Nst_dec_ref(batch);
             return nullptr;
         } else if (obj == Nst_iend()) {
-            Nst_dec_ref(objs[2]);
-            objs[2] = Nst_true_ref();
             Nst_dec_ref(obj);
-            if (i == 0) {
-                batch->len = 0;
-                Nst_dec_ref(batch);
-                Nst_RETURN_IEND;
-            }
+            data->iter_ended = true;
             break;
         }
-        batch->objs[i] = obj;
+        Nst_seq_setnf(batch, i, obj);
     }
 
-    for (; i < batch_size; i++) {
-        batch->objs[i] = Nst_inc_ref(padding);
+    if (i == 0) {
+        Nst_dec_ref(batch);
+        return Nst_iend_ref();
     }
 
-    return OBJ(batch);
+    if (data->padding_obj != nullptr) {
+        Nst_Obj *padding = data->padding_obj;
+        for (; i < batch_size; i++)
+            Nst_seq_setf(batch, i, padding);
+    } else {
+        Nst_Obj *resized_batch =
+            Nst_array_from_objs(i, Nst_seq_objs(batch));
+        Nst_dec_ref(batch);
+        batch = resized_batch;
+    }
+    return batch;
 }

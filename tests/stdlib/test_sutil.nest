@@ -1,0 +1,416 @@
+|#| '../test_lib.nest' = test
+|#| 'stdsutil.nest' = su
+
+'abcd' 'a' @su.lfind 0 @test.assert_eq
+'abcd' 'b' @su.lfind 1 @test.assert_eq
+'abcd' 'd' @su.lfind 3 @test.assert_eq
+'abab' 'a' @su.lfind 0 @test.assert_eq
+'abab' 'b' @su.lfind 1 @test.assert_eq
+'abcd' 'e' @su.lfind -1 @test.assert_eq
+'abcd' 'abcd' @su.lfind 0 @test.assert_eq
+'a\0bc' 'b' @su.lfind 2 @test.assert_eq
+'a\0bc' '\0b' @su.lfind 1 @test.assert_eq
+'àèìòù' 'à' @su.lfind 0 @test.assert_eq
+'àèìòù' 'è' @su.lfind 1 @test.assert_eq
+'àèìòù' 'ò' @su.lfind 3 @test.assert_eq
+'abcd' 'a' 1 @su.lfind -1 @test.assert_eq
+'abcd' 'a' 0 @su.lfind 0 @test.assert_eq
+'abcd' 'd' 3 @su.lfind 3 @test.assert_eq
+'abcd' 'd' 4 @su.lfind -1 @test.assert_eq
+'abcd' 'b' -2 @su.lfind -1 @test.assert_eq
+'abcd' 'b' -4 @su.lfind 1 @test.assert_eq
+'abcd' 'b' -10 @su.lfind 1 @test.assert_eq
+'abcd' 'a' null 1 @su.lfind 0 @test.assert_eq
+'abcd' 'a' null 0 @su.lfind -1 @test.assert_eq
+'abcd' 'd' null 3 @su.lfind -1 @test.assert_eq
+'abcd' 'd' null 4 @su.lfind 3 @test.assert_eq
+'abcd' 'b' null -2 @su.lfind 1 @test.assert_eq
+'abcd' 'b' null -4 @su.lfind -1 @test.assert_eq
+'abcd' 'b' null -10 @su.lfind -1 @test.assert_eq
+'abcd' 'b' 1 1 @su.lfind -1 @test.assert_eq
+'abcd' 'b' 1 2 @su.lfind 1 @test.assert_eq
+'abcd' 'b' 3 1 @su.lfind -1 @test.assert_eq
+
+'abcd' 'a' @su.rfind 0 @test.assert_eq
+'abcd' 'b' @su.rfind 1 @test.assert_eq
+'abcd' 'd' @su.rfind 3 @test.assert_eq
+'abab' 'a' @su.rfind 2 @test.assert_eq
+'abab' 'b' @su.rfind 3 @test.assert_eq
+'abcd' 'e' @su.rfind -1 @test.assert_eq
+'abcd' 'abcd' @su.rfind 0 @test.assert_eq
+'a\0bc' 'b' @su.rfind 2 @test.assert_eq
+'a\0bc' '\0b' @su.rfind 1 @test.assert_eq
+'àèìòù' 'à' @su.rfind 0 @test.assert_eq
+'àèìòù' 'è' @su.rfind 1 @test.assert_eq
+'àèìòù' 'ò' @su.rfind 3 @test.assert_eq
+'abcd' 'a' 1 @su.rfind -1 @test.assert_eq
+'abcd' 'a' 0 @su.rfind 0 @test.assert_eq
+'abcd' 'd' 3 @su.rfind 3 @test.assert_eq
+'abcd' 'd' 4 @su.rfind -1 @test.assert_eq
+'abcd' 'b' -2 @su.rfind -1 @test.assert_eq
+'abcd' 'b' -4 @su.rfind 1 @test.assert_eq
+'abcd' 'b' -10 @su.rfind 1 @test.assert_eq
+'abcd' 'a' null 1 @su.rfind 0 @test.assert_eq
+'abcd' 'a' null 0 @su.rfind -1 @test.assert_eq
+'abcd' 'd' null 3 @su.rfind -1 @test.assert_eq
+'abcd' 'd' null 4 @su.rfind 3 @test.assert_eq
+'abcd' 'b' null -2 @su.rfind 1 @test.assert_eq
+'abcd' 'b' null -4 @su.rfind -1 @test.assert_eq
+'abcd' 'b' null -10 @su.rfind -1 @test.assert_eq
+'abcd' 'b' 1 1 @su.rfind -1 @test.assert_eq
+'abcd' 'b' 1 2 @su.rfind 1 @test.assert_eq
+'abcd' 'b' 3 1 @su.rfind -1 @test.assert_eq
+
+'abcd' 'ab' @su.starts_with @test.assert_true
+'abcd' 'bc' @su.starts_with @test.assert_false
+'abcd' 'abcd' @su.starts_with @test.assert_true
+'abcd' 'abcda' @su.starts_with @test.assert_false
+'abcd' 'cd' @su.ends_with @test.assert_true
+'abcd' 'bc' @su.ends_with @test.assert_false
+'abcd' 'abcd' @su.ends_with @test.assert_true
+'abcd' 'aabcd' @su.ends_with @test.assert_false
+
+'  abc  ' @su.trim 'abc' @test.assert_eq
+'abc  ' @su.trim 'abc' @test.assert_eq
+'  abc' @su.trim 'abc' @test.assert_eq
+'abc' @su.trim 'abc' @test.assert_eq
+'\f\n\r\t\vabc\f\n\r\t\v' @su.trim 'abc' @test.assert_eq
+'  \0abc  ' @su.trim '\0abc' @test.assert_eq
+'  abc\0  ' @su.trim 'abc\0' @test.assert_eq
+'  a\0bc\0  ' @su.trim 'a\0bc\0' @test.assert_eq
+'  a b c  ' @su.trim 'a b c' @test.assert_eq
+'  à è ì  ' @su.trim 'à è ì' @test.assert_eq
+'  àei  ' @su.trim 'àei' @test.assert_eq
+
+'  abc  ' @su.ltrim 'abc  ' @test.assert_eq
+'abc  ' @su.ltrim 'abc  ' @test.assert_eq
+'  abc' @su.ltrim 'abc' @test.assert_eq
+'abc' @su.ltrim 'abc' @test.assert_eq
+'\f\n\r\t\vabc\f\n\r\t\v' @su.ltrim 'abc\f\n\r\t\v' @test.assert_eq
+'  \0abc  ' @su.ltrim '\0abc  ' @test.assert_eq
+'  abc\0  ' @su.ltrim 'abc\0  ' @test.assert_eq
+'  a\0bc\0  ' @su.ltrim 'a\0bc\0  ' @test.assert_eq
+'  a b c  ' @su.ltrim 'a b c  ' @test.assert_eq
+'  à è ì  ' @su.ltrim 'à è ì  ' @test.assert_eq
+'  àei  ' @su.ltrim 'àei  ' @test.assert_eq
+
+'  abc  ' @su.rtrim '  abc' @test.assert_eq
+'abc  ' @su.rtrim 'abc' @test.assert_eq
+'  abc' @su.rtrim '  abc' @test.assert_eq
+'abc' @su.rtrim 'abc' @test.assert_eq
+'\f\n\r\t\vabc\f\n\r\t\v' @su.rtrim '\f\n\r\t\vabc' @test.assert_eq
+'  \0abc  ' @su.rtrim '  \0abc' @test.assert_eq
+'  abc\0  ' @su.rtrim '  abc\0' @test.assert_eq
+'  a\0bc\0  ' @su.rtrim '  a\0bc\0' @test.assert_eq
+'  a b c  ' @su.rtrim '  a b c' @test.assert_eq
+'  à è ì  ' @su.rtrim '  à è ì' @test.assert_eq
+'  àei  ' @su.rtrim '  àei' @test.assert_eq
+
+'abc' 6 @su.ljust 'abc   ' @test.assert_eq
+'abc' 5 @su.ljust 'abc  ' @test.assert_eq
+'abc' 4 @su.ljust 'abc ' @test.assert_eq
+'abc' 3 @su.ljust 'abc' @test.assert_eq
+'abc' 2 @su.ljust 'abc' @test.assert_eq
+'abc' 0 @su.ljust 'abc' @test.assert_eq
+'àèì' 6 @su.ljust 'àèì   ' @test.assert_eq
+'àèì' 5 @su.ljust 'àèì  ' @test.assert_eq
+'àèì' 4 @su.ljust 'àèì ' @test.assert_eq
+'abc' -10 @su.ljust 'abc' @test.assert_eq
+'abc' 6 '_' @su.ljust 'abc___' @test.assert_eq
+'abc' 5 '_' @su.ljust 'abc__' @test.assert_eq
+'abc' 4 '_' @su.ljust 'abc_' @test.assert_eq
+'abc' 6 '😊' @su.ljust 'abc😊😊😊' @test.assert_eq
+'abc' 5 '😊' @su.ljust 'abc😊😊' @test.assert_eq
+'abc' 4 '😊' @su.ljust 'abc😊' @test.assert_eq
+'abc' 6 '\0' @su.ljust 'abc\0\0\0' @test.assert_eq
+'abc' 5 '\0' @su.ljust 'abc\0\0' @test.assert_eq
+'abc' 4 '\0' @su.ljust 'abc\0' @test.assert_eq
+su.ljust {'abc', 4, 'ab'} @test.assert_raises_error
+
+'abc' 6 @su.rjust '   abc' @test.assert_eq
+'abc' 5 @su.rjust '  abc' @test.assert_eq
+'abc' 4 @su.rjust ' abc' @test.assert_eq
+'abc' 3 @su.rjust 'abc' @test.assert_eq
+'abc' 2 @su.rjust 'abc' @test.assert_eq
+'abc' 0 @su.rjust 'abc' @test.assert_eq
+'àèì' 6 @su.rjust '   àèì' @test.assert_eq
+'àèì' 5 @su.rjust '  àèì' @test.assert_eq
+'àèì' 4 @su.rjust ' àèì' @test.assert_eq
+'abc' -10 @su.rjust 'abc' @test.assert_eq
+'abc' 6 '_' @su.rjust '___abc' @test.assert_eq
+'abc' 5 '_' @su.rjust '__abc' @test.assert_eq
+'abc' 4 '_' @su.rjust '_abc' @test.assert_eq
+'abc' 6 '😊' @su.rjust '😊😊😊abc' @test.assert_eq
+'abc' 5 '😊' @su.rjust '😊😊abc' @test.assert_eq
+'abc' 4 '😊' @su.rjust '😊abc' @test.assert_eq
+'abc' 6 '\0' @su.rjust '\0\0\0abc' @test.assert_eq
+'abc' 5 '\0' @su.rjust '\0\0abc' @test.assert_eq
+'abc' 4 '\0' @su.rjust '\0abc' @test.assert_eq
+su.rjust {'abc', 4, 'ab'} @test.assert_raises_error
+
+'abc' 6 @su.cjust ' abc  ' @test.assert_eq
+'abc' 5 @su.cjust ' abc ' @test.assert_eq
+'abc' 4 @su.cjust 'abc ' @test.assert_eq
+'abc' 3 @su.cjust 'abc' @test.assert_eq
+'abc' 2 @su.cjust 'abc' @test.assert_eq
+'abc' 0 @su.cjust 'abc' @test.assert_eq
+'àèì' 6 @su.cjust ' àèì  ' @test.assert_eq
+'àèì' 5 @su.cjust ' àèì ' @test.assert_eq
+'àèì' 4 @su.cjust 'àèì ' @test.assert_eq
+'abc' -10 @su.cjust 'abc' @test.assert_eq
+'abc' 6 '_' @su.cjust '_abc__' @test.assert_eq
+'abc' 5 '_' @su.cjust '_abc_' @test.assert_eq
+'abc' 4 '_' @su.cjust 'abc_' @test.assert_eq
+'abc' 6 '😊' @su.cjust '😊abc😊😊' @test.assert_eq
+'abc' 5 '😊' @su.cjust '😊abc😊' @test.assert_eq
+'abc' 4 '😊' @su.cjust 'abc😊' @test.assert_eq
+'abc' 6 '\0' @su.cjust '\0abc\0\0' @test.assert_eq
+'abc' 5 '\0' @su.cjust '\0abc\0' @test.assert_eq
+'abc' 4 '\0' @su.cjust 'abc\0' @test.assert_eq
+su.cjust {'abc', 4, 'ab'} @test.assert_raises_error
+
+'hElLo WoRlD' @su.to_title 'Hello World' @test.assert_eq
+'hElLoWoRlD' @su.to_title 'Helloworld' @test.assert_eq
+'hElLo+WoRlD' @su.to_title 'Hello+world' @test.assert_eq
+'hElLo +WoRlD' @su.to_title 'Hello +world' @test.assert_eq
+'hElLo \0 WoRlD' @su.to_title 'Hello \0 World' @test.assert_eq
+
+'hElLo WoRlD' @su.to_upper 'HELLO WORLD' @test.assert_eq
+'hElLoWoRlD' @su.to_upper 'HELLOWORLD' @test.assert_eq
+'hElLo+WoRlD' @su.to_upper 'HELLO+WORLD' @test.assert_eq
+'hElLo +WoRlD' @su.to_upper 'HELLO +WORLD' @test.assert_eq
+'hElLo \0 WoRlD' @su.to_upper 'HELLO \0 WORLD' @test.assert_eq
+
+'hElLo WoRlD' @su.to_lower 'hello world' @test.assert_eq
+'hElLoWoRlD' @su.to_lower 'helloworld' @test.assert_eq
+'hElLo+WoRlD' @su.to_lower 'hello+world' @test.assert_eq
+'hElLo +WoRlD' @su.to_lower 'hello +world' @test.assert_eq
+'hElLo \0 WoRlD' @su.to_lower 'hello \0 world' @test.assert_eq
+
+'Hello World' @su.is_title @test.assert_true
+'Helloworld' @su.is_title @test.assert_true
+'Hello+world' @su.is_title @test.assert_true
+'Hello +world' @su.is_title @test.assert_true
+'Hello \0 World' @su.is_title @test.assert_true
+'Hello WorlD' @su.is_title @test.assert_false
+'helloworld' @su.is_title @test.assert_false
+'Hello+World' @su.is_title @test.assert_false
+'Hello +World' @su.is_title @test.assert_false
+'Hello \0 world' @su.is_title @test.assert_false
+
+'HELLO WORLD' @su.is_upper @test.assert_true
+'HELLOWORLD' @su.is_upper @test.assert_true
+'HELLO+WORLD' @su.is_upper @test.assert_true
+'HELLO +WORLD' @su.is_upper @test.assert_true
+'HELLO \0 WORLD' @su.is_upper @test.assert_true
+'HELLO WORLd' @su.is_upper @test.assert_false
+'hELLOWORLD' @su.is_upper @test.assert_false
+'HELLO+wORLD' @su.is_upper @test.assert_false
+'HELLO +wORLD' @su.is_upper @test.assert_false
+'HELLO \0 wORLD' @su.is_upper @test.assert_false
+
+'hello world' @su.is_lower @test.assert_true
+'helloworld' @su.is_lower @test.assert_true
+'hello+world' @su.is_lower @test.assert_true
+'hello +world' @su.is_lower @test.assert_true
+'hello \0 world' @su.is_lower @test.assert_true
+'hello World' @su.is_lower @test.assert_false
+'Helloworld' @su.is_lower @test.assert_false
+'hello+World' @su.is_lower @test.assert_false
+'hello +worlD' @su.is_lower @test.assert_false
+'hello \0 worlD' @su.is_lower @test.assert_false
+
+'hello' @su.is_alpha @test.assert_true
+'HEllo' @su.is_alpha @test.assert_true
+'hell0' @su.is_alpha @test.assert_false
+'110' @su.is_digit @test.assert_true
+'11o' @su.is_alpha @test.assert_false
+'hell0' @su.is_alnum @test.assert_true
+'hell0 everybody' @su.is_printable @test.assert_true
+'hell0 everybody\n' @su.is_printable @test.assert_false
+' \n\r\f\t\v' @su.is_space @test.assert_true
+' \n\r\f\t\va' @su.is_space @test.assert_false
+' \n\r\f\t\v1' @su.is_space @test.assert_false
+' \n\r\f\t\v.' @su.is_space @test.assert_false
+'validName' su.LETTERS @su.is_charset @test.assert_true
+'invalid name' su.LETTERS @su.is_charset @test.assert_false
+su.PRINTABLE @su.is_printable @test.assert_true
+'\x7f' @su.is_printable @test.assert_false
+'\0' @su.is_printable @test.assert_false
+'\n' @su.is_printable @test.assert_false
+
+'aabc abc' 'ab' 'ef' @su.replace 'aefc efc' @test.assert_eq
+'aabc abc' 'ab' 'efg' @su.replace 'aefgc efgc' @test.assert_eq
+'aabc abc' 'ab' 'e' @su.replace 'aec ec' @test.assert_eq
+'abc' 'abc' @su.replace '' @test.assert_eq
+'abc' 'abc' '' @su.replace '' @test.assert_eq
+'abc abc' 'abc' @su.replace ' ' @test.assert_eq
+'abc abc' 'abc' '' @su.replace ' ' @test.assert_eq
+'abc abc' 'abc' 'defghijkl' @su.replace 'defghijkl defghijkl' @test.assert_eq
+'a\0c a\0c a\0' 'a\0c' 'test' @su.replace 'test test a\0' @test.assert_eq
+'abc abc' 'd' 'e' @su.replace 'abc abc' @test.assert_eq
+
+{
+    97b, 98b, 99b, 195b, 160b, 195b, 168b, 195b, 172b, 195b,
+    178b, 240b, 159b, 152b, 138b, 240b, 159b, 142b, 186b
+} @su.decode 'abcàèìò😊🎺' @test.assert_eq
+
+{
+    97b, 0b, 98b, 0b, 99b, 0b, 224b, 0b, 232b, 0b, 236b, 0b,
+    242b, 0b, 61b, 216b, 10b, 222b, 60b, 216b, 186b, 223b
+} 'utf16' @su.decode 'abcàèìò😊🎺' @test.assert_eq
+
+'abcàèìò😊🎺' @su.encode {
+    97b, 98b, 99b, 195b, 160b, 195b, 168b, 195b, 172b, 195b,
+    178b, 240b, 159b, 152b, 138b, 240b, 159b, 142b, 186b
+} @test.assert_eq
+
+'abcàèìò😊🎺' 'utf16' @su.encode {
+    97b, 0b, 98b, 0b, 99b, 0b, 224b, 0b, 232b, 0b, 236b, 0b,
+    242b, 0b, 61b, 216b, 10b, 222b, 60b, 216b, 186b, 223b
+} @test.assert_eq
+
+'a b' @su.lsplit {'a', 'b'} @test.assert_eq
+'a  b' @su.lsplit {'a', 'b'} @test.assert_eq
+'a\n\tb' @su.lsplit {'a', 'b'} @test.assert_eq
+' a b' @su.lsplit {'a', 'b'} @test.assert_eq
+'  a b' @su.lsplit {'a', 'b'} @test.assert_eq
+'  a b ' @su.lsplit {'a', 'b'} @test.assert_eq
+'  a b  ' @su.lsplit {'a', 'b'} @test.assert_eq
+' a b  ' @su.lsplit {'a', 'b'} @test.assert_eq
+'a b  ' @su.lsplit {'a', 'b'} @test.assert_eq
+'a b ' @su.lsplit {'a', 'b'} @test.assert_eq
+'a,b,c' ',' @su.lsplit {'a', 'b', 'c'} @test.assert_eq
+'a,b,c d' ',' @su.lsplit {'a', 'b', 'c d'} @test.assert_eq
+' a,b,c d' ',' @su.lsplit {' a', 'b', 'c d'} @test.assert_eq
+' a, b, c d' ',' @su.lsplit {' a', ' b', ' c d'} @test.assert_eq
+'a,b,c,d' ',' 3 @su.lsplit {'a', 'b', 'c', 'd'} @test.assert_eq
+'a,b,c,d' ',' 2 @su.lsplit {'a', 'b', 'c,d'} @test.assert_eq
+'a,b,c,d' ',' 1 @su.lsplit {'a', 'b,c,d'} @test.assert_eq
+'a,b,c,d' ',' 0 @su.lsplit {'a,b,c,d'} @test.assert_eq
+'a b c d' null 3 @su.lsplit {'a', 'b', 'c', 'd'} @test.assert_eq
+'a  b  c  d' null 3 @su.lsplit {'a', 'b', 'c', 'd'} @test.assert_eq
+'  a  b  c  d  ' null 3 @su.lsplit {'a', 'b', 'c', 'd  '} @test.assert_eq
+'  a b c d' null 3 @su.lsplit {'a', 'b', 'c', 'd'} @test.assert_eq
+'a b c d' null 2 @su.lsplit {'a', 'b', 'c d'} @test.assert_eq
+'a  b  c  d' null 2 @su.lsplit {'a', 'b', 'c  d'} @test.assert_eq
+'  a  b  c  d  ' null 2 @su.lsplit {'a', 'b', 'c  d  '} @test.assert_eq
+'  a b c d' null 2 @su.lsplit {'a', 'b', 'c d'} @test.assert_eq
+'a b c d' null 1 @su.lsplit {'a', 'b c d'} @test.assert_eq
+'a  b  c  d' null 1 @su.lsplit {'a', 'b  c  d'} @test.assert_eq
+'  a  b  c  d  ' null 1 @su.lsplit {'a', 'b  c  d  '} @test.assert_eq
+'  a b c d' null 1 @su.lsplit {'a', 'b c d'} @test.assert_eq
+'a b c d' null 0 @su.lsplit {'a b c d'} @test.assert_eq
+'a  b  c  d' null 0 @su.lsplit {'a  b  c  d'} @test.assert_eq
+'  a  b  c  d  ' null 0 @su.lsplit {'  a  b  c  d  '} @test.assert_eq
+'  a b c d' null 0 @su.lsplit {'  a b c d'} @test.assert_eq
+
+'a b' @su.rsplit {'a', 'b'} @test.assert_eq
+'a  b' @su.rsplit {'a', 'b'} @test.assert_eq
+'a\n\tb' @su.rsplit {'a', 'b'} @test.assert_eq
+' a b' @su.rsplit {'a', 'b'} @test.assert_eq
+'  a b' @su.rsplit {'a', 'b'} @test.assert_eq
+'  a b ' @su.rsplit {'a', 'b'} @test.assert_eq
+'  a b  ' @su.rsplit {'a', 'b'} @test.assert_eq
+' a b  ' @su.rsplit {'a', 'b'} @test.assert_eq
+'a b  ' @su.rsplit {'a', 'b'} @test.assert_eq
+'a b ' @su.rsplit {'a', 'b'} @test.assert_eq
+'a,b,c' ',' @su.rsplit {'a', 'b', 'c'} @test.assert_eq
+'a,b,c d' ',' @su.rsplit {'a', 'b', 'c d'} @test.assert_eq
+' a,b,c d' ',' @su.rsplit {' a', 'b', 'c d'} @test.assert_eq
+' a, b, c d' ',' @su.rsplit {' a', ' b', ' c d'} @test.assert_eq
+'a,b,c,d' ',' 3 @su.rsplit {'a', 'b', 'c', 'd'} @test.assert_eq
+'a,b,c,d' ',' 2 @su.rsplit {'a,b', 'c', 'd'} @test.assert_eq
+'a,b,c,d' ',' 1 @su.rsplit {'a,b,c', 'd'} @test.assert_eq
+'a,b,c,d' ',' 0 @su.rsplit {'a,b,c,d'} @test.assert_eq
+'a b c d' null 3 @su.rsplit {'a', 'b', 'c', 'd'} @test.assert_eq
+'a  b  c  d' null 3 @su.rsplit {'a', 'b', 'c', 'd'} @test.assert_eq
+'  a  b  c  d  ' null 3 @su.rsplit {'  a', 'b', 'c', 'd'} @test.assert_eq
+'  a b c d' null 3 @su.rsplit {'  a', 'b', 'c', 'd'} @test.assert_eq
+'a b c d' null 2 @su.rsplit {'a b', 'c', 'd'} @test.assert_eq
+'a  b  c  d' null 2 @su.rsplit {'a  b', 'c', 'd'} @test.assert_eq
+'  a  b  c  d  ' null 2 @su.rsplit {'  a  b', 'c', 'd'} @test.assert_eq
+'  a b c d' null 2 @su.rsplit {'  a b', 'c', 'd'} @test.assert_eq
+'a b c d' null 1 @su.rsplit {'a b c', 'd'} @test.assert_eq
+'a  b  c  d' null 1 @su.rsplit {'a  b  c', 'd'} @test.assert_eq
+'  a  b  c  d  ' null 1 @su.rsplit {'  a  b  c', 'd'} @test.assert_eq
+'  a b c d' null 1 @su.rsplit {'  a b c', 'd'} @test.assert_eq
+'a b c d' null 0 @su.rsplit {'a b c d'} @test.assert_eq
+'a  b  c  d' null 0 @su.rsplit {'a  b  c  d'} @test.assert_eq
+'  a  b  c  d  ' null 0 @su.rsplit {'  a  b  c  d  '} @test.assert_eq
+'  a b c d' null 0 @su.rsplit {'  a b c d'} @test.assert_eq
+
+0 @su.bin '0' @test.assert_eq
+10 @su.bin '1010' @test.assert_eq
+-10 @su.bin '1111111111111111111111111111111111111111111111111111111111110110' @test.assert_eq
+123456789 @su.bin '111010110111100110100010101' @test.assert_eq
+9223372036854775807 @su.bin '111111111111111111111111111111111111111111111111111111111111111' @test.assert_eq
+-1 @su.bin '1111111111111111111111111111111111111111111111111111111111111111' @test.assert_eq
+
+0 @su.oct '0' @test.assert_eq
+10 @su.oct '12' @test.assert_eq
+-10 @su.oct '1777777777777777777766' @test.assert_eq
+123456789 @su.oct '726746425' @test.assert_eq
+9223372036854775807 @su.oct '777777777777777777777' @test.assert_eq
+-1 @su.oct '1777777777777777777777' @test.assert_eq
+
+0 @su.hex '0' @test.assert_eq
+10 @su.hex 'a' @test.assert_eq
+-10 @su.hex 'fffffffffffffff6' @test.assert_eq
+123456789 @su.hex '75bcd15' @test.assert_eq
+123456789 false @su.hex '75bcd15' @test.assert_eq
+123456789 true @su.hex '75BCD15' @test.assert_eq
+9223372036854775807 @su.hex '7fffffffffffffff' @test.assert_eq
+-1 @su.hex 'ffffffffffffffff' @test.assert_eq
+
+-- The behavior of `Nst_sv_parse_int` and of `Nst_sv_parse_real` is tested in
+-- the C tests, just test if the arguments are passed correctly
+
+'123' @su.parse_int 123 @test.assert_eq
+'  123  ' @su.parse_int 123 @test.assert_eq
+su.parse_int {'1', 0xff0000} @test.assert_raises_error
+su.parse_int {'1', -1} @test.assert_raises_error
+su.parse_int {'1', 0, 'ab'} @test.assert_raises_error
+'1234' 0 '' @su.parse_int 1234 @test.assert_eq
+'12_34' 0 '_' @su.parse_int 1234 @test.assert_eq
+'12😊34' 0 '😊' @su.parse_int 1234 @test.assert_eq
+
+'123 456' @su.consume_int {123, ' 456'} @test.assert_eq
+'  123  ' @su.consume_int {123, '  '} @test.assert_eq
+su.consume_int {'1', 0xff0000} @test.assert_raises_error
+su.consume_int {'1', -1} @test.assert_raises_error
+su.consume_int {'1', 0, 'ab'} @test.assert_raises_error
+'1234hello' 0 '' @su.consume_int {1234, 'hello'} @test.assert_eq
+'12_34' 0 '_' @su.consume_int {1234, ''} @test.assert_eq
+'12😊34😊😊' 0 '😊' @su.consume_int {1234, '😊😊'} @test.assert_eq
+
+'1' @su.parse_real 1.0 @test.assert_eq
+' 1.2  ' @su.parse_real 1.2 @test.assert_eq
+'1.2' '' @su.parse_real 1.2 @test.assert_eq
+'1_2.3' '_' @su.parse_real 12.3 @test.assert_eq
+'1😊2.3' '😊' @su.parse_real 12.3 @test.assert_eq
+
+'1 2 3' @su.consume_real {1.0, ' 2 3'} @test.assert_eq
+' 1.2  ' @su.consume_real {1.2, '  '} @test.assert_eq
+'1.2e+x' '' @su.consume_real {1.2, 'e+x'} @test.assert_eq
+'1_2.3' '_' @su.consume_real {12.3, ''} @test.assert_eq
+'1😊2😊' '😊' @su.consume_real {12.0, '😊'} @test.assert_eq
+
+'hello' 'he' @su.lremove 'llo' @test.assert_eq
+'hello' 'hello' @su.lremove '' @test.assert_eq
+'hello' 'ello' @su.lremove 'hello' @test.assert_eq
+'hello' 'helloo' @su.lremove 'hello' @test.assert_eq
+'hello' 'he' @su.rremove 'hello' @test.assert_eq
+'hello' 'hello' @su.rremove '' @test.assert_eq
+'hello' 'ello' @su.rremove 'h' @test.assert_eq
+'hello' 'hhello' @su.rremove 'hello' @test.assert_eq
+
+?::su.BIN_DIGITS        Str @test.assert_eq
+?::su.OCT_DIGITS        Str @test.assert_eq
+?::su.DIGITS            Str @test.assert_eq
+?::su.HEX_DIGITS        Str @test.assert_eq
+?::su.LETTERS           Str @test.assert_eq
+?::su.UPPERCASE_LETTERS Str @test.assert_eq
+?::su.LOWERCASE_LETTERS Str @test.assert_eq
+?::su.PUNCTUATION       Str @test.assert_eq
+?::su.PRINTABLE         Str @test.assert_eq

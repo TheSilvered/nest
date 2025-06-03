@@ -1,6 +1,6 @@
 # `lib_import.h`
 
-C/C++ library utilities.
+Library import manager & C/C++ library utilities.
 
 ## Authors
 
@@ -154,7 +154,7 @@ representing commonly used types into a single character.
 
 The shorthands that contain a cast (either `:` or `_`) will not cast the object
 when used to check the contents of a sequence or when they are part of a union.
-Additionaly, any cast added manually will overwrite the cast of the shorthand.
+Additionally, any cast added manually will overwrite the cast of the shorthand.
 
 ```better-c
 "S"   // matches Array, Vector and Str and casts the object to Array
@@ -190,7 +190,7 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 
 **Description:**
 
-Initializes a function declaration.
+Initialize a function declaration.
 
 For the name of the function the name of the function pointer is used.
 
@@ -211,7 +211,7 @@ For the name of the function the name of the function pointer is used.
 
 **Description:**
 
-Initializes a function declaration with a custom name.
+Initialize a function declaration with a custom name.
 
 **Parameters:**
 
@@ -231,7 +231,7 @@ Initializes a function declaration with a custom name.
 
 **Description:**
 
-Initialized an object declaration.
+Initialize an object declaration.
 
 For the name of the object the name of the function pointer is used.
 
@@ -253,9 +253,7 @@ For the name of the object the name of the function pointer is used.
 
 **Description:**
 
-Initialized an object declaration.
-
-For the name of the object the name of the pointer is used.
+Initialize an object declaration with a custom name.
 
 **Parameters:**
 
@@ -266,51 +264,11 @@ For the name of the object the name of the pointer is used.
 
 ---
 
-### `Nst_RETURN_TRUE`
+### `Nst_DECLR_END`
 
 **Description:**
 
-Returns a reference to `true`.
-
----
-
-### `Nst_RETURN_FALSE`
-
-**Description:**
-
-Returns a reference to `false`.
-
----
-
-### `Nst_RETURN_NULL`
-
-**Description:**
-
-Returns a reference to `null`.
-
----
-
-### `Nst_RETURN_IEND`
-
-**Description:**
-
-Returns a reference to `IEND`.
-
----
-
-### `Nst_RETURN_ZERO`
-
-**Description:**
-
-Returns [`Nst_const()->Int_0`](c_api-global_consts.md#nst_const).
-
----
-
-### `Nst_RETURN_ONE`
-
-**Description:**
-
-Returns [`Nst_const()->Int_1`](c_api-global_consts.md#nst_const).
+End the declarations array.
 
 ---
 
@@ -322,25 +280,11 @@ Returns [`Nst_const()->Int_1`](c_api-global_consts.md#nst_const).
 #define Nst_RETURN_BOOL(expr)
 ```
 
-**Description:**
+**Returns:**
 
-Returns [`Nst_true_ref()`](c_api-global_consts.md#nst_true_ref) if `expr` is
-`true` and [`Nst_false_ref()`](c_api-global_consts.md#nst_false_ref) otherwise.
-`expr` is a C boolean expression.
-
----
-
-### `Nst_IS_NULL`
-
-**Synopsis:**
-
-```better-c
-#define Nst_IS_NULL(obj)
-```
-
-**Description:**
-
-Boolean expression to check if an object is `null`.
+[`Nst_true_ref()`](c_api-global_consts.md#nst_true_ref) if `expr` is `true` and
+[`Nst_false_ref()`](c_api-global_consts.md#nst_false_ref) otherwise. `expr` is a
+C boolean expression.
 
 ---
 
@@ -369,7 +313,60 @@ and in `val` otherwise.
 
 **Description:**
 
-Checks if the type of an object is `type_name`.
+Check if the type of an object is `type_name`.
+
+---
+
+### `Nst_obj_custom`
+
+**Synopsis:**
+
+```better-c
+#define Nst_obj_custom(type, data)
+```
+
+**Description:**
+
+Create an object with custom data. This is a wrapper for
+[`_Nst_obj_custom`](c_api-lib_import.md#_nst_obj_custom).
+
+The `size` and `name` parameters are derived from `type`.
+
+**Parameters:**
+
+- `type`: the type of the data to insert
+- `data`: the data to copy
+
+**Returns:**
+
+The new object or `NULL` on error.
+
+---
+
+### `Nst_obj_custom_ex`
+
+**Synopsis:**
+
+```better-c
+#define Nst_obj_custom_ex(type, data, dstr)
+```
+
+**Description:**
+
+Create an object with custom data. This is a wrapper for
+[`_Nst_obj_custom_ex`](c_api-lib_import.md#_nst_obj_custom_ex).
+
+The `size` and `name` parameters are derived from `type`.
+
+**Parameters:**
+
+- `type`: the type of the data to insert
+- `data`: the data to copy
+- `dstr`: the destructor to use for the type
+
+**Returns:**
+
+The new object or `NULL` on error.
 
 ---
 
@@ -383,13 +380,13 @@ Checks if the type of an object is `type_name`.
 typedef struct _Nst_Declr {
     void *ptr;
     isize arg_num;
-    const i8 *name;
+    const char *name;
 } Nst_Declr
 ```
 
 **Description:**
 
-Structure defining an object declaration for a C library.
+A structure representing an object declaration for a C library.
 
 **Fields:**
 
@@ -407,12 +404,12 @@ Structure defining an object declaration for a C library.
 **Synopsis:**
 
 ```better-c
-typedef Nst_Obj *(*Nst_ConstFunc)(void)
+typedef Nst_ObjRef *(*Nst_ConstFunc)(void)
 ```
 
 **Description:**
 
-The signarture of a function used to get the constant of a library.
+The signature of a function used to get the constant of a library.
 
 ---
 
@@ -423,12 +420,12 @@ The signarture of a function used to get the constant of a library.
 **Synopsis:**
 
 ```better-c
-bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args, ...)
+bool Nst_extract_args(const char *types, usize arg_num, Nst_Obj **args, ...)
 ```
 
 **Description:**
 
-Checks the types of the arguments and extracts their values.
+Check the types of the arguments and extracts their values.
 
 Check the syntax for the types argument in
 [`lib_import.h`](c_api-lib_import.md#usage-of-the-types-argument).
@@ -445,3 +442,133 @@ Check the syntax for the types argument in
 **Returns:**
 
 `true` on success and `false` on failure. The error is set.
+
+---
+
+### `_Nst_obj_custom`
+
+**Synopsis:**
+
+```better-c
+Nst_ObjRef *_Nst_obj_custom(usize size, void *data, const char *name)
+```
+
+**Description:**
+
+Create an object with custom data.
+
+**Parameters:**
+
+- `size`: the size of the data to insert
+- `data`: the data to copy
+- `name`: the name of the object's type
+
+---
+
+### `_Nst_obj_custom_ex`
+
+**Synopsis:**
+
+```better-c
+Nst_ObjRef *_Nst_obj_custom_ex(usize size, void *data, const char *name,
+                               Nst_ObjDstr dstr)
+```
+
+**Description:**
+
+[`_Nst_obj_custom`](c_api-lib_import.md#_nst_obj_custom) which allows to specify
+a destructor.
+
+!!!note
+    The destructor takes the object itself, call
+    [`Nst_obj_custom_data`](c_api-lib_import.md#nst_obj_custom_data) to access
+    the data to destroy.
+
+!!!warning
+    The destructor **must not** free the object. It should just destroy its
+    data.
+
+---
+
+### `Nst_obj_custom_data`
+
+**Synopsis:**
+
+```better-c
+void *Nst_obj_custom_data(Nst_Obj *obj)
+```
+
+**Returns:**
+
+The data of an object created with
+[`Nst_obj_custom`](c_api-lib_import.md#nst_obj_custom).
+
+---
+
+### `Nst_import_lib`
+
+**Synopsis:**
+
+```better-c
+Nst_ObjRef *Nst_import_lib(const char *path)
+```
+
+**Description:**
+
+Import a library given its path. The path is expanded by the function.
+
+---
+
+### `Nst_import_full_lib_path`
+
+**Synopsis:**
+
+```better-c
+Nst_ObjRef *Nst_import_full_lib_path(const char *rel_path, usize path_len)
+```
+
+**Description:**
+
+Get the absolute path of a library.
+
+If the library is not found on the given path, the standard library directory is
+checked.
+
+**Parameters:**
+
+- `rel_path`: the relative path used to import the library
+- `path_len`: the length in bytes of `rel_path`
+
+**Returns:**
+
+The path on success and `NULL` on failure. The error is set. This function fails
+if the specified library is not found.
+
+---
+
+### `Nst_abs_path`
+
+**Synopsis:**
+
+```better-c
+usize Nst_abs_path(const char *file_path, char **out_buf, char **out_file_part)
+```
+
+**Description:**
+
+Get the absolute path to a file system object.
+
+!!!note
+    The absolute path is allocated on the heap and should be freed with
+    [`Nst_free`](c_api-mem.md#nst_free).
+
+**Parameters:**
+
+- `file_path`: the relative path to the object
+- `out_buf`: the buf where the absolute path is placed
+- `out_file_part`: where the start of the file name inside the file path is put,
+  this may be `NULL` in which case it is ignored
+
+**Returns:**
+
+The length in bytes of the absolute path or `0` on failure. The error is set.

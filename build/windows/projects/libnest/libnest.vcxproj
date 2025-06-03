@@ -81,6 +81,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\..\..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -101,6 +102,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\..\..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -121,6 +123,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\..\..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,6 +144,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\..\..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -152,8 +156,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\argv_parser.h" />
+    <ClInclude Include="..\..\..\..\include\assembler.h" />
     <ClInclude Include="..\..\..\..\include\compiler.h" />
     <ClInclude Include="..\..\..\..\include\dtoa.h" />
+    <ClInclude Include="..\..\..\..\include\dyn_array.h" />
     <ClInclude Include="..\..\..\..\include\encoding.h" />
     <ClInclude Include="..\..\..\..\include\error.h" />
     <ClInclude Include="..\..\..\..\include\file.h" />
@@ -176,21 +182,27 @@
     <ClInclude Include="..\..\..\..\include\obj_ops.h" />
     <ClInclude Include="..\..\..\..\include\optimizer.h" />
     <ClInclude Include="..\..\..\..\include\parser.h" />
-    <ClInclude Include="..\..\..\..\include\runner.h" />
+    <ClInclude Include="..\..\..\..\include\program.h" />
     <ClInclude Include="..\..\..\..\include\runtime_stack.h" />
     <ClInclude Include="..\..\..\..\include\sequence.h" />
     <ClInclude Include="..\..\..\..\include\simple_types.h" />
+    <ClInclude Include="..\..\..\..\include\source_loader.h" />
     <ClInclude Include="..\..\..\..\include\str.h" />
+    <ClInclude Include="..\..\..\..\include\str_builder.h" />
+    <ClInclude Include="..\..\..\..\include\str_view.h" />
     <ClInclude Include="..\..\..\..\include\tokens.h" />
     <ClInclude Include="..\..\..\..\include\type.h" />
     <ClInclude Include="..\..\..\..\include\typedefs.h" />
+    <ClInclude Include="..\..\..\..\include\unicode_db.h" />
     <ClInclude Include="..\..\..\..\include\var_table.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp" />
     <ClCompile Include="..\..\..\..\src\argv_parser.c" />
+    <ClCompile Include="..\..\..\..\src\assembler.c" />
     <ClCompile Include="..\..\..\..\src\compiler.c" />
     <ClCompile Include="..\..\..\..\src\dtoa.c" />
+    <ClCompile Include="..\..\..\..\src\dyn_array.c" />
     <ClCompile Include="..\..\..\..\src\encoding.c" />
     <ClCompile Include="..\..\..\..\src\error.c" />
     <ClCompile Include="..\..\..\..\src\file.c" />
@@ -212,13 +224,16 @@
     <ClCompile Include="..\..\..\..\src\obj_ops.c" />
     <ClCompile Include="..\..\..\..\src\optimizer.c" />
     <ClCompile Include="..\..\..\..\src\parser.c" />
-    <ClCompile Include="..\..\..\..\src\runner.c" />
+    <ClCompile Include="..\..\..\..\src\program.c" />
     <ClCompile Include="..\..\..\..\src\runtime_stack.c" />
     <ClCompile Include="..\..\..\..\src\sequence.c" />
     <ClCompile Include="..\..\..\..\src\simple_types.c" />
+    <ClCompile Include="..\..\..\..\src\source_loader.c" />
     <ClCompile Include="..\..\..\..\src\str.c" />
+    <ClCompile Include="..\..\..\..\src\str_builder.c" />
+    <ClCompile Include="..\..\..\..\src\str_view.c" />
     <ClCompile Include="..\..\..\..\src\tokens.c" />
-    <ClCompile Include="..\..\..\..\src\type.c" />
+    <ClCompile Include="..\..\..\..\src\unicode_db.c" />
     <ClCompile Include="..\..\..\..\src\var_table.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -74,7 +74,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\..\..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -92,7 +92,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\..\..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -110,7 +110,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\..\..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -128,7 +128,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\..\..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -143,11 +143,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\tests\test_nest\common.c" />
     <ClCompile Include="..\..\..\..\tests\test_nest\main.c" />
-    <ClCompile Include="..\..\..\..\tests\test_nest\test_nest.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_argv_parser.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_dyn_array.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_encodiong.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_error.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_file.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_format.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_function.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_hash.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_iter.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_lib_import.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_llist.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_map.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_mem.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_sequence.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_simple_types.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_source_loader.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_str.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_str_builder.c" />
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_str_view.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\tests\test_nest\test_nest.h" />
+    <ClInclude Include="..\..\..\..\tests\test_nest\tests.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

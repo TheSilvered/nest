@@ -28,12 +28,12 @@ allowed:
 - `s` for `char *` (string)
 - `B` for `u8` (takes a `uint` but expects values in the range `[0, 255]`)
 - `i` for `int` or `uint` (`unsigned int`)
-- `l` for `i32` (`long`) or `u32` (`unsigned long`)
-- `L` for `i64` (`long long`) or `u64` (`unsigned long long`)
-- `z` for `isize` (`size_t`) or `usize` (`ptrdiff_t`)
-- `b` for `bool` (takes an int but writes `true` or `false` instead of `1` and
-  `0`)
-- `f` for `f32` (`float`) or `f64` (`double`)
+- `l` for `i32` or `u32`
+- `L` for `i64` or `u64`
+- `z` for `isize` or `usize`
+- `b` for `bool` (takes an `int` but writes `true` or `false` instead of `1`
+  and `0`)
+- `f` for `f32` or `f64`
 - `c` for `char`
 - `p` for `void *`
 
@@ -74,7 +74,7 @@ representation mode to be used though mode `g` is the default.
 
 In general representation the number is represented with `precision`
 significant digits and will alternate between the `f` or `F` mode and the `e`
-or `E` modes depending on its magnetude.
+or `E` modes depending on its magnitude.
 
 The `f` or `F` mode is used when `-4 <= exp < precision` where `exp` is the
 exponent in standard notation of the number. When the exponent falls outside
@@ -181,7 +181,7 @@ Nst_fmt("{p:X}", 0, NULL, (void *)0x325c4e4); // results in "0X325c4e4"
 
 This flag is supported by `i`, `l`, `L` and `z` and indicates to use the
 unsigned variant of the types. For `i` this flag will read a `uint` instead of
-an `int`, for `l` it will read a `u32` instad of a `i32` and so on.
+an `int`, for `l` it will read a `u32` instead of a `i32` and so on.
 
 #### The `0` flag
 
@@ -247,7 +247,7 @@ characters.
 Nst_fmt("{s:r}", 0, NULL, "hello😊\n"); // results in "'hello😊\\n'"
 ```
 
-The `R` flag will instad only escape special characters (including the
+The `R` flag will instead only escape special characters (including the
 backslash `\` but not quotes) and leaving everything else untouched.
 
 ```better-c
@@ -422,7 +422,7 @@ flag is used to specify what character to use instead of the space.
 
 When the `c` flag is used this field specifies the exact width of the resulting
 string, shorter strings will still be padded but strings that are too long will
-be cut to size reguardless of the value, this means that digits and signs can
+be cut to size regardless of the value, this means that digits and signs can
 be cut off numbers.
 
 The width can be specified directly with a number after the flags or by writing
@@ -506,7 +506,7 @@ A negative precision is ignored.
 This field applies to the types that support the `'` flag and changes the
 amount of digits between separators from the default.
 
-The default values for the separator width is as followes:
+The default values for the separator width is as follows:
 
 - `8` for numbers in binary
 - `3` for numbers in octal or decimal (including all floats)
@@ -560,9 +560,9 @@ extern "C" {
 #endif // !__cplusplus
 
 /**
- * Prints a string to the Nest standard output.
+ * Print a string to the Nest standard output.
  *
- * @brief Warning: do not use this function to print `Nst_StrObj` objects, use
+ * @brief Warning: do not use this function to print `Str` objects, use
  * `Nst_fwrite` instead.
  *
  * @param buf: the NUL-terminated string to print
@@ -570,11 +570,11 @@ extern "C" {
  * @return The number of bytes written. If the file is closed `-1` is returned.
  * No error is set.
  */
-NstEXP isize NstC Nst_print(const i8 *buf);
+NstEXP isize NstC Nst_print(const char *buf);
 /**
- * Prints a string to a Nest file object.
+ * Print a string to a Nest file object.
  *
- * @brief Warning: do not use this function to print `Nst_StrObj` objects, use
+ * @brief Warning: do not use this function to print `Str` objects, use
  * `Nst_fwrite` instead.
  *
  * @param f: the file to print the string to
@@ -583,12 +583,12 @@ NstEXP isize NstC Nst_print(const i8 *buf);
  * @return The number of bytes written. If the file is closed `-1` is returned.
  * No error is set.
  */
-NstEXP isize NstC Nst_fprint(Nst_IOFileObj *f, const i8 *buf);
+NstEXP isize NstC Nst_fprint(Nst_Obj *f, const char *buf);
 
 /**
- * Prints a string to the Nest standard output appending a newline character.
+ * Print a string to the Nest standard output appending a newline character.
  *
- * @brief Warning: do not use this function to print `Nst_StrObj` objects, use
+ * @brief Warning: do not use this function to print `Str` objects, use
  * `Nst_fwrite` instead.
  *
  * @brief On all platforms only a newline (U+000A) is appended, NOT a carriage
@@ -599,14 +599,14 @@ NstEXP isize NstC Nst_fprint(Nst_IOFileObj *f, const i8 *buf);
  * @return The number of bytes written, including the newline character. If the
  * file is closed `-1` is returned. No error is set.
  */
-NstEXP isize NstC Nst_println(const i8 *buf);
+NstEXP isize NstC Nst_println(const char *buf);
 /**
- * Prints a string to a Nest file object appending a newline character.
+ * Print a string to a Nest file object appending a newline character.
  *
  * @brief On all platforms only a newline (U+000A) is appended, NOT a carriage
  * return.
  *
- * @brief Warning: do not use this function to print `Nst_StrObj` objects, use
+ * @brief Warning: do not use this function to print `Str` objects, use
  * `Nst_fwrite` instead.
  *
  * @param f: the file to print the string to
@@ -615,10 +615,10 @@ NstEXP isize NstC Nst_println(const i8 *buf);
  * @return The number of bytes written, including the newline character. If the
  * file is closed `-1` is returned. No error is set.
  */
-NstEXP isize NstC Nst_fprintln(Nst_IOFileObj *f, const i8 *buf);
+NstEXP isize NstC Nst_fprintln(Nst_Obj *f, const char *buf);
 
 /**
- * Prints a formatted string to the Nest standard output. The format specifier
+ * Print a formatted string to the Nest standard output. The format specifier
  * works like that of C's `printf`.
  *
  * @param fmt: the format placeholder
@@ -632,10 +632,10 @@ NstEXP isize NstC Nst_fprintln(Nst_IOFileObj *f, const i8 *buf);
  *! `-3` an error in the format string and
  *! `-4` a memory allocation error.
  */
-NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
+NstEXP isize NstC Nst_printf(Nst_WIN_FMT const char *fmt, ...)
                              Nst_NIX_FMT(1, 2);
 /**
- * Prints a formatted string to a Nest file object. The format specifier
+ * Print a formatted string to a Nest file object. The format specifier
  * works like that of C's `printf`.
  *
  * @param f: the file to print the string to
@@ -650,13 +650,13 @@ NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
  *! `-3` an error in the format string and
  *! `-4` a memory allocation error.
  */
-NstEXP isize NstC Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
-                                                Nst_NIX_FMT(2, 3);
+NstEXP isize NstC Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const char *fmt, ...)
+                                          Nst_NIX_FMT(2, 3);
 /* `va_list` variant of `Nst_fprintf`. */
-NstEXP isize NstC Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args);
+NstEXP isize NstC Nst_vfprintf(Nst_Obj *f, const char *fmt, va_list args);
 
 /**
- * Creates a Nest string object from a format placeholder. The format specifier
+ * Create a Nest string object from a format placeholder. The format specifier
  * works like that of C's `printf`.
  *
  * @brief Check the full `printf format rules`.
@@ -666,13 +666,13 @@ NstEXP isize NstC Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args);
  *
  * @return The function returns the newly created string object.
  */
-NstEXP Nst_Obj *NstC Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
-                                 Nst_NIX_FMT(1, 2);
+NstEXP Nst_ObjRef *NstC Nst_sprintf(Nst_WIN_FMT const char *fmt, ...)
+                                    Nst_NIX_FMT(1, 2);
 /* `va_list` variant of `Nst_sprintf`. */
-NstEXP Nst_Obj *NstC Nst_vsprintf(const i8 *fmt, va_list args);
+NstEXP Nst_ObjRef *NstC Nst_vsprintf(const char *fmt, va_list args);
 
 /**
- * Creates a heap-allocated string formatted with a more customizable format
+ * Create a heap-allocated string formatted with a more customizable format
  * placeholder.
  *
  * @brief Check the `full format rules` for this function.
@@ -680,27 +680,34 @@ NstEXP Nst_Obj *NstC Nst_vsprintf(const i8 *fmt, va_list args);
  * @param fmt: the format placeholder
  * @param fmt_len: the length of `fmt`, if set to `0` is it determined using
  * `strlen`
- * @param out_len: pointer to a value filled with the final lenght of the
+ * @param out_len: pointer to a value filled with the final length of the
  * formatted string, it can be `NULL`
  * @param ...: the values to format
  *
  * @return The newly created string or `NULL` on failure, the error is set.
  * When the function fails and `out_len` is not `NULL` it is set to `0`.
  */
-NstEXP i8 *NstC Nst_fmt(const i8 *fmt, usize fmt_len, usize *out_len, ...);
+NstEXP u8 *NstC Nst_fmt(const char *fmt, usize fmt_len, usize *out_len, ...);
 /* `va_list` variant of `Nst_fmt`. */
-NstEXP i8 *NstC Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len,
+NstEXP u8 *NstC Nst_vfmt(const char *fmt, usize fmt_len, usize *out_len,
                          va_list args);
 /**
- * Similar to `Nst_fmt`, creates a string object formatted with the values
- * given.
+ * Create a string object formatted using Nest objects.
+ *
+ * @brief The format is similar to the `full format rules` of `Nst_fmt` except
+ * that the type of the value to format is taken from the object and the
+ * general syntax for a format placeholder becomes
+ * `{[Flags][Width][.Precision][,SeparatorWidth][Alignment]}` (the `Type` and
+ * the `:` have been removed).
  *
  * @param fmt: the format placeholder
- * @param values: the values to format
+ * @param values: the objects to use when formatting
+ * @param value_count: the number of objects given
  *
  * @return A new object of type `Str` or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_StrObj *fmt, Nst_SeqObj *values);
+NstEXP Nst_ObjRef *NstC Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj **values,
+                                     usize value_count);
 
 /**
  * Make a string into its representation, like using the `r`, `R`, `a` and `A`
@@ -709,7 +716,7 @@ NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_StrObj *fmt, Nst_SeqObj *values);
  * @param str: the initial string
  * @param str_len: the length in bytes of the string, if set to zero it will be
  * calculated with `strlen`
- * @param out_len: pointer to be set with the lengh of the output string, if
+ * @param out_len: pointer to be set with the length of the output string, if
  * set to `NULL` it will be ignored
  * @param shallow: if set to true it will only escape special characters, like
  * the `R` and `A` flags
@@ -719,7 +726,7 @@ NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_StrObj *fmt, Nst_SeqObj *values);
  * @return A pointer to the string representation or `NULL` on failure. The
  * error is set.
  */
-NstEXP i8 *NstC Nst_repr(i8 *str, usize str_len, usize *out_len,
+NstEXP u8 *NstC Nst_repr(u8 *str, usize str_len, usize *out_len,
                          bool shallow, bool ascii);
 
 #ifdef __cplusplus

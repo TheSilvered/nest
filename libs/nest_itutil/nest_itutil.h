@@ -22,7 +22,7 @@ Nst_Obj *NstC batch_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC batch_padded_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC new_iterator_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC iter_start_(usize arg_num, Nst_Obj **args);
-Nst_Obj *NstC iter_get_val_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC iter_next_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC IEND_();
 
 #ifdef __cplusplus

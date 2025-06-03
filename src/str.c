@@ -2,34 +2,24 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
-#include "mem.h"
-#include "str.h"
-#include "error.h"
-#include "lib_import.h"
-#include "lexer.h"
-#include "encoding.h"
-#include "format.h"
-#include "dtoa.h"
+#include "nest.h"
 
-#define RETURN_INT_ERR do {                                                   \
-    Nst_set_value_error_c(_Nst_EM_BAD_INT_LITERAL);                           \
-    return NULL;                                                              \
-    } while (0)
+/**
+ * @param len: the length in bytes of `value`
+ * @param char_len: the length in characters of `value`
+ * @param value: the value of the string
+ * @param indexable_str: the string in UTF-16 or UTF-32 depending on the
+ * characters it contains
+ */
+NstEXP typedef struct _Nst_StrObj {
+    Nst_OBJ_HEAD;
+    usize len;
+    usize char_len;
+    u8 *value;
+    u8 *indexable_str;
+} Nst_StrObj;
 
-#define RETURN_BYTE_ERR do {                                                  \
-    Nst_set_value_error_c(_Nst_EM_BAD_BYTE_LITERAL);                          \
-    return NULL;                                                              \
-    } while (0)
-
-#define RETURN_REAL_ERR do {                                                  \
-    Nst_set_value_error_c(_Nst_EM_BAD_REAL_LITERAL);                          \
-    return NULL;                                                              \
-    } while (0)
-
-#define ERR_IF_END(s, end, err_macro) do {                                    \
-    if (s == end)                                                             \
-        err_macro;                                                            \
-    } while (0)
+#define STR(ptr) ((Nst_StrObj *)(ptr))
 
 static i32 get_ch_width(u8 *str, u8 *end)
 {
@@ -96,26 +86,46 @@ static bool create_indexable_str(Nst_StrObj *str)
     return true;
 }
 
-Nst_Obj *Nst_str_new_c_raw(const i8 *val, bool allocated)
+Nst_ObjRef *_Nst_str_new_no_err(const char *value)
 {
-    return Nst_str_new((i8 *)val, strlen(val), allocated);
+    Nst_StrObj *str = STR(Nst_raw_malloc(sizeof(Nst_StrObj)));
+    if (str == NULL)
+        return NULL;
+
+#ifdef Nst_DBG_TRACK_OBJ_INIT_POS
+    str->init_line = -1;
+    str->init_col = -1;
+    str->init_path = NULL;
+#endif
+
+    str->ref_count = 1;
+    str->p_next = NULL;
+    str->hash = -1;
+    str->flags = 0;
+    str->len = strlen(value);
+    str->value = (u8 *)value;
+    str->indexable_str = NULL;
+
+    str->type = Nst_t.Str;
+    Nst_inc_ref(Nst_t.Str);
+    return NstOBJ(str);
 }
 
-Nst_Obj *Nst_str_new_c(const i8 *val, usize len, bool allocated)
+Nst_ObjRef *Nst_str_new_c(const char *val)
 {
-    return Nst_str_new((i8 *)val, len, allocated);
+    return Nst_str_new((u8 *)val, strlen(val), false);
 }
 
-Nst_Obj *Nst_str_new(i8 *val, usize len, bool allocated)
+Nst_ObjRef *Nst_str_new(u8 *val, usize len, bool allocated)
 {
     return Nst_str_new_len(
         val,
         len,
-        Nst_string_utf8_char_len((u8 *)val, len),
+        Nst_encoding_utf8_char_len((u8 *)val, len),
         allocated);
 }
 
-Nst_Obj *Nst_str_new_len(i8 *val, usize len, usize char_len, bool allocated)
+Nst_ObjRef *Nst_str_new_len(u8 *val, usize len, usize char_len, bool allocated)
 {
     Nst_StrObj *str = Nst_obj_alloc(Nst_StrObj, Nst_t.Str);
     if (str == NULL)
@@ -128,10 +138,10 @@ Nst_Obj *Nst_str_new_len(i8 *val, usize len, usize char_len, bool allocated)
     str->char_len = char_len;
     str->indexable_str = NULL;
 
-    return OBJ(str);
+    return NstOBJ(str);
 }
 
-Nst_Obj *Nst_str_new_allocated(i8 *val, usize len)
+Nst_ObjRef *Nst_str_new_allocated(u8 *val, usize len)
 {
     Nst_Obj *str = Nst_str_new(val, len, true);
     if (str == NULL) {
@@ -141,109 +151,100 @@ Nst_Obj *Nst_str_new_allocated(i8 *val, usize len)
     return str;
 }
 
-Nst_StrObj Nst_str_temp(i8 *val, usize len)
+Nst_ObjRef *Nst_str_copy(Nst_Obj *src)
 {
-    Nst_StrObj obj;
-    obj.type = Nst_t.Str;
-    obj.ref_count = 1;
-    obj.p_next = NULL;
-    obj.hash = -1;
-    obj.flags = Nst_FLAG_STR_CAN_INDEX | Nst_FLAG_STR_IS_ASCII;
-    obj.value = val;
-    obj.len = len;
-    obj.char_len = len;
-    obj.indexable_str = NULL;
-    return obj;
-}
-
-Nst_Obj *_Nst_str_copy(Nst_StrObj *src)
-{
-    i8 *buffer = Nst_malloc_c(src->len + 1, i8);
+    Nst_assert(src->type == Nst_t.Str);
+    u8 *buffer = Nst_malloc_c(STR(src)->len + 1, u8);
     if (buffer == NULL)
         return NULL;
 
-    memcpy(buffer, src->value, src->len);
+    memcpy(buffer, STR(src)->value, STR(src)->len);
 
-    Nst_Obj *str = Nst_str_new_len(buffer, src->len, src->char_len, true);
+    Nst_Obj *str = Nst_str_new_len(
+        buffer,
+        STR(src)->len, STR(src)->char_len,
+        true);
     if (str == NULL)
         Nst_free(buffer);
     return str;
 }
 
-Nst_Obj *_Nst_str_repr(Nst_StrObj *src)
+Nst_ObjRef *Nst_str_repr(Nst_Obj *src)
 {
+    Nst_assert(src->type == Nst_t.Str);
     usize repr_len;
-    i8 *repr_str = Nst_repr(src->value, src->len, &repr_len, false, false);
+    u8 *repr_str = Nst_repr(
+        STR(src)->value,
+        STR(src)->len,
+        &repr_len,
+        false, false);
     if (repr_str == NULL)
         return NULL;
     return Nst_str_new_allocated(repr_str, repr_len);
 }
 
-Nst_Obj *_Nst_str_get(Nst_StrObj *str, i64 idx)
+Nst_ObjRef *Nst_str_get_obj(Nst_Obj *str, i64 idx)
 {
-    if (idx < 0)
-        idx += str->char_len;
-
-    if (idx < 0 || idx >= (i64)str->char_len) {
-        Nst_set_value_errorf(
-            _Nst_EM_INDEX_OUT_OF_BOUNDS("Str"),
-            idx,
-            str->char_len);
+    i32 ch = Nst_str_get(str, idx);
+    if (ch == -1)
         return NULL;
+
+    u8 *c_buf = Nst_calloc_c(5, u8, NULL);
+    if (c_buf == NULL)
+        return NULL;
+    usize len = Nst_ext_utf8_from_utf32(ch, (u8 *)c_buf);
+    c_buf[len] = '\0';
+    return Nst_str_new_allocated(c_buf, len);
+}
+
+i32 Nst_str_get(Nst_Obj *str, i64 idx)
+{
+    Nst_assert(str->type == Nst_t.Str);
+    if (idx < 0)
+        idx += STR(str)->char_len;
+
+    if (idx < 0 || idx >= (i64)STR(str)->char_len) {
+        Nst_error_setf_value(
+            "index %" PRIi64 " out of bounds for 'Str' of size %zi",
+            idx,
+            STR(str)->char_len);
+        return -1;
     }
 
     if (!Nst_HAS_FLAG(str, Nst_FLAG_STR_CAN_INDEX)) {
-        if (!create_indexable_str(str))
-            return NULL;
+        if (!create_indexable_str(STR(str)))
+            return -1;
     }
 
-    if (Nst_HAS_FLAG(str, Nst_FLAG_STR_IS_ASCII)) {
-        i8 *c_buf = Nst_malloc_c(2, i8);
-        if (c_buf == NULL)
-            return NULL;
-        c_buf[0] = str->value[idx];
-        c_buf[1] = 0;
-        return Nst_str_new_allocated(c_buf, 1);
-    }
+    if (Nst_HAS_FLAG(str, Nst_FLAG_STR_IS_ASCII))
+        return (i32)STR(str)->value[idx];
+    else if (Nst_HAS_FLAG(str, Nst_FLAG_STR_INDEX_16))
+        return (u32)((u16 *)(STR(str)->indexable_str))[idx];
+    else if (Nst_HAS_FLAG(str, Nst_FLAG_STR_INDEX_32))
+        return (i32)((u32 *)(STR(str)->indexable_str))[idx];
 
-    if (Nst_HAS_FLAG(str, Nst_FLAG_STR_INDEX_16)) {
-        i8 *c_buf = Nst_calloc_c(4, i8, NULL);
-        if (c_buf == NULL)
-            return NULL;
-        u32 c = ((u16 *)(str->indexable_str))[idx];
-        Nst_ext_utf8_from_utf32(c, (u8 *)c_buf);
-        return Nst_str_new_allocated(c_buf, strlen(c_buf));
-    }
-
-    if (Nst_HAS_FLAG(str, Nst_FLAG_STR_INDEX_32)) {
-        i8 *c_buf = Nst_calloc_c(5, i8, NULL);
-        if (c_buf == NULL)
-            return NULL;
-        u32 c = ((u32 *)(str->indexable_str))[idx];
-        Nst_ext_utf8_from_utf32(c, (u8 *)c_buf);
-        return Nst_str_new_allocated(c_buf, strlen(c_buf));
-    }
-
-    Nst_set_value_error_c(_Nst_EM_STR_INDEX_FAILED);
-    return NULL;
+    Nst_error_setc_value("failed to index string");
+    return -1;
 }
 
-isize Nst_str_next(Nst_StrObj *str, isize idx)
+isize Nst_str_next(Nst_Obj *str, isize idx)
 {
-    if (str->len == 0)
+    Nst_assert(str->type == Nst_t.Str);
+    if (STR(str)->len == 0)
         return -1;
     if (idx == -1)
         return 0;
     i32 ch_len = Nst_check_ext_utf8_bytes(
-        (u8 *)str->value + idx,
-        str->len - idx);
-    if (idx + ch_len == (isize)str->len)
+        (u8 *)STR(str)->value + idx,
+        STR(str)->len - idx);
+    if (idx + ch_len == (isize)STR(str)->len)
         return -1;
     return idx + ch_len;
 }
 
-Nst_Obj *Nst_str_next_obj(Nst_StrObj *str, isize *idx)
+Nst_ObjRef *Nst_str_next_obj(Nst_Obj *str, isize *idx)
 {
+    Nst_assert(str->type == Nst_t.Str);
     *idx = Nst_str_next(str, *idx);
 
     if (*idx == -1)
@@ -251,15 +252,15 @@ Nst_Obj *Nst_str_next_obj(Nst_StrObj *str, isize *idx)
 
     isize idx_val = *idx;
     i32 ch_len = Nst_check_ext_utf8_bytes(
-        (u8 *)str->value + idx_val,
-        str->len - idx_val);
-    i8 *ch_buf = Nst_malloc_c(ch_len + 1, i8);
+        (u8 *)STR(str)->value + idx_val,
+        STR(str)->len - idx_val);
+    u8 *ch_buf = Nst_malloc_c(ch_len + 1, u8);
     if (ch_buf == NULL) {
         *idx = Nst_STR_LOOP_ERROR;
         return NULL;
     }
 
-    memcpy(ch_buf, str->value + idx_val, (usize)ch_len);
+    memcpy(ch_buf, STR(str)->value + idx_val, (usize)ch_len);
     ch_buf[ch_len] = 0;
 
     Nst_Obj *out_str = Nst_str_new_len(ch_buf, ch_len, 1, true);
@@ -271,414 +272,110 @@ Nst_Obj *Nst_str_next_obj(Nst_StrObj *str, isize *idx)
     return out_str;
 }
 
-i32 Nst_str_next_utf32(Nst_StrObj *str, isize *idx)
+i32 Nst_str_next_utf32(Nst_Obj *str, isize *idx)
 {
+    Nst_assert(str->type == Nst_t.Str);
     *idx = Nst_str_next(str, *idx);
 
     if (*idx == -1)
         return -1;
 
-    return (i32)Nst_ext_utf8_to_utf32((u8 *)(str->value + *idx));
+    return (i32)Nst_ext_utf8_to_utf32((u8 *)(STR(str)->value + *idx));
 }
 
-i32 Nst_str_next_utf8(Nst_StrObj *str, isize *idx, i8 *ch_buf)
+i32 Nst_str_next_utf8(Nst_Obj *str, isize *idx, u8 *ch_buf)
 {
+    Nst_assert(str->type == Nst_t.Str);
     *idx = Nst_str_next(str, *idx);
 
     if (*idx == -1)
         return 0;
 
     i32 ch_len = Nst_check_ext_utf8_bytes(
-        (u8 *)str->value + *idx,
-        str->len - *idx);
+        (u8 *)STR(str)->value + *idx,
+        STR(str)->len - *idx);
     if (ch_buf == NULL)
         return ch_len;
     memset(ch_buf, 0, 4);
-    ch_buf = memcpy(ch_buf, str->value + *idx, ch_len);
+    memcpy(ch_buf, STR(str)->value + *idx, ch_len);
     return ch_len;
 }
 
-usize _Nst_str_len(Nst_StrObj *str)
+void _Nst_str_destroy(Nst_Obj *str)
 {
-    return str->char_len;
-}
-
-usize _Nst_str_buf_len(Nst_StrObj *str)
-{
-    return str->len;
-}
-
-const i8 *_Nst_str_buf(Nst_StrObj *str)
-{
-    return (const i8 *)str->value;
-}
-
-void _Nst_str_destroy(Nst_StrObj *str)
-{
+    Nst_assert(str->type == Nst_t.Str);
     if (str == NULL)
         return;
-    if (Nst_STR_IS_ALLOC(str))
-        Nst_free(str->value);
-    if (str->indexable_str != NULL)
-        Nst_free(str->indexable_str);
+    if (str->flags & Nst_FLAG_STR_IS_ALLOC)
+        Nst_free(STR(str)->value);
+    if (STR(str)->indexable_str != NULL)
+        Nst_free(STR(str)->indexable_str);
 }
 
-Nst_Obj *Nst_str_parse_int(Nst_StrObj *str, i32 base)
+Nst_ObjRef *Nst_str_parse_int(Nst_Obj *str, i32 base)
 {
-    i8 *s = str->value;
-    i8 *end = s + str->len;
-    i8 ch;
-    i32 ch_val;
-    i32 sign = 1;
-    i64 num = 0;
-    i64 cut_off = 0;
-    i64 cut_lim = 0;
-
-    if ((base < 2 || base > 36) && base != 0) {
-        Nst_set_value_error_c(_Nst_EM_BAD_INT_BASE);
+    Nst_assert(str->type == Nst_t.Str);
+    i64 value;
+    bool result = Nst_sv_parse_int(
+        Nst_sv_from_str(str), (u8)base,
+        Nst_SVFLAG_FULL_MATCH, '_',
+        &value,
+        NULL);
+    if (!result)
         return NULL;
-    }
-    ERR_IF_END(s, end, RETURN_INT_ERR);
-
-    ch = *s;
-    while (isspace((u8)ch))
-        ch = *++s;
-    ERR_IF_END(s, end, RETURN_INT_ERR);
-
-    if (ch == '-' || ch == '+') {
-        sign = ch == '-' ? -1 : 1;
-        ch = *++s;
-    }
-    ERR_IF_END(s, end, RETURN_INT_ERR);
-
-    if (ch == '0') {
-        ch = *++s;
-        switch (ch) {
-        case 'B':
-        case 'b':
-            if (base == 2 || base == 0) {
-                base = 2;
-                ch = *++s;
-            } else
-                ch = *--s;
-            break;
-        case 'O':
-        case 'o':
-            if (base == 8 || base == 0) {
-                base = 8;
-                ch = *++s;
-            } else
-                ch = *--s;
-            break;
-        case 'X':
-        case 'x':
-            if (base == 16 || base == 0) {
-                base = 16;
-                ch = *++s;
-            } else
-                ch = *--s;
-            break;
-        default:
-            ch = *--s;
-            break;
-        }
-    }
-    ERR_IF_END(s, end, RETURN_INT_ERR);
-    if (base == 0)
-        base = 10;
-
-    cut_off = sign == -1 ? -9223372036854775807 - 1 : 9223372036854775807;
-    cut_lim = sign * (cut_off % base);
-    cut_off /= sign * base;
-    while (true) {
-        if (ch >= '0' && ch <= '9')
-            ch_val = ch - '0';
-        else if (ch >= 'a' && ch <= 'z')
-            ch_val = ch - 'a' + 10;
-        else if (ch >= 'A' && ch <= 'Z')
-            ch_val = ch - 'A' + 10;
-        else if (ch == '_') {
-            ch = *++s;
-            continue;
-        } else
-            break;
-
-        if (ch_val < 0 || ch_val > base - 1)
-            RETURN_INT_ERR;
-
-        if (num > cut_off || (num == cut_off && ch_val > cut_lim)) {
-            Nst_set_memory_error_c(_Nst_EM_INT_TOO_BIG);
-            return NULL;
-        }
-        num *= base;
-        num += ch_val;
-        ch = *++s;
-    }
-
-    while (isspace((u8)ch))
-        ch = *++s;
-
-    if (s != end)
-        RETURN_INT_ERR;
-
-    return Nst_int_new(num * sign);
+    return Nst_int_new(value);
 }
 
-Nst_Obj *Nst_str_parse_byte(Nst_StrObj *str)
+Nst_ObjRef *Nst_str_parse_byte(Nst_Obj *str)
 {
-    if (str->char_len == 1) {
-        u32 utf32_ch = Nst_ext_utf8_to_utf32((u8 *)str->value);
-        if (utf32_ch <= 0xff)
-            return Nst_byte_new((u8)utf32_ch);
-        else
-            RETURN_BYTE_ERR;
-    }
-
-    i8 *s = str->value;
-    i8 *end = s + str->len;
-    i8 ch = *s;
-    i32 num = 0;
-    i32 ch_val = 0;
-    i32 sign = 1;
-    i32 base = 10;
-
-    ERR_IF_END(s, end, RETURN_BYTE_ERR);
-
-    while (isspace((u8)ch))
-        ch = *++s;
-    ERR_IF_END(s, end, RETURN_BYTE_ERR);
-
-    if (ch == '-') {
-        sign = -1;
-        ch = *++s;
-    } else if (ch == '+')
-        ch = *++s;
-    ERR_IF_END(s, end, RETURN_BYTE_ERR);
-
-    if (ch == '0') {
-        ch = *++s;
-        switch (ch) {
-        case 'b':
-        case 'B':
-            base = 2;
-            ch = *++s;
-            break;
-        case 'o':
-        case 'O':
-            base = 8;
-            ch = *++s;
-            break;
-        case 'h':
-        case 'H':
-            base = 16;
-            ch = *++s;
-            break;
-        default:
-            ch = *--s;
-        }
-    }
-
-    bool has_digits = false;
-    while (true) {
-        if (ch >= '0' && ch <= '9')
-            ch_val = ch - '0';
-        else if (ch >= 'a' && ch <= 'f' && base == 16)
-            ch_val = ch - 'a' + 10;
-        else if (ch >= 'A' && ch <= 'F' && base == 16)
-            ch_val = ch - 'A' + 10;
-        else if (ch == '_') {
-            ch = *++s;
-            continue;
-        } else
-            break;
-
-        if (ch_val >= base)
-            RETURN_BYTE_ERR;
-        has_digits = true;
-        num *= base;
-        num += ch_val;
-        num %= 256;
-        ch = *++s;
-    }
-    num *= sign;
-
-    if (base != 2 && !has_digits)
-        RETURN_BYTE_ERR;
-
-    if ((base != 2 || has_digits) && base != 16 && ch != 'b' && ch != 'B')
-        RETURN_BYTE_ERR;
-    if ((base != 2 || has_digits) && base != 16)
-        ch = *++s;
-
-    while (isspace((u8)ch))
-        ch = *++s;
-    if (s != end)
-        RETURN_BYTE_ERR;
-    return Nst_byte_new(num & 0xff);
-}
-
-Nst_Obj *Nst_str_parse_real(Nst_StrObj *str)
-{
-    // \s*[+-]?\d+\.\d+(?:[eE][+-]?\d+)
-
-    // strtod accepts also things like .5, 1e2, -1., ecc. that I do not
-    // so I need to check if the literal is valid first
-    i8 *s = str->value;
-    i8 *end = s + str->len;
-    i8 *start = s;
-    usize len = 0;
-    i8 ch = *s;
-    i8 *buf;
-    f64 res;
-    bool contains_underscores = false;
-
-    if (s == end)
-        RETURN_REAL_ERR;
-
-    while (isspace((u8)ch)) {
-        ch = *++s;
-        start++;
-    }
-    ERR_IF_END(s, end, RETURN_REAL_ERR);
-
-    if (ch == '+' || ch == '-') {
-        ch = *++s;
-        len++;
-    }
-    ERR_IF_END(s, end, RETURN_REAL_ERR);
-
-    if (ch < '0' || ch > '9')
-        RETURN_REAL_ERR;
-    while ((ch >= '0' && ch <= '9') || ch == '_') {
-        ch = *++s;
-        len++;
-        if (ch == '_')
-            contains_underscores = true;
-    }
-
-    if (ch != '.') {
-        while (isspace((u8)ch))
-            ch = *++s;
-        if (s != end)
-            RETURN_REAL_ERR;
-        goto end;
-    }
-    ch = *++s;
-    len++;
-
-    if (ch < '0' || ch > '9')
-        RETURN_REAL_ERR;
-    while ((ch >= '0' && ch <= '9') || ch == '_') {
-        ch = *++s;
-        len++;
-
-        if (ch == '_')
-            contains_underscores = true;
-    }
-
-    if (ch == 'e' || ch == 'E') {
-        ch = *++s;
-        len++;
-
-        if (ch == '+' || ch == '-') {
-            ch = *++s;
-            len++;
-        }
-        ERR_IF_END(s, end, RETURN_REAL_ERR);
-
-        if (ch < '0' || ch > '9')
-            RETURN_REAL_ERR;
-        while ((ch >= '0' && ch <= '9') || ch == '_') {
-            ch = *++s;
-            len++;
-            if (ch == '_')
-                contains_underscores = true;
-        }
-    }
-
-    while (isspace((u8)ch))
-        ch = *++s;
-    if (s != end)
-        RETURN_REAL_ERR;
-end:
-    if (contains_underscores) {
-        buf = Nst_malloc_c(len + 1, i8);
-        if (buf == NULL)
-            return NULL;
-        s = buf;
-        while (len--) {
-            if ((ch = *start++) != '_')
-                *s++ = ch;
-        }
-        *s = '\0';
-    } else
-        buf = start;
-
-    res = Nst_strtod(buf, NULL);
-    if (contains_underscores)
-        Nst_free(buf);
-    return Nst_real_new(res);
-}
-
-i32 Nst_str_compare(Nst_StrObj *str1, Nst_StrObj *str2)
-{
-    u8 *p1 = (u8 *)str1->value;
-    u8 *p2 = (u8 *)str2->value;
-    u8 *end1 = p1 + str1->len;
-    u8 *end2 = p2 + str2->len;
-
-    while (p1 != end1 && p2 != end2) {
-        if (*p1 != *p2)
-            return *p1 < *p2 ? -1 : 1; // fixed values above 0x7f
-        else {
-            p1++;
-            p2++;
-        }
-    }
-
-    return (i32)((i64)str1->len - (i64)str2->len);
-}
-
-i8 *Nst_str_find(i8 *s1, usize l1, i8 *s2, usize l2)
-{
-    i8 *end1 = s1 + l1;
-    i8 *end2 = s2 + l2;
-    i8 *p1 = NULL;
-    i8 *p2 = NULL;
-
-    if (l2 > l1)
+    Nst_assert(str->type == Nst_t.Str);
+    u8 value;
+    bool result = Nst_sv_parse_byte(
+        Nst_sv_from_str(str), 0,
+        Nst_SVFLAG_FULL_MATCH | Nst_SVFLAG_CHAR_BYTE | Nst_SVFLAG_CAN_OVERFLOW,
+        '_', &value,
+        NULL);
+    if (!result)
         return NULL;
-
-    while (s1 != end1) {
-        p1 = s1++;
-        p2 = s2;
-
-        while (p1 != end1 && p2 != end2 && *p1 == *p2) {
-            p1++;
-            p2++;
-        }
-
-        if (p2 == end2)
-            return s1 - 1;
-    }
-
-    return NULL;
+    return Nst_byte_new(value);
 }
 
-i8 *Nst_str_rfind(i8 *s1, usize l1, i8 *s2, usize l2)
+Nst_ObjRef *Nst_str_parse_real(Nst_Obj *str)
 {
-    i8 *p = s1 + l1 - l2;
+    Nst_assert(str->type == Nst_t.Str);
+    f64 value;
+    bool result = Nst_sv_parse_real(
+        Nst_sv_from_str(str),
+        Nst_SVFLAG_STRICT_REAL | Nst_SVFLAG_FULL_MATCH, '_',
+        &value,
+        NULL);
+    if (!result)
+        return NULL;
+    return Nst_real_new(value);
+}
 
-    while (p >= s1) {
-        for (usize i = 0; i < l2; i++) {
-            if (p[i] != s2[i])
-                goto next_cycle;
-        }
-        return p;
+i32 Nst_str_compare(Nst_Obj *str1, Nst_Obj *str2)
+{
+    Nst_assert(str1->type == Nst_t.Str);
+    Nst_assert(str2->type == Nst_t.Str);
 
-    next_cycle:
-        p--;
-    }
+    return Nst_sv_compare(Nst_sv_from_str(str1), Nst_sv_from_str(str2));
+}
 
-    return NULL;
+u8 *Nst_str_value(Nst_Obj *str)
+{
+    Nst_assert(str->type == Nst_t.Str);
+    return STR(str)->value;
+}
+
+usize Nst_str_len(Nst_Obj *str)
+{
+    Nst_assert(str->type == Nst_t.Str);
+    return STR(str)->len;
+}
+
+usize Nst_str_char_len(Nst_Obj *str)
+{
+    Nst_assert(str->type == Nst_t.Str);
+    return STR(str)->char_len;
 }

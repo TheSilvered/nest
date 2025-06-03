@@ -14,6 +14,10 @@
             "shell_cmd": "nest --monochrome --ast \"$file\"",
         },
         {
+            "name": "Nest Instructions",
+            "shell_cmd": "nest --monochrome --instructions \"$file\"",
+        },
+        {
             "name": "Nest Bytecode",
             "shell_cmd": "nest --monochrome --bytecode \"$file\"",
         }

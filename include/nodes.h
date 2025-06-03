@@ -12,10 +12,8 @@
 #include "error.h"
 #include "tokens.h"
 
-/* Casts `expr` to `Nst_Node *`. */
-#define Nst_NODE(expr) ((Nst_Node *)(expr))
 /* Evaluates to `true` if the specified node type returns a value. */
-#define Nst_NODE_RETUNS_VALUE(node_type) (node_type >= Nst_NT_SO)
+#define Nst_NODE_RETUNS_VALUE(node_type) (node_type >= Nst_NT_E_STACK_OP)
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,29 +31,29 @@ extern "C" {
 //     if the node does not contain any data
 //  5) Add the node name to nt_strings
 
-/* [docs:link Nst_NT_CS Nst_NodeType] */
-/* [docs:link Nst_NT_WL Nst_NodeType] */
-/* [docs:link Nst_NT_FL Nst_NodeType] */
-/* [docs:link Nst_NT_FD Nst_NodeType] */
-/* [docs:link Nst_NT_RT Nst_NodeType] */
-/* [docs:link Nst_NT_CN Nst_NodeType] */
-/* [docs:link Nst_NT_BR Nst_NodeType] */
-/* [docs:link Nst_NT_SW Nst_NodeType] */
-/* [docs:link Nst_NT_TC Nst_NodeType] */
-/* [docs:link Nst_NT_WS Nst_NodeType] */
-/* [docs:link Nst_NT_NP Nst_NodeType] */
-/* [docs:link Nst_NT_SO Nst_NodeType] */
-/* [docs:link Nst_NT_LS Nst_NodeType] */
-/* [docs:link Nst_NT_LO Nst_NodeType] */
-/* [docs:link Nst_NT_SL Nst_NodeType] */
-/* [docs:link Nst_NT_ML Nst_NodeType] */
-/* [docs:link Nst_NT_VL Nst_NodeType] */
-/* [docs:link Nst_NT_AC Nst_NodeType] */
-/* [docs:link Nst_NT_EX Nst_NodeType] */
-/* [docs:link Nst_NT_AS Nst_NodeType] */
-/* [docs:link Nst_NT_CA Nst_NodeType] */
-/* [docs:link Nst_NT_IE Nst_NodeType] */
-/* [docs:link Nst_NT_WE Nst_NodeType] */
+/* [docs:link Nst_NT_S_LIST Nst_NodeType] */
+/* [docs:link Nst_NT_S_WHILE_LP Nst_NodeType] */
+/* [docs:link Nst_NT_S_FOR_LP Nst_NodeType] */
+/* [docs:link Nst_NT_S_FN_DECL Nst_NodeType] */
+/* [docs:link Nst_NT_S_RETURN Nst_NodeType] */
+/* [docs:link Nst_NT_S_CONTINUE Nst_NodeType] */
+/* [docs:link Nst_NT_S_BREAK Nst_NodeType] */
+/* [docs:link Nst_NT_S_SWITCH Nst_NodeType] */
+/* [docs:link Nst_NT_S_TRY_CATCH Nst_NodeType] */
+/* [docs:link Nst_NT_S_WRAPPER Nst_NodeType] */
+/* [docs:link Nst_NT_S_NOP Nst_NodeType] */
+/* [docs:link Nst_NT_E_STACK_OP Nst_NodeType] */
+/* [docs:link Nst_NT_E_LOC_STACK_OP Nst_NodeType] */
+/* [docs:link Nst_NT_E_LOCAL_OP Nst_NodeType] */
+/* [docs:link Nst_NT_E_SEQ_LITERAL Nst_NodeType] */
+/* [docs:link Nst_NT_E_MAP_LITERAL Nst_NodeType] */
+/* [docs:link Nst_NT_E_VALUE Nst_NodeType] */
+/* [docs:link Nst_NT_E_ACCESS Nst_NodeType] */
+/* [docs:link Nst_NT_E_EXTRACTION Nst_NodeType] */
+/* [docs:link Nst_NT_E_ASSIGNMENT Nst_NodeType] */
+/* [docs:link Nst_NT_E_COMP_ASSIGN Nst_NodeType] */
+/* [docs:link Nst_NT_E_IF Nst_NodeType] */
+/* [docs:link Nst_NT_E_WRAPPER Nst_NodeType] */
 
 /**
  * The types of nodes in the AST.
@@ -66,35 +64,35 @@ extern "C" {
 NstEXP typedef enum _Nst_NodeType {
     // Statement nodes
 
-    Nst_NT_CS, // Compound statement
-    Nst_NT_WL, // While or do-while loop
-    Nst_NT_FL, // For or for-as loop
-    Nst_NT_FD, // Function declaration or lambda
-    Nst_NT_RT, // Return statement
-    Nst_NT_CN, // Continue or breakthrough statement
-    Nst_NT_BR, // Break statement
-    Nst_NT_SW, // Switch statement
-    Nst_NT_TC, // Try-catch statement
-    Nst_NT_WS, // Statement wrapper
-    Nst_NT_NP, // No-op statement
+    Nst_NT_S_LIST,
+    Nst_NT_S_WHILE_LP,
+    Nst_NT_S_FOR_LP,
+    Nst_NT_S_FN_DECL,
+    Nst_NT_S_RETURN,
+    Nst_NT_S_CONTINUE,
+    Nst_NT_S_BREAK,
+    Nst_NT_S_SWITCH,
+    Nst_NT_S_TRY_CATCH,
+    Nst_NT_S_WRAPPER,
+    Nst_NT_S_NOP,
 
     // Expression nodes
 
-    Nst_NT_SO, // Stack operation
-    Nst_NT_LS, // Local-stack operation
-    Nst_NT_LO, // Local operation
-    Nst_NT_SL, // Array or Vector (sequence) literal
-    Nst_NT_ML, // Map literal
-    Nst_NT_VL, // Value literal
-    Nst_NT_AC, // Variable access
-    Nst_NT_EX, // Extraction expression
-    Nst_NT_AS, // Assignment expression
-    Nst_NT_CA, // Compound assignment expression
-    Nst_NT_IE, // If expression
-    Nst_NT_WE  // Expression wrapper
+    Nst_NT_E_STACK_OP,
+    Nst_NT_E_LOC_STACK_OP,
+    Nst_NT_E_LOCAL_OP,
+    Nst_NT_E_SEQ_LITERAL,
+    Nst_NT_E_MAP_LITERAL,
+    Nst_NT_E_VALUE,
+    Nst_NT_E_ACCESS,
+    Nst_NT_E_EXTRACTION,
+    Nst_NT_E_ASSIGNMENT,
+    Nst_NT_E_COMP_ASSIGN,
+    Nst_NT_E_IF,
+    Nst_NT_E_WRAPPER
 } Nst_NodeType;
 
-/* The types of a `Nst_Node` of type `Nst_NT_SL` */
+/* The types of a `Nst_Node` of type `Nst_NT_E_SEQ_LITERAL` */
 NstEXP typedef enum _Nst_SeqNodeType {
     Nst_SNT_ARRAY,
     Nst_SNT_ARRAY_REP,
@@ -106,276 +104,283 @@ NstEXP typedef enum _Nst_SeqNodeType {
 
 struct _Nst_Node;
 
-/* The data for a `Nst_NT_CS` node. */
-NstEXP typedef struct _Nst_NodeData_Cs {
-    Nst_LList *statements;
-} Nst_NodeData_Cs;
+/* The data for a `Nst_NT_S_LIST` node. */
+NstEXP typedef struct _Nst_NodeData_SList {
+    Nst_PtrArray statements;
+} Nst_NodeData_SList;
 
-/* The data for a `Nst_NT_WL` node. */
-NstEXP typedef struct _Nst_NodeData_Wl {
+/* The data for a `Nst_NT_S_WHILE_LP` node. */
+NstEXP typedef struct _Nst_NodeData_SWhileLp {
     struct _Nst_Node *condition;
     struct _Nst_Node *body;
     bool is_dowhile;
-} Nst_NodeData_Wl;
+} Nst_NodeData_SWhileLp;
 
-/* The data for a `Nst_NT_FL` node. */
-NstEXP typedef struct _Nst_NodeData_Fl {
+/* The data for a `Nst_NT_S_FOR_LP` node. */
+NstEXP typedef struct _Nst_NodeData_SForLp {
     struct _Nst_Node *iterator;
     struct _Nst_Node *assignment;
     struct _Nst_Node *body;
-} Nst_NodeData_Fl;
+} Nst_NodeData_SForLp;
 
-/* The data for a `Nst_NT_FD` node. */
-NstEXP typedef struct _Nst_NodeData_Fd {
-    Nst_Tok *name;
-    Nst_LList *argument_names;
+/* The data for a `Nst_NT_S_FN_DECL` node. */
+NstEXP typedef struct _Nst_NodeData_SFnDecl {
+    Nst_ObjRef *name;
+    Nst_PtrArray argument_names;
     struct _Nst_Node *body;
-} Nst_NodeData_Fd;
+} Nst_NodeData_SFnDecl;
 
-/* The data for a `Nst_NT_RT` node. */
-NstEXP typedef struct _Nst_NodeData_Rt {
+/* The data for a `Nst_NT_S_RETURN` node. */
+NstEXP typedef struct _Nst_NodeData_SReturn {
     struct _Nst_Node *value;
-} Nst_NodeData_Rt;
+} Nst_NodeData_SReturn;
 
-/* The data for a `Nst_NT_SW` node. */
-NstEXP typedef struct _Nst_NodeData_Sw {
+/* The data for a `Nst_NT_S_SWITCH` node. */
+NstEXP typedef struct _Nst_NodeData_SSwitch {
     struct _Nst_Node *expr;
-    Nst_LList *values;
-    Nst_LList *bodies;
+    Nst_PtrArray values;
+    Nst_PtrArray bodies;
     struct _Nst_Node *default_body;
-} Nst_NodeData_Sw;
+} Nst_NodeData_SSwitch;
 
-/* The data for a `Nst_NT_TC` node. */
-NstEXP typedef struct _Nst_NodeData_Tc {
+/* The data for a `Nst_NT_S_TRY_CATCH` node. */
+NstEXP typedef struct _Nst_NodeData_STryCatch {
     struct _Nst_Node *try_body;
     struct _Nst_Node *catch_body;
-    Nst_Tok *error_name;
-} Nst_NodeData_Tc;
+    Nst_ObjRef *error_name;
+} Nst_NodeData_STryCatch;
 
-/* The data for a `Nst_NT_WS` node. */
-NstEXP typedef struct _Nst_NodeData_Ws {
+/* The data for a `Nst_NT_S_WRAPPER` node. */
+NstEXP typedef struct _Nst_NodeData_SWrapper {
     struct _Nst_Node *statement;
-} Nst_NodeData_Ws;
+} Nst_NodeData_SWrapper;
 
-/* The data for a `Nst_NT_SO` node. */
-NstEXP typedef struct _Nst_NodeData_So {
-    Nst_LList *values;
+/* The data for a `Nst_NT_E_STACK_OP` node. */
+NstEXP typedef struct _Nst_NodeData_EStackOp {
+    Nst_PtrArray values;
     Nst_TokType op;
-} Nst_NodeData_So;
+} Nst_NodeData_EStackOp;
 
-/* The data for a `Nst_NT_LS` node. */
-NstEXP typedef struct _Nst_NodeData_Ls {
-    Nst_LList *values;
+/* The data for a `Nst_NT_E_LOC_STACK_OP` node. */
+NstEXP typedef struct _Nst_NodeData_ELocStackOp {
+    Nst_PtrArray values;
     struct _Nst_Node *special_value;
     Nst_TokType op;
-} Nst_NodeData_Ls;
+} Nst_NodeData_ELocStackOp;
 
-/* The data for a `Nst_NT_LO` node. */
-NstEXP typedef struct _Nst_NodeData_Lo {
+/* The data for a `Nst_NT_E_LOCAL_OP` node. */
+NstEXP typedef struct _Nst_NodeData_ELocalOp {
     struct _Nst_Node *value;
     Nst_TokType op;
-} Nst_NodeData_Lo;
+} Nst_NodeData_ELocalOp;
 
-/* The data for a `Nst_NT_SL` node. */
-NstEXP typedef struct _Nst_NodeData_Sl {
-    Nst_LList *values;
+/* The data for a `Nst_NT_E_SEQ_LITERAL` node. */
+NstEXP typedef struct _Nst_NodeData_ESeqLiteral {
+    Nst_PtrArray values;
     Nst_SeqNodeType type;
-} Nst_NodeData_Sl;
+} Nst_NodeData_ESeqLiteral;
 
-/* The data for a `Nst_NT_ML` node. */
-NstEXP typedef struct _Nst_NodeData_Ml {
-    Nst_LList *keys;
-    Nst_LList *values;
-} Nst_NodeData_Ml;
+/* The data for a `Nst_NT_E_MAP_LITERAL` node. */
+NstEXP typedef struct _Nst_NodeData_EMapLiteral {
+    Nst_PtrArray keys;
+    Nst_PtrArray values;
+} Nst_NodeData_EMapLiteral;
 
-/* The data for a `Nst_NT_VL` node. */
-NstEXP typedef struct _Nst_NodeData_Vl {
-    Nst_Tok *value;
-} Nst_NodeData_Vl;
-/* The data for a `Nst_NT_AC` node. */
-NstEXP typedef struct _Nst_NodeData_Ac {
-    Nst_Tok *value;
-} Nst_NodeData_Ac;
-/* The data for a `Nst_NT_EX` node. */
-NstEXP typedef struct _Nst_NodeData_Ex {
+/* The data for a `Nst_NT_E_VALUE` node. */
+NstEXP typedef struct _Nst_NodeData_EValue {
+    Nst_ObjRef *value;
+} Nst_NodeData_EValue;
+
+/* The data for a `Nst_NT_E_ACCESS` node. */
+NstEXP typedef struct _Nst_NodeData_EAccess {
+    Nst_Obj *value;
+} Nst_NodeData_EAccess;
+
+/* The data for a `Nst_NT_E_EXTRACTION` node. */
+NstEXP typedef struct _Nst_NodeData_EExtraction {
     struct _Nst_Node *container;
     struct _Nst_Node *key;
-} Nst_NodeData_Ex;
-/* The data for a `Nst_NT_AS` node. */
-NstEXP typedef struct _Nst_NodeData_As {
+} Nst_NodeData_EExtraction;
+
+/* The data for a `Nst_NT_E_ASSIGNMENT` node. */
+NstEXP typedef struct _Nst_NodeData_EAssignment {
     struct _Nst_Node *value;
     struct _Nst_Node *name;
-} Nst_NodeData_As;
-/* The data for a `Nst_NT_CA` node. */
-NstEXP typedef struct _Nst_NodeData_Ca {
-    Nst_LList *values;
+} Nst_NodeData_EAssignment;
+
+/* The data for a `Nst_NT_E_COMP_ASSIGN` node. */
+NstEXP typedef struct _Nst_NodeData_ECompAssign {
+    Nst_PtrArray values;
     struct _Nst_Node *name;
     Nst_TokType op;
-} Nst_NodeData_Ca;
-/* The data for a `Nst_NT_IE` node. */
-NstEXP typedef struct _Nst_NodeData_Ie {
+} Nst_NodeData_ECompAssign;
+
+/* The data for a `Nst_NT_E_IF` node. */
+NstEXP typedef struct _Nst_NodeData_EIf {
     struct _Nst_Node *condition;
     struct _Nst_Node *body_if_true;
     struct _Nst_Node *body_if_false;
-} Nst_NodeData_Ie;
-/* The data for a `Nst_NT_WE` node. */
-NstEXP typedef struct _Nst_NodeData_We {
+} Nst_NodeData_EIf;
+
+/* The data for a `Nst_NT_E_WRAPPER` node. */
+NstEXP typedef struct _Nst_NodeData_EWrapper {
     struct _Nst_Node *expr;
-} Nst_NodeData_We;
+} Nst_NodeData_EWrapper;
 
 /**
  * The structure representing a parser node.
- * 
+ *
  * @param start: the starting position of the node
  * @param end: the ending position of the node
  * @param type: the `Nst_NodeType` of the node
  * @param v: a union that contains the node's data
  */
 NstEXP typedef struct _Nst_Node {
-    Nst_Pos start;
-    Nst_Pos end;
+    Nst_Span span;
     Nst_NodeType type;
     union {
-        Nst_NodeData_Cs cs;
-        Nst_NodeData_Wl wl;
-        Nst_NodeData_Fl fl;
-        Nst_NodeData_Fd fd;
-        Nst_NodeData_Rt rt;
-        Nst_NodeData_Sw sw;
-        Nst_NodeData_Tc tc;
-        Nst_NodeData_Ws ws;
-        Nst_NodeData_So so;
-        Nst_NodeData_Ls ls;
-        Nst_NodeData_Lo lo;
-        Nst_NodeData_Sl sl;
-        Nst_NodeData_Ml ml;
-        Nst_NodeData_Vl vl;
-        Nst_NodeData_Ac ac;
-        Nst_NodeData_Ex ex;
-        Nst_NodeData_As as;
-        Nst_NodeData_Ca ca;
-        Nst_NodeData_Ie ie;
-        Nst_NodeData_We we;
+        Nst_NodeData_SList s_list;
+        Nst_NodeData_SWhileLp s_while_lp;
+        Nst_NodeData_SForLp s_for_lp;
+        Nst_NodeData_SFnDecl s_fn_decl;
+        Nst_NodeData_SReturn s_return;
+        Nst_NodeData_SSwitch s_switch;
+        Nst_NodeData_STryCatch s_try_catch;
+        Nst_NodeData_SWrapper s_wrapper;
+        Nst_NodeData_EStackOp e_stack_op;
+        Nst_NodeData_ELocStackOp e_loc_stack_op;
+        Nst_NodeData_ELocalOp e_local_op;
+        Nst_NodeData_ESeqLiteral e_seq_literal;
+        Nst_NodeData_EMapLiteral e_map_literal;
+        Nst_NodeData_EValue e_value;
+        Nst_NodeData_EAccess e_access;
+        Nst_NodeData_EExtraction e_extraction;
+        Nst_NodeData_EAssignment e_assignment;
+        Nst_NodeData_ECompAssign e_comp_assignment;
+        Nst_NodeData_EIf e_if;
+        Nst_NodeData_EWrapper e_wrapper;
     } v;
 } Nst_Node;
 
-/* Initializes a CS node. */
-NstEXP bool NstC _Nst_node_cs_init(Nst_Node *node);
-/* Destroyes a CS node. */
-NstEXP void NstC _Nst_node_cs_destroy(Nst_Node *node);
+/* Initialize a CS node. */
+NstEXP bool NstC _Nst_node_s_list_init(Nst_Node *node);
+/* Destroy a CS node. */
+NstEXP void NstC _Nst_node_s_list_destroy(Nst_Node *node);
 
-/* Initializes a WL node. */
-NstEXP bool NstC _Nst_node_wl_init(Nst_Node *node);
-/* Destroyes a WL node. */
-NstEXP void NstC _Nst_node_wl_destroy(Nst_Node *node);
+/* Initialize a WL node. */
+NstEXP bool NstC _Nst_node_s_while_lp_init(Nst_Node *node);
+/* Destroy a WL node. */
+NstEXP void NstC _Nst_node_s_while_lp_destroy(Nst_Node *node);
 
-/* Initializes a FL node. */
-NstEXP bool NstC _Nst_node_fl_init(Nst_Node *node);
-/* Destroyes a FL node. */
-NstEXP void NstC _Nst_node_fl_destroy(Nst_Node *node);
+/* Initialize a FL node. */
+NstEXP bool NstC _Nst_node_s_for_lp_init(Nst_Node *node);
+/* Destroy a FL node. */
+NstEXP void NstC _Nst_node_s_for_lp_destroy(Nst_Node *node);
 
-/* Initializes a FD node. */
-NstEXP bool NstC _Nst_node_fd_init(Nst_Node *node);
-/* Destroyes a FD node. */
-NstEXP void NstC _Nst_node_fd_destroy(Nst_Node *node);
+/* Initialize a FD node. */
+NstEXP bool NstC _Nst_node_s_fn_decl_init(Nst_Node *node);
+/* Destroy a FD node. */
+NstEXP void NstC _Nst_node_s_fn_decl_destroy(Nst_Node *node);
 
-/* Initializes a RT node. */
-NstEXP bool NstC _Nst_node_rt_init(Nst_Node *node);
-/* Destroyes a RT node. */
-NstEXP void NstC _Nst_node_rt_destroy(Nst_Node *node);
+/* Initialize a RT node. */
+NstEXP bool NstC _Nst_node_s_return_init(Nst_Node *node);
+/* Destroy a RT node. */
+NstEXP void NstC _Nst_node_s_return_destroy(Nst_Node *node);
 
-/* Initializes a SW node. */
-NstEXP bool NstC _Nst_node_sw_init(Nst_Node *node);
-/* Destroyes a SW node. */
-NstEXP void NstC _Nst_node_sw_destroy(Nst_Node *node);
+/* Initialize a SW node. */
+NstEXP bool NstC _Nst_node_s_switch_init(Nst_Node *node);
+/* Destroy a SW node. */
+NstEXP void NstC _Nst_node_s_switch_destroy(Nst_Node *node);
 
-/* Initializes a TC node. */
-NstEXP bool NstC _Nst_node_tc_init(Nst_Node *node);
-/* Destroyes a TC node. */
-NstEXP void NstC _Nst_node_tc_destroy(Nst_Node *node);
+/* Initialize a TC node. */
+NstEXP bool NstC _Nst_node_s_try_catch_init(Nst_Node *node);
+/* Destroy a TC node. */
+NstEXP void NstC _Nst_node_s_try_catch_destroy(Nst_Node *node);
 
-/* Initializes a WS node. */
-NstEXP bool NstC _Nst_node_ws_init(Nst_Node *node);
-/* Destroyes a WS node. */
-NstEXP void NstC _Nst_node_ws_destroy(Nst_Node *node);
+/* Initialize a WS node. */
+NstEXP bool NstC _Nst_node_s_wrapper_init(Nst_Node *node);
+/* Destroy a WS node. */
+NstEXP void NstC _Nst_node_s_wrapper_destroy(Nst_Node *node);
 
-/* Initializes a SO node. */
-NstEXP bool NstC _Nst_node_so_init(Nst_Node *node);
-/* Destroyes a SO node. */
-NstEXP void NstC _Nst_node_so_destroy(Nst_Node *node);
+/* Initialize a SO node. */
+NstEXP bool NstC _Nst_node_e_stack_op_init(Nst_Node *node);
+/* Destroy a SO node. */
+NstEXP void NstC _Nst_node_e_stack_op_destroy(Nst_Node *node);
 
-/* Initializes a LS node. */
-NstEXP bool NstC _Nst_node_ls_init(Nst_Node *node);
-/* Destroyes a LS node. */
-NstEXP void NstC _Nst_node_ls_destroy(Nst_Node *node);
+/* Initialize a LS node. */
+NstEXP bool NstC _Nst_node_e_loc_stack_op_init(Nst_Node *node);
+/* Destroy a LS node. */
+NstEXP void NstC _Nst_node_e_loc_stack_op_destroy(Nst_Node *node);
 
-/* Initializes a LO node. */
-NstEXP bool NstC _Nst_node_lo_init(Nst_Node *node);
-/* Destroyes a LO node. */
-NstEXP void NstC _Nst_node_lo_destroy(Nst_Node *node);
+/* Initialize a LO node. */
+NstEXP bool NstC _Nst_node_e_local_op_init(Nst_Node *node);
+/* Destroy a LO node. */
+NstEXP void NstC _Nst_node_e_local_op_destroy(Nst_Node *node);
 
-/* Initializes a SL node. */
-NstEXP bool NstC _Nst_node_sl_init(Nst_Node *node);
-/* Destroyes a SL node. */
-NstEXP void NstC _Nst_node_sl_destroy(Nst_Node *node);
+/* Initialize a SL node. */
+NstEXP bool NstC _Nst_node_e_seq_literal_init(Nst_Node *node);
+/* Destroy a SL node. */
+NstEXP void NstC _Nst_node_e_seq_literal_destroy(Nst_Node *node);
 
-/* Initializes a ML node. */
-NstEXP bool NstC _Nst_node_ml_init(Nst_Node *node);
-/* Destroyes a ML node. */
-NstEXP void NstC _Nst_node_ml_destroy(Nst_Node *node);
+/* Initialize a ML node. */
+NstEXP bool NstC _Nst_node_e_map_literal_init(Nst_Node *node);
+/* Destroy a ML node. */
+NstEXP void NstC _Nst_node_e_map_literal_destroy(Nst_Node *node);
 
-/* Initializes a VL node. */
-NstEXP bool NstC _Nst_node_vl_init(Nst_Node *node);
-/* Destroyes a VL node. */
-NstEXP void NstC _Nst_node_vl_destroy(Nst_Node *node);
+/* Initialize a VL node. */
+NstEXP bool NstC _Nst_node_e_value_init(Nst_Node *node);
+/* Destroy a VL node. */
+NstEXP void NstC _Nst_node_e_value_destroy(Nst_Node *node);
 
-/* Initializes a AC node. */
-NstEXP bool NstC _Nst_node_ac_init(Nst_Node *node);
-/* Destroyes a AC node. */
-NstEXP void NstC _Nst_node_ac_destroy(Nst_Node *node);
+/* Initialize a AC node. */
+NstEXP bool NstC _Nst_node_e_access_init(Nst_Node *node);
+/* Destroy a AC node. */
+NstEXP void NstC _Nst_node_e_access_destroy(Nst_Node *node);
 
-/* Initializes a EX node. */
-NstEXP bool NstC _Nst_node_ex_init(Nst_Node *node);
-/* Destroyes a EX node. */
-NstEXP void NstC _Nst_node_ex_destroy(Nst_Node *node);
+/* Initialize a EX node. */
+NstEXP bool NstC _Nst_node_e_extraction_init(Nst_Node *node);
+/* Destroy a EX node. */
+NstEXP void NstC _Nst_node_e_extraction_destroy(Nst_Node *node);
 
-/* Initializes a AS node. */
-NstEXP bool NstC _Nst_node_as_init(Nst_Node *node);
-/* Destroyes a AS node. */
-NstEXP void NstC _Nst_node_as_destroy(Nst_Node *node);
+/* Initialize a AS node. */
+NstEXP bool NstC _Nst_node_e_assignment_init(Nst_Node *node);
+/* Destroy a AS node. */
+NstEXP void NstC _Nst_node_e_assignment_destroy(Nst_Node *node);
 
-/* Initializes a CA node. */
-NstEXP bool NstC _Nst_node_ca_init(Nst_Node *node);
-/* Destroyes a CA node. */
-NstEXP void NstC _Nst_node_ca_destroy(Nst_Node *node);
+/* Initialize a CA node. */
+NstEXP bool NstC _Nst_node_e_comp_assign_init(Nst_Node *node);
+/* Destroy a CA node. */
+NstEXP void NstC _Nst_node_e_comp_assign_destroy(Nst_Node *node);
 
-/* Initializes a IE node. */
-NstEXP bool NstC _Nst_node_ie_init(Nst_Node *node);
-/* Destroyes a IE node. */
-NstEXP void NstC _Nst_node_ie_destroy(Nst_Node *node);
+/* Initialize a IE node. */
+NstEXP bool NstC _Nst_node_e_if_init(Nst_Node *node);
+/* Destroy a IE node. */
+NstEXP void NstC _Nst_node_e_if_destroy(Nst_Node *node);
 
-/* Initializes a WE node. */
-NstEXP bool NstC _Nst_node_we_init(Nst_Node *node);
-/* Destroyes a WE node. */
-NstEXP void NstC _Nst_node_we_destroy(Nst_Node *node);
+/* Initialize a WE node. */
+NstEXP bool NstC _Nst_node_e_wrapper_init(Nst_Node *node);
+/* Destroy a WE node. */
+NstEXP void NstC _Nst_node_e_wrapper_destroy(Nst_Node *node);
 
 NstEXP Nst_Node *NstC Nst_node_new(Nst_NodeType type);
-NstEXP void NstC Nst_node_set_pos(Nst_Node *node, Nst_Pos start, Nst_Pos end);
+NstEXP void NstC Nst_node_set_span(Nst_Node *node, Nst_Span span);
 
-/* Destroys the contents of `node` and frees it. */
+/* Destroy the contents of `node` and frees it. */
 NstEXP void NstC Nst_node_destroy(Nst_Node *node);
-/* Destroys only the contents of `node` without freeing it. */
+/* Destroy only the contents of `node` without freeing it. */
 NstEXP void NstC Nst_node_destroy_contents(Nst_Node *node);
 
+/* Print an `Nst_Node` to the standard output. */
 NstEXP void NstC Nst_print_node(Nst_Node *node);
 
-NstEXP const i8 *NstC Nst_node_type_to_str(Nst_NodeType nt);
+/* Convert an `Nst_NodeType` to a string. */
+NstEXP const char *NstC Nst_node_type_to_str(Nst_NodeType nt);
 
 /**
- * Changes the type of a node destroying the previous contents but keeping the
+ * Change the type of a node destroying the previous contents but keeping the
  * position.
  *
- * @brief Note: changing the node to a `Nst_NT_NP` is guaranteed to succeed.
+ * @brief Note: changing the node to a `Nst_NT_S_NOP` is guaranteed to succeed.
  *
  * @param node: the node to change the type of
  * @param new_type: the new type for the node

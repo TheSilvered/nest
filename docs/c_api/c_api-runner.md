@@ -19,9 +19,9 @@ typedef struct _Nst_ExecutionState {
     Nst_Traceback traceback;
     Nst_VarTable *vt;
     i64 idx;
-    Nst_SeqObj *argv;
-    Nst_StrObj *curr_path;
-    Nst_StrObj *source_path;
+    Nst_Obj *argv;
+    Nst_Obj *curr_path;
+    Nst_Obj *source_path;
     Nst_ValueStack v_stack;
     Nst_CallStack  f_stack;
     Nst_CatchStack c_stack;
@@ -81,8 +81,8 @@ Destroys the contents of an execution state.
 **Synopsis:**
 
 ```better-c
-Nst_FuncCall Nst_func_call_from_es(Nst_FuncObj *func, Nst_Pos start,
-                                   Nst_Pos end, Nst_ExecutionState *es)
+Nst_FuncCall Nst_func_call_from_es(Nst_Obj *func, Nst_Span span,
+                                   Nst_ExecutionState *es)
 ```
 
 **Description:**
@@ -168,7 +168,7 @@ occurred, to check use
 **Synopsis:**
 
 ```better-c
-void Nst_es_set_cwd(Nst_ExecutionState *es, Nst_StrObj *cwd)
+void Nst_es_set_cwd(Nst_ExecutionState *es, Nst_Obj *cwd)
 ```
 
 **Description:**
@@ -189,7 +189,7 @@ a reference from `cwd` and removes one from the previous value in the state.
 **Synopsis:**
 
 ```better-c
-bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
+bool Nst_es_push_module(Nst_ExecutionState *es, const char *filename,
                         Nst_SourceText *source_text)
 ```
 
@@ -214,8 +214,8 @@ Compiles a module given a path and sets up an execution state to run it.
 **Synopsis:**
 
 ```better-c
-bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func, Nst_Pos start,
-                      Nst_Pos end, i64 arg_num, Nst_Obj **args)
+bool Nst_es_push_func(Nst_ExecutionState *es, Nst_Obj *func, Nst_Span span,
+                      usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -231,8 +231,7 @@ the function.
 
 - `es`: the execution state to push the function onto
 - `func`: the function to push on the execution state
-- `start`: the starting position of the call
-- `end`: the ending position of the call
+- `span`: the position of the call
 - `arg_num`: the number of arguments passed to the function
 - `args`: the values of the arguments to pass to the function, if `NULL`
   `arg_num` values are taken from the value stack in reverse order
@@ -248,9 +247,8 @@ the function.
 **Synopsis:**
 
 ```better-c
-bool Nst_es_push_paused_coroutine(Nst_ExecutionState *es, Nst_FuncObj *func,
-                                  Nst_Pos start, Nst_Pos end, i64 idx,
-                                  Nst_VarTable *vt)
+bool Nst_es_push_paused_coroutine(Nst_ExecutionState *es, Nst_Obj *func,
+                                  Nst_Span span, i64 idx, Nst_VarTable *vt)
 ```
 
 **Description:**
@@ -262,8 +260,7 @@ execution state.
 
 - `es`: the execution state to push the coroutine onto
 - `func`: the function of the coroutine to push
-- `start`: the starting position of the call
-- `end`: the ending position of the call
+- `span`: the position of the call
 - `idx`: the instruction index where the coroutine was paused at
 - `vt`: the variable table of the coroutine
 

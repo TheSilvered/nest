@@ -10,7 +10,7 @@ TheSilvered
 
 ## Macros
 
-### `Nst_TRACK_OBJ_INIT_POS`
+### `Nst_DBG_TRACK_OBJ_INIT_POS`
 
 **Description:**
 
@@ -22,7 +22,7 @@ allocated. This macro should be defined in `typedefs.h` when compiling.
 
 ---
 
-### `Nst_DISABLE_POOLS`
+### `Nst_DBG_DISABLE_POOLS`
 
 **Description:**
 
@@ -34,7 +34,7 @@ This macro should be defined in `typedefs.h` when compiling.
 
 ---
 
-### `Nst_COUNT_ALLOC`
+### `Nst_DBG_COUNT_ALLOC`
 
 **Description:**
 
@@ -47,12 +47,23 @@ should be defined in `typedefs.h` when compiling.
 
 ---
 
-### `Nst_BREAKPOINT_ON_ASSERTION_FAIL`
+### `Nst_DBG_ASSERT_CALLBACK`
 
 **Description:**
 
-On Windows, instead of calling abort, __debugbreak is called instead when an
-assetion fails.
+Used in [`Nst_assert`](c_api-typedefs.md#nst_assert) and
+[`Nst_assert_c`](c_api-typedefs.md#nst_assert_c), in debug mode is `abort()` by
+default.
+
+---
+
+### `Nst_DBG_KEEP_DYN_LIBS`
+
+**Description:**
+
+If defined dynamic libraries are not closed when calling
+[`Nst_quit`](c_api-interpreter.md#nst_quit) to allow the checking of stack
+traces in memory allocations after the library is closed.
 
 ---
 
@@ -64,19 +75,19 @@ Defined when compiling with MSVC.
 
 ---
 
-### `Nsg_GCC`
-
-**Description:**
-
-Defined when compiling with GCC.
-
----
-
-### `Nsg_CLANG`
+### `Nst_CLANG`
 
 **Description:**
 
 Defined when compiling with Clang.
+
+---
+
+### `Nst_GCC`
+
+**Description:**
+
+Defined when compiling with GCC.
 
 ---
 
@@ -193,8 +204,10 @@ warnings.
 
 **Description:**
 
-Aborts with an error message when an expression is false. The error specifies
-the expression, the path and line of both the C and Nest file.
+Evaluates [`Nst_DBG_ASSERT_CALLBACK`](c_api-typedefs.md#nst_dbg_assert_callback)
+and prints an error message when `expr` is `false`. The error specifies the
+expression that is false, the path and line number of both the C and Nest file
+where the assertion failed.
 
 ---
 
@@ -208,8 +221,90 @@ the expression, the path and line of both the C and Nest file.
 
 **Description:**
 
-Aborts with an error message when an expression is false. The error specifies
-the expression and the path and line of the C file.
+Evaluates [`Nst_DBG_ASSERT_CALLBACK`](c_api-typedefs.md#nst_dbg_assert_callback)
+and prints an error message when `expr` is `false`. The error specifies the
+expression that is false, the path and line number of the C file where.
+
+---
+
+### `Nst_UNREACHABLE`
+
+**Description:**
+
+Marks an execution path as unreachable.
+
+---
+
+### `Nst_LIKELY`
+
+**Synopsis:**
+
+```better-c
+#define Nst_LIKELY(expr)
+```
+
+**Description:**
+
+Marks a condition as likely to be true.
+
+---
+
+### `Nst_UNLIKELY`
+
+**Synopsis:**
+
+```better-c
+#define Nst_UNLIKELY(expr)
+```
+
+**Description:**
+
+Marks a condition as likely to be false.
+
+---
+
+## Structs
+
+### `Nst_Obj`
+
+**Synopsis:**
+
+```better-c
+typedef struct _Nst_Obj {
+    struct _Nst_Obj *type;
+    struct _Nst_Obj *p_next;
+    isize ref_count;
+    i32 hash;
+    u32 flags;
+#ifdef Nst_DBG_TRACK_OBJ_INIT_POS
+    i32 init_line;
+    i32 init_col;
+    char *init_path;
+#endif // !Nst_DBG_TRACK_OBJ_INIT_POS
+} Nst_Obj
+```
+
+**Description:**
+
+The structure representing a basic Nest object.
+
+**Fields:**
+
+- `ref_count`: the reference count of the object
+- `type`: the type of the object
+- `p_next`: the next object in the type's pool
+- `hash`: the hash of the object, `-1` if it has not yet been hashed or is not
+  hashable
+- `flags`: the flags of the object
+- `init_line`: **this field only exists when
+  [`Nst_DBG_TRACK_OBJ_INIT_POS`](c_api-typedefs.md#nst_dbg_track_obj_init_pos)
+  is defined** - the line of the instruction that initialized the object
+- `init_col`: **this field only exists when
+  [`Nst_DBG_TRACK_OBJ_INIT_POS`](c_api-typedefs.md#nst_dbg_track_obj_init_pos)
+  is defined** - the column of the instruction that initialized the object
+- `init_path`: **this field only exists when
+  [`Nst_DBG_TRACK_OBJ_INIT_POS`](c_api-typedefs.md#nst_dbg_track_obj_init_pos)
+  is defined** - the path to the file where the object was initialized
 
 ---
 
@@ -220,12 +315,12 @@ the expression and the path and line of the C file.
 **Synopsis:**
 
 ```better-c
-typedef char i8
+typedef int8_t i8
 ```
 
 **Description:**
 
-`char` alias.
+8-bit signed integer.
 
 ---
 
@@ -234,12 +329,12 @@ typedef char i8
 **Synopsis:**
 
 ```better-c
-typedef short i16
+typedef int16_t i16
 ```
 
 **Description:**
 
-`short` alias.
+16-bit signed integer.
 
 ---
 
@@ -248,12 +343,12 @@ typedef short i16
 **Synopsis:**
 
 ```better-c
-typedef long i32
+typedef int32_t i32
 ```
 
 **Description:**
 
-`long int` alias.
+32-bit signed integer.
 
 ---
 
@@ -262,12 +357,12 @@ typedef long i32
 **Synopsis:**
 
 ```better-c
-typedef long long i64
+typedef int64_t i64
 ```
 
 **Description:**
 
-`long long int` alias.
+64-bit signed integer.
 
 ---
 
@@ -276,12 +371,12 @@ typedef long long i64
 **Synopsis:**
 
 ```better-c
-typedef unsigned char u8
+typedef uint8_t u8
 ```
 
 **Description:**
 
-`unsigned char` alias.
+8-bit unsigned integer.
 
 ---
 
@@ -290,12 +385,12 @@ typedef unsigned char u8
 **Synopsis:**
 
 ```better-c
-typedef unsigned short u16
+typedef uint16_t u16
 ```
 
 **Description:**
 
-`unsigned short` alias.
+16-bit unsigned integer.
 
 ---
 
@@ -318,12 +413,12 @@ typedef unsigned int uint
 **Synopsis:**
 
 ```better-c
-typedef unsigned long u32
+typedef uint32_t u32
 ```
 
 **Description:**
 
-`unsigned long` alias.
+32-bit unsigned integer.
 
 ---
 
@@ -332,12 +427,12 @@ typedef unsigned long u32
 **Synopsis:**
 
 ```better-c
-typedef unsigned long long u64
+typedef uint64_t u64
 ```
 
 **Description:**
 
-`unsigned long long` alias.
+64-bit unsigned integer.
 
 ---
 
@@ -397,14 +492,51 @@ typedef ptrdiff_t isize
 
 ---
 
+### `Nst_ObjRef`
+
+**Synopsis:**
+
+```better-c
+typedef Nst_Obj Nst_ObjRef
+```
+
+**Description:**
+
+Using [`Nst_ObjRef *`](c_api-typedefs.md#nst_objref) instead of
+[`Nst_Obj *`](c_api-typedefs.md#nst_obj) signals that an object reference is
+being passed or owned. Depending on context it has different meanings:
+
+- When used as the type of a function argument it signals that a reference is
+  taken from the argument itself.
+- When used as the type of the return value of a function it signals that the
+  function returns a new reference to the object.
+- When used in a struct it signals that the struct owns a reference to the
+  object.
+
+---
+
 ### `Nst_NestCallable`
 
 **Synopsis:**
 
 ```better-c
-typedef Nst_Obj *(*Nst_NestCallable)(usize, Nst_Obj **)
+typedef Nst_ObjRef *(*Nst_NestCallable)(usize, Nst_Obj **)
 ```
 
 **Description:**
 
 The signature of a C function callable by Nest.
+
+---
+
+### `Nst_Destructor`
+
+**Synopsis:**
+
+```better-c
+typedef void (*Nst_Destructor)(void *)
+```
+
+**Description:**
+
+The signature of a generic destructor.

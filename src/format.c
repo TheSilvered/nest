@@ -4,94 +4,95 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdint.h>
-#include "format.h"
-#include "global_consts.h"
-#include "mem.h"
-#include "file.h"
-#include "dtoa.h"
-#include "obj_ops.h"
+#include "nest.h"
 
 #define MIN(a, b) ((b) < (a) ? (b) : (a))
 #define MAX(a, b) ((b) > (a) ? (b) : (a))
 
-isize Nst_print(const i8 *buf)
+isize Nst_print(const char *buf)
 {
     return Nst_fprint(Nst_io.out, buf);
 }
 
-isize Nst_println(const i8 *buf)
+isize Nst_println(const char *buf)
 {
     return Nst_fprintln(Nst_io.out, buf);
 }
 
-isize Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
+isize Nst_printf(Nst_WIN_FMT const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    return Nst_vfprintf(Nst_io.out, fmt, args);
+    isize result = Nst_vfprintf(Nst_io.out, fmt, args);
+    va_end(args);
+    return result;
 }
 
-isize Nst_fprint(Nst_IOFileObj *f, const i8 *buf)
+isize Nst_fprint(Nst_Obj *f, const char *buf)
 {
+    Nst_assert(f->type == Nst_t.IOFile);
     usize len = strlen(buf);
     usize count;
-    if (Nst_fwrite((i8 *)buf, (usize)len, &count, f) < 0)
+    if (Nst_fwrite((u8 *)buf, len, &count, f) < 0)
         return -1;
     return count;
 }
 
-isize Nst_fprintln(Nst_IOFileObj *f, const i8 *buf)
+isize Nst_fprintln(Nst_Obj *f, const char *buf)
 {
+    Nst_assert(f->type == Nst_t.IOFile);
     if (Nst_IOF_IS_CLOSED(f))
         return -1;
 
     usize len = strlen(buf);
     usize count_a, count_b;
-    if (Nst_fwrite((i8 *)buf, len, &count_a, f) < 0)
+    if (Nst_fwrite((u8 *)buf, len, &count_a, f) < 0)
         return -1;
-    if (Nst_fwrite((i8 *)"\n", 1, &count_b, f) < 0)
+    if (Nst_fwrite((u8 *)"\n", 1, &count_b, f) < 0)
         return -1;
     return count_a + count_b;
 }
 
-isize Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
+isize Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const char *fmt, ...)
+{
+    Nst_assert(f->type == Nst_t.IOFile);
+    va_list args;
+    va_start(args, fmt);
+    isize result = Nst_vfprintf(f, fmt, args);
+    va_end(args);
+    return result;
+}
+
+Nst_Obj *Nst_sprintf(Nst_WIN_FMT const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    return Nst_vfprintf(f, fmt, args);
+    Nst_Obj *result = Nst_vsprintf(fmt, args);
+    va_end(args);
+    return result;
 }
 
-Nst_Obj *Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    return Nst_vsprintf(fmt, args);
-}
-
-Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
+Nst_Obj *Nst_vsprintf(const char *fmt, va_list args)
 {
     va_list args_copy;
     va_copy(args_copy, args);
     isize buf_size = vsnprintf(NULL, 0, fmt, args_copy) + 1;
-    if (buf_size < 0) {
-        va_end(args);
+    va_end(args_copy);
+    if (buf_size < 0)
         return NULL;
-    }
-    i8 *buf = Nst_calloc_c(buf_size, i8, NULL);
+    char *buf = Nst_calloc_c(buf_size, char, NULL);
     if (buf == NULL) {
         Nst_error_clear();
-        va_end(args);
         return NULL;
     }
     int len = vsprintf(buf, fmt, args);
-    va_end(args);
 
     if (len < 0) {
         Nst_free(buf);
         return NULL;
     }
 
-    Nst_Obj *str = Nst_str_new(buf, len, true);
+    Nst_Obj *str = Nst_str_new((u8 *)buf, len, true);
     if (str == NULL) {
         Nst_error_clear();
         Nst_free(buf);
@@ -99,35 +100,33 @@ Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
     return str;
 }
 
-isize Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
+isize Nst_vfprintf(Nst_Obj *f, const char *fmt, va_list args)
 {
+    Nst_assert(f->type == Nst_t.IOFile);
     if (Nst_IOF_IS_CLOSED(f)) {
-        va_end(args);
         return -2;
     }
 
     va_list args_copy;
     va_copy(args_copy, args);
     isize buf_size = vsnprintf(NULL, 0, fmt, args_copy) + 1;
+    va_end(args_copy);
     if (buf_size < 0) {
-        va_end(args);
         return -3;
     }
-    i8 *buf = Nst_calloc_c(buf_size, i8, NULL);
+    char *buf = Nst_calloc_c(buf_size, char, NULL);
     if (buf == NULL) {
         Nst_error_clear();
-        va_end(args);
         return -4;
     }
     int len = vsprintf(buf, fmt, args);
-    va_end(args);
 
     if (len < 0) {
         Nst_free(buf);
         return -1;
     }
     usize count;
-    Nst_IOResult result = Nst_fwrite(buf, len, &count, f);
+    Nst_IOResult result = Nst_fwrite((u8 *)buf, len, &count, f);
     Nst_free(buf);
     return result >= 0 ? (isize)count : -1;
 }
@@ -193,7 +192,8 @@ typedef struct _FmtValues {
     union {
         va_list *va;
         struct {
-            Nst_SeqObj *obj;
+            Nst_Obj **objs;
+            usize count;
             usize i;
         } arr;
     } v;
@@ -205,10 +205,11 @@ void fmt_values_init_va_args(FmtValues *values, va_list *args)
     values->v.va = args;
 }
 
-void fmt_values_init_sequence(FmtValues *values, Nst_SeqObj *obj)
+void fmt_values_init_sequence(FmtValues *values, Nst_Obj **objs, usize count)
 {
     values->type = Nst_VALUES_ARR;
-    values->v.arr.obj = obj;
+    values->v.arr.objs = objs;
+    values->v.arr.count = count;
     values->v.arr.i = 0;
 }
 
@@ -217,9 +218,9 @@ void fmt_values_init_sequence(FmtValues *values, Nst_SeqObj *obj)
 
 static Nst_Obj *fmt_values_get_obj(FmtValues *values)
 {
-    if (values->v.arr.obj->len <= values->v.arr.i)
+    if (values->v.arr.count <= values->v.arr.i)
         return NULL;
-    return values->v.arr.obj->objs[values->v.arr.i++];
+    return values->v.arr.objs[values->v.arr.i++];
 }
 
 typedef struct _Format {
@@ -259,10 +260,14 @@ static void format_init(Format *format)
     format->separator_width = -1;
 }
 
-static const i8 *format_set_separator(Format *format, const i8 *ch)
+static const char *format_set_separator(Format *format, const char *ch)
 {
     memset(format->separator, 0, 4);
-    i32 ch_len = Nst_check_utf8_bytes((u8 *)ch, Nst_CP_MULTIBYTE_MAX_SIZE);
+    i32 ch_len = Nst_check_utf8_bytes((u8 *)ch, Nst_ENCODING_MULTIBYTE_MAX_SIZE);
+    if (ch_len < 0) {
+        memset(format->separator, 255, 4);
+        return NULL;
+    }
     memcpy(format->separator, ch, (usize)ch_len);
     return ch + ch_len;
 }
@@ -283,10 +288,14 @@ static usize format_separator_len(Format *format)
     return 4;
 }
 
-static const i8 *format_set_fill_ch(Format *format, const i8 *ch)
+static const char *format_set_fill_ch(Format *format, const char *ch)
 {
     memset(format->fill_ch, 0, 4);
-    i32 ch_len = Nst_check_utf8_bytes((u8 *)ch, Nst_CP_MULTIBYTE_MAX_SIZE);
+    i32 ch_len = Nst_check_utf8_bytes((u8 *)ch, Nst_ENCODING_MULTIBYTE_MAX_SIZE);
+    if (ch_len < 0) {
+        memset(format->fill_ch, 255, 4);
+        return NULL;
+    }
     memcpy(format->fill_ch, ch, (usize)ch_len);
     return ch + ch_len;
 }
@@ -307,104 +316,108 @@ static usize format_fill_ch_len(Format *format)
     return 4;
 }
 
-static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
+static u8 *general_fmt(const char *fmt, usize fmt_len, usize *out_len,
                        FmtValues *values);
 
-static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, FmtValues *values);
+static const char *fmt_value(Nst_StrBuilder *sb, const char *fmt, FmtValues *vals);
 
-static void fmt_cut(i8 *str, usize str_len, usize char_len, i8 **out_str,
+static void fmt_cut(u8 *str, usize str_len, usize char_len, u8 **out_str,
                     usize *out_len, Format *format,
                     Alignment default_alignment);
-static bool fmt_align(Nst_Buffer *buf, i8 *str, usize str_len,
+static bool fmt_align(Nst_StrBuilder *sb, u8 *str, usize str_len,
                       usize char_str_len, Format *format,
                       Alignment default_alignment);
-static bool fmt_sep_and_ndigits(Nst_Buffer *buf, i8 *digits, usize digits_len,
-                                usize min_digits, i8 *sep, usize sep_len,
+static bool fmt_sep_and_ndigits(Nst_StrBuilder *sb, u8 *digits, usize digits_len,
+                                usize min_digits, u8 *sep, usize sep_len,
                                 usize sep_width, bool pad_zeroes);
-static bool fmt_align_or_cut(Nst_Buffer *buf, i8 *str, usize str_len,
+static bool fmt_align_or_cut(Nst_StrBuilder *sb, u8 *str, usize str_len,
                              usize char_str_len, Format *format,
                              Alignment default_alignment);
 
-static bool  fmt_str(Nst_Buffer *buf, i8 *str, isize str_len, Format *format);
-static isize fmt_str_repr(Nst_Buffer *buf, i8 *str, usize str_len,
+static bool  fmt_str(Nst_StrBuilder *sb, u8 *str, isize str_len, Format *format);
+static isize fmt_str_repr(Nst_StrBuilder *sb, u8 *str, usize str_len,
                           Format *format);
 static bool  fmt_str_more_double_quotes(u8 *str, usize str_len);
-static isize fmt_str_ascii_escape(Nst_Buffer *buf, u8 c, Format *format);
-static isize fmt_str_unicode_escape(Nst_Buffer *buf, i32 c, Format *format);
+static isize fmt_str_ascii_escape(Nst_StrBuilder *sb, u8 c, Format *format);
+static isize fmt_str_unicode_escape(Nst_StrBuilder *sb, u32 c, Format *format);
 
-static bool fmt_general_int(Nst_Buffer *buf, u64 val, bool negative,
+static bool fmt_general_int(Nst_StrBuilder *sb, u64 val, bool negative,
                             bool is_byte, Format *format);
 
-static bool fmt_uint(Nst_Buffer *buf, u64 val, Format *format);
-static bool fmt_uint_prefix(Nst_Buffer *buf, bool is_byte, Format *format);
-static bool fmt_uint_digits(Nst_Buffer *buf, u64 val, Format *format);
+static bool fmt_uint(Nst_StrBuilder *sb, u64 val, Format *format);
+static bool fmt_uint_prefix(Nst_StrBuilder *sb, bool is_byte, Format *format);
+static bool fmt_uint_digits(Nst_StrBuilder *sb, u64 val, Format *format);
 static u8   fmt_uint_msb64(u64 val);
-static bool fmt_uint_bin(Nst_Buffer *buf, u64 val);
-static bool fmt_uint_oct(Nst_Buffer *buf, u64 val);
-static bool fmt_uint_dec(Nst_Buffer *buf, u64 val);
-static bool fmt_uint_hex(Nst_Buffer *buf, u64 val, bool upper);
-static bool fmt_uint_sep_and_precision(Nst_Buffer *buf, i8 *digits,
+static bool fmt_uint_bin(Nst_StrBuilder *sb, u64 val);
+static bool fmt_uint_oct(Nst_StrBuilder *sb, u64 val);
+static bool fmt_uint_dec(Nst_StrBuilder *sb, u64 val);
+static bool fmt_uint_hex(Nst_StrBuilder *sb, u64 val, bool upper);
+static bool fmt_uint_sep_and_precision(Nst_StrBuilder *sb, u8 *digits,
                                        usize digits_len, Format *format);
 
-static bool fmt_int(Nst_Buffer *buf, i64 val, Format *format);
-static bool fmt_int_add_sign(Nst_Buffer *buf, bool negative, Format *format);
+static bool fmt_int(Nst_StrBuilder *sb, i64 val, Format *format);
+static bool fmt_int_add_sign(Nst_StrBuilder *sb, bool negative, Format *format);
 
-static bool fmt_byte(Nst_Buffer *buf, u8 val, Format *format);
+static bool fmt_byte(Nst_StrBuilder *sb, u8 val, Format *format);
 
-static bool fmt_double(Nst_Buffer *buf, f64 val, Format *format);
-static bool fmt_double_dec(Nst_Buffer *buf, f64 val, Format *format);
-static bool fmt_double_dec_digits(Nst_Buffer *buf, i8 *digits,
+static bool fmt_double(Nst_StrBuilder *sb, f64 val, Format *format);
+static bool fmt_double_dec(Nst_StrBuilder *sb, f64 val, Format *format);
+static bool fmt_double_dec_digits(Nst_StrBuilder *sb, u8 *digits,
                                   usize digits_len, int decpt, Format *format);
-static bool fmt_double_std(Nst_Buffer *buf, f64 val, Format *format);
-static bool fmt_double_std_digits(Nst_Buffer *buf, i8 *digits,
+static bool fmt_double_std(Nst_StrBuilder *sb, f64 val, Format *format);
+static bool fmt_double_std_digits(Nst_StrBuilder *sb, u8 *digits,
                                   usize digits_len, int decpt, Format *format);
-static bool fmt_double_gen(Nst_Buffer *buf, f64 val, Format *format);
+static bool fmt_double_gen(Nst_StrBuilder *sb, f64 val, Format *format);
 
-static bool fmt_bool(Nst_Buffer *buf, bool val, Format *format);
-static bool fmt_ptr(Nst_Buffer *buf, void *val, Format *format);
-static bool fmt_char(Nst_Buffer *buf, i8 val, Format *format);
+static bool fmt_bool(Nst_StrBuilder *sb, bool val, Format *format);
+static bool fmt_ptr(Nst_StrBuilder *sb, void *val, Format *format);
+static bool fmt_char(Nst_StrBuilder *sb, u8 val, Format *format);
 
-i8 *Nst_fmt(const i8 *fmt, usize fmt_len, usize *out_len, ...)
+u8 *Nst_fmt(const char *fmt, usize fmt_len, usize *out_len, ...)
 {
     va_list args;
     va_start(args, out_len);
-    return Nst_vfmt(fmt, fmt_len, out_len, args);
+    u8 *result = Nst_vfmt(fmt, fmt_len, out_len, args);
+    va_end(args);
+    return result;
 }
 
-NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_StrObj *fmt, Nst_SeqObj *values)
+Nst_Obj *Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj **values, usize value_count)
 {
     FmtValues fmt_values;
-    fmt_values_init_sequence(&fmt_values, values);
+    fmt_values_init_sequence(&fmt_values, values, value_count);
     usize str_len;
-    i8 *str = general_fmt(
-        (const i8 *)fmt->value,
-        fmt->len,
+    u8 *str = general_fmt(
+        (const char *)Nst_str_value(fmt),
+        Nst_str_len(fmt),
         &str_len,
         &fmt_values);
     if (str == NULL)
         return NULL;
-    if (fmt_values.v.arr.i != fmt_values.v.arr.obj->len) {
-        Nst_set_value_error_c("too many values for the format placeholder");
+    if (fmt_values.v.arr.i != fmt_values.v.arr.count) {
+        Nst_error_setc_value("too many values for the format placeholder");
         Nst_free(str);
         return NULL;
     }
     return Nst_str_new_allocated(str, str_len);
 }
 
-i8 *Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len, va_list args)
+u8 *Nst_vfmt(const char *fmt, usize fmt_len, usize *out_len, va_list args)
 {
-    va_list args_cpy;
-    va_copy(args_cpy, args);
+    va_list args_copy;
+    va_copy(args_copy, args);
     FmtValues values;
-    fmt_values_init_va_args(&values, &args_cpy);
-    return general_fmt(fmt, fmt_len, out_len, &values);
+    fmt_values_init_va_args(&values, &args_copy);
+    u8 *result = general_fmt(fmt, fmt_len, out_len, &values);
+    va_end(args_copy);
+    return result;
 }
 
-i8 *NstC Nst_repr(i8 *str, usize str_len, usize *out_len, bool shallow,
+u8 *NstC Nst_repr(u8 *str, usize str_len, usize *out_len, bool shallow,
                   bool ascii)
 {
     if (str_len == 0)
-        str_len = strlen((const i8 *)str);
+        str_len = strlen((const char *)str);
     if (out_len != NULL)
         *out_len = 0;
 
@@ -419,54 +432,58 @@ i8 *NstC Nst_repr(i8 *str, usize str_len, usize *out_len, bool shallow,
     else
         format.str_repr = Nst_FMT_STR_FULL;
 
-    Nst_Buffer buf;
-    if (!Nst_buffer_init(&buf, str_len))
+    Nst_StrBuilder sb;
+    if (!Nst_sb_init(&sb, str_len))
         return NULL;
-    isize char_len = fmt_str_repr(&buf, str, str_len, &format);
+    isize char_len = fmt_str_repr(&sb, str, str_len, &format);
     if (char_len < 0) {
-        Nst_buffer_destroy(&buf);
+        Nst_sb_destroy(&sb);
         return NULL;
     }
     if (out_len != NULL)
-        *out_len = buf.len;
-    return buf.data;
+        *out_len = sb.len;
+    return sb.value;
 }
 
-static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
+static u8 *general_fmt(const char *fmt, usize fmt_len, usize *out_len,
                        FmtValues *values)
 {
-    Nst_Buffer buf;
+    Nst_StrBuilder sb;
     usize fmtlen = fmt_len != 0 ? fmt_len : strlen(fmt);
     if (out_len != NULL)
         *out_len = 0;
     if (fmtlen == 0) {
-        i8 *out_str = Nst_malloc_c(1, i8);
+        u8 *out_str = Nst_malloc_c(1, u8);
         if (out_str == NULL)
             return NULL;
         out_str[0] = 0;
         return out_str;
     }
 
-    if (Nst_check_string_cp(Nst_cp(Nst_CP_EXT_UTF8), (void *)fmt, fmtlen) != -1) {
-        Nst_set_value_error_c("`fmt` is not valid UTF-8");
+    isize encoding_error = Nst_encoding_check(
+        Nst_encoding(Nst_EID_EXT_UTF8),
+        (void *)fmt,
+        fmtlen);
+    if (encoding_error != -1) {
+        Nst_error_setc_value("`fmt` is not valid UTF-8");
         return false;
     }
 
-    if (!Nst_buffer_init(&buf, fmtlen))
+    if (!Nst_sb_init(&sb, fmtlen))
         return NULL;
 
     for (usize i = 0; i < fmtlen; i++) {
         if (fmt[i] != '{' && fmt[i] != '}') {
-            if (!Nst_buffer_append_char(&buf, fmt[i]))
+            if (!Nst_sb_push_char(&sb, fmt[i]))
                 goto failure;
         }
 
         if (fmt[i] == '}') {
             if (fmt[i + 1] != '}') {
-                Nst_set_value_error_c("found single '}' in format string");
+                Nst_error_setc_value("found single '}' in format string");
                 goto failure;
             }
-            if (!Nst_buffer_append_char(&buf, '}'))
+            if (!Nst_sb_push_char(&sb, '}'))
                 goto failure;
             i++;
             continue;
@@ -474,12 +491,12 @@ static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
 
         if (fmt[i] == '{') {
             if (fmt[i + 1] == '{') {
-                if (!Nst_buffer_append_char(&buf, '{'))
+                if (!Nst_sb_push_char(&sb, '{'))
                     goto failure;
                 i++;
                 continue;
             }
-            const i8 *fmt_end = fmt_value(&buf, fmt + i, values);
+            const char *fmt_end = fmt_value(&sb, fmt + i, values);
             if (fmt_end == NULL)
                 goto failure;
             i += fmt_end - fmt - i - 1;
@@ -487,15 +504,15 @@ static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
     }
 
     if (out_len != NULL)
-        *out_len = buf.len;
-    return buf.data;
+        *out_len = sb.len;
+    return sb.value;
 
 failure:
-    Nst_buffer_destroy(&buf);
+    Nst_sb_destroy(&sb);
     return NULL;
 }
 
-static const i8 *parse_format(const i8 *fmt, Format *format)
+static const char *parse_format(const char *fmt, Format *format)
 {
     while (true) {
         bool end_loop = false;
@@ -564,12 +581,20 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
             format->as_unsigned = true;
             break;
         case '\'': {
-                fmt = format_set_separator(format, fmt + 1);
-                fmt--;
-                break;
+            fmt = format_set_separator(format, fmt + 1);
+            if (fmt == NULL) {
+                Nst_error_setc_value("format string is not properly encoded");
+                return NULL;
+            }
+            fmt--;
+            break;
         }
         case '_': {
             fmt = format_set_fill_ch(format, fmt + 1);
+            if (fmt == NULL) {
+                Nst_error_setc_value("format string is not properly encoded");
+                return NULL;
+            }
             fmt--;
             break;
         }
@@ -582,7 +607,7 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
     }
 
     if (*fmt > '0' && *fmt <= '9')
-        format->width = strtol(fmt, (i8 **)&fmt, 10);
+        format->width = strtol(fmt, (char **)&fmt, 10);
     else if (*fmt == '*') {
         format->width = -2;
         fmt++;
@@ -591,20 +616,20 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
     if (*fmt == '.') {
         fmt++;
         if ((*fmt < '0' || *fmt > '9') && *fmt != '*') {
-            Nst_set_value_error_c("expected a number for precision in format");
+            Nst_error_setc_value("expected a number for precision in format");
             return NULL;
         }
         if (*fmt == '*') {
             format->precision = -2;
             fmt++;
         } else
-            format->precision = strtol(fmt, (i8 **)&fmt, 10);
+            format->precision = strtol(fmt, (char **)&fmt, 10);
     }
 
     if (*fmt == ',') {
         fmt++;
         if ((*fmt < '0' || *fmt > '9') && *fmt != '*') {
-            Nst_set_value_error_c(
+            Nst_error_setc_value(
                 "expected a number for separator width in format");
             return NULL;
         }
@@ -612,7 +637,7 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
             format->separator_width = -2;
             fmt++;
         } else
-            format->separator_width = strtol(fmt, (i8 **)&fmt, 10);
+            format->separator_width = strtol(fmt, (char **)&fmt, 10);
     }
 
     switch (*fmt) {
@@ -632,23 +657,23 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
     return fmt;
 }
 
-static bool set_fmt_field(FmtValues *values, const i8 *field_name, i32 *field)
+static bool set_fmt_field(FmtValues *values, const char *field_name, i32 *field)
 {
     if (*field != -2)
         return true;
 
     Nst_Obj *obj = fmt_values_get_obj(values);
     if (obj == NULL) {
-        Nst_set_value_error_c("not enough values for the format placeholder");
+        Nst_error_setc_value("not enough values for the format placeholder");
         return false;
     }
     if (obj->type != Nst_t.Int) {
-        Nst_set_type_errorf("the value for '%s' is not an Int", field_name);
+        Nst_error_setf_type("the value for '%s' is not an Int", field_name);
         return false;
     }
-    i64 val = AS_INT(obj);
+    i64 val = Nst_int_i64(obj);
     if (val > INT32_MAX) {
-        Nst_set_value_errorf("the value for '%s' is too big", field_name);
+        Nst_error_setf_value("the value for '%s' is too big", field_name);
         return false;
     } else if (val < INT32_MIN)
         *field = -1;
@@ -677,9 +702,9 @@ static bool add_format_values(Format *format, FmtValues *values)
     return true;
 }
 
-static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, FmtValues *values)
+static const char *fmt_value(Nst_StrBuilder *sb, const char *fmt, FmtValues *vals)
 {
-    const i8 *type = NULL;
+    const char *type = NULL;
     Nst_Obj *obj = NULL;
     bool result = true;
 
@@ -687,24 +712,24 @@ static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, FmtValues *values)
     format_init(&format);
 
     fmt++;
-    if (values->type == Nst_VALUES_VA_ARGS) {
+    if (vals->type == Nst_VALUES_VA_ARGS) {
         type = fmt++;
         if (*fmt == '}') {
             fmt++;
             goto format_type;
         } else if (*fmt != ':') {
-            Nst_set_value_error_c("expected ':' in format string");
+            Nst_error_setc_value("expected ':' in format string");
             return NULL;
         }
         fmt++;
     } else {
-        obj = fmt_values_get_obj(values);
+        obj = fmt_values_get_obj(vals);
         if (obj == NULL) {
-            Nst_set_value_error_c(
+            Nst_error_setc_value(
                 "not enough values for the format placeholder");
             return NULL;
         }
-        if (!add_format_values(&format, values))
+        if (!add_format_values(&format, vals))
             return NULL;
         if (*fmt == '}') {
             fmt++;
@@ -717,7 +742,7 @@ static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, FmtValues *values)
         return NULL;
 
     if (*fmt != '}') {
-        Nst_set_value_error_c("invalid format string");
+        Nst_error_setc_value("invalid format string");
         return NULL;
     }
     fmt++;
@@ -725,23 +750,27 @@ static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, FmtValues *values)
 format_type:
     if (obj != NULL) {
         if (obj->type == Nst_t.Str)
-            result = fmt_str(buf, STR(obj)->value, STR(obj)->len, &format);
+            result = fmt_str(sb, Nst_str_value(obj), Nst_str_len(obj), &format);
         else if (obj->type == Nst_t.Int) {
             if (format.as_unsigned)
-                result = fmt_uint(buf, (u64)AS_INT(obj), &format);
+                result = fmt_uint(sb, (u64)Nst_int_i64(obj), &format);
             else
-                result = fmt_int(buf, AS_INT(obj), &format);
+                result = fmt_int(sb, Nst_int_i64(obj), &format);
         } else if (obj->type == Nst_t.Real)
-            result = fmt_double(buf, AS_REAL(obj), &format);
+            result = fmt_double(sb, Nst_real_f64(obj), &format);
         else if (obj->type == Nst_t.Bool)
-            result = fmt_bool(buf, AS_BOOL(obj), &format);
+            result = fmt_bool(sb, obj == Nst_c.Bool_true, &format);
         else if (obj->type == Nst_t.Byte)
-            result = fmt_byte(buf, AS_BYTE(obj), &format);
+            result = fmt_byte(sb, Nst_byte_u8(obj), &format);
         else {
-            Nst_StrObj *casted_obj = STR(Nst_obj_cast(obj, Nst_t.Str));
+            Nst_Obj *casted_obj = Nst_obj_cast(obj, Nst_t.Str);
             if (casted_obj == NULL)
                 return NULL;
-            result = fmt_str(buf, casted_obj->value, casted_obj->len, &format);
+            result = fmt_str(
+                sb,
+                Nst_str_value(casted_obj),
+                Nst_str_len(casted_obj),
+                &format);
             Nst_dec_ref(casted_obj);
         }
         goto end;
@@ -749,87 +778,87 @@ format_type:
 
     switch (*type) {
     case 's': {
-        i8 *str = fmt_values_get_va_arg(values, i8 *);
-        add_format_values(&format, values);
-        result = fmt_str(buf, str, -1, &format);
+        u8 *str = fmt_values_get_va_arg(vals, u8 *);
+        add_format_values(&format, vals);
+        result = fmt_str(sb, str, -1, &format);
         break;
     }
     case 'i':
         if (format.as_unsigned) {
-            uint val = fmt_values_get_va_arg(values, uint);
-            add_format_values(&format, values);
-            result = fmt_uint(buf, (u64)val, &format);
+            uint val = fmt_values_get_va_arg(vals, uint);
+            add_format_values(&format, vals);
+            result = fmt_uint(sb, (u64)val, &format);
         } else {
-            int val = fmt_values_get_va_arg(values, int);
-            add_format_values(&format, values);
-            result = fmt_int(buf, (i64)val, &format);
+            int val = fmt_values_get_va_arg(vals, int);
+            add_format_values(&format, vals);
+            result = fmt_int(sb, (i64)val, &format);
         }
         break;
     case 'l':
         if (format.as_unsigned) {
-            u32 val = fmt_values_get_va_arg(values, u32);
-            add_format_values(&format, values);
-            result = fmt_uint(buf, (u64)val, &format);
+            u32 val = fmt_values_get_va_arg(vals, u32);
+            add_format_values(&format, vals);
+            result = fmt_uint(sb, (u64)val, &format);
         } else {
-            i32 val = fmt_values_get_va_arg(values, i32);
-            add_format_values(&format, values);
-            result = fmt_int(buf, (i64)val, &format);
+            i32 val = fmt_values_get_va_arg(vals, i32);
+            add_format_values(&format, vals);
+            result = fmt_int(sb, (i64)val, &format);
         }
         break;
     case 'L':
         if (format.as_unsigned) {
-            u64 val = fmt_values_get_va_arg(values, u64);
-            add_format_values(&format, values);
-            result = fmt_uint(buf, val, &format);
+            u64 val = fmt_values_get_va_arg(vals, u64);
+            add_format_values(&format, vals);
+            result = fmt_uint(sb, val, &format);
         } else {
-            i64 val = fmt_values_get_va_arg(values, i64);
-            add_format_values(&format, values);
-            result = fmt_int(buf, val, &format);
+            i64 val = fmt_values_get_va_arg(vals, i64);
+            add_format_values(&format, vals);
+            result = fmt_int(sb, val, &format);
         }
         break;
     case 'z':
         if (format.as_unsigned) {
-            usize val = fmt_values_get_va_arg(values, usize);
-            add_format_values(&format, values);
-            result = fmt_uint(buf, (u64)val, &format);
+            usize val = fmt_values_get_va_arg(vals, usize);
+            add_format_values(&format, vals);
+            result = fmt_uint(sb, (u64)val, &format);
         } else {
-            isize val = fmt_values_get_va_arg(values, isize);
-            add_format_values(&format, values);
-            result = fmt_int(buf, (i64)val, &format);
+            isize val = fmt_values_get_va_arg(vals, isize);
+            add_format_values(&format, vals);
+            result = fmt_int(sb, (i64)val, &format);
         }
         break;
     case 'b': {
-        int val = fmt_values_get_va_arg(values, int);
-        add_format_values(&format, values);
-        result = fmt_bool(buf, (bool)val, &format);
+        int val = fmt_values_get_va_arg(vals, int);
+        add_format_values(&format, vals);
+        result = fmt_bool(sb, (bool)val, &format);
         break;
     }
     case 'B': {
-        int val = fmt_values_get_va_arg(values, int);
-        add_format_values(&format, values);
-        result = fmt_byte(buf, (u8)val, &format);
+        int val = fmt_values_get_va_arg(vals, int);
+        add_format_values(&format, vals);
+        result = fmt_byte(sb, (u8)val, &format);
         break;
     }
     case 'c': {
-        int val = fmt_values_get_va_arg(values, int);
-        add_format_values(&format, values);
-        result = fmt_char(buf, (i8)val, &format);
+        int val = fmt_values_get_va_arg(vals, int);
+        add_format_values(&format, vals);
+        result = fmt_char(sb, (u8)val, &format);
         break;
     }
     case 'f': {
-        f64 val = fmt_values_get_va_arg(values, f64);
-        add_format_values(&format, values);
-        result = fmt_double(buf, val, &format);
+        f64 val = fmt_values_get_va_arg(vals, f64);
+        add_format_values(&format, vals);
+        result = fmt_double(sb, val, &format);
         break;
     }
     case 'p': {
-        void *ptr = fmt_values_get_va_arg(values, void *);
-        add_format_values(&format, values);
-        result = fmt_ptr(buf, ptr, &format);
+        void *ptr = fmt_values_get_va_arg(vals, void *);
+        add_format_values(&format, vals);
+        result = fmt_ptr(sb, ptr, &format);
         break;
     }
     default:
-        Nst_set_value_errorf("invalid type letter '%c' in format", *type);
+        Nst_error_setf_value("invalid type letter '%c' in format", *type);
         return NULL;
     }
 
@@ -840,21 +869,21 @@ end:
 }
 
 /* Cuts a string keeping it left-aligned. */
-static void fmt_cut_left(i8 *str, usize str_len, usize char_len, i8 **out_str,
+static void fmt_cut_left(u8 *str, usize str_len, usize char_len, u8 **out_str,
                          usize *out_len, usize width)
 {
     Nst_UNUSED(char_len);
     *out_str = str;
     *out_len = str_len;
 
-    Nst_StrObj str_ob = Nst_str_temp((i8 *)str, str_len);
+    Nst_StrView sv = Nst_sv_new(str, str_len);
     usize count = 0;
 
-    for (isize i = Nst_str_next(&str_ob, -1);
-        i >= 0;
-        i = Nst_str_next(&str_ob, i))
+    for (isize i = Nst_sv_next(sv, -1, NULL);
+         i >= 0;
+         i = Nst_sv_next(sv, i, NULL))
     {
-        if (count == (usize)width) {
+        if (count == width) {
             *out_len = i;
             return;
         }
@@ -863,17 +892,17 @@ static void fmt_cut_left(i8 *str, usize str_len, usize char_len, i8 **out_str,
 }
 
 /* Cuts a string keeping it right-aligned. */
-static void fmt_cut_right(i8 *str, usize str_len, usize char_len, i8 **out_str,
+static void fmt_cut_right(u8 *str, usize str_len, usize char_len, u8 **out_str,
                           usize *out_len, usize width)
 {
     usize cut_size = char_len - width;
     *out_str = str;
     *out_len = str_len;
-    Nst_StrObj str_ob = Nst_str_temp(str, str_len);
+    Nst_StrView sv = Nst_sv_new(str, str_len);
 
-    for (isize i = Nst_str_next(&str_ob, -1);
-        i >= 0;
-        i = Nst_str_next(&str_ob, i))
+    for (isize i = Nst_sv_next(sv, -1, NULL);
+         i >= 0;
+         i = Nst_sv_next(sv, i, NULL))
     {
         if (cut_size == 0) {
             *out_str = str + i;
@@ -885,8 +914,8 @@ static void fmt_cut_right(i8 *str, usize str_len, usize char_len, i8 **out_str,
 }
 
 /* Cuts a string keeping it center-aligned. */
-static void fmt_cut_center(i8 *str, usize str_len, usize char_len,
-                           i8 **out_str, usize *out_len, usize width)
+static void fmt_cut_center(u8 *str, usize str_len, usize char_len,
+                           u8 **out_str, usize *out_len, usize width)
 {
     usize cut_size = char_len - width;
     // characters to remove from the left
@@ -900,7 +929,7 @@ static void fmt_cut_center(i8 *str, usize str_len, usize char_len,
     fmt_cut_left(str, str_len, char_len - left_chars, out_str, out_len, width);
 }
 
-static void fmt_cut(i8 *str, usize str_len, usize char_len, i8 **out_str,
+static void fmt_cut(u8 *str, usize str_len, usize char_len, u8 **out_str,
                     usize *out_len, Format *format,
                     Alignment default_alignment)
 {
@@ -927,7 +956,7 @@ static void fmt_cut(i8 *str, usize str_len, usize char_len, i8 **out_str,
     }
 }
 
-static bool fmt_align(Nst_Buffer *buf, i8 *str, usize str_len,
+static bool fmt_align(Nst_StrBuilder *sb, u8 *str, usize str_len,
                       usize char_str_len, Format *format,
                       Alignment default_alignment)
 {
@@ -935,19 +964,19 @@ static bool fmt_align(Nst_Buffer *buf, i8 *str, usize str_len,
     if (alignment == Nst_FMT_ALIGN_AUTO)
         alignment = default_alignment;
 
-    i8 *fill_ch;
+    u8 *fill_ch;
     usize fill_ch_len;
     if (format_has_fill_ch(format)) {
-        fill_ch = (i8 *)format->fill_ch;
+        fill_ch = format->fill_ch;
         fill_ch_len = format_fill_ch_len(format);
     } else {
-        fill_ch = " ";
+        fill_ch = (u8 *)" ";
         fill_ch_len = 1;
     }
 
     usize fill_width = format->width - char_str_len;
 
-    if (!Nst_buffer_expand_by(buf, str_len + fill_width * fill_ch_len))
+    if (!Nst_sb_reserve(sb, str_len + fill_width * fill_ch_len))
         return false;
 
     usize left_chars = 0;
@@ -969,15 +998,15 @@ static bool fmt_align(Nst_Buffer *buf, i8 *str, usize str_len,
     }
 
     for (usize i = 0; i < left_chars; i++)
-        Nst_buffer_append_str(buf, (i8 *)fill_ch, fill_ch_len);
-    Nst_buffer_append_str(buf, str, str_len);
+        Nst_sb_push(sb, fill_ch, fill_ch_len);
+    Nst_sb_push(sb, str, str_len);
     for (usize i = 0; i < right_chars; i++)
-        Nst_buffer_append_str(buf, (i8 *)fill_ch, fill_ch_len);
+        Nst_sb_push(sb, fill_ch, fill_ch_len);
     return true;
 }
 
-static bool fmt_sep_and_ndigits(Nst_Buffer *buf, i8 *digits, usize digits_len,
-                                usize min_digits, i8 *sep, usize sep_len,
+static bool fmt_sep_and_ndigits(Nst_StrBuilder *sb, u8 *digits, usize digits_len,
+                                usize min_digits, u8 *sep, usize sep_len,
                                 usize sep_width, bool pad_zeroes)
 {
     if (sep == NULL)
@@ -986,8 +1015,8 @@ static bool fmt_sep_and_ndigits(Nst_Buffer *buf, i8 *digits, usize digits_len,
     if (sep_width == 0)
         sep_width = 3;
     // guarantees always enough bytes (sometimes it's a little more)
-    bool result = Nst_buffer_expand_by(
-        buf,
+    bool result = Nst_sb_reserve(
+        sb,
         digit_count + sep_len * (digit_count / sep_width));
     if (!result)
         return false;
@@ -996,28 +1025,28 @@ static bool fmt_sep_and_ndigits(Nst_Buffer *buf, i8 *digits, usize digits_len,
     u8 fill_digit = pad_zeroes ? '0' : ' ';
     usize precision_digits = digit_count - digits_len;
     for (usize i = 0; i < digit_count - digits_len; i++) {
-        Nst_buffer_append_char(buf, fill_digit);
+        Nst_sb_push_char(sb, fill_digit);
         if (sep_len != 0 && (digit_count - i - 1) % sep_width == 0) {
             if (fill_digit == ' ')
-                Nst_buffer_append_char(buf, ' ');
+                Nst_sb_push_char(sb, ' ');
             else
-                Nst_buffer_append_str(buf, (i8 *)sep, sep_len);
+                Nst_sb_push(sb, sep, sep_len);
         }
     }
     // add digits
     for (usize i = precision_digits; i < digit_count; i++) {
-        Nst_buffer_append_char(buf, digits[i - precision_digits]);
+        Nst_sb_push_char(sb, digits[i - precision_digits]);
         if (sep_len != 0
             && i + 1 != digit_count
             && (digit_count - i - 1) % sep_width == 0)
         {
-            Nst_buffer_append_str(buf, (i8 *)sep, sep_len);
+            Nst_sb_push(sb, sep, sep_len);
         }
     }
     return true;
 }
 
-static bool fmt_align_or_cut(Nst_Buffer *buf, i8 *str, usize str_len,
+static bool fmt_align_or_cut(Nst_StrBuilder *sb, u8 *str, usize str_len,
                              usize char_str_len, Format *format,
                              Alignment default_alignment)
 {
@@ -1025,7 +1054,7 @@ static bool fmt_align_or_cut(Nst_Buffer *buf, i8 *str, usize str_len,
         ;
     else if (char_str_len < (usize)format->width) {
         return fmt_align(
-            buf, str,
+            sb, str,
             str_len, char_str_len,
             format, default_alignment);
     } else if (char_str_len > (usize)format->width && format->cut) {
@@ -1034,28 +1063,28 @@ static bool fmt_align_or_cut(Nst_Buffer *buf, i8 *str, usize str_len,
             &str, (usize *)&str_len,
             format, default_alignment);
     }
-    return Nst_buffer_append_str(buf, str, str_len);
+    return Nst_sb_push(sb, str, str_len);
 }
 
 /* =========================== String formatting =========================== */
 
-static bool fmt_str(Nst_Buffer *buf, i8 *str, isize str_len, Format *format)
+static bool fmt_str(Nst_StrBuilder *sb, u8 *str, isize str_len, Format *format)
 {
     bool result = true;
     if (str == NULL) {
-        str = "(null)";
+        str = (u8 *)"(null)";
         str_len = 6;
     }
 
     if (str_len < 0)
-        str_len = strlen(str);
+        str_len = strlen((const char *)str);
 
-    isize vaild = Nst_check_string_cp(
-        Nst_cp(Nst_CP_EXT_UTF8),
+    isize vaild = Nst_encoding_check(
+        Nst_encoding(Nst_EID_EXT_UTF8),
         (void *)str,
         str_len);
     if (vaild != -1) {
-        Nst_set_value_error_c("the string to format is not valid UTF-8");
+        Nst_error_setc_value("the string to format is not valid UTF-8");
         return false;
     }
 
@@ -1063,17 +1092,17 @@ static bool fmt_str(Nst_Buffer *buf, i8 *str, isize str_len, Format *format)
         ? -1
         : format->precision;
 
-    Nst_Buffer stack_buf;
-    Nst_Buffer *temp_buf;
+    Nst_StrBuilder stack_sb;
+    Nst_StrBuilder *temp_sb;
     if (format->width <= 0 && precision < 0)
-        temp_buf = buf;
+        temp_sb = sb;
     else {
-        if (!Nst_buffer_init(&stack_buf, str_len))
+        if (!Nst_sb_init(&stack_sb, str_len))
             return false;
-        temp_buf = &stack_buf;
+        temp_sb = &stack_sb;
     }
 
-    isize char_str_len = fmt_str_repr(temp_buf, str, str_len, format);
+    isize char_str_len = fmt_str_repr(temp_sb, str, str_len, format);
     if (char_str_len < 0) {
         result = false;
         goto finish;
@@ -1086,93 +1115,95 @@ static bool fmt_str(Nst_Buffer *buf, i8 *str, isize str_len, Format *format)
 
     if (precision >= 0 && precision < char_str_len) {
         fmt_cut_left(
-            temp_buf->data, temp_buf->len, char_str_len,
-            &str, &temp_buf->len,
+            temp_sb->value, temp_sb->len, char_str_len,
+            &str, &temp_sb->len,
             precision);
         char_str_len = precision + 3;
-        result = Nst_buffer_append_c_str(temp_buf, "...");
+        result = Nst_sb_push(temp_sb, (u8 *)"...", 3);
         if (!result)
             goto finish;
     }
 
     result = fmt_align_or_cut(
-        buf, temp_buf->data,
-        temp_buf->len, char_str_len,
+        sb, temp_sb->value,
+        temp_sb->len, char_str_len,
         format, Nst_FMT_ALIGN_LEFT);
 
 finish:
-    if (temp_buf != buf)
-        Nst_buffer_destroy(temp_buf);
+    if (temp_sb != sb)
+        Nst_sb_destroy(temp_sb);
     return result;
 }
 
-static isize fmt_str_repr(Nst_Buffer *buf, i8 *str, usize str_len,
+static isize fmt_str_repr(Nst_StrBuilder *sb, u8 *str, usize str_len,
                           Format *format)
 {
     // Not always the correct size but reduces allocations
-    if (!Nst_buffer_expand_by(buf, str_len))
+    if (!Nst_sb_reserve(sb, str_len))
         return -1;
 
     StrRepr repr = format->str_repr;
     if (repr == Nst_FMT_STR_NO_REPR) {
-        Nst_buffer_append_str(buf, str, str_len);
-        return Nst_string_utf8_char_len((u8 *)str, str_len);
+        Nst_sb_push(sb, str, str_len);
+        return Nst_encoding_utf8_char_len(str, str_len);
     }
 
     usize tot_char_len = 0;
     bool escape_single_quotes = false;
     bool escape_double_quotes = false;
     if (repr & REPR_FULL) {
-        escape_single_quotes = fmt_str_more_double_quotes((u8 *)str, str_len);
+        escape_single_quotes = fmt_str_more_double_quotes(str, str_len);
         escape_double_quotes = !escape_single_quotes;
-        if (!Nst_buffer_append_char(buf, escape_single_quotes ? '\'' : '"'))
+        if (!Nst_sb_push_char(sb, escape_single_quotes ? '\'' : '"'))
             return -1;
         tot_char_len += 1;
     }
 
-    Nst_StrObj str_ob = Nst_str_temp((i8 *)str, str_len);
-    isize i = -1;
-
-    for (i32 c = Nst_str_next_utf32(&str_ob, &i);
-         c != -1;
-         c = Nst_str_next_utf32(&str_ob, &i))
+    Nst_StrView sv = Nst_sv_new(str, str_len);
+    u32 c = 0;
+    for (isize i = Nst_sv_next(sv, -1, &c);
+         i >= 0;
+         i = Nst_sv_next(sv, i, &c))
     {
         if (c == '"' && escape_double_quotes) {
-            if (!Nst_buffer_append_str(buf, "\\\"", 2))
+            if (!Nst_sb_push(sb, (u8 *)"\\\"", 2))
                 return -1;
             tot_char_len += 2;
         } else if (c == '\'' && escape_single_quotes) {
-            if (!Nst_buffer_append_str(buf, "\\'", 2))
+            if (!Nst_sb_push(sb, (u8 *)"\\'", 2))
                 return -1;
             tot_char_len += 2;
         } else if (c < 0x7f && c >= 0x20 && c != '\\') {
-            if (!Nst_buffer_append_char(buf, (i8)c))
+            if (!Nst_sb_push_char(sb, (u8)c))
                 return -1;
             tot_char_len += 1;
         } else if (c <= 0x9f) {
-            isize char_len = fmt_str_ascii_escape(buf, (u8)c, format);
+            isize char_len = fmt_str_ascii_escape(sb, (u8)c, format);
             if (char_len < 0)
                 return -1;
             tot_char_len += char_len;
         } else if (repr & REPR_ASCII) {
-            isize char_len = fmt_str_unicode_escape(buf, c, format);
+            isize char_len = fmt_str_unicode_escape(sb, c, format);
             if (char_len < 0)
                 return -1;
             tot_char_len += char_len;
         } else {
-            if (!Nst_buffer_expand_by(buf, Nst_CP_MULTIBYTE_MAX_SIZE + 1))
-                return -1;
-            i32 bytes_written = Nst_ext_utf8_from_utf32(
-                (u32)c,
-                (u8 *)buf->data + buf->len);
-            buf->len += bytes_written;
-            buf->data[buf->len] = 0;
-            tot_char_len += 1;
+            Nst_UnicodeChInfo info = Nst_unicode_get_ch_info((u32)c);
+            if (info.flags & Nst_UCD_MASK_PRINTABLE) {
+                if (!Nst_sb_push_cps(sb, &c, 1))
+                    return -1;
+                tot_char_len += 1;
+            } else {
+                isize char_len = fmt_str_unicode_escape(sb, c, format);
+                if (char_len < 0)
+                    return -1;
+                tot_char_len += char_len;
+            }
         }
     }
 
     if (repr & REPR_FULL) {
-        if (!Nst_buffer_append_char(buf, escape_single_quotes ? '\'' : '"'))
+        if (!Nst_sb_push_char(sb, escape_single_quotes ? '\'' : '"'))
             return -1;
         tot_char_len += 1;
     }
@@ -1195,83 +1226,83 @@ static bool fmt_str_more_double_quotes(u8 *str, usize str_len)
     return double_count >= single_count;
 }
 
-static isize fmt_str_ascii_escape(Nst_Buffer *buf, u8 c, Format *format)
+static isize fmt_str_ascii_escape(Nst_StrBuilder *sb, u8 c, Format *format)
 {
-    const i8 *hex_chars = format->pref_suff == Nst_FMT_PREF_SUFF_UPPER
+    const char *hex_chars = format->pref_suff == Nst_FMT_PREF_SUFF_UPPER
         ? "0123456789ABCDEF"
         : "0123456789abcdef";
 
     switch (c) {
-    case '\0': Nst_buffer_append_c_str(buf, "\\0"); return 2;
-    case '\a': Nst_buffer_append_c_str(buf, "\\a"); return 2;
-    case '\b': Nst_buffer_append_c_str(buf, "\\b"); return 2;
-    case'\x1b':Nst_buffer_append_c_str(buf, "\\e"); return 2;
-    case '\f': Nst_buffer_append_c_str(buf, "\\f"); return 2;
-    case '\n': Nst_buffer_append_c_str(buf, "\\n"); return 2;
-    case '\r': Nst_buffer_append_c_str(buf, "\\r"); return 2;
-    case '\t': Nst_buffer_append_c_str(buf, "\\t"); return 2;
-    case '\v': Nst_buffer_append_c_str(buf, "\\v"); return 2;
-    case '\\': Nst_buffer_append_c_str(buf, "\\\\");return 2;
+    case '\0': Nst_sb_push(sb, (u8 *)"\\0", 2); return 2;
+    case '\a': Nst_sb_push(sb, (u8 *)"\\a", 2); return 2;
+    case '\b': Nst_sb_push(sb, (u8 *)"\\b", 2); return 2;
+    case'\x1b':Nst_sb_push(sb, (u8 *)"\\e", 2); return 2;
+    case '\f': Nst_sb_push(sb, (u8 *)"\\f", 2); return 2;
+    case '\n': Nst_sb_push(sb, (u8 *)"\\n", 2); return 2;
+    case '\r': Nst_sb_push(sb, (u8 *)"\\r", 2); return 2;
+    case '\t': Nst_sb_push(sb, (u8 *)"\\t", 2); return 2;
+    case '\v': Nst_sb_push(sb, (u8 *)"\\v", 2); return 2;
+    case '\\': Nst_sb_push(sb, (u8 *)"\\\\",2); return 2;
     default:
-        if (!Nst_buffer_append_c_str(buf, "\\x"))
+        if (!Nst_sb_push(sb, (u8 *)"\\x", 2))
             return -1;
-        if (!Nst_buffer_append_char(buf, hex_chars[c >> 4]))
+        if (!Nst_sb_push_char(sb, hex_chars[c >> 4]))
             return -1;
-        if (!Nst_buffer_append_char(buf, hex_chars[c & 0xf]))
+        if (!Nst_sb_push_char(sb, hex_chars[c & 0xf]))
             return -1;
         return 3;
     }
 }
 
-static isize fmt_str_unicode_escape(Nst_Buffer *buf, i32 c, Format *format)
+static isize fmt_str_unicode_escape(Nst_StrBuilder *sb, u32 c, Format *format)
 {
-    const i8 *hex_chars = format->pref_suff == Nst_FMT_PREF_SUFF_UPPER
+    const char *hex_chars = format->pref_suff == Nst_FMT_PREF_SUFF_UPPER
         ? "0123456789ABCDEF"
         : "0123456789abcdef";
 
-    if (!Nst_buffer_expand_by(buf, c <= 0xffff ? 6 : 8))
+    if (!Nst_sb_reserve(sb, c <= 0xffff ? 6 : 8))
         return -1;
-    Nst_buffer_append_char(buf, '\\');
-    Nst_buffer_append_char(buf, c <= 0xffff ? 'u' : 'U');
+    Nst_sb_push_char(sb, '\\');
+    Nst_sb_push_char(sb, c <= 0xffff ? 'u' : 'U');
     for (usize i = 1, n = c <= 0xffff ? 4 : 6; i <= n; i++)
-        Nst_buffer_append_char(buf, hex_chars[(c >> ((n - i) * 4)) & 0xf]);
+        Nst_sb_push_char(sb, hex_chars[(c >> ((n - i) * 4)) & 0xf]);
     return c <= 0xffff ? 6 : 8;
 }
 
 /* ====================== Unsigned Integer formatting ====================== */
 
-static bool fmt_general_int(Nst_Buffer *buf, u64 val, bool negative,
+static bool fmt_general_int(Nst_StrBuilder *sb, u64 val, bool negative,
                             bool is_byte, Format *format)
 {
     bool result = true;
-    Nst_Buffer stack_buf, stack_digit_buf;
-    Nst_Buffer *temp_buf, *digit_buf;
+    Nst_StrBuilder stack_sb, stack_digit_sb;
+    Nst_StrBuilder *temp_sb, *digit_sb;
     if (format->width < 0)
-        temp_buf = buf;
+        temp_sb = sb;
     else {
-        if (!Nst_buffer_init(&stack_buf, 10))
+        if (!Nst_sb_init(&stack_sb, 10))
             return false;
-        temp_buf = &stack_buf;
+        temp_sb = &stack_sb;
     }
 
     if (format->precision <= 0 && !format_has_separator(format))
-        digit_buf = temp_buf;
+        digit_sb = temp_sb;
     else {
-        if (!Nst_buffer_init(&stack_digit_buf, 10))
+        if (!Nst_sb_init(&stack_digit_sb, 10))
             return false;
-        digit_buf = &stack_digit_buf;
+        digit_sb = &stack_digit_sb;
     }
 
-    result = fmt_int_add_sign(temp_buf, negative, format);
+    result = fmt_int_add_sign(temp_sb, negative, format);
     if (!result)
         goto finish;
 
-    if (!fmt_uint_prefix(temp_buf, is_byte, format)) {
+    if (!fmt_uint_prefix(temp_sb, is_byte, format)) {
         result = false;
         goto finish;
     }
 
-    if (!fmt_uint_digits(digit_buf, val, format)) {
+    if (!fmt_uint_digits(digit_sb, val, format)) {
         result = false;
         goto finish;
     }
@@ -1280,8 +1311,8 @@ static bool fmt_general_int(Nst_Buffer *buf, u64 val, bool negative,
         goto suffix;
 
     result = fmt_uint_sep_and_precision(
-        temp_buf,
-        digit_buf->data, digit_buf->len,
+        temp_sb,
+        digit_sb->value, digit_sb->len,
         format);
     if (!result)
         goto finish;
@@ -1292,9 +1323,9 @@ suffix:
         && format->int_repr != Nst_FMT_INT_HEX_UPPER)
     {
         if (format->pref_suff == Nst_FMT_PREF_SUFF_LOWER)
-            result = Nst_buffer_append_char(temp_buf, 'b');
+            result = Nst_sb_push_char(temp_sb, 'b');
         else if (format->pref_suff == Nst_FMT_PREF_SUFF_UPPER)
-            result = Nst_buffer_append_char(temp_buf, 'B');
+            result = Nst_sb_push_char(temp_sb, 'B');
     }
     if (!result)
         goto finish;
@@ -1302,32 +1333,30 @@ suffix:
     if (format->width < 0)
         goto finish;
     result = fmt_align_or_cut(
-        buf,
-        temp_buf->data,
-        temp_buf->len,
-        Nst_string_utf8_char_len(
-            (u8 *)temp_buf->data,
-            temp_buf->len),
+        sb,
+        temp_sb->value,
+        temp_sb->len,
+        Nst_encoding_utf8_char_len(temp_sb->value, temp_sb->len),
         format, Nst_FMT_ALIGN_RIGHT);
 
 finish:
-    if (temp_buf != buf)
-        Nst_buffer_destroy(temp_buf);
-    if (digit_buf != temp_buf)
-        Nst_buffer_destroy(digit_buf);
+    if (temp_sb != sb)
+        Nst_sb_destroy(temp_sb);
+    if (digit_sb != temp_sb)
+        Nst_sb_destroy(digit_sb);
     return result;
 }
 
-static bool fmt_uint(Nst_Buffer *buf, u64 val, Format *format)
+static bool fmt_uint(Nst_StrBuilder *sb, u64 val, Format *format)
 {
-    return fmt_general_int(buf, val, false, false, format);
+    return fmt_general_int(sb, val, false, false, format);
 }
 
-static bool fmt_uint_prefix(Nst_Buffer *buf, bool is_byte, Format *format)
+static bool fmt_uint_prefix(Nst_StrBuilder *sb, bool is_byte, Format *format)
 {
     if (format->pref_suff == Nst_FMT_PREF_SUFF_NONE)
         return true;
-    const i8 *pref = NULL;
+    const char *pref = NULL;
     bool pref_upper = format->pref_suff == Nst_FMT_PREF_SUFF_UPPER;
     switch (format->int_repr) {
     case Nst_FMT_INT_BIN:
@@ -1346,24 +1375,24 @@ static bool fmt_uint_prefix(Nst_Buffer *buf, bool is_byte, Format *format)
             pref = pref_upper ? "0X" : "0x";
         break;
     }
-    if (pref != NULL && !Nst_buffer_append_str(buf, (i8 *)pref, 2))
+    if (pref != NULL && !Nst_sb_push(sb, (u8 *)pref, 2))
         return false;
     return true;
 }
 
-static bool fmt_uint_digits(Nst_Buffer *buf, u64 val, Format *format)
+static bool fmt_uint_digits(Nst_StrBuilder *sb, u64 val, Format *format)
 {
     switch (format->int_repr) {
     case Nst_FMT_INT_BIN:
-        return fmt_uint_bin(buf, val);
+        return fmt_uint_bin(sb, val);
     case Nst_FMT_INT_OCT:
-        return fmt_uint_oct(buf, val);
+        return fmt_uint_oct(sb, val);
     case Nst_FMT_INT_DEC:
-        return fmt_uint_dec(buf, val);
+        return fmt_uint_dec(sb, val);
     case Nst_FMT_INT_HEX:
-        return fmt_uint_hex(buf, val, false);
+        return fmt_uint_hex(sb, val, false);
     case Nst_FMT_INT_HEX_UPPER:
-        return fmt_uint_hex(buf, val, true);
+        return fmt_uint_hex(sb, val, true);
     }
     return true;
 }
@@ -1379,80 +1408,79 @@ static u8 fmt_uint_msb64(u64 val) {
     return k;
 }
 
-static bool fmt_uint_bin(Nst_Buffer *buf, u64 val)
+static bool fmt_uint_bin(Nst_StrBuilder *sb, u64 val)
 {
     u8 msb = fmt_uint_msb64(val); // most significant bit
-    if (!Nst_buffer_expand_by(buf, msb + 1))
+    if (!Nst_sb_reserve(sb, msb + 1))
         return false;
     for (i32 i = 0; i < msb + 1; i++) {
-        buf->data[buf->len + msb - i] = val & 1 ? '1' : '0';
+        sb->value[sb->len + msb - i] = val & 1 ? '1' : '0';
         val >>= 1;
     }
-    buf->data[buf->len + msb + 1] = 0;
-    buf->len += msb + 1;
+    sb->value[sb->len + msb + 1] = 0;
+    sb->len += msb + 1;
     return true;
 }
 
-static bool fmt_uint_oct(Nst_Buffer *buf, u64 val)
+static bool fmt_uint_oct(Nst_StrBuilder *sb, u64 val)
 {
     u8 msb = fmt_uint_msb64(val); // most significant bit
     u8 str_len = (msb / 3) + 1;
-    if (!Nst_buffer_expand_by(buf, str_len))
+    if (!Nst_sb_reserve(sb, str_len))
         return false;
     for (i32 i = 0; i < str_len; i++) {
-        i8 ch = (val & 0b111) + '0';
-        buf->data[buf->len + str_len - i - 1] = ch;
+        u8 ch = (val & 0b111) + '0';
+        sb->value[sb->len + str_len - i - 1] = ch;
         val >>= 3;
     }
-    buf->data[buf->len + str_len] = 0;
-    buf->len += str_len;
+    sb->value[sb->len + str_len] = 0;
+    sb->len += str_len;
     return true;
 }
 
-static bool fmt_uint_dec(Nst_Buffer *buf, u64 val)
+static bool fmt_uint_dec(Nst_StrBuilder *sb, u64 val)
 {
-    usize initial_len = buf->len;
+    usize initial_len = sb->len;
     if (val == 0)
-        return Nst_buffer_append_char(buf, '0');
+        return Nst_sb_push_char(sb, '0');
     while (val != 0) {
-        i8 ch = (val % 10) + '0';
-        if (!Nst_buffer_append_char(buf, ch))
+        if (!Nst_sb_push_char(sb, (val % 10) + '0'))
             return false;
         val /= 10;
     }
-    usize final_len = buf->len;
+    usize final_len = sb->len;
     // reverse the digits
     for (usize i = 0, n = (final_len - initial_len) / 2; i < n; i++) {
-        i8 temp = buf->data[final_len - i - 1];
-        buf->data[final_len - i - 1] = buf->data[initial_len + i];
-        buf->data[initial_len + i] = temp;
+        u8 temp = sb->value[final_len - i - 1];
+        sb->value[final_len - i - 1] = sb->value[initial_len + i];
+        sb->value[initial_len + i] = temp;
     }
     return true;
 }
 
-static bool fmt_uint_hex(Nst_Buffer *buf, u64 val, bool upper)
+static bool fmt_uint_hex(Nst_StrBuilder *sb, u64 val, bool upper)
 {
     u8 msb = fmt_uint_msb64(val); // most significant bit
     u8 str_len = (msb / 4) + 1;
-    if (!Nst_buffer_expand_by(buf, str_len))
+    if (!Nst_sb_reserve(sb, str_len))
         return false;
-    const i8 *hex_chars = upper ? "0123456789ABCDEF" : "0123456789abcdef";
+    const char *hex_chars = upper ? "0123456789ABCDEF" : "0123456789abcdef";
     for (i32 i = 0; i < str_len; i++) {
-        buf->data[buf->len + str_len - i - 1] = hex_chars[val & 0xF];
+        sb->value[sb->len + str_len - i - 1] = hex_chars[val & 0xF];
         val >>= 4;
     }
-    buf->data[buf->len + str_len] = 0;
-    buf->len += str_len;
+    sb->value[sb->len + str_len] = 0;
+    sb->len += str_len;
     return true;
 }
 
-static bool fmt_uint_sep_and_precision(Nst_Buffer *buf, i8 *digits,
+static bool fmt_uint_sep_and_precision(Nst_StrBuilder *sb, u8 *digits,
                                        usize digits_len, Format *format)
 {
-    i8 *sep = NULL;
+    u8 *sep = NULL;
     usize sep_len = 0;
     if (format_has_separator(format)) {
-        sep = (i8 *)format->separator;
+        sep = format->separator;
         sep_len = format_separator_len(format);
     }
     usize min_digits = format->precision < 0 ? 0 : (usize)format->precision;
@@ -1474,7 +1502,7 @@ static bool fmt_uint_sep_and_precision(Nst_Buffer *buf, i8 *digits,
         }
     }
     return fmt_sep_and_ndigits(
-        buf,
+        sb,
         digits, digits_len, min_digits,
         sep, sep_len, sep_width,
         format->pad_zeroes_precision);
@@ -1482,46 +1510,46 @@ static bool fmt_uint_sep_and_precision(Nst_Buffer *buf, i8 *digits,
 
 /* =========================== Integer formatting ========================== */
 
-static bool fmt_int(Nst_Buffer *buf, i64 val, Format *format)
+static bool fmt_int(Nst_StrBuilder *sb, i64 val, Format *format)
 {
     return fmt_general_int(
-        buf,
+        sb,
         val < 0 ? (u64)-val : (u64)val,
         val < 0,
         false,
         format);
 }
 
-static bool fmt_int_add_sign(Nst_Buffer *buf, bool negative, Format *format)
+static bool fmt_int_add_sign(Nst_StrBuilder *sb, bool negative, Format *format)
 {
     if (negative)
-        return Nst_buffer_append_char(buf, '-');
+        return Nst_sb_push_char(sb, '-');
     else if (format->sign == Nst_FMT_SIGN_PLUS)
-        return Nst_buffer_append_char(buf, '+');
+        return Nst_sb_push_char(sb, '+');
     else if (format->sign == Nst_FMT_SIGN_SPACE)
-        return Nst_buffer_append_char(buf, ' ');
+        return Nst_sb_push_char(sb, ' ');
     return true;
 }
 
 /* ============================ Byte formatting ============================ */
 
-static bool fmt_byte(Nst_Buffer *buf, u8 val, Format *format)
+static bool fmt_byte(Nst_StrBuilder *sb, u8 val, Format *format)
 {
-    return fmt_general_int(buf, (u64)val, false, true, format);
+    return fmt_general_int(sb, (u64)val, false, true, format);
 }
 
 /* =========================== Double formatting =========================== */
 
-static bool fmt_double(Nst_Buffer *buf, f64 val, Format *format)
+static bool fmt_double(Nst_StrBuilder *sb, f64 val, Format *format)
 {
     bool result = true;
-    Nst_Buffer *temp_buf, stack_buf;
+    Nst_StrBuilder *temp_sb, stack_sb;
     if (format->width < 0)
-        temp_buf = buf;
+        temp_sb = sb;
     else {
-        if (!Nst_buffer_init(&stack_buf, 10))
+        if (!Nst_sb_init(&stack_sb, 10))
             return false;
-        temp_buf = &stack_buf;
+        temp_sb = &stack_sb;
     }
 
     if (format->precision < 0)
@@ -1533,7 +1561,7 @@ static bool fmt_double(Nst_Buffer *buf, f64 val, Format *format)
 #endif
 
     result = fmt_int_add_sign(
-        temp_buf,
+        temp_sb,
         (*(i64 *)(f64 *)&val >> 63) & 1,
         format);
 
@@ -1546,77 +1574,81 @@ static bool fmt_double(Nst_Buffer *buf, f64 val, Format *format)
     if (isinf(val)) {
         switch (format->pref_suff) {
         case Nst_FMT_PREF_SUFF_LOWER:
-            result = Nst_buffer_append_c_str(temp_buf, "inf");
+            result = Nst_sb_push_c(temp_sb, "inf");
             break;
         case Nst_FMT_PREF_SUFF_UPPER:
-            result = Nst_buffer_append_c_str(temp_buf, "INF");
+            result = Nst_sb_push_c(temp_sb, "INF");
             break;
         default:
-            result = Nst_buffer_append_c_str(temp_buf, "Inf");
+            result = Nst_sb_push_c(temp_sb, "Inf");
         }
     } else if (isnan(val)) {
         switch (format->pref_suff) {
         case Nst_FMT_PREF_SUFF_LOWER:
-            result = Nst_buffer_append_c_str(temp_buf, "nan");
+            result = Nst_sb_push_c(temp_sb, "nan");
             break;
         case Nst_FMT_PREF_SUFF_UPPER:
-            result = Nst_buffer_append_c_str(temp_buf, "NAN");
+            result = Nst_sb_push_c(temp_sb, "NAN");
             break;
         default:
-            result = Nst_buffer_append_c_str(temp_buf, "NaN");
+            result = Nst_sb_push_c(temp_sb, "NaN");
         }
     } else {
         switch (format->double_repr) {
         case Nst_FMT_DBL_GEN_REPR:
         case Nst_FMT_DBL_GEN_REPR_P:
-            result = fmt_double_gen(temp_buf, val, format);
+            result = fmt_double_gen(temp_sb, val, format);
             break;
         case Nst_FMT_DBL_STD_FORM:
         case Nst_FMT_DBL_STD_FORM_P:
-            result = fmt_double_std(temp_buf, val, format);
+            result = fmt_double_std(temp_sb, val, format);
             break;
         case Nst_FMT_DBL_DEC_REPR:
         case Nst_FMT_DBL_DEC_REPR_P:
         default:
-            result = fmt_double_dec(temp_buf, val, format);
+            result = fmt_double_dec(temp_sb, val, format);
         }
     }
     if (!result || format->width < 0)
         goto finish;
 
     result = fmt_align_or_cut(
-        buf,
-        temp_buf->data,
-        temp_buf->len,
-        Nst_string_utf8_char_len(
-            (u8 *)temp_buf->data,
-            temp_buf->len),
+        sb,
+        temp_sb->value,
+        temp_sb->len,
+        Nst_encoding_utf8_char_len(temp_sb->value, temp_sb->len),
         format, Nst_FMT_ALIGN_RIGHT);
 
 finish:
-    if (temp_buf != buf)
-        Nst_buffer_destroy(temp_buf);
+    if (temp_sb != sb)
+        Nst_sb_destroy(temp_sb);
     return result;
 }
 
-static bool fmt_double_dec(Nst_Buffer *buf, f64 val, Format *format)
+static bool fmt_double_dec(Nst_StrBuilder *sb, f64 val, Format *format)
 {
     int decpt;
-    i8 *str_end;
+    u8 *str_end;
     if (format->double_repr & INCLUDE_POINT && format->precision == 0)
         format->precision++;
-    i8 *digits = Nst_dtoa(val, 3, format->precision, &decpt, NULL, &str_end);
+    u8 *digits = (u8 *)Nst_dtoa(
+        val,
+        3,
+        format->precision,
+        &decpt,
+        NULL,
+        (char **)&str_end);
 
     bool result = fmt_double_dec_digits(
-        buf,
+        sb,
         digits, str_end - digits,
         decpt,
         format);
-    Nst_freedtoa(digits);
+    Nst_freedtoa((char *)digits);
     return result;
 }
 
-static bool fmt_double_dec_digits(Nst_Buffer *buf, i8 *digits,
+static bool fmt_double_dec_digits(Nst_StrBuilder *sb, u8 *digits,
                                   usize digits_len, int decpt, Format *format)
 {
     i32 precision = format->precision;
@@ -1625,35 +1657,35 @@ static bool fmt_double_dec_digits(Nst_Buffer *buf, i8 *digits,
 
     // before the decimal point
     if (decpt <= 0) {
-        Nst_buffer_append_char(buf, '0');
+        Nst_sb_push_char(sb, '0');
     } else if ((usize)decpt < digits_len) {
         if (format_has_separator(format)) {
             fmt_sep_and_ndigits(
-                buf,
+                sb,
                 digits, decpt, decpt,
-                (i8 *)format->separator, format_separator_len(format),
+                format->separator, format_separator_len(format),
                 (usize)MAX(format->separator_width, 0),
                 false);
         } else
-            Nst_buffer_append_str(buf, digits, decpt);
+            Nst_sb_push(sb, digits, decpt);
     } else {
         if (format_has_separator(format)) {
-            i8 *all_digits = Nst_malloc_c(decpt, i8);
+            u8 *all_digits = Nst_malloc_c(decpt, u8);
             if (all_digits == NULL)
                 return false;
             memcpy(all_digits, digits, digits_len);
             memset(all_digits + digits_len, (int)'0', decpt - digits_len);
             fmt_sep_and_ndigits(
-                buf,
+                sb,
                 all_digits, decpt, decpt,
-                (i8 *)format->separator, format_separator_len(format),
+                format->separator, format_separator_len(format),
                 format->separator_width,
                 false);
             Nst_free(all_digits);
         } else {
-        Nst_buffer_append_str(buf, digits, digits_len);
+            Nst_sb_push(sb, digits, digits_len);
         for (usize i = digits_len; i < (usize)decpt; i++)
-            Nst_buffer_append_char(buf, '0');
+            Nst_sb_push_char(sb, '0');
         }
     }
 
@@ -1664,52 +1696,52 @@ static bool fmt_double_dec_digits(Nst_Buffer *buf, i8 *digits,
             return true;
     }
 
-    if (!Nst_buffer_expand_by(buf, precision + 1))
+    if (!Nst_sb_reserve(sb, precision + 1))
         return false;
 
-    Nst_buffer_append_char(buf, '.');
+    Nst_sb_push_char(sb, '.');
 
     // if all digits after the point would be zeroes
     if (-decpt >= precision && !pad_zeroes) {
-        Nst_buffer_append_char(buf, '0');
+        Nst_sb_push_char(sb, '0');
         return true;
     }
 
     // after the decimal point
     for (i32 i = 0; i < precision; i++) {
         if (i + decpt < 0)
-            Nst_buffer_append_char(buf, '0');
+            Nst_sb_push_char(sb, '0');
         else if ((usize)(i + decpt) >= digits_len) {
             if (!pad_zeroes && i != 0)
                 break;
-            Nst_buffer_append_char(buf, '0');
+            Nst_sb_push_char(sb, '0');
         } else
-            Nst_buffer_append_char(buf, digits[i + decpt]);
+            Nst_sb_push_char(sb, digits[i + decpt]);
     }
     return true;
 }
 
-static bool fmt_double_std(Nst_Buffer *buf, f64 val, Format *format)
+static bool fmt_double_std(Nst_StrBuilder *sb, f64 val, Format *format)
 {
     int decpt;
-    i8 *str_end;
+    u8 *str_end;
     if (format->double_repr & INCLUDE_POINT && format->precision == 0)
         format->precision++;
-    i8 *digits = Nst_dtoa(
+    u8 *digits = (u8 *)Nst_dtoa(
         val, 2,
         format->precision + 1,
-        &decpt, NULL, &str_end);
+        &decpt, NULL, (char **)&str_end);
 
     bool result = fmt_double_std_digits(
-        buf,
+        sb,
         digits, str_end - digits,
         decpt,
         format);
-    Nst_freedtoa(digits);
+    Nst_freedtoa((char *)digits);
     return result;
 }
 
-static bool fmt_double_std_digits(Nst_Buffer *buf, i8 *digits,
+static bool fmt_double_std_digits(Nst_StrBuilder *sb, u8 *digits,
                                   usize digits_len, int decpt, Format *format)
 {
     i32 exponent = decpt - 1;
@@ -1717,60 +1749,73 @@ static bool fmt_double_std_digits(Nst_Buffer *buf, i8 *digits,
     bool include_point = format->double_repr & INCLUDE_POINT;
     bool pad_zeroes = format->pad_zeroes_precision;
 
-    if (!Nst_buffer_expand_by(buf, 2 + precision + 5))
+    if (!Nst_sb_reserve(sb, 2 + precision + 5))
         return false;
 
     if (digits_len > 0)
-        Nst_buffer_append_char(buf, digits[0]);
+        Nst_sb_push_char(sb, digits[0]);
     else
-        Nst_buffer_append_char(buf, '0');
+        Nst_sb_push_char(sb, '0');
 
     if (precision > 0) {
         if (!include_point && !pad_zeroes && digits_len == 1)
             precision = 0;
         else
-            Nst_buffer_append_char(buf, '.');
+            Nst_sb_push_char(sb, '.');
     }
 
-    for (i32 i = 1; i < precision + 1; i++) {
-        if ((usize)i < digits_len)
-            Nst_buffer_append_char(buf, digits[i]);
+    for (usize i = 1; i < (usize)precision + 1; i++) {
+        if (i < digits_len)
+            Nst_sb_push_char(sb, digits[i]);
         else {
             if (!format->pad_zeroes_precision && i != 1)
                 break;
-            Nst_buffer_append_char(buf, '0');
+            Nst_sb_push_char(sb, '0');
         }
     }
 
     if (format->pref_suff == Nst_FMT_PREF_SUFF_UPPER)
-        Nst_buffer_append_char(buf, 'E');
+        Nst_sb_push_char(sb, 'E');
     else
-        Nst_buffer_append_char(buf, 'e');
+        Nst_sb_push_char(sb, 'e');
     if (exponent < 0) {
-        Nst_buffer_append_char(buf, '-');
+        Nst_sb_push_char(sb, '-');
         exponent = -exponent;
     } else
-        Nst_buffer_append_char(buf, '+');
+        Nst_sb_push_char(sb, '+');
     if (exponent < 10)
-        Nst_buffer_append_char(buf, '0');
-    fmt_uint_dec(buf, (u64)(exponent));
+        Nst_sb_push_char(sb, '0');
+    fmt_uint_dec(sb, (u64)(exponent));
     return true;
 }
 
-static bool fmt_double_gen(Nst_Buffer *buf, f64 val, Format *format)
+static bool fmt_double_gen(Nst_StrBuilder *sb, f64 val, Format *format)
 {
     i32 precision = format->precision;
     int decpt;
-    i8 *str_end;
-    i8 *digits;
+    u8 *str_end;
+    u8 *digits;
 
     if (format->double_repr & INCLUDE_POINT
         && val >= pow(10.0, (double)precision - 1)
         && val < pow(10.0, (double)precision))
     {
-        digits = Nst_dtoa(val, 2, precision + 1, &decpt, NULL, &str_end);
-    } else
-        digits = Nst_dtoa(val, 2, precision, &decpt, NULL, &str_end);
+        digits = (u8 *)Nst_dtoa(
+            val,
+            2,
+            precision + 1,
+            &decpt,
+            NULL,
+            (char **)&str_end);
+    } else {
+        digits = (u8 *)Nst_dtoa(
+            val,
+            2,
+            precision,
+            &decpt,
+            NULL,
+            (char **)&str_end);
+    }
     usize digits_len = str_end - digits;
     i32 exponent = decpt - 1;
     bool result;
@@ -1779,22 +1824,22 @@ static bool fmt_double_gen(Nst_Buffer *buf, f64 val, Format *format)
         format->precision = precision - (exponent + 1);
         if (format->precision == 0 && format->double_repr & INCLUDE_POINT)
             format->precision++;
-        result = fmt_double_dec_digits(buf, digits, digits_len, decpt, format);
+        result = fmt_double_dec_digits(sb, digits, digits_len, decpt, format);
     } else {
         format->precision = precision - 1;
         if (format->precision == 0 && format->double_repr & INCLUDE_POINT)
             format->precision++;
-        result = fmt_double_std_digits(buf, digits, digits_len, decpt, format);
+        result = fmt_double_std_digits(sb, digits, digits_len, decpt, format);
     }
-    Nst_freedtoa(digits);
+    Nst_freedtoa((char *)digits);
     return result;
 }
 
 /* =========================== Boolean formatting ========================== */
 
-static bool fmt_bool(Nst_Buffer *buf, bool val, Format *format)
+static bool fmt_bool(Nst_StrBuilder *sb, bool val, Format *format)
 {
-    const i8 *str;
+    const char *str;
     usize str_len;
     if (val) {
         str = format->pref_suff == Nst_FMT_PREF_SUFF_UPPER ? "TRUE": "true";
@@ -1808,62 +1853,62 @@ static bool fmt_bool(Nst_Buffer *buf, bool val, Format *format)
         || (usize)format->width == str_len
         || ((usize)format->width < str_len && !format->cut))
     {
-        return Nst_buffer_append_c_str(buf, str);
+        return Nst_sb_push(sb, (u8 *)str, str_len);
     }
 
     return fmt_align_or_cut(
-        buf, (i8 *)str,
+        sb, (u8 *)str,
         str_len, str_len,
         format, Nst_FMT_ALIGN_LEFT);
 }
 
 /* =========================== Pointer formatting ========================== */
 
-static bool fmt_ptr(Nst_Buffer *buf, void *val, Format *format)
+static bool fmt_ptr(Nst_StrBuilder *sb, void *val, Format *format)
 {
     bool result = true;
-    Nst_Buffer *temp_buf, stack_buf;
+    Nst_StrBuilder *temp_sb, stack_sb;
     if (format->width < 0)
-        temp_buf = buf;
+        temp_sb = sb;
     else {
-        if (!Nst_buffer_init(&stack_buf, 2 + sizeof(usize) * 2))
+        if (!Nst_sb_init(&stack_sb, 2 + sizeof(usize) * 2))
             return false;
-        temp_buf = &stack_buf;
+        temp_sb = &stack_sb;
     }
 
     u64 int_val = (u64)(usize)val;
-    Nst_buffer_append_c_str(
-        temp_buf,
+    Nst_sb_push_c(
+        temp_sb,
         format->pref_suff == Nst_FMT_PREF_SUFF_UPPER ? "0X" : "0x");
     u8 msb = fmt_uint_msb64(int_val);
     if (format->pad_zeroes_precision) {
         usize digit_count = (msb / 4) + 1;
         for (usize i = sizeof(usize) * 2; i > digit_count; i--)
-            Nst_buffer_append_char(buf, '0');
+            Nst_sb_push_char(sb, '0');
     }
 
     bool upper = format->int_repr == Nst_FMT_INT_HEX_UPPER;
-    fmt_uint_hex(temp_buf, int_val, upper);
+    fmt_uint_hex(temp_sb, int_val, upper);
 
     if (format->width < 0)
         goto finish;
     result = fmt_align_or_cut(
-        buf,
-        temp_buf->data, temp_buf->len, temp_buf->len,
+        sb,
+        temp_sb->value, temp_sb->len, temp_sb->len,
         format, Nst_FMT_ALIGN_RIGHT);
 
 finish:
-    if (temp_buf != buf)
-        Nst_buffer_destroy(buf);
+    if (temp_sb != sb)
+        Nst_sb_destroy(sb);
     return result;
 }
 
 /* ============================ Char formatting ============================ */
 
-static bool fmt_char(Nst_Buffer *buf, i8 val, Format *format)
+static bool fmt_char(Nst_StrBuilder *sb, u8 val, Format *format)
 {
     u8 ch_buf[3];
     i32 ch_len = Nst_ext_utf8_from_utf32((u32)(u8)val, ch_buf);
     ch_buf[ch_len] = '\0';
-    return fmt_str(buf, (i8 *)ch_buf, ch_len, format);
+    return fmt_str(sb, ch_buf, ch_len, format);
 }

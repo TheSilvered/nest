@@ -108,13 +108,31 @@
     <ClInclude Include="..\..\..\..\include\dtoa.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\runner.h">
+    <ClInclude Include="..\..\..\..\include\program.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\nodes.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\parser.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\unicode_db.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\str_builder.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\str_view.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\dyn_array.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\assembler.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\source_loader.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -203,19 +221,34 @@
     <ClCompile Include="..\..\..\..\src\file.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\type.c">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\dtoa.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\runner.c">
+    <ClCompile Include="..\..\..\..\src\program.c">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\nodes.c">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\parser.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\unicode_db.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\str_builder.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\str_view.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\dyn_array.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\assembler.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\source_loader.c">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

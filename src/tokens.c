@@ -2,16 +2,9 @@
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
-#include "tokens.h"
-#include "obj_ops.h"
-#include "mem.h"
-#include "global_consts.h"
-#include "format.h"
+#include "nest.h"
 
-#define TOK_TYPE_CASE(tok_name)                                               \
-    case Nst_TT_ ## tok_name: Nst_print(#tok_name); break
-
-const i8 *tt_strings[] = {
+static const char *tt_strings[] = {
     [Nst_TT_ADD] = "ADD",
     [Nst_TT_SUB] = "SUB",
     [Nst_TT_MUL] = "MUL",
@@ -92,49 +85,20 @@ const i8 *tt_strings[] = {
     [Nst_TT_CONTAINS] = "CONTAINS"
 };
 
-Nst_Tok *Nst_tok_new_value(Nst_Pos start, Nst_Pos end, Nst_TokType type,
-                           Nst_Obj *value)
+Nst_Tok Nst_tok_new(Nst_Span span, i32 type, Nst_Obj *val)
 {
-    Nst_Tok *token = Nst_TOK(Nst_malloc(1, sizeof(Nst_Tok)));
-    if (token == NULL) {
-        Nst_ndec_ref(value);
-        return NULL;
-    }
-
-    token->start = start;
-    token->end = end;
-    token->value = value;
-    token->type = type;
+    Nst_Tok token = {
+        .span = span,
+        .type = type,
+        .value = val
+    };
 
     return token;
 }
 
-Nst_Tok *Nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type)
+Nst_Tok Nst_tok_invalid(void)
 {
-    Nst_Tok *token = Nst_TOK(Nst_malloc(1, sizeof(Nst_Tok)));
-    if (token == NULL)
-        return NULL;
-
-    token->start = start;
-    token->end = end;
-    token->value = NULL;
-    token->type = type;
-
-    return token;
-}
-
-Nst_Tok *Nst_tok_new_noend(Nst_Pos start, Nst_TokType type)
-{
-    Nst_Tok *token = Nst_TOK(Nst_malloc(1, sizeof(Nst_Tok)));
-    if (token == NULL)
-        return NULL;
-
-    token->start = start;
-    token->end = start;
-    token->value = NULL;
-    token->type = type;
-
-    return token;
+    return Nst_tok_new(Nst_span_empty(), Nst_TT_INVALID, NULL);
 }
 
 void Nst_tok_destroy(Nst_Tok *token)
@@ -143,10 +107,9 @@ void Nst_tok_destroy(Nst_Tok *token)
         return;
 
     Nst_ndec_ref(token->value);
-    Nst_free(token);
 }
 
-Nst_TokType Nst_tok_from_str(i8 *str)
+Nst_TokType Nst_tok_type_from_str(u8 *str)
 {
     if (str[1] == '\0') {
         switch (str[0]) {
@@ -330,20 +293,20 @@ Nst_TokType Nst_tok_from_str(i8 *str)
 
 void Nst_print_tok(Nst_Tok *token)
 {
-    Nst_printf("%s (%02li:%02li, %02li:%02li",
+    Nst_printf("%s (%02" PRIi32 ":%02" PRIi32 ", %02" PRIi32 ":%02" PRIi32,
         tt_strings[token->type],
-        token->start.line,
-        token->start.col,
-        token->end.line,
-        token->end.col);
+        token->span.start_line,
+        token->span.start_col,
+        token->span.end_line,
+        token->span.end_col);
 
     if (token->value != NULL) {
         Nst_print(" - ");
 
-        Nst_StrObj *s = STR(_Nst_repr_str_cast(token->value));
+        Nst_Obj *s = Nst_obj_to_repr_str(token->value);
         if (s != NULL) {
             Nst_error_clear();
-            Nst_fwrite(s->value, s->len, NULL, Nst_io.out);
+            Nst_fwrite(Nst_str_value(s), Nst_str_len(s), NULL, Nst_io.out);
             Nst_dec_ref(s);
         }
     }
@@ -351,7 +314,7 @@ void Nst_print_tok(Nst_Tok *token)
     Nst_print(")");
 }
 
-const i8 *Nst_tok_type_to_str(Nst_TokType type)
+const char *Nst_tok_type_to_str(Nst_TokType type)
 {
     return tt_strings[type];
 }

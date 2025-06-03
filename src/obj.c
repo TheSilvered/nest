@@ -1,33 +1,140 @@
-#include "obj.h"
-#include "map.h"
-#include "ggc.h"
-#include "str.h"
-#include "mem.h"
-#include "type.h"
-#include "interpreter.h"
+#include <string.h>
+#include <limits.h>
+#include "nest.h"
 
-static Nst_Obj *pop_p_head(usize size, Nst_TypeObj *type)
+#define GGC_OBJ(obj) ((Nst_GGCObj *)(obj))
+
+/**
+ * @param p_head: the head object in the type's pool
+ * @param p_len: the length of the pool
+ * @param name: the name of the object as a Nest string
+ * @param dstr: the destructor of the type, can be NULL
+ */
+NstEXP typedef struct _Nst_TypeObj {
+    Nst_OBJ_HEAD;
+    Nst_Obj *p_head;
+    usize p_len;
+    Nst_StrView name;
+    Nst_ObjDstr dstr;
+    Nst_ObjTrav trav;
+} Nst_TypeObj;
+
+#define TYPE(ptr) ((Nst_TypeObj *)(ptr))
+
+Nst_ObjRef *Nst_type_new(const char *name, Nst_ObjDstr dstr)
+{
+    Nst_assert_c(Nst_encoding_check(
+        Nst_encoding(Nst_EID_EXT_UTF8),
+        (void *)name,
+        strlen(name)) == -1);
+
+    Nst_TypeObj *type = Nst_obj_alloc(Nst_TypeObj, Nst_t.Type);
+    if (type == NULL)
+        return NULL;
+
+    type->p_head = NULL;
+    type->p_len = 0;
+    type->dstr = dstr;
+    type->trav = NULL;
+    type->name = Nst_sv_new_c(name);
+
+    return NstOBJ(type);
+}
+
+Nst_ObjRef *Nst_cont_type_new(const char *name, Nst_ObjDstr dstr,
+                              Nst_ObjTrav trav)
+{
+    Nst_assert_c(Nst_encoding_check(
+        Nst_encoding(Nst_EID_EXT_UTF8),
+        (void *)name,
+        strlen(name)) == -1);
+
+    Nst_TypeObj *type = Nst_obj_alloc(Nst_TypeObj, Nst_t.Type);
+    if (type == NULL)
+        return NULL;
+
+    type->p_head = NULL;
+    type->p_len = 0;
+    type->dstr = dstr;
+    type->trav = trav;
+    type->name = Nst_sv_new_c(name);
+
+    return NstOBJ(type);
+}
+
+Nst_ObjRef *_Nst_type_new_no_err(const char *name, Nst_ObjDstr dstr)
+{
+    Nst_TypeObj *type = TYPE(Nst_raw_malloc(sizeof(Nst_TypeObj)));
+    if (type == NULL)
+        return NULL;
+
+#ifdef Nst_DBG_TRACK_OBJ_INIT_POS
+    type->init_line = -1;
+    type->init_col = -1;
+    type->init_path = NULL;
+#endif
+
+    type->ref_count = 1;
+    type->p_next = NULL;
+    type->hash = -1;
+    type->flags = 0;
+    type->p_head = NULL;
+    type->p_len = 0;
+    type->dstr = dstr;
+    type->name = Nst_sv_new_c(name);
+
+    type->type = Nst_t.Type;
+    Nst_ninc_ref(Nst_t.Type);
+    return NstOBJ(type);
+}
+
+void _Nst_type_destroy(Nst_Obj *type)
+{
+    for (Nst_Obj *ob = TYPE(type)->p_head; ob != NULL;) {
+        Nst_Obj *next_ob = ob->p_next;
+        Nst_free(ob);
+        ob = next_ob;
+    }
+
+    TYPE(type)->p_len = _Nst_P_LEN_MAX + 1;
+}
+
+Nst_StrView Nst_type_name(Nst_Obj *type)
+{
+    Nst_assert(type->type == Nst_t.Type);
+    return TYPE(type)->name;
+}
+
+Nst_ObjTrav Nst_type_trav(Nst_Obj *type)
+{
+    Nst_assert(type->type == Nst_t.Type);
+    return TYPE(type)->trav;
+}
+
+static Nst_Obj *pop_p_head(usize size, Nst_Obj *type)
 {
     Nst_Obj *obj;
 
-    if (type != NULL && type->p_head != NULL) {
-        obj = type->p_head;
-        type->p_head = obj->p_next;
-        type->p_len--;
+    if (type != NULL && TYPE(type)->p_head != NULL) {
+        obj = TYPE(type)->p_head;
+        TYPE(type)->p_head = obj->p_next;
+        TYPE(type)->p_len--;
         // p_next is taken care of in _Nst_obj_alloc
     } else
-        obj = OBJ(Nst_malloc(1, size));
+        obj = NstOBJ(Nst_malloc(1, size));
 
     return obj;
 }
 
-Nst_Obj *_Nst_obj_alloc(usize size, struct _Nst_TypeObj *type)
+Nst_ObjRef *_Nst_obj_alloc(usize size, Nst_Obj *type)
 {
+    Nst_assert(type->type == Nst_t.Type);
+
     Nst_Obj *obj = pop_p_head(size, type);
     if (obj == NULL)
         return NULL;
 
-#ifdef Nst_TRACK_OBJ_INIT_POS
+#ifdef Nst_DBG_TRACK_OBJ_INIT_POS
     Nst_Inst *inst = Nst_current_inst();
     if (inst == NULL) {
         obj->init_line = -1;
@@ -55,9 +162,9 @@ void _Nst_obj_destroy(Nst_Obj *obj)
     if (Nst_HAS_FLAG(obj, Nst_FLAG_OBJ_DESTROYED))
         return;
 
-    obj->ref_count = 2147483647;
-    if (obj->type->dstr != NULL)
-        obj->type->dstr(obj);
+    obj->ref_count = PTRDIFF_MAX;
+    if (TYPE(obj->type)->dstr != NULL)
+        TYPE(obj->type)->dstr(obj);
 
     Nst_SET_FLAG(obj, Nst_FLAG_OBJ_DESTROYED);
 }
@@ -69,7 +176,7 @@ void _Nst_obj_free(Nst_Obj *obj)
     if (Nst_HAS_FLAG(obj, Nst_FLAG_GGC_PRESERVE_MEM))
         return;
 
-    Nst_TypeObj *ob_t = obj->type;
+    Nst_Obj *ob_t = obj->type;
 
     if (Nst_HAS_FLAG(obj, Nst_FLAG_GGC_IS_SUPPORTED)) {
         Nst_GGCObj *ggc_obj = GGC_OBJ(obj);
@@ -98,40 +205,56 @@ free_mem:
 // silences the warning of the expression being always true when _Nst_P_LEN_MAX
 // is 0 (e.g. when pools are disabled)
 
-#if defined(Nst_DISABLE_POOLS) && !defined(Nst_MSVC)
+#if defined(Nst_DBG_DISABLE_POOLS) && !defined(Nst_MSVC)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #endif
 
-    if (obj->type->p_len >= _Nst_P_LEN_MAX) {
+    if (TYPE(obj->type)->p_len >= _Nst_P_LEN_MAX) {
         Nst_free(obj);
 
-        if (obj != OBJ(ob_t))
+        if (obj != ob_t)
             Nst_dec_ref(ob_t);
 
         return;
     }
 
-#if defined(Nst_DISABLE_POOLS) && !defined(Nst_MSVC)
+#if defined(Nst_DBG_DISABLE_POOLS) && !defined(Nst_MSVC)
 #pragma GCC diagnostic pop
 #endif
 
-    obj->p_next = obj->type->p_head;
-    obj->type->p_head = obj;
-    obj->type->p_len++;
+    obj->p_next = TYPE(obj->type)->p_head;
+    TYPE(obj->type)->p_head = obj;
+    TYPE(obj->type)->p_len++;
 
-    if (obj != OBJ(ob_t))
+    if (obj != ob_t)
         Nst_dec_ref(ob_t);
 }
 
-Nst_Obj *_Nst_inc_ref(Nst_Obj *obj)
+void Nst_obj_traverse(Nst_Obj *obj)
 {
+    Nst_ObjTrav trav = TYPE(obj->type)->trav;
+    if (trav != NULL)
+        trav(obj);
+}
+
+Nst_ObjRef *Nst_inc_ref(Nst_Obj *obj)
+{
+    Nst_assert(obj != NULL);
     obj->ref_count++;
     return obj;
 }
 
-void _Nst_dec_ref(Nst_Obj *obj)
+Nst_ObjRef *Nst_ninc_ref(Nst_Obj *obj)
 {
+    if (obj != NULL)
+        return Nst_inc_ref(obj);
+    return NULL;
+}
+
+void Nst_dec_ref(Nst_ObjRef *obj)
+{
+    Nst_assert(obj != NULL);
     obj->ref_count--;
 
     // The ref_count should nevere be below zero
@@ -141,4 +264,10 @@ void _Nst_dec_ref(Nst_Obj *obj)
         _Nst_obj_destroy(obj);
         _Nst_obj_free(obj);
     }
+}
+
+void Nst_ndec_ref(Nst_ObjRef *obj)
+{
+    if (obj != NULL)
+        Nst_dec_ref(obj);
 }

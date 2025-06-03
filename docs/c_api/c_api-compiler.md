@@ -15,42 +15,19 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_InstList *Nst_compile(Nst_Node *ast, bool is_module)
+Nst_InstList Nst_compile(Nst_Node *ast, bool is_module)
 ```
 
 **Description:**
 
-Compiles the AST.
-
-Both `ast` and `error` are expected to be not NULL. The AST is destroyed when
-passed to this function.
+Compile the AST.
 
 **Parameters:**
 
-- `ast`: the AST to compile, will be freed by the function
+- `ast`: the AST to compile
 - `is_module`: whether the AST is of an imported module or of the main file
 
 **Returns:**
 
-The compiled [`Nst_InstList`](c_api-instructions.md#nst_instlist) or `NULL` if
-an error occurred. The error is set.
-
----
-
-### `Nst_inst_list_print`
-
-**Synopsis:**
-
-```better-c
-void Nst_inst_list_print(Nst_InstList *ls)
-```
-
-**Description:**
-
-Prints an [`Nst_InstList`](c_api-instructions.md#nst_instlist).
-
-This function is called when using the -b option.
-
-**Parameters:**
-
-- `ls`: the instruction list to print, it is expected to be valid
+The compiled [`Nst_InstList`](c_api-instructions.md#nst_instlist). If an error
+occurred the resulting instruction list has no instructions. The error is set.

@@ -1,0 +1,38 @@
+-/
+Optimizing the instructions will cause (compiled with -O0)
+
+   5 |   7:9   | SET_VAL       |   3 [(Str) 'var']
+   6 |   7:1   | POP_VAL       |
+   7 |   8:1   | GET_VAL       |   3 [(Str) 'var']
+   8 |   8:1   | JUMPIF_F      |  12
+   9 |   9:5   | PUSH_VAL      |   4 [(Int) 1]
+  10 |   9:9   | SET_VAL       |   5 [(Str) 'var2']
+  11 |   9:5   | POP_VAL       |
+  12 |   8:1   | PUSH_VAL      |   6 [(Null) null]
+  13 |   8:1   | POP_VAL       |
+  14 |  11:1   | GET_VAL       |   5 [(Str) 'var2']
+
+To become
+
+   5 |   7:9   | SET_VAL       |   3 [(Str) 'var']
+   6 |   7:1   | NO_OP         |
+   7 |   8:1   | NO_OP         |
+   8 |   8:1   | JUMPIF_F      |  12
+   9 |   9:5   | PUSH_VAL      |   4 [(Int) 1]
+  10 |   9:9   | SET_VAL_LOC   |   5 [(Str) 'var2']
+  11 |   9:5   | NO_OP         |
+  12 |   8:1   | NO_OP         |
+  13 |   8:1   | NO_OP         |
+  14 |  11:1   | GET_VAL       |   5 [(Str) 'var2']
+
+If GET_VAL is optimized because it is preceded by SET_VAL_LOC it is incorrect
+since there exists a jump to 12
+/-
+
+|#| '../test_lib.nest' = test
+
+false = var
+var ? [
+    1 = var2
+]
+var2 null @test.assert_eq

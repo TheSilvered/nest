@@ -20,7 +20,7 @@ i32 Nst_obj_hash(Nst_Obj *obj)
 
 **Description:**
 
-Hashes a Nest object setting its hash field.
+Hash a Nest object setting its hash field.
 
 If the object is not hashable `-1` is set.
 

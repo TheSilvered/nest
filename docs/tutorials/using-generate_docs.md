@@ -25,9 +25,11 @@ declaration, with multi-line comments you can do much more.
 
 Multi-line comments always begin with `/**` and each line after that must start
 with ` *` until the last line which must end with `*/`. And all text is split
-into blocks.
+into documentation contexts.
 
-A block begins either where the comment begins or where the previous block
+A context is defined using a tag such as `@brief` or `@return`.
+
+A context begins either where the comment begins or where the previous block
 ended and ends when the comment ends or a tag is found. Tags are used to
 categorize each block and a comment with no tag is considered to have a `null`
 one.
@@ -104,14 +106,14 @@ NstEXP i32 NstC Nst_some_random_function(int p1, int p2, ...);
 
 This comment generates this markdown:
 
-```text
+``````text
 ### `Nst_some_random_function`
 
 **Synopsis:**
 
-\```better-c
+```better-c
 i32 Nst_some_random_function(int p1, int p2, ...)
-\```
+```
 
 **Description:**
 
@@ -140,7 +142,7 @@ This function returns these values:
 - value 3
 
 and does not throw an error.
-```
+``````
 
 !!! note
     The backslash before the triple back ticks is not in the generated markdown,
@@ -222,6 +224,11 @@ prints out a warning.
 
 /* [docs:ignore_sym Nst_abc] */
 ```
+
+### `ignore_file`
+
+If a file starts with the line `/* [docs:ignore_file] */` (it must match
+exactly) the entire file is skipped.
 
 ### `raw`
 

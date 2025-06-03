@@ -1,8 +1,7 @@
-#include "nest.h"
-#include "test_nest.h"
+#include "tests.h"
 
 int main() {
-    Nst_init(NULL);
+    Nst_init();
 
 #ifdef Nst_MSVC
     _Nst_console_mode_init();
@@ -14,170 +13,236 @@ int main() {
 
     // argv_parser.h
 
-    RUN_TEST(test_parse_args);
+    test_run(test_cl_args_parse);
 
 #ifdef Nst_MSVC
-    RUN_TEST(test_wargv_to_argv);
+    test_run(test_wargv_to_argv);
 #endif
+
+    // dyn_array.h
+
+    test_run(test_da_init);
+    test_run(test_da_init_copy);
+    test_run(test_da_reserve);
+    test_run(test_da_append);
+    test_run(test_da_remove_swap);
+    test_run(test_da_remove_shift);
+    test_run(test_da_get);
+    test_run(test_da_set);
+    test_run(test_da_clear);
+    test_run(test_pa_init);
+    test_run(test_pa_init_copy);
+    test_run(test_pa_reserve);
+    test_run(test_pa_append);
+    test_run(test_pa_remove_swap);
+    test_run(test_pa_remove_shift);
+    test_run(test_pa_get);
+    test_run(test_pa_set);
+    test_run(test_pa_clear);
 
     // encoding.h
 
-    RUN_TEST(test_check_bytes);
-    RUN_TEST(test_to_utf32);
-    RUN_TEST(test_from_utf32);
-    RUN_TEST(test_utf16_to_utf8);
-    RUN_TEST(test_translate_cp);
-    RUN_TEST(test_check_string_cp);
-    RUN_TEST(test_string_char_len);
-    RUN_TEST(test_string_utf8_char_len);
-    RUN_TEST(test_char_to_wchar_t);
-    RUN_TEST(test_wchar_t_to_char);
-    RUN_TEST(test_is_valid_cp);
-    RUN_TEST(test_is_non_character);
-    RUN_TEST(test_check_bom);
-    RUN_TEST(test_detect_encoding);
-    RUN_TEST(test_encoding_from_name);
-    RUN_TEST(test_single_byte_cp);
+    test_run(test_check_bytes);
+    test_run(test_to_utf32);
+    test_run(test_from_utf32);
+    test_run(test_utf16_to_utf8);
+    test_run(test_encoding_translate);
+    test_run(test_encoding_check);
+    test_run(test_encoding_char_len);
+    test_run(test_encoding_utf8_char_len);
+    test_run(test_char_to_wchar_t);
+    test_run(test_wchar_t_to_char);
+    test_run(test_cp_is_valid);
+    test_run(test_cp_is_non_character);
+    test_run(test_check_bom);
+    test_run(test_encoding_detect);
+    test_run(test_encoding_from_name);
+    test_run(test_encoding_to_single_byte);
 
     // error.h
 
-    RUN_TEST(test_set_error);
-    RUN_TEST(test_set_error_c);
-    RUN_TEST(test_error_occurred);
-    RUN_TEST(test_error_get);
-    RUN_TEST(test_error_clear);
-    RUN_TEST(test_set_error_internal);
+    test_run(test_span_new);
+    test_run(test_span_from_pos);
+    test_run(test_span_join);
+    test_run(test_span_extend);
+    test_run(test_span_start);
+    test_run(test_span_end);
+    test_run(test_error_set);
+    test_run(test_error_setc);
+    test_run(test_error_setf);
+    test_run(test_error_failed_alloc);
+    test_run(test_error_add_span);
+    test_run(test_error_occurred);
+    test_run(test_error_get);
+    test_run(test_error_clear);
 
     // file.h
 
-    RUN_TEST(test_FILE_read);
-    RUN_TEST(test_FILE_write);
-    RUN_TEST(test_FILE_flush);
-    RUN_TEST(test_FILE_tell);
-    RUN_TEST(test_FILE_seek);
-    RUN_TEST(test_FILE_close);
-    RUN_TEST(test_io_result_details);
-    RUN_TEST(test_fopen_unicode);
+    test_run(test_FILE_read);
+    test_run(test_FILE_write);
+    test_run(test_FILE_flush);
+    test_run(test_FILE_tell);
+    test_run(test_FILE_seek);
+    test_run(test_FILE_close);
+    test_run(test_io_result_details);
+    test_run(test_fopen_unicode);
 
     // format.h
 
-    RUN_TEST(test_sprintf);
-    RUN_TEST(test_fmt);
+    test_run(test_sprintf);
+    test_run(test_fmt);
+    test_run(test_fmt_objs);
+    test_run(test_repr);
 
     // function.h
 
-    RUN_TEST(test_func_set_vt);
+    test_run(test_func_set_vt);
 
     // hash.h
 
-    RUN_TEST(test_obj_hash);
+    test_run(test_obj_hash);
 
     // iter.h
 
-    RUN_TEST(test_iter_start);
-    RUN_TEST(test_iter_get_val);
+    test_run(test_iter_start_func);
+    test_run(test_iter_next_func);
+    test_run(test_iter_value);
+    test_run(test_iter_start);
+    test_run(test_iter_get_val);
+    test_run(test_iter_range_new);
+    test_run(test_iter_seq_new);
+    test_run(test_iter_str_new);
+    test_run(test_iter_map_new);
 
     // lib_import.h
 
-    RUN_TEST(test_extract_args);
+    test_run(test_extract_args);
+    test_run(test_obj_custom);
+    test_run(test_obj_custom_ex);
+    test_run(test_obj_custom_data);
 
     // llist.h
 
-    RUN_TEST(test_llist_push);
-    RUN_TEST(test_llist_append);
-    RUN_TEST(test_llist_insert);
-    RUN_TEST(test_llist_pop);
-    RUN_TEST(test_llist_peek_front);
-    RUN_TEST(test_llist_peek_back);
-    RUN_TEST(test_llist_push_llnode);
-    RUN_TEST(test_llist_append_llnode);
-    RUN_TEST(test_llist_pop_llnode);
-    RUN_TEST(test_llist_empty);
-    RUN_TEST(test_llist_move_nodes);
+    test_run(test_llist_push);
+    test_run(test_llist_append);
+    test_run(test_llist_insert);
+    test_run(test_llist_pop);
+    test_run(test_llist_peek_front);
+    test_run(test_llist_peek_back);
+    test_run(test_llist_push_llnode);
+    test_run(test_llist_append_llnode);
+    test_run(test_llist_pop_llnode);
+    test_run(test_llist_empty);
+    test_run(test_llist_move_nodes);
 
     // map.h
 
-    RUN_TEST(test_map_set);
-    RUN_TEST(test_map_get);
-    RUN_TEST(test_map_drop);
-    RUN_TEST(test_map_copy);
-    RUN_TEST(test_map_get_next_idx);
-    RUN_TEST(test_map_get_prev_idx);
-    RUN_TEST(test_map_set_str);
-    RUN_TEST(test_map_get_str);
-    RUN_TEST(test_map_drop_str);
+    test_run(test_map_new);
+    test_run(test_map_copy);
+    test_run(test_map_len);
+    test_run(test_map_cap);
+    test_run(test_map_set);
+    test_run(test_map_get);
+    test_run(test_map_drop);
+    test_run(test_map_set_str);
+    test_run(test_map_get_str);
+    test_run(test_map_drop_str);
+    test_run(test_map_next);
+    test_run(test_map_prev);
 
     // mem.h
 
-    RUN_TEST(test_alloc);
-    RUN_TEST(test_sbuffer_expand_by);
-    RUN_TEST(test_sbuffer_expand_to);
-    RUN_TEST(test_sbuffer_fit);
-    RUN_TEST(test_sbuffer_append);
-    RUN_TEST(test_sbuffer_pop);
-    RUN_TEST(test_sbuffer_at);
-    RUN_TEST(test_sbuffer_shrink_auto);
-    RUN_TEST(test_sbuffer_copy);
-    RUN_TEST(test_buffer_expand_by);
-    RUN_TEST(test_buffer_expand_to);
-    RUN_TEST(test_buffer_fit);
-    RUN_TEST(test_buffer_append);
-    RUN_TEST(test_buffer_append_c_str);
-    RUN_TEST(test_buffer_append_str);
-    RUN_TEST(test_buffer_append_char);
-    RUN_TEST(test_buffer_to_string);
-    RUN_TEST(test_buffer_copy);
+    test_run(test_malloc);
+    test_run(test_calloc);
+    test_run(test_realloc);
+    test_run(test_crealloc);
+    test_run(test_memset);
 
     // sequence.h
 
-    RUN_TEST(test_seq_set);
-    RUN_TEST(test_seq_get);
-    RUN_TEST(test_seq_copy);
-    RUN_TEST(test_vector_append);
-    RUN_TEST(test_vector_remove);
-    RUN_TEST(test_vector_pop);
-    RUN_TEST(test_array_vector_create);
-    RUN_TEST(test_array_vector_create_c);
+    test_run(test_seq_new);
+    test_run(test_seq_from_objs);
+    test_run(test_seq_create);
+    test_run(test_seq_create_c);
+    test_run(test_seq_len);
+    test_run(test_vector_cap);
+    test_run(test_seq_objs);
+    test_run(test_seq_set);
+    test_run(test_seq_get);
+    test_run(test_seq_copy);
+    test_run(test_vector_append);
+    test_run(test_vector_remove);
+    test_run(test_vector_pop);
 
     // simple_types.h
 
-    RUN_TEST(test_number_to_u8);
-    RUN_TEST(test_number_to_int);
-    RUN_TEST(test_number_to_i32);
-    RUN_TEST(test_number_to_i64);
-    RUN_TEST(test_number_to_f32);
-    RUN_TEST(test_number_to_f64);
-    RUN_TEST(test_obj_to_bool);
+    test_run(test_number_to_u8);
+    test_run(test_number_to_int);
+    test_run(test_number_to_i32);
+    test_run(test_number_to_i64);
+    test_run(test_number_to_f32);
+    test_run(test_number_to_f64);
+    test_run(test_obj_to_bool);
+
+    // source_loader.h
+
+    test_run(test_source_from_sv);
 
     // str.h
 
-    RUN_TEST(test_str_copy);
-    RUN_TEST(test_str_repr);
-    RUN_TEST(test_str_get);
-    RUN_TEST(test_str_new_c_raw);
-    RUN_TEST(test_str_new_c);
-    RUN_TEST(test_str_new);
-    RUN_TEST(test_str_new_allocated);
-    RUN_TEST(test_str_new_len);
-    RUN_TEST(test_str_temp);
-    RUN_TEST(test_str_next);
-    RUN_TEST(test_str_next_obj);
-    RUN_TEST(test_str_next_utf32);
-    RUN_TEST(test_str_next_utf8);
-    RUN_TEST(test_str_parse_int);
-    RUN_TEST(test_str_parse_byte);
-    RUN_TEST(test_str_parse_real);
-    RUN_TEST(test_str_compare);
-    RUN_TEST(test_str_find);
-    RUN_TEST(test_str_rfind);
+    test_run(test_str_new_c);
+    test_run(test_str_new);
+    test_run(test_str_new_allocated);
+    test_run(test_str_new_len);
+    test_run(test_str_from_sv);
+    test_run(test_str_from_sb);
+    test_run(test_str_copy);
+    test_run(test_str_repr);
+    test_run(test_str_get_obj);
+    test_run(test_str_get);
+    test_run(test_str_next);
+    test_run(test_str_next_obj);
+    test_run(test_str_next_utf32);
+    test_run(test_str_next_utf8);
+    test_run(test_str_parse_int);
+    test_run(test_str_parse_byte);
+    test_run(test_str_parse_real);
+    test_run(test_str_compare);
 
-    Nst_printf("\nTests failed: %li\n", tests_failed_count());
+    // str_builder.h
+
+    test_run(test_sb_init);
+    test_run(test_sb_reserve);
+    test_run(test_sb_push);
+    test_run(test_sb_push_sv);
+    test_run(test_sb_push_str);
+    test_run(test_sb_push_c);
+    test_run(test_sb_push_cps);
+    test_run(test_sb_push_char);
+
+    // str_view.h
+
+    test_run(test_sv_new);
+    test_run(test_sv_new_c);
+    test_run(test_sv_from_str);
+    test_run(test_sv_from_sb);
+    test_run(test_sv_next);
+    test_run(test_sv_prev);
+    test_run(test_sv_parse_int);
+    test_run(test_sv_parse_byte);
+    test_run(test_sv_parse_real);
+    test_run(test_sv_compare);
+    test_run(test_sv_lfind);
+    test_run(test_sv_rfind);
+    test_run(test_sv_ltok);
+    test_run(test_sv_rtok);
+
+    Nst_printf("\nTests failed: %" PRIi32 "\n", tests_failed_count());
 
     Nst_quit();
 
-#ifdef Nst_COUNT_ALLOC
     Nst_log_alloc_count();
-#endif
+    Nst_log_alloc_info();
 
     if (tests_failed_count() != 0)
         return 1;

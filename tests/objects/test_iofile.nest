@@ -1,0 +1,12 @@
+|#| '../test_lib.nest' = test
+|#| 'stdio.nest' = io
+
+-- Test '::' operator
+'../stdlib/test_files/file.txt' @io.open = file
+Bool :: file true @test.assert_eq
+Str :: file '<IOFile[r--s-]>' @test.assert_eq
+file @io.close
+Bool :: file false @test.assert_eq
+'../stdlib/test_files/file.txt' 'rb+' @io.open = file
+Str :: file '<IOFile[rwbs-]>' @test.assert_eq
+file @io.close

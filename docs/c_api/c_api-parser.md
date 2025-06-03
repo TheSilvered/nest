@@ -15,14 +15,12 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_Node *Nst_parse(Nst_LList *tokens)
+Nst_Node *Nst_parse(Nst_DynArray *tokens)
 ```
 
 **Description:**
 
-Parses a list of tokens into an abstract syntax tree.
-
-The list of tokens is destroyed when calling this function.
+Parse a list of tokens into an abstract syntax tree.
 
 **Parameters:**
 

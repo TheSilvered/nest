@@ -18,31 +18,34 @@
 -- printed when the syntax does not adhere to the standard
 #warning message parser [
     sys.SUPPORTS_COLOR ? >>> '\e[33m'
-    'Warning' message parser @_logging_message @io.println
+    '  Warning' message parser @_logging_message @io.println
     sys.SUPPORTS_COLOR ? >>> '\e[0m'
 ]
 
 -- printed when data may be lost
 #error message parser [
     sys.SUPPORTS_COLOR ? >>> '\e[31m'
-    'Error' message parser @_logging_message @io.println
+    '  Error' message parser @_logging_message @io.println
     sys.SUPPORTS_COLOR ? >>> '\e[0m'
 ]
 
 -- printed when parsing cannot continue on the file
 #fatal message parser [
     sys.SUPPORTS_COLOR ? >>> '\e[31m'
-    'Fatal' message parser @_logging_message >< @io.println
+    '  Fatal' message parser @_logging_message >< @io.println
     sys.SUPPORTS_COLOR ? >>> '\e[0m'
     true = parser.fatal_error
 ]
 
 -/ ================================ Parser ================================= /-
 
+-- create a new parser
 #parser_new file_name lines [
     => {'file': file_name, 'lines': lines, 'idx': -1, 'fatal_error': false}
 ]
 
+-- advance the parser to the next line and return it
+-- return `null` when there are no more lines
 #parser_next_line parser [
     parser.idx 1 + $parser.lines < ? [
         1 += parser.idx
@@ -52,15 +55,8 @@
     => null
 ]
 
-#parser_prev_line parser [
-    parser.idx 1 - -1 > ? [
-        1 -= parser.idx
-        parser.lines.(parser.idx) = line
-        => line @su.rtrim
-    ]
-    => null
-]
-
+-- get the current line
+-- return `null` when there are no more lines to parse
 #parser_curr_line parser [
     => -1 parser.idx $parser.lines < ?
         parser.lines.(parser.idx) @su.rtrim
@@ -68,12 +64,15 @@
         null
 ]
 
+-- get information about the current position of the parser
 #parser_pos_info parser [
     => "(file \(parser.file @su.repr), line \(parser.idx 1 +))"
 ]
 
 -/ ========================= Parsing documentation ========================= /-
 
+-- parse one documentation block and advance the parser
+-- return `null` when there are no more blocks to parse
 #get_next_doc_block parser data_map [
     ?.. parser @parser_next_line = line null != [
         line @su.ltrim = trimmed_line
@@ -94,6 +93,7 @@
     => null
 ]
 
+-- get to the end of a block without parsing (used for [docs:ignore])
 #_reach_block_end parser [
     parser @parser_curr_line = curr_line
     curr_line '*/' @su.ends_with ? => true
@@ -128,6 +128,7 @@
     'error'
 } @sequ.enum = LINK_TYPES
 
+-- create a new map for symbol documentation (functions, structs, enums, ...)
 #_sym_info_map [
     => {
         '_type': BLOCK_MAP_TYPES.sym_info,
@@ -139,6 +140,7 @@
     }
 ]
 
+-- create a new map for the file header
 #_file_info_map [
     => {
         '_type': BLOCK_MAP_TYPES.file_info,
@@ -149,6 +151,7 @@
     }
 ]
 
+-- create a new map for raw blocks
 #_raw_block_map [
     => {
         '_type': BLOCK_MAP_TYPES.raw_block,
@@ -156,6 +159,7 @@
     }
 ]
 
+-- create a new map for linking information (used for [docs:link])
 #_link_info_map [
     => {
         '_type': BLOCK_MAP_TYPES.link_info,
@@ -166,6 +170,7 @@
     }
 ]
 
+-- parse the data inside a block
 #_get_block_data parser data_map [
     parser @parser_curr_line = line
     {} = data
@@ -176,7 +181,8 @@
     trimmed_line '*/' @su.ends_with = is_one_line
 
     trimmed_line '/**' @su.starts_with is_one_line && ? [
-        "one-line doc should start with '/*'' not '/**'" parser @warning
+        "single line documentation comments should start with '/*' not '/**'" \
+            parser @warning
         trimmed_line 1 @sequ.slice = trimmed_line
     ]
 
@@ -188,20 +194,26 @@
 
     is_one_line ? [
         trimmed_line 2 -2 @sequ.slice = trimmed_line
-        !(trimmed_line.0 trimmed_line.-1 ' ' ==) ?
+        !(trimmed_line.0 trimmed_line.-1 ' ' ==) ? [
             "white space should be left after '/*' and before '*/" \
-            parser @warning
+                parser @warning
+        ]
         trimmed_line @su.trim = trimmed_line
 
         trimmed_line '[docs:' @su.starts_with ?
             => parser trimmed_line @_docs_link_data
+        trimmed_line '@' @su.starts_with ? [
+            'tags are not supported in single line documentation comments' \
+                parser @warning
+        ]
 
         <{trimmed_line}> = data_map.(null)
         => data_map
     ]
 
     !(trimmed_line '/**' @su.starts_with) ? [
-        "multi-line doc blocks should start with '/**'" parser @warning
+        "multi-line documentation blocks should start with '/**'" \
+            parser @warning
         trimmed_line 2 @sequ.slice = trimmed_line
     ] : [
         trimmed_line 3 @sequ.slice = trimmed_line
@@ -214,14 +226,14 @@
         '' = curr_text
     ]
 
-    null = curr_context
+    null = curr_tag
     curr_text ':' @su.ends_with = can_be_list
     false = in_list
 
     ?.. parser @parser_next_line = line null != [
         line @su.ltrim = trimmed_line
         !trimmed_line ? [
-            'doc blocks should not contain completly emtpy lines' \
+            'documentation blocks should not contain completly emtpy lines' \
             parser @warning
             ..
         ]
@@ -235,24 +247,24 @@
         trimmed_line '*/' @su.ends_with ? [
             trimmed_line '*/' != ?
                 'closing line cannot contain text in blocks' parser @error
-            => curr_text data_map curr_context @_append_curr_text
+            => curr_text data_map curr_tag parser @_append_curr_text
         ]
         trimmed_line 1 @sequ.slice = trimmed_line
 
+        '*' = c
         trimmed_line '!' @su.starts_with (can_be_list in_list ||) && ? [
             true = in_list
             trimmed_line 1 @sequ.slice = trimmed_line
-            trimmed_line '' == ?
-                "blocks should not end with ' *!'" parser @warning
-            :
+            trimmed_line '' == ? [
+                "lines that start with ' *!' should not be empty" \
+                    parser @warning
+            ] :
                 '\n' ><= curr_text
             '!' = c
-        ] : [
-            '*' = c
         ]
 
         trimmed_line '' == ? [
-            curr_text data_map curr_context @_append_curr_text
+            curr_text data_map curr_tag parser @_append_curr_text
             '' = curr_text
             ..
         ]
@@ -261,9 +273,9 @@
             "there should be white space after '\(c)'" parser @warning
         trimmed_line @su.ltrim = trimmed_line
         trimmed_line '@' @su.starts_with ? [
-            parser trimmed_line data_map @_get_context \
-                = {curr_context, new_text}
-            curr_text data_map curr_context @_append_curr_text
+            parser trimmed_line data_map @_get_tag \
+                = {curr_tag, new_text}
+            curr_text data_map curr_tag parser @_append_curr_text
             new_text = curr_text
             curr_text ':' @su.ends_with = can_be_list
             ..
@@ -272,7 +284,7 @@
         curr_text ':' @su.ends_with = can_be_list
     ]
 
-    'doc block was not closed' parser @fatal
+    'the documentation block was not closed' parser @fatal
     => null
 ]
 
@@ -287,43 +299,49 @@
     ]
 ]
 
-#_append_curr_text curr_text data_map curr_context [
-    curr_context null == !(data_map curr_context <.>) && ?
+-- Append the contents of a tag
+#_append_curr_text curr_text data_map curr_tag parser [
+    curr_tag null == !(data_map curr_tag <.>) && ?
         =>
-    curr_text '' != ?
-        data_map.(curr_context) curr_text +
+    curr_text '' == ?
+        => data_map
+    (curr_tag 'param' ==) !(curr_text ':' <.>) && ? [
+        "':' not found in @param tag" parser @error
+        => data_map
+    ]
+    data_map.(curr_tag) curr_text +
     => data_map
 ]
 
-#_get_context parser line data_map [
-    '' = context_name
+#_get_tag parser line data_map [
+    '' = tag_name
 
     ... line 1 @sequ.slice_i := c [
-        c @su.is_alpha ? c ><= context_name : ;
+        c @su.is_alpha ? c ><= tag_name : ;
     ]
 
-    context_name '' == ? [
-        "missing block name after '@'" parser @error
+    tag_name '' == ? [
+        "missing tag name after '@'" parser @error
         => {'_ignored', ''}
     ]
 
-    !(data_map context_name <.>) ? [
-        '\(context_name @su.repr) is not a valid block name' parser @error
+    !(data_map tag_name <.>) ? [
+        '\(tag_name @su.repr) is not a valid tag name' parser @error
         => {'_ignored', ''}
     ]
 
-    line ($context_name 1 +) @sequ.slice = content
+    line ($tag_name 1 +) @sequ.slice = content
     !(content @su.trim) ? [
-        'content should follow the name of the block' parser @warning
-        => {contex_name, ''}
+        'content should follow the name of the tag' parser @warning
+        => {tag_name, ''}
     ]
 
     content.0 ' ' != ? [
-        'there should be whitespace after the name of the block' \
+        'there should be whitespace after the name of the tag' \
         parser @warning
     ]
     content @su.trim = content
-    => {context_name, content}
+    => {tag_name, content}
 ]
 
 #_raw_block_data parser [
@@ -684,7 +702,7 @@
 ]
 
 #_split_args text [
-    text ',' @su.lsplit su.trim @sequ.map = maybe_args
+    text 'Nst_WIN_FMT ' @su.replace ',' @su.lsplit su.trim @sequ.map = maybe_args
 
     <{}> = args
     '' = curr_arg
@@ -759,7 +777,7 @@
     symbol_text null close_brace @sequ.slice = synopsis
     synopsis 'struct _' @su.replace = synopsis
     symbol_type SYMBOL_TYPES.struct == ?
-        synopsis name 'struct _\(name)' @su.replace = synopsis
+        synopsis '\(name) ' 'struct _\(name) ' @su.replace = synopsis
     '} \(name)' ><= synopsis
 
     symbol_type @_symbol_data_map = data_map
@@ -1082,7 +1100,7 @@
 
     header_name (file_path @fs.path.filename) != ? [
         'file name in header \(header_name @su.repr) does not correspond ' \
-            'to the one of the file' >< parser @warning
+            'to the name of the file' >< parser @warning
     ]
 
     ?.. parser @get_next_doc_block = block [

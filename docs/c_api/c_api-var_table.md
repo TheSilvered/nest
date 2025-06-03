@@ -8,38 +8,6 @@ TheSilvered
 
 ---
 
-## Macros
-
-### `Nst_vt_get`
-
-**Synopsis:**
-
-```better-c
-#define Nst_vt_get(vt, name)
-```
-
-**Description:**
-
-Alias of [`_Nst_vt_get`](c_api-var_table.md#_nst_vt_get) that casts `name` to
-[`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
-### `Nst_vt_set`
-
-**Synopsis:**
-
-```better-c
-#define Nst_vt_set(vt, name, val)
-```
-
-**Description:**
-
-Alias of [`_Nst_vt_set`](c_api-var_table.md#_nst_vt_set) that casts `name` and
-`val` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
 ## Structs
 
 ### `Nst_VarTable`
@@ -48,8 +16,8 @@ Alias of [`_Nst_vt_set`](c_api-var_table.md#_nst_vt_set) that casts `name` and
 
 ```better-c
 typedef struct _Nst_VarTable {
-    Nst_MapObj *vars;
-    Nst_MapObj *global_table;
+    Nst_ObjRef *vars;
+    Nst_ObjRef *global_table;
 } Nst_VarTable
 ```
 
@@ -66,18 +34,18 @@ Structure representing the Nest variable table
 
 ## Functions
 
-### `Nst_vt_new`
+### `Nst_vt_init`
 
 **Synopsis:**
 
 ```better-c
-Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_SeqObj *args,
-                         bool no_default)
+bool Nst_vt_init(Nst_VarTable *vt, Nst_Obj *global_table, Nst_Obj *args,
+                 bool no_default)
 ```
 
 **Description:**
 
-Creates a new var table on the heap.
+Initialize a variable table.
 
 **Parameters:**
 
@@ -87,6 +55,10 @@ Creates a new var table on the heap.
 - `args`: the command line arguments, ignored when `global_table` is not `NULL`
   or `no_default` is `true`
 - `no_default`: whether to create predefined variables
+
+**Returns:**
+
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -100,21 +72,22 @@ void Nst_vt_destroy(Nst_VarTable *vt)
 
 **Description:**
 
-[`Nst_VarTable`](c_api-var_table.md#nst_vartable) destructor.
+Destroy the contents of an [`Nst_VarTable`](c_api-var_table.md#nst_vartable). If
+`_vars_` still points to the `vars` field of the table it is dropped.
 
 ---
 
-### `_Nst_vt_get`
+### `Nst_vt_get`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_vt_get(Nst_VarTable *vt, Nst_Obj *name)
+Nst_ObjRef *Nst_vt_get(Nst_VarTable vt, Nst_Obj *name)
 ```
 
 **Description:**
 
-Retrieves a value from a variable table.
+Get a value from a variable table.
 
 **Parameters:**
 
@@ -129,17 +102,17 @@ table.
 
 ---
 
-### `_Nst_vt_set`
+### `Nst_vt_set`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val)
+bool Nst_vt_set(Nst_VarTable vt, Nst_Obj *name, Nst_Obj *val)
 ```
 
 **Description:**
 
-Sets a value in a variable table.
+Set a value in a variable table.
 
 **Parameters:**
 
@@ -150,25 +123,3 @@ Sets a value in a variable table.
 **Returns:**
 
 `true` on success and `false` on failure. The error is set.
-
----
-
-### `Nst_vt_from_func`
-
-**Synopsis:**
-
-```better-c
-Nst_VarTable *Nst_vt_from_func(Nst_FuncObj *f)
-```
-
-**Description:**
-
-Creates a new variable table with the correct global table of the function.
-
-**Parameters:**
-
-- `f`: the function where the global table is stored
-
-**Returns:**
-
-The new var table or `NULL` on failure. The error is set.
