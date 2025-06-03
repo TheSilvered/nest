@@ -519,7 +519,9 @@ static bool parse_real_with_sep(Nst_StrView sv, isize start, isize end,
 {
     u8 stack_buf[REAL_BUF_SIZE] = {0};
     u8 *buf = stack_buf;
-    usize num_len = (end == -1 ? sv.len : end) - start - sep_count;
+    usize num_len = (end == -1 ? sv.len : (usize)end)
+                  - (usize)start
+                  - sep_count;
 
     if (num_len > REAL_BUF_SIZE) {
         buf = Nst_calloc(num_len + 1, 1, NULL);
@@ -538,7 +540,9 @@ static bool parse_real_with_sep(Nst_StrView sv, isize start, isize end,
         }
         isize ch_start = offset;
         offset = Nst_sv_next(sv, offset, &ch);
-        usize ch_len = offset < 0 ? sv.len - ch_start : offset - ch_start;
+        usize ch_len = offset < 0
+            ? sv.len - (usize)ch_start
+            : (usize)(offset - ch_start);
         memcpy(buf + buf_idx, sv.value + ch_start, ch_len);
         buf_idx += ch_len;
     }
