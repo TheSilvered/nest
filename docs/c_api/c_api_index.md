@@ -1,28 +1,28 @@
 # Introduction
 
-The Nest C API allows you to write C libraries for the Nest Programming
-Language or to use Nest inside your C or C++ program. These documents explain
-all the functions, macros and structs defined inside the library.
+The C API allows you to write C libraries for Nest or to use Nest inside your C
+or C++ program. These documents explain all the symbols defined inside the
+library.
 
 ## Type definitions
 
 Instead of using standard C types, the file `typedefs.h` defines some clearer
 types inspired by Rust:
 
-| Type name | C Equivalent         |
-| --------- | -------------------- |
-| `i8`      | `char`               |
-| `u8`      | `unsigned char`      |
-| `i16`     | `short`              |
-| `u16`     | `unsigned short`     |
-| `i32`     | `long`               |
-| `u32`     | `unsigned long`      |
-| `i64`     | `long long`          |
-| `u64`     | `unsigned long long` |
-| `f32`     | `float`              |
-| `f64`     | `double`             |
-| `usize`   | `size_t`             |
-| `isize`   | `ptrdiff_t`          |
+| Type name | C Equivalent |
+| --------- | ------------ |
+| `i8`      | `int8_t`     |
+| `u8`      | `uint8_t`    |
+| `i16`     | `int16_t`    |
+| `u16`     | `uint16_t`   |
+| `i32`     | `int32_t`    |
+| `u32`     | `uint32_t`   |
+| `i64`     | `int64_t`    |
+| `u64`     | `uint64_t`   |
+| `f32`     | `float`      |
+| `f64`     | `double`     |
+| `usize`   | `size_t`     |
+| `isize`   | `ptrdiff_t`  |
 
 ## Code style
 
@@ -49,26 +49,6 @@ NstEXP bool NstC Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf,  //
 bool res = Nst_translate_cp(&Nst_cp_utf8, &Nst_cp_utf16, (void *)str, len, (void **)&out_str, NULL);
 ```
 
-If the line is too long you can reduce it in various ways:
-
-- put the arguments of a function call on separate lines, though you can put
-  related arguments on the same one
-- put the arguments of a function definition on different lines that are all
-  indented to be aligned with the first argument
-- split the accessing of fields in structs before the dot or the arrow
-  ```better-c
-  // This is good
-  Nst_state.idx = Nst_fstack_peek()
-      .func->body
-      .bytecode->total_size;
-
-  // This is wrong
-  Nst_state.idx = Nst_fstack_peek().
-      func->body.
-      bytecode->total_size;
-  ```
-- maybe you have too many operations on one line and you should split them up
-
 ### Indentation
 
 Each level of indentation must be of exactly four spaces, not tabs. There is no
@@ -87,24 +67,22 @@ multiple lines and are always indented to the first one.
 
 ```better-c
 // This is good
-NstEXP Nst_LList *NstC nst_tokenizef(i8 *filename, bool force_cp1252,
-                                     i32 *opt_level, bool *no_default,
-                                     Nst_SourceText *src_text,
-                                     Nst_Error *error);
+NstEXP bool NstC Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, u32 sep,
+                                  i64 *out_num, Nst_StrView *out_rest);
 
 // This is wrong
-NstEXP Nst_LList *NstC
-nst_tokenizef(i8 *filename, bool force_cp1252, i32 *opt_level, bool *no_default,
-              Nst_SourceText *src_text, Nst_Error *error);
+NstEXP bool *NstC
+Nst_sv_parse_int(Nst_StrView sv, u8 base, u32 flags, u32 sep, i64 *out_num,
+                 Nst_StrView *out_rest);
 
 // This is also wrong
-NstEXP Nst_LList *NstC nst_tokenizef(
-    i8 *filename,
-    bool force_cp1252,
-    i32 *opt_level,
-    bool *no_default,
-    Nst_SourceText *src_text,
-    Nst_Error *error
+NstEXP bool NstC Nst_sv_parse_int(
+    Nst_StrView sv,
+    u8 base,
+    u32 flags,
+    u32 sep,
+    i64 *out_num,
+    Nst_StrView *out_rest
 );
 ```
 
@@ -126,20 +104,18 @@ i8 *Nst_wchar_t_to_char(wchar_t *str, usize len) {
 
 ### Nomenclature
 
-All exported names should begin with either `Nst_` or `_Nst_`, with the
-exception of type casts defined to make the code shorter and more readable.
-Which one to use depends on whether the function is intended for public or
-internal use.
+All exported names should begin with `Nst_`, shorter integers, `NstC`,
+`NstEXP` and `NstOBJ` are the only exceptions.
 
 Macros, aside from `Nst_` and `_Nst_`, should use uppercase with the words
 separated by underscores (Ex. `Nst_RETURN_COND`).
 
 Functions, aside from `Nst_` and `_Nst_`, should use snake case, with lowercase
-words separated by underscores (Ex. `Nst_buffer_expand_by`).
+words separated by underscores (Ex. `Nst_encoding_from_name`).
 
 Types (including structs, enums, typedefs and unions), aside from `Nst_` or
 `_Nst_` should use pascal case where each word has its first letter capitalized
-(Ex. `Nst_StrObj`).
+(Ex. `Nst_StrView`).
 
 When declaring a struct it should always be in this format:
 
@@ -192,61 +168,56 @@ Nst_calloc_c(_Nst_MAP_MIN_SIZE , Nst_MapNode , NULL);
 
 A macro should always require a semicolon when put on its own line.
 When defining a macro, if it spans multiple lines the backslashes should be put
-as the last character of the line.
+as the last character of the line though in this case you should prefer a
+function over a macro.
+
 If the macro needs to be wrapped inside a `do { ... } while (0)`, the `do {`
 should be in the same line as the name of the macro and `} while (0)` on the
 last line, at the same indentation of the rest of the macro's body using always
-a zero `0` and *not* `false`. The body itself should be ad one level of
+a zero `0` and *not* `false`. The body itself should be at one level of
 indentation.
-If the name of the macro with the arguments is too long to fit into one line,
-or the `do {` would exceed the 79 character length, you should consider making
-the macro a function.
 
 ```better-c
 // This is good
 #define Nst_OBJ_IS_TRACKED(obj) (GGC_OBJ(obj)->ggc_list != NULL)
 
 // This is also good
-#define Nst_GGC_OBJ_INIT(obj, trav_func, track_function) do {                 \
-    obj->ggc_prev = NULL;                                                     \
-    obj->ggc_next = NULL;                                                     \
+#define Nst_GGC_OBJ_INIT(obj) do {                                            \
+    obj->p_prev = NULL;                                                       \
     obj->ggc_list = NULL;                                                     \
-    obj->traverse_func = (void (*)(Nst_Obj *))(trav_func);                    \
-    obj->track_func = (void (*)(Nst_Obj *))(track_function);                  \
-    Nst_FLAG_SET(obj, Nst_FLAG_GGC_IS_SUPPORTED);                             \
+    obj->ggc_ref_count = 0;                                                   \
+    Nst_SET_FLAG(obj, Nst_FLAG_GGC_IS_SUPPORTED);                             \
+    Nst_ggc_track_obj((Nst_GGCObj *)(obj));                                   \
     } while (0)
 
 // This is wrong
 #define Nst_GGC_OBJ_INIT(obj, trav_func, track_function)                      \
     do {                                                                      \
-        obj->ggc_prev = NULL;                                                 \
-        obj->ggc_next = NULL;                                                 \
+        obj->p_prev = NULL;                                                   \
         obj->ggc_list = NULL;                                                 \
-        obj->traverse_func = (void (*)(Nst_Obj *))(trav_func);                \
-        obj->track_func = (void (*)(Nst_Obj *))(track_function);              \
-        Nst_FLAG_SET(obj, Nst_FLAG_GGC_IS_SUPPORTED);                         \
+        obj->ggc_ref_count = 0;                                               \
+        Nst_SET_FLAG(obj, Nst_FLAG_GGC_IS_SUPPORTED);                         \
+        Nst_ggc_track_obj((Nst_GGCObj *)(obj));                               \
     } while (0)
 
 #define Nst_GGC_OBJ_INIT(obj, trav_func, track_function) do {                 \
-    obj->ggc_prev = NULL;                                                     \
-    obj->ggc_next = NULL;                                                     \
+    obj->p_prev = NULL;                                                       \
     obj->ggc_list = NULL;                                                     \
-    obj->traverse_func = (void (*)(Nst_Obj *))(trav_func);                    \
-    obj->track_func = (void (*)(Nst_Obj *))(track_function);                  \
-    Nst_FLAG_SET(obj, Nst_FLAG_GGC_IS_SUPPORTED);                             \
+    obj->ggc_ref_count = 0;                                                   \
+    Nst_SET_FLAG(obj, Nst_FLAG_GGC_IS_SUPPORTED);                             \
+    Nst_ggc_track_obj((Nst_GGCObj *)(obj));                                   \
     } while (false)
 
 #define Nst_GGC_OBJ_INIT(obj, trav_func, track_function) do { \
-    obj->ggc_prev = NULL; \
-    obj->ggc_next = NULL; \
+    obj->p_prev = NULL; \
     obj->ggc_list = NULL; \
-    obj->traverse_func = (void (*)(Nst_Obj *))(trav_func); \
-    obj->track_func = (void (*)(Nst_Obj *))(track_function); \
-    Nst_FLAG_SET(obj, Nst_FLAG_GGC_IS_SUPPORTED); \
+    obj->ggc_ref_count = 0; \
+    Nst_SET_FLAG(obj, Nst_FLAG_GGC_IS_SUPPORTED); \
+    Nst_ggc_track_obj((Nst_GGCObj *)(obj)); \
     } while (0)
 ```
 
-### Documenting
+### Documentation
 
 The header file should always contain a short description of what the file
 contains and the author in this format.
@@ -255,9 +226,9 @@ contains and the author in this format.
 /**
  * @file filename.h
  *
- * @brief Brief description
+ * @brief A brief description
  *
- * @author Author's name or Github
+ * @author The author's name
  */
 ```
 
@@ -275,8 +246,8 @@ complex, you should use a multi line comment with the following format:
 
 ```better-c
 /**
- * @brief Sets the global operation error creating a string object from the
- * given message and using "Syntax Error" as the name.
+ * Sets the global operation error creating a string object from the given
+ * message and using "Syntax Error" as the name.
  */
 NstEXP void NstC Nst_set_syntax_error_c(const i8 *msg);
 ```
@@ -301,4 +272,21 @@ specifications:
  */
 NstEXP Nst_InstList *NstC Nst_compile(Nst_Node *ast, bool is_module,
                                       Nst_Error *error);
+```
+
+Note that tags (`@brief`, `@return`, ...) only work in multi-line documentation
+blocks so this does not work:
+
+```better-c
+/* @return The value of a Nest `Str` object. */
+NstEXP u8 *NstC Nst_str_value(Nst_Obj *str);
+```
+
+and it must be written like this:
+
+```better-c
+/**
+ * @return The value of a Nest `Str` object.
+ */
+NstEXP u8 *NstC Nst_str_value(Nst_Obj *str);
 ```
