@@ -52,6 +52,10 @@ NstEXP Nst_ObjRef *NstC Nst_str_from_sv(Nst_StrView sv);
 /**
  * Iterate through a `Nst_StrView`, assuming it contains `UTF-8`-encoded data.
  *
+ * @brief Note: `idx` always points to the index of the first byte of the
+ * current character, therefore this function can be used with `Nst_sv_prev` to
+ * navigate a `Nst_StrView`.
+ *
  * @param sv: the string view to iterate through
  * @param idx: the current iteration index, use `-1` to begin iterating
  * @param out_ch: pointer set to the codepoint of the character, it may be
@@ -64,6 +68,10 @@ NstEXP isize NstC Nst_sv_next(Nst_StrView sv, isize idx, u32 *out_ch);
 /**
  * Iterate through a `Nst_StrView` from the end, assuming it contains
  * `UTF-8`-encoded data.
+ *
+ * @brief Note: `idx` always points to the index of the first byte of the
+ * current character, therefore this function can be used with `Nst_sv_next` to
+ * navigate a `Nst_StrView`.
  *
  * @param sv: the string view to iterate through
  * @param idx: the current iteration index, use `-1` to begin iterating

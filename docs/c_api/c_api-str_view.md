@@ -134,6 +134,12 @@ isize Nst_sv_next(Nst_StrView sv, isize idx, u32 *out_ch)
 Iterate through a [`Nst_StrView`](c_api-str_view.md#nst_strview), assuming it
 contains `UTF-8`-encoded data.
 
+!!!note
+    `idx` always points to the index of the first byte of the current character,
+    therefore this function can be used with
+    [`Nst_sv_prev`](c_api-str_view.md#nst_sv_prev) to navigate a
+    [`Nst_StrView`](c_api-str_view.md#nst_strview).
+
 **Parameters:**
 
 - `sv`: the string view to iterate through
@@ -159,6 +165,12 @@ isize Nst_sv_prev(Nst_StrView sv, isize idx, u32 *out_ch)
 
 Iterate through a [`Nst_StrView`](c_api-str_view.md#nst_strview) from the end,
 assuming it contains `UTF-8`-encoded data.
+
+!!!note
+    `idx` always points to the index of the first byte of the current character,
+    therefore this function can be used with
+    [`Nst_sv_next`](c_api-str_view.md#nst_sv_next) to navigate a
+    [`Nst_StrView`](c_api-str_view.md#nst_strview).
 
 **Parameters:**
 

@@ -17,6 +17,8 @@
     goto error;                                                               \
     } while (0)
 
+#define REAL_BUF_SIZE 512
+
 Nst_StrView Nst_sv_new(u8 *value, usize len)
 {
     Nst_StrView sv = {
@@ -313,7 +315,7 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, u32 flags, u32 sep,
     i32 sign = 1;
     bool has_affix = false; // `0h` prefix or `b` suffix
 
-    isize offset = skip_whitespace(sv, 0, &ch);
+    isize offset = skip_whitespace(sv, -1, &ch);
     if (offset < 0)
         RETURN_BYTE_ERR;
 
@@ -479,16 +481,85 @@ error:
     return false;
 }
 
+// parse a run of digits with a separator
+static isize digit_run(Nst_StrView sv, isize offset, u32 sep, u32 *inout_ch,
+                       usize *inout_sep_count, bool *out_has_digits)
+{
+    u32 ch = *inout_ch;
+    bool has_digit_before_sep = false;
+    bool has_digits = false;
+    usize sep_count = 0;
+
+    while (offset >= 0) {
+        if (ch >= '0' && ch <= '9') {
+            has_digits = true;
+            has_digit_before_sep = true;
+        } else if (has_digit_before_sep && ch == sep && sep != 0) {
+            sep_count++;
+            has_digit_before_sep = false;
+        } else
+            break;
+        offset = Nst_sv_next(sv, offset, &ch);
+    }
+
+    if (!has_digit_before_sep && has_digits)
+        offset = Nst_sv_prev(sv, offset, &ch);
+
+    if (inout_sep_count != NULL)
+        *inout_sep_count += sep_count;
+    if (out_has_digits != NULL)
+        *out_has_digits = has_digits;
+    *inout_ch = ch;
+
+    return offset;
+}
+
+static bool parse_real_with_sep(Nst_StrView sv, isize start, isize end,
+                                u32 sep, usize sep_count, f64 *out_num)
+{
+    u8 stack_buf[REAL_BUF_SIZE] = {0};
+    u8 *buf = stack_buf;
+    usize num_len = (end == -1 ? sv.len : end) - start - sep_count;
+
+    if (num_len > REAL_BUF_SIZE) {
+        buf = Nst_calloc(num_len + 1, 1, NULL);
+        if (buf == NULL)
+            return false;
+    }
+
+    u32 ch;
+    isize offset = Nst_sv_next(sv, start, &ch);
+    memcpy(buf, sv.value + start, offset - start);
+    usize buf_idx = offset - start;
+    while (offset != end) {
+        if (ch == sep && sep != 0) {
+            offset = Nst_sv_next(sv, offset, &ch);
+            continue;
+        }
+        isize ch_start = offset;
+        offset = Nst_sv_next(sv, offset, &ch);
+        usize ch_len = offset < 0 ? sv.len - ch_start : offset - ch_start;
+        memcpy(buf + buf_idx, sv.value + ch_start, ch_len);
+        buf_idx += ch_len;
+    }
+
+    f64 result = Nst_strtod((const char *)buf, NULL);
+    if (buf != stack_buf)
+        Nst_free(buf);
+
+    *out_num = result;
+    return true;
+}
+
 bool Nst_sv_parse_real(Nst_StrView sv, u32 flags, u32 sep, f64 *out_num,
                        Nst_StrView *out_rest)
 {
     u32 ch;
-    u8 *buf;
-    f64 res;
-    bool contains_sep = false;
+    isize num_start = skip_whitespace(sv, -1, &ch);
+    isize offset = num_start;
+    isize num_end = -1;
+    f64 val = 0;
 
-    isize offset_without_exp = -1;
-    isize offset = skip_whitespace(sv, 0, &ch);
     if (offset < 0)
         RETURN_REAL_ERR;
 
@@ -497,114 +568,83 @@ bool Nst_sv_parse_real(Nst_StrView sv, u32 flags, u32 sep, f64 *out_num,
     if (offset < 0)
         RETURN_REAL_ERR;
 
-    bool has_digit = false;
-    bool has_digit_before_exp = false;
+    bool has_digits = false;
+    usize sep_count = 0;
+    offset = digit_run(sv, offset, sep, &ch, &sep_count, &has_digits);
 
-    while (offset >= 0) {
-        if (ch >= '0' && ch <= '9')
-            has_digit = true;
-        else if (ch == sep && sep != 0)
-            contains_sep = true;
+    if (offset < 0) {
+        if (!has_digits || flags & Nst_SVFLAG_STRICT_REAL)
+            RETURN_REAL_ERR;
         else
-            break;
-        offset = Nst_sv_next(sv, offset, &ch);
-    }
-
-    if (!has_digit && ch != '.')
+            goto end;
+    } else if (!has_digits && flags & Nst_SVFLAG_STRICT_REAL)
         RETURN_REAL_ERR;
-    else if (has_digit && ch != '.') {
-        if (flags & Nst_SVFLAG_STRICT_REAL)
+    else if (ch != '.') {
+        if (!has_digits || flags & Nst_SVFLAG_STRICT_REAL)
             RETURN_REAL_ERR;
         else
             goto exp;
-    } else if (!has_digit && ch == '.') {
-        if (flags & Nst_SVFLAG_STRICT_REAL)
-            RETURN_REAL_ERR;
-        offset = Nst_sv_next(sv, offset, &ch);
-    } else
-        offset = Nst_sv_next(sv, offset, &ch);
-
-    has_digit_before_exp = has_digit;
-    has_digit = false;
-
-    while (offset >= 0) {
-        if (ch >= '0' && ch <= '9')
-            has_digit = true;
-        else if (ch == sep && sep != 0)
-            contains_sep = true;
-        else
-            break;
-        offset = Nst_sv_next(sv, offset, &ch);
     }
 
-    if (!has_digit && flags & Nst_SVFLAG_STRICT_REAL)
-        RETURN_REAL_ERR;
-    has_digit_before_exp = has_digit_before_exp || has_digit;
+    // Skip the '.'
+    offset = Nst_sv_next(sv, offset, &ch);
 
-    if (!has_digit_before_exp)
+    bool has_digits_after_dot = false;
+    // Sep is disabled
+    offset = digit_run(sv, offset, 0, &ch, NULL, &has_digits_after_dot);
+
+    if (!has_digits_after_dot
+        && (!has_digits || flags & Nst_SVFLAG_STRICT_REAL))
+    {
         RETURN_REAL_ERR;
+    }
 
 exp:
-    // if the exponent is not valid and the syntax is not strict this is where
-    // the number actually ends
-    offset_without_exp = offset;
+    if (ch != 'e' && ch != 'E')
+        goto end;
 
-    if (ch == 'e' || ch == 'E') {
+    // No need to save ch, it is not used in `end`
+    num_end = offset;
+    offset = Nst_sv_next(sv, offset, &ch);
+    if (ch == '+' || ch == '-')
         offset = Nst_sv_next(sv, offset, &ch);
+    if (offset < 0)
+        RETURN_REAL_ERR;
 
-        if (ch == '+' || ch == '-')
-            offset = Nst_sv_next(sv, offset, &ch);
+    has_digits = false;
+    offset = digit_run(sv, offset, sep, &ch, &sep_count, &has_digits);
+    if (has_digits)
+        num_end = offset;
+end:
+    if (num_end < 0)
+        num_end = offset;
 
-        has_digit = false;
-        while (true) {
-            if (ch >= '0' && ch <= '9')
-                has_digit = true;
-            else if (ch == sep && sep != 0)
-                contains_sep = true;
-            else
-                break;
-            offset = Nst_sv_next(sv, offset, &ch);
-        }
-        if (!has_digit) {
-            if (flags & Nst_SVFLAG_STRICT_REAL)
-                RETURN_REAL_ERR;
-            else
-                offset = offset_without_exp;
-        }
-    }
-
-    if (offset >= 0)
-        offset = skip_whitespace(sv, offset, &ch);
+    // Skip any additional whitespace to allow trailig whitespace in FULL_MATCH
+    if (flags & Nst_SVFLAG_FULL_MATCH && offset >= 0)
+        offset = skip_whitespace(sv, offset, NULL);
     if (flags & Nst_SVFLAG_FULL_MATCH && offset >= 0)
         RETURN_REAL_ERR;
 
-    if (contains_sep) {
-        if (offset < 0)
-            offset = sv.len;
-        buf = Nst_malloc_c(offset, u8);
-        if (buf == NULL)
-            return false;
-        u8 *p = buf;
-        for (usize i = 0; i < (usize)offset; i++) {
-            if (sep == 0 || sv.value[i] != sep)
-                *p++ = sv.value[i];
-        }
-        *p = '\0';
-    } else
-        buf = sv.value;
+    // If sep is not set or is a digit sep_count is 0
 
-    res = Nst_strtod((char *)buf, NULL);
-    if (contains_sep)
-        Nst_free(buf);
-
-    if (out_num != NULL)
-        *out_num = res;
-    if (out_rest != NULL) {
-        if (offset < 0)
-            offset = sv.len;
-        *out_rest = Nst_sv_new(sv.value + offset, sv.len - offset);
+    if (sep_count == 0)
+        val = Nst_strtod((const char *)sv.value + num_start, NULL);
+    else if (!parse_real_with_sep(
+        sv,
+        num_start, num_end,
+        sep, sep_count,
+        &val))
+    {
+        goto error;
     }
 
+    if (out_num != NULL)
+        *out_num = val;
+    if (out_rest != NULL) {
+        if (num_end < 0)
+            num_end = sv.len;
+        *out_rest = Nst_sv_new(sv.value + num_end, sv.len - num_end);
+    }
     return true;
 
 error:

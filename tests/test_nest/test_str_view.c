@@ -838,7 +838,186 @@ TestResult test_sv_parse_byte(void)
 
 TestResult test_sv_parse_real(void)
 {
-    return TEST_NOT_IMPL;
+    TEST_ENTER;
+
+    f64 num;
+    Nst_StrView rest;
+
+    test_assert(!Nst_sv_parse_real(SV(""), 0, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_real(SV(" "), 0, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_real(SV("+"), 0, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_real(SV("-"), 0, 0, NULL, NULL));
+    test_assert(!Nst_sv_parse_real(SV("."), 0, 0, NULL, NULL));
+
+    test_with(Nst_sv_parse_real(SV("1"), 0, 0, &num, &rest)) {
+        test_assert(num == 1.0);
+        test_assert(rest.len == 0);
+    }
+    test_assert(!Nst_sv_parse_real(SV("1"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest));
+
+    test_with(Nst_sv_parse_real(SV("1.0"), 0, 0, &num, &rest)) {
+        test_assert(num == 1.0);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV("1.0"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest)) {
+        test_assert(num == 1.0);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV("1.00"), 0, 0, &num, &rest)) {
+        test_assert(num == 1.0);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV("1.00"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest)) {
+        test_assert(num == 1.0);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV("1.2"), 0, 0, &num, &rest)) {
+        test_assert(num == 1.2);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV("1.2"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest)) {
+        test_assert(num == 1.2);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV(".1"), 0, 0, &num, &rest)) {
+        test_assert(num == 0.1);
+        test_assert(rest.len == 0);
+    }
+    test_assert(!Nst_sv_parse_real(SV(".1"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest));
+    test_with(Nst_sv_parse_real(SV("0.1"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest)) {
+        test_assert(num == 0.1);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV("1e2"), 0, 0, &num, &rest)) {
+        test_assert(num == 100.0);
+        test_assert(rest.len == 0);
+    }
+    test_assert(!Nst_sv_parse_real(SV("1e2"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest));
+    test_with(Nst_sv_parse_real(SV("1.0e2"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest)) {
+        test_assert(num == 100.0);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV("1e+2"), 0, 0, &num, &rest)) {
+        test_assert(num == 100.0);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV("1.0e+2"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest)) {
+        test_assert(num == 100.0);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV("1e+2"), 0, 0, &num, &rest)) {
+        test_assert(num == 100.0);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV("1.0e-2"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest)) {
+        test_assert(num == 0.01);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV(".1e2"), 0, 0, &num, &rest)) {
+        test_assert(num == 10.0);
+        test_assert(rest.len == 0);
+    }
+    test_assert(!Nst_sv_parse_real(SV(".1e2"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest));
+    test_with(Nst_sv_parse_real(SV("0.1e2"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest)) {
+        test_assert(num == 10.0);
+        test_assert(rest.len == 0);
+    }
+    test_with(!Nst_sv_parse_real(SV("e1"), 0, 0, &num, &rest)) {
+        test_assert(num == 0.0);
+        test_assert(rest.len == 2);
+        test_assert(str_eq(rest.value, "e1"));
+    }
+    test_with(!Nst_sv_parse_real(SV(".e1"), 0, 0, &num, &rest)) {
+        test_assert(num == 0.0);
+        test_assert(rest.len == 3);
+        test_assert(str_eq(rest.value, ".e1"));
+    }
+    test_with(Nst_sv_parse_real(SV("1.e2"), 0, 0, &num, &rest)) {
+        test_assert(num == 100.0);
+        test_assert(rest.len == 0);
+    }
+    test_assert(!Nst_sv_parse_real(SV("1.e2"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest));
+    test_with(Nst_sv_parse_real(SV("1.2e3"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest)) {
+        test_assert(num == 1200.0);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV("1_23.1"), Nst_SVFLAG_STRICT_REAL, '_', &num, &rest)) {
+        test_assert(num == 123.1);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV("1__23.1"), 0, '_', &num, &rest)) {
+        test_assert(num == 1.0);
+        test_assert(rest.len == 6);
+        test_assert(str_eq(rest.value, "__23.1"));
+    }
+    test_assert(!Nst_sv_parse_real(SV("1__23.1"), Nst_SVFLAG_STRICT_REAL, 0, &num, &rest));
+    test_with(Nst_sv_parse_real(SV("1.0e2_3"), Nst_SVFLAG_STRICT_REAL, '_', &num, &rest)) {
+        test_assert(num == 1e23);
+        test_assert(rest.len == 0);
+    }
+    test_with(Nst_sv_parse_real(SV("1.0e2_3_"), Nst_SVFLAG_STRICT_REAL, '_', &num, &rest)) {
+        test_assert(num == 1e23);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "_"));
+    }
+    test_with(Nst_sv_parse_real(SV("1_2_"), 0, '_', &num, &rest)) {
+        test_assert(num == 12.0);
+        test_assert(rest.len == 1);
+        test_assert(str_eq(rest.value, "_"));
+    }
+
+    // A string long enough to cause a memory allocation in the function to
+    // remove the separators
+    const char *long_str = "1_2.0000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000000000000000000000"
+        "00000000000000000000000000000000000000000000000000000000000000000000";
+
+    test_with(Nst_sv_parse_real(SV(long_str), 0, '_', &num, &rest)) {
+        test_assert(num == 12.0);
+        test_assert(rest.len == 0);
+    }
+
+    test_with(Nst_sv_parse_real(SV("1"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_with(Nst_sv_parse_real(SV("1.0"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_with(Nst_sv_parse_real(SV("1.00"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_with(Nst_sv_parse_real(SV("1.2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_with(Nst_sv_parse_real(SV(".1"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_with(Nst_sv_parse_real(SV("1e2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_with(Nst_sv_parse_real(SV("1.0e2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_with(Nst_sv_parse_real(SV("1e+2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_with(Nst_sv_parse_real(SV("1.0e+2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_with(Nst_sv_parse_real(SV("1e-2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_with(Nst_sv_parse_real(SV("1.0e-2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_with(Nst_sv_parse_real(SV(".1e2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_with(Nst_sv_parse_real(SV("0.1e2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_with(Nst_sv_parse_real(SV("1_23.1"), Nst_SVFLAG_FULL_MATCH, '_', NULL, NULL));
+    test_with(!Nst_sv_parse_real(SV("1__23.1"), Nst_SVFLAG_FULL_MATCH, '_', NULL, NULL));
+    test_with(Nst_sv_parse_real(SV("1.0e2_3"), Nst_SVFLAG_FULL_MATCH, '_', NULL, NULL));
+    test_with(!Nst_sv_parse_real(SV("1.0e2_3_"), Nst_SVFLAG_FULL_MATCH, '_', NULL, NULL));
+
+    TEST_EXIT;
 }
 
 TestResult test_sv_compare(void)
