@@ -4,7 +4,7 @@
 
 **Additions**
 
-- added `-i` arguments that prints the instructions (old behavior of `-b`)
+- added `-i` or `--instructions` argument that prints the instructions (old behavior of `-b`)
 
 **Changes**
 
