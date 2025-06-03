@@ -999,23 +999,23 @@ TestResult test_sv_parse_real(void)
         test_assert(rest.len == 0);
     }
 
-    test_with(Nst_sv_parse_real(SV("1"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_with(Nst_sv_parse_real(SV("1.0"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_with(Nst_sv_parse_real(SV("1.00"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_with(Nst_sv_parse_real(SV("1.2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_with(Nst_sv_parse_real(SV(".1"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_with(Nst_sv_parse_real(SV("1e2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_with(Nst_sv_parse_real(SV("1.0e2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_with(Nst_sv_parse_real(SV("1e+2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_with(Nst_sv_parse_real(SV("1.0e+2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_with(Nst_sv_parse_real(SV("1e-2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_with(Nst_sv_parse_real(SV("1.0e-2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_with(Nst_sv_parse_real(SV(".1e2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_with(Nst_sv_parse_real(SV("0.1e2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
-    test_with(Nst_sv_parse_real(SV("1_23.1"), Nst_SVFLAG_FULL_MATCH, '_', NULL, NULL));
-    test_with(!Nst_sv_parse_real(SV("1__23.1"), Nst_SVFLAG_FULL_MATCH, '_', NULL, NULL));
-    test_with(Nst_sv_parse_real(SV("1.0e2_3"), Nst_SVFLAG_FULL_MATCH, '_', NULL, NULL));
-    test_with(!Nst_sv_parse_real(SV("1.0e2_3_"), Nst_SVFLAG_FULL_MATCH, '_', NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV("1"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV("1.0"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV("1.00"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV("1.2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV(".1"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV("1e2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV("1.0e2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV("1e+2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV("1.0e+2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV("1e-2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV("1.0e-2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV(".1e2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV("0.1e2"), Nst_SVFLAG_FULL_MATCH, 0, NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV("1_23.1"), Nst_SVFLAG_FULL_MATCH, '_', NULL, NULL));
+    test_assert(!Nst_sv_parse_real(SV("1__23.1"), Nst_SVFLAG_FULL_MATCH, '_', NULL, NULL));
+    test_assert(Nst_sv_parse_real(SV("1.0e2_3"), Nst_SVFLAG_FULL_MATCH, '_', NULL, NULL));
+    test_assert(!Nst_sv_parse_real(SV("1.0e2_3_"), Nst_SVFLAG_FULL_MATCH, '_', NULL, NULL));
 
     TEST_EXIT;
 }
