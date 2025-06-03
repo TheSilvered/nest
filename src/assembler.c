@@ -110,7 +110,7 @@ static usize calc_jump_remaps(JumpRemap *remaps, Nst_InstList *ls)
             Nst_Inst *inst = Nst_ilist_get_inst(ls, i);
             if (!Nst_ic_is_jump(inst->code))
                 continue;
-            usize dst = inst->val + remaps[inst->val].jump_offset;
+            usize dst = (usize)inst->val + remaps[inst->val].jump_offset;
             remaps[i].jump_dst = dst;
             // give up if a jump needs more OP_ARG_EXTEND
             if (val_size(dst) > remaps[i].arg_ext) {

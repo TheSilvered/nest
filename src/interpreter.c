@@ -1171,9 +1171,9 @@ static OpResult exe_op_call(void)
     }
 
     if (Nst_FUNC_IS_C(func))
-        return call_c_func(false, arg_num, NULL, func);
+        return call_c_func(false, (usize)arg_num, NULL, func);
 
-    bool result = push_func(func, Nst_state_span(), arg_num, NULL, NULL);
+    bool result = push_func(func, Nst_state_span(), (usize)arg_num, NULL, NULL);
     return result ? INST_NEW_FUNC : INST_FAILED;
 }
 

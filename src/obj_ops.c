@@ -359,10 +359,15 @@ Nst_Obj *Nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2)
     if (ob1->type == Nst_t.Vector && ob2->type == Nst_t.Int) {
         if (Nst_int_i64(ob2) == 0)
             return Nst_vector_new(0);
+        else if (Nst_int_i64(ob2) < 0) {
+            Nst_error_setc_value(
+                "cannot multiply a vector by a negative number");
+            return NULL;
+        }
 
         usize seq_len = Nst_seq_len(ob1);
         Nst_Obj **v_objs = Nst_seq_objs(ob1);
-        for (usize i = 0, n = Nst_int_i64(ob2) - 1; i < n; i++) {
+        for (usize i = 0, n = (usize)Nst_int_i64(ob2) - 1; i < n; i++) {
             for (usize j = 0; j < seq_len; j++) {
                 if (!Nst_vector_append(ob1, v_objs[j]))
                     return NULL;

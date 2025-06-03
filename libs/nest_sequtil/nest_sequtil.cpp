@@ -367,13 +367,11 @@ Nst_Obj *NstC merge_(usize arg_num, Nst_Obj **args)
     else
         new_seq = Nst_array_new(len1 + len2);
 
-    i64 i = 0;
-
-    for (i64 n = (i64)len1; i < n; i++)
-        Nst_seq_setf(new_seq, i, Nst_seq_getnf(seq1, i));
-
-    for (i64 j = i, n = (i64)len1; j - i < n; j++)
-        Nst_seq_setf(new_seq, j, Nst_seq_getnf(seq2, j - i));
+    usize i = 0;
+    for (usize j = 0; j < len1; j++)
+        Nst_seq_setf(new_seq, i++, Nst_seq_getnf(seq1, j));
+    for (usize j = 0; j < len2; j++)
+        Nst_seq_setf(new_seq, i++, Nst_seq_getnf(seq2, j));
 
     return new_seq;
 }
@@ -877,9 +875,9 @@ Nst_Obj *NstC lscan_(usize arg_num, Nst_Obj **args)
     Nst_inc_ref(prev_val);
     Nst_seq_setf(new_seq, 0, prev_val);
 
-    Nst_Obj *func_args[2];
+    Nst_Obj *func_args[2] = { 0 };
 
-    for (i64 i = 1; i < max_items; i++) {
+    for (usize i = 1; i < (usize)max_items; i++) {
         func_args[0] = prev_val;
         func_args[1] = Nst_seq_getnf(seq, i - 1);
         Nst_Obj *new_val = Nst_func_call(func, 2, func_args);
@@ -931,12 +929,12 @@ Nst_Obj *NstC rscan_(usize arg_num, Nst_Obj **args)
     }
 
     Nst_inc_ref(prev_val);
-    Nst_seq_setf(new_seq, max_items - 1, prev_val);
+    Nst_seq_setf(new_seq, (usize)max_items - 1, prev_val);
 
-    Nst_Obj *func_args[2];
-    i64 seq_len = (i64)Nst_seq_len(seq);
+    Nst_Obj *func_args[2] = { 0 };
+    usize seq_len = Nst_seq_len(seq);
 
-    for (i64 i = 1; i < max_items; i++) {
+    for (usize i = 1; i < (usize)max_items; i++) {
         func_args[0] = Nst_seq_getnf(seq, seq_len - i);
         func_args[1] = prev_val;
         Nst_Obj *new_val = Nst_func_call(func, 2, func_args);
@@ -946,7 +944,7 @@ Nst_Obj *NstC rscan_(usize arg_num, Nst_Obj **args)
             Nst_dec_ref(seq);
             return nullptr;
         }
-        Nst_seq_setf(new_seq, max_items - i - 1, new_val);
+        Nst_seq_setf(new_seq, (usize)max_items - i - 1, new_val);
         Nst_dec_ref(prev_val);
         prev_val = new_val;
     }

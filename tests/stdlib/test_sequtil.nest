@@ -489,12 +489,12 @@ Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 8 3 -1 @sequ.slice_i) {8, 7, 6, 5, 4}
 Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -7 9 2 @sequ.slice_i) {3, 5, 7} @test.assert_eq
 Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 30 -30 -1 @sequ.slice_i) {9, 8, 7, 6, 5, 4, 3, 2, 1, 0} @test.assert_eq
 
-{1, 3, 4} {2, 6, 8} @sequ.merge {1, 3, 4, 2, 6, 8} @test.assert_eq
-<{1, 3, 4}> {2, 6, 8} @sequ.merge {1, 3, 4, 2, 6, 8} @test.assert_eq
+{1, 3} {4, 2, 6, 8} @sequ.merge {1, 3, 4, 2, 6, 8} @test.assert_eq
+<{1, 3, 4, 2}> {6, 8} @sequ.merge {1, 3, 4, 2, 6, 8} @test.assert_eq
 {1, 3, 4} <{2, 6, 8}> @sequ.merge {1, 3, 4, 2, 6, 8} @test.assert_eq
 <{1, 3, 4}> <{2, 6, 8}> @sequ.merge {1, 3, 4, 2, 6, 8} @test.assert_eq
-?:: ({1, 3, 4} {2, 6, 8} @sequ.merge) Array @test.assert_eq
-?:: (<{1, 3, 4}> {2, 6, 8} @sequ.merge) Vector @test.assert_eq
+?:: ({1, 3} {4, 2, 6, 8} @sequ.merge) Array @test.assert_eq
+?:: (<{1, 3, 4, 2}> {6, 8} @sequ.merge) Vector @test.assert_eq
 ?:: ({1, 3, 4} <{2, 6, 8}> @sequ.merge) Vector @test.assert_eq
 ?:: (<{1, 3, 4}> <{2, 6, 8}> @sequ.merge) Vector @test.assert_eq
 

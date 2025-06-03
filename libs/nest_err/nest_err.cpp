@@ -134,14 +134,11 @@ Nst_Obj *NstC try_(usize arg_num, Nst_Obj **args)
 
     if (func_args_len > (i64)func_arg_num) {
         Nst_error_set_call(
-            _Nst_WRONG_ARG_NUM(func_arg_num, func_args_len));
+            _Nst_WRONG_ARG_NUM(func_arg_num, (usize)func_args_len));
         return nullptr;
     }
 
-    Nst_Obj *result = Nst_func_call(
-        func,
-        func_args_len,
-        objs);
+    Nst_Obj *result = Nst_func_call(func, (usize)func_args_len, objs);
 
     if (result != nullptr)
         return success(result);

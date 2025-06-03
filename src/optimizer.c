@@ -664,7 +664,7 @@ static bool has_jumps_to(Nst_InstList *ls, i64 idx, i64 avoid_start,
             no_op_count++;
             continue;
         }
-        Nst_Inst *inst = Nst_ilist_get_inst(ls, i);
+        Nst_Inst *inst = Nst_ilist_get_inst(ls, (usize)i);
         if (inst->code == Nst_IC_NO_OP)
             no_op_count++;
         else
@@ -675,7 +675,7 @@ static bool has_jumps_to(Nst_InstList *ls, i64 idx, i64 avoid_start,
         if (i >= avoid_start && i <= avoid_end)
             continue;
 
-        Nst_Inst *inst = Nst_ilist_get_inst(ls, i);
+        Nst_Inst *inst = Nst_ilist_get_inst(ls, (usize)i);
         if (!Nst_ic_is_jump(inst->code))
             continue;
         if (inst->val >= idx - no_op_count && inst->val <= idx)

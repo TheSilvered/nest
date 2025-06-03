@@ -33,6 +33,8 @@
 - fixed an infinite loop occurring when escaping a non-ASCII character in the source code
 - fixed `su.lsplit` and `su.rsplit` that would ignore separators at the end and at the beginning respectively
 - fixed file arguments (ex. `--$ --no-default`) not working
+- now multiplying a `Vector` by a negative number results in an error
+- fixed `sequ.merge` not working with sequences of different lenghts
 
 ### C API
 

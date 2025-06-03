@@ -301,7 +301,10 @@ static bool compile_s_while_lp(Nst_Node *node)
     i64 exit_idx = CURR_LEN;
     get_inst(jumpif_f_exit)->val = exit_idx;
 
-    replace_placeholder_jumps(start, end, loop_id, cond_idx, exit_idx);
+    replace_placeholder_jumps(
+        (usize)start,
+        (usize)end,
+        loop_id, cond_idx, exit_idx);
 
     return true;
 }
@@ -332,7 +335,10 @@ static bool compile_dowhile_lp(Nst_Node *node)
 
     i64 break_idx = CURR_LEN;
 
-    replace_placeholder_jumps(start, end, loop_id, end, break_idx);
+    replace_placeholder_jumps(
+        (usize)start,
+        (usize)end,
+        loop_id, end, break_idx);
     return true;
 }
 
@@ -382,7 +388,10 @@ static bool compile_s_for_lp(Nst_Node *node)
     if (!add_inst(Nst_IC_POP_VAL, node->span))
         return false;
 
-    replace_placeholder_jumps(start, end, loop_id, end, exit_idx);
+    replace_placeholder_jumps(
+        (usize)start,
+        (usize)end,
+        loop_id, end, exit_idx);
 
     return true;
 }
@@ -438,7 +447,9 @@ static bool compile_s_for_as_lp(Nst_Node *node)
     if (!add_inst(Nst_IC_POP_VAL, node->span))
         return false;
 
-    replace_placeholder_jumps(start, end, loop_id, cond_idx, exit_idx);
+    replace_placeholder_jumps(
+        (usize)start,
+        (usize)end, loop_id, cond_idx, exit_idx);
     return true;
 }
 
@@ -1162,7 +1173,7 @@ static bool compile_s_switch(Nst_Node *node)
 
     usize prev_start = 0;
     usize prev_end = 0;
-    usize loop_id = c_state.loop_id;
+    i64 loop_id = c_state.loop_id;
 
     for (usize i = 0, n = node->v.s_switch.values.len; i < n; i++) {
         Nst_Node *value = GET_NODE(&node->v.s_switch.values, i);
