@@ -12,11 +12,11 @@
 /* The major version of Nest. */
 #define Nst_VERSION_MAJOR 0
 /* The minor version of Nest. */
-#define Nst_VERSION_MINOR 15
+#define Nst_VERSION_MINOR 16
 /* The patch version of Nest. */
-#define Nst_VERSION_PATCH 1
+#define Nst_VERSION_PATCH 0
 
-#define _Nst_VERSION_BASE "beta-0.15.1"
+#define _Nst_VERSION_BASE "beta-0.16.0"
 
 #include "typedefs.h"
 

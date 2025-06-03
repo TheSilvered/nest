@@ -121,7 +121,7 @@ Nst_ExecutionKind Nst_prog_init(Nst_Program *prog, Nst_CLArgs args)
     prog->main_func = main_func;
 
     prog->argv = make_argv(
-        args.argc, args.argv,
+        args.argc - args.args_start, args.argv + args.args_start,
         args.filename != NULL ? args.filename : "-c");
     if (prog->argv == NULL) {
         Nst_prog_destroy(prog);
